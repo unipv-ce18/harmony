@@ -1,0 +1,59 @@
+{
+  "name": "harmony-fe",
+  "version": "0.1.0",
+  "description": "Harmony frontend web application",
+  "private": true,
+  "scripts": {
+    "watch": "webpack --watch",
+    "start": "webpack-dev-server --open --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unipv-ce18/harmony.git",
+    "directory": "webapp"
+  },
+  "author": "Disposable Koalas",
+  "contributors": [
+    "Giulia F.",
+    "Andrea R.",
+    "Samuel S.",
+    "Luca T.",
+    "Luca Zanussi <git@luca.zanus.si>",
+    "Rasha Z."
+  ],
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-syntax-jsx": "^7.2.0",
+    "@babel/plugin-transform-property-mutators": "^7.2.0",
+    "@babel/plugin-transform-react-jsx": "^7.3.0",
+    "@babel/preset-env": "^7.6.3",
+    "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^3.2.0",
+    "file-loader": "^4.2.0",
+    "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.8.0",
+    "node-sass": "^4.12.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "postcss-loader": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
+    "preact": "^10.0.1",
+    "sass-loader": "^8.0.0",
+    "shaka-player": "^2.5.5",
+    "style-loader": "^1.0.0",
+    "terser-webpack-plugin": "^2.2.1",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.2",
+    "webpack-merge": "^4.2.2"
+  },
+  "browserslist": [
+    "> 0.5%",
+    "last 2 versions",
+    "Firefox ESR",
+    "not dead"
+  ]
+}
