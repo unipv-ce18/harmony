@@ -29,7 +29,7 @@ module.exports = {
               '@babel/plugin-syntax-jsx',
               "@babel/plugin-transform-property-mutators",
               ["@babel/plugin-proposal-class-properties", {"loose": true}],
-              ['@babel/plugin-transform-react-jsx', {'pragma': 'h', 'pragmaFrag': 'Fragment'}]
+              ['@babel/plugin-transform-react-jsx', {'pragma': '__h', 'pragmaFrag': 'Fragment'}]
             ]
           }
         }
@@ -41,6 +41,9 @@ module.exports = {
     new CleanWebpackPlugin(),
     new webpack.DefinePlugin({
       APP_NAME: JSON.stringify(APPLICATION_NAME)
+    }),
+    new webpack.ProvidePlugin({
+      __h: ['preact', 'h']
     }),
     new HtmlPlugin({
       title: APPLICATION_NAME,
