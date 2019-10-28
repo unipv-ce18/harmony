@@ -1,0 +1,13 @@
+# Project specific
+/resources/config.json
+
+# Python generic
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env/
+.venv/
+env/
+venv/
