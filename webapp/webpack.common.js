@@ -28,6 +28,7 @@ module.exports = {
             plugins: [
               '@babel/plugin-syntax-jsx',
               "@babel/plugin-transform-property-mutators",
+              ["@babel/plugin-proposal-private-methods", {"loose": true}],
               ["@babel/plugin-proposal-class-properties", {"loose": true}],
               ['@babel/plugin-transform-react-jsx', {'pragma': '__h', 'pragmaFrag': 'Fragment'}]
             ]

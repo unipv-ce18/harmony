@@ -32,6 +32,9 @@ module.exports = merge(require('./webpack.common'), {
   },
 
   plugins: [
+    new webpack.DefinePlugin({
+      API_BASE_URL: JSON.stringify('http://localhost:5000/api/v1')
+    }),
     new webpack.HotModuleReplacementPlugin()
   ]
 
