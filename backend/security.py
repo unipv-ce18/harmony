@@ -33,8 +33,10 @@ def encode_token(user_id):
 def decode_token(token):
     try:
         payload = jwt.decode(token, utils.config["secret_key"])
-        return payload['sub']
+        return payload
     except jwt.ExpiredSignatureError:
-        return "token expired"
+        # token expired
+        return False
     except jwt.InvalidTokenError:
-        return "invalid token"
+        # invalid token
+        return True
