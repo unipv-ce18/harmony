@@ -44,6 +44,7 @@ module.exports = {
     }),
     new HtmlPlugin({
       title: APPLICATION_NAME,
+      template: "./src/index.html",
       minify: {
         caseSensitive: true,
         collapseWhitespace: true,
