@@ -11,6 +11,7 @@ artists = harmony['artists']
 albums = harmony['albums']
 songs = harmony['songs']
 users = harmony['users']
+blacklist = harmony['blacklist']
 
 
 def add_artist(a):
