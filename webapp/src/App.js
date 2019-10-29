@@ -1,17 +1,15 @@
-import {h, Component } from 'preact';
-import styles from './App.css';
-import Logo from "./login/Logo";
-import Login from "./login/Login";
+import {h, Component} from 'preact';
+
+import LoginPage from "./login/LoginPage";
+
+import "./App.scss"
 
 class App extends Component {
-    render() {
-        return (
-            <div class={styles.App}>
-                <Logo />,
-                <Login />
-            </div>
-        );
-    }
+  render() {
+    return (
+      <LoginPage/>
+    );
+  }
 }
 
 export default App;
