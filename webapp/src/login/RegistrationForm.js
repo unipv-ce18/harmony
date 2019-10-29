@@ -15,7 +15,6 @@ class RegistrationForm extends Component {
           <button type="submit">Signup</button>
           <p className={styles.regisLink}>Already registered? <a href="#">LOG IN</a> now</p>
         </form>
-        <p class={styles.loginFooter}>The Onion Foundation<br/>Free and Open Source Software</p>
       </div>
     );
   }

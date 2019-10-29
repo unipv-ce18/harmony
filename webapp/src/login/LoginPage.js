@@ -12,7 +12,10 @@ class LoginPage extends Component {
       <div className={styles.loginPage}>
         <img className={styles.logoDiv} src={logoImage} alt=""/>
         {registration ? <RegistrationForm/> : <LoginForm/>}
-        <LoginForm/>
+        <div className={styles.loginFooter}>
+          <p>The Onion Foundation</p>
+          <p>Free and Open Source Software</p>
+        </div>
       </div>
     );
   }
