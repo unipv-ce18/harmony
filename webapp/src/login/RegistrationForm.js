@@ -1,21 +1,21 @@
 import {h, Component} from 'preact';
 
-import styles from './LoginPage.scss';
+import styles from './LoginForm.scss';
 
 class RegistrationForm extends Component {
   render() {
     return (
-      <div>
-        <form class={styles.loginForm}>
-          <input type="text" placeholder="Email" name="uemail" required/>
+      <form className={styles.loginForm}>
+        <div>
           <input type="text" placeholder="Username" name="uname" required/>
-          <input type="password" placeholder="Password" name="upsw1" required/>
-          <input type="password" placeholder="Repeat Password" name="upsw2" required/>
-          <hr/>
-          <button type="submit">Signup</button>
-          <p className={styles.regisLink}>Already registered? <a href="#">LOG IN</a> now</p>
-        </form>
-      </div>
+          <input type="password" placeholder="Password" name="psw" required/>
+        </div>
+        <div>
+          <label className={styles.rememberMe}><input type="checkbox" name="remember"/>Remember me</label>
+          <button type="submit">Login</button>
+        </div>
+        <p className={styles.regisLink}>Not yet registered? <a href="#">SIGN UP</a> now</p>
+      </form>
     );
   }
 }

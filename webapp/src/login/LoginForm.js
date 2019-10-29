@@ -5,7 +5,7 @@ import styles from './LoginForm.scss';
 class LoginForm extends Component {
   render() {
     return (
-      <form class={styles.loginForm}>
+      <form className={styles.loginForm}>
         <div>
           <input type="text" placeholder="Username" name="uname" required/>
           <input type="password" placeholder="Password" name="psw" required/>

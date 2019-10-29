@@ -17,9 +17,10 @@
     padding: 3px 20px;
     margin: 5px 0 5px 0;
     display: inline-block;
-    border: 1px solid #ccc;
+    border: 1px;
     box-sizing: border-box;
-    background-color: rgb(0, 0, 0, .3);
+    background-color: rgba(0, 0, 0, .3);
+    color: #ddd;
   }
 
   hr {
