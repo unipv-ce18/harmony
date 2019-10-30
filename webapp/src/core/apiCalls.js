@@ -6,7 +6,7 @@ export function execLogin(username, password) {
   // TODO: Temporary dummy data to for testing
   return Promise.resolve({
     'access_token': 'a',
-    'expires_in': String(getCurrentTime() + 10),
+    'expires_in': String(10),
     'token_type': 'bearer'});
 
   /*

@@ -90,7 +90,7 @@ export class Session {
     return execLogin(username, password)
       .then(data => {
         const token = data['access_token'];
-        const expiration = parseInt(data['expires_in']);
+        const expiration = getCurrentTime() + parseInt(data['expires_in']);
         if (data['token_type'] !== 'bearer' || token == null || isNaN(expiration))
           throw Error('Invalid server response');
         this.#store = {token, expiration};
@@ -101,6 +101,8 @@ export class Session {
    * Performs a logout and erases the saved session storage
    */
   doLogout() {
+    if (!this.loggedIn) return;
+
     if (this.valid) {
       // TODO: actually log out on the server
     }
