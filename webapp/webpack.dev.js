@@ -28,7 +28,8 @@ module.exports = merge(require('./webpack.common'), {
 
   devServer: {
     contentBase: false,
-    hot: true
+    hot: true,
+    historyApiFallback: true
   },
 
   plugins: [
