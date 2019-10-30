@@ -1,8 +1,8 @@
 import {Component} from 'preact';
 
-import LoginPage from './login/LoginPage';
+import LoginPage from './pages/login/LoginPage';
 
-import './App.scss'
+import './App.scss';
 
 class App extends Component {
   render() {

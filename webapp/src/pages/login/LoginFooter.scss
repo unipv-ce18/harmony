@@ -1,0 +1,28 @@
+.loginFooter {
+  position: fixed;
+  bottom: 2%;
+  left: 50%;
+  width: 100%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-align: center;
+  font-size: 12px;
+
+  p {
+    margin: 3px;
+  }
+
+  em {
+    font-style: normal;
+
+    &:before, &:after {
+      content: '"';
+    }
+  }
+
+  transition: opacity .5s;
+
+  @media (max-height: 350px) {
+    opacity: 0;
+  }
+}

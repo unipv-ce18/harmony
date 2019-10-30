@@ -1,4 +1,4 @@
-@import "./styledefs";
+@import './styledefs';
 
 :global {
   body {
@@ -11,6 +11,10 @@
   }
 
   code {
-    font-family: $font-stack-mono
+    font-family: $font-stack-mono;
+  }
+
+  a {
+    color: #00ffe0;
   }
 }
