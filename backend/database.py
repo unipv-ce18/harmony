@@ -75,24 +75,36 @@ def add_users(u):
 
 
 def search_artist(artist):
-    query = {"name": {"$regex": artist, "$options": "-i"}}
+    query = {"name": {"$regex": f'^{artist}', "$options": "-i"}}
     result = artists.find(query)
     return [res for res in result]
 
 
 def search_album(album):
-    query = {"name": {"$regex": album, "$options": "-i"}}
+    query = {"name": {"$regex": f'^{album}', "$options": "-i"}}
     result = albums.find(query)
     return [res for res in result]
 
 
 def search_song(song):
-    query = {"title": {"$regex": song, "$options": "-i"}}
+    query = {"title": {"$regex": f'^{song}', "$options": "-i"}}
     result = songs.find(query)
     return [res for res in result]
 
 
 def search_user(user):
-    query = {"username": {"$regex": user, "$options": "-i"}}
+    query = {"username": user}
     result = users.find(query)
+    return [res for res in result]
+
+
+def get_artist_albums(artist):
+    query = {"artist": artist}
+    result = albums.find(query, {"_id": 0})
+    return [res for res in result]
+
+
+def get_album_song(artist, album):
+    query = {"artist": artist, "album": album}
+    result = songs.find(query, {"_id": 0})
     return [res for res in result]

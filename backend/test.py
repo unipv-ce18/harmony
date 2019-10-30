@@ -1,7 +1,6 @@
 from database import *
-from database import add_artists
-import json
-
+import json, datetime
+import security
 
 def read_json(path):
     with open(path, 'r') as f:
@@ -22,4 +21,6 @@ add_albums(albums_list)
 add_songs(songs_list)
 add_users(users_list)
 
-print(search_artist('queens of the stone age'))
+print(search_artist('queens'))
+print(get_artist_albums('Queens of the Stone Age'))
+print(get_album_song('Queens of the Stone Age', 'Queens of the Stone Age'))
