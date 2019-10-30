@@ -1,9 +1,9 @@
 import pymongo
 import utils
 
-client = pymongo.MongoClient(utils.config['database']['url'],
-                             username='',
-                             password='')
+client = pymongo.MongoClient(utils.config['database']['uri'],
+                             username=utils.config['database']['username'],
+                             password=utils.config['database']['password'])
 
 harmony = client[utils.config['database']['name']]
 
