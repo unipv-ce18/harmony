@@ -5,8 +5,9 @@ import Redirect from './components/Redirect';
 import Navbar from './components/Navbar';
 import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
+import MediaPlayerWrapper from './player/components/MediaPlayerWrapper';
 
-import {session} from './Harmony';
+import {session, mediaPlayer} from './Harmony';
 import styles from './App.scss';
 
 class App extends Component {
@@ -36,6 +37,7 @@ class App extends Component {
       <Fragment>
         <Navbar/>
         <div class={styles.content}>{router}</div>
+        {session.loggedIn && <MediaPlayerWrapper playerLoader={mediaPlayer}/>}
       </Fragment>
     );
   }
