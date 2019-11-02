@@ -1,5 +1,6 @@
 import {AdaptivePlayerSource} from './delivery/AdaptivePlayerSource';
 import {StreamDecrypter} from './StreamDecrypter';
+import PlayStates from './PlayStates';
 
 /**
  * Holds and swaps HTML Media tags (or anything given) for pseudo-gapless playback support
@@ -29,14 +30,16 @@ class ABTags {
 
 }
 
-const PlayStates = Object.freeze({
-  DETACHED: 0,
-  STOPPED: 1,
-  PAUSED: 2,
-  PLAYING: 3
-});
+const MEDIA_ELEMENT_WATCHED_EVENTS = [
+  'play',       // Playback starts
+  'ended',      // Playback stops at end of media
+  'pause',      // A request to pause the media is made
+  'timeupdate', // The time indicated by currentTime has changed
+  'playing',    // Playback starts after pause or lack of data
+  'waiting'     // Playback stopped due to a temporary lack of data
+];
 
-export class PlaybackEngine {
+export class PlaybackEngine extends EventTarget {
 
   /** @type {string} */
   #_currentItemId = undefined;
@@ -63,9 +66,6 @@ export class PlaybackEngine {
   /** @type {StreamDecrypter} */
   #emeDecrypter = null;
 
-  /** @type {function} */
-  statusListener = null;
-
   #_playbackState = PlayStates.DETACHED;
 
   get playbackState() {
@@ -79,6 +79,7 @@ export class PlaybackEngine {
   }
 
   constructor(mediaProvider) {
+    super();
     this.#mediaProvider = mediaProvider;
     this.#emeDecrypter = new StreamDecrypter(mediaProvider);
   }
@@ -88,7 +89,7 @@ export class PlaybackEngine {
       throw Error('Tags need to be instance of HTMLMediaElement');
 
     const listener = this.#mediaElementListener.bind(this);
-    for (let evt of ['play', 'ended', 'pause', 'timeupdate']) {
+    for (let evt of MEDIA_ELEMENT_WATCHED_EVENTS) {
       aTag.addEventListener(evt, listener);
       bTag.addEventListener(evt, listener)
     }
@@ -99,7 +100,7 @@ export class PlaybackEngine {
     this.#playbackState = PlayStates.STOPPED;
   }
 
-  play(mediaItemId = null, seekTime = 0) {
+  play(mediaItemId = null, seekTime = -1) {
     this.#checkNotDetached();
     const mediaElement = this.#htmlMediaTags.current;
 
@@ -111,18 +112,28 @@ export class PlaybackEngine {
     // If a track was specified let's switch to the new one
     if (mediaItemId !== null) {
       const source = new AdaptivePlayerSource(this.#mediaProvider, mediaItemId)
-        .onError(err => this.stop());
+        .onError(err => this.#playbackState = PlayStates.ERRORED);
       mediaElement.src = source.sourceURL;
+      this.#currentItemId = mediaItemId;
     }
 
-    // Let's play the thing
-    this.#currentItemId = mediaItemId;
-    if (seekTime > 0) mediaElement.currentTime = seekTime;
-    mediaElement.play();
-    this.#playbackState = PlayStates.PLAYING;
+    if (this.currentItemId) {
+      // Let's play the thing
+      if (seekTime >= 0) mediaElement.currentTime = seekTime;
+      mediaElement.play();
+      this.#playbackState = PlayStates.BUFFERING;
+    } else {
+      console.warn('No media to play');
+    }
+  }
+
+  seek(seekTime) {
+    this.#htmlMediaTags.current.currentTime = seekTime;
   }
 
   pause() {
+    if (this.playbackState !== PlayStates.PLAYING) return;
+
     this.#checkNotDetached();
     this.#htmlMediaTags.current.pause();
     this.#playbackState = PlayStates.PAUSED;
@@ -130,23 +141,37 @@ export class PlaybackEngine {
 
   stop() {
     this.#checkNotDetached();
-    this.#htmlMediaTags.current.removeAttribute('src');
+    this.#htmlMediaTags.current.pause();
+    this.#htmlMediaTags.current.currentTime = 0;
     this.#playbackState = PlayStates.STOPPED;
   }
 
   #mediaElementListener(event) {
-    //console.log('MediaElementListener', this, event);
-    // TODO magic
+    switch (event.type) {
+      case 'playing':
+        if (this.playbackState === PlayStates.BUFFERING) this.#playbackState = PlayStates.PLAYING;
+        break;
+      case 'waiting':
+        this.#playbackState = PlayStates.BUFFERING;
+        break;
+      case 'timeupdate':
+        // TODO: start prefetching next media
+        this.dispatchEvent(new CustomEvent('timeupdate', {
+          detail: {
+            cur: this.#htmlMediaTags.current.currentTime,
+            end: this.#htmlMediaTags.current.duration
+          }
+        }));
+    }
   }
 
   #notifyMediaChange() {
     console.log('New media', this.currentItemId);
-    if (this.statusListener) this.statusListener({status: 'mediaChange'});
+    this.dispatchEvent(new CustomEvent('newmedia'))
   }
 
   #notifyStateChange() {
-    console.log('New playback state', this.playbackState);
-    if (this.statusListener) this.statusListener({status: 'stateChange', newState: this.playbackState});
+    this.dispatchEvent(new CustomEvent('statechange', {detail: {newState: this.playbackState}}));
   }
 
   #checkNotDetached() {

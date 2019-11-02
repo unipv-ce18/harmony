@@ -1,7 +1,7 @@
 import {Component} from 'preact';
 
 import {session, mediaPlayer} from '../../Harmony';
-import {MediaItemInfo} from "../../player/MediaPlayer";
+import {MediaItemInfo, PlayStartModes} from "../../player/MediaPlayer";
 
 class HomePage extends Component {
   render(props, state, context) {
@@ -9,7 +9,8 @@ class HomePage extends Component {
     return (
       <div>
         <button onClick={() => session.doLogout()}>Logout</button>
-        <button onClick={() => mediaPlayer.play(new MediaItemInfo('dummy', null))}>Include shit & play</button>
+        <button onClick={() => mediaPlayer.play(new MediaItemInfo('dummy', null), PlayStartModes.APPEND_PLAYLIST)}>Include shit</button>
+        <button onClick={() => mediaPlayer.play(new MediaItemInfo('dummy', null), PlayStartModes.APPEND_PLAYLIST_AND_PLAY)}>Include shit & play</button>
       </div>
     );
   }
