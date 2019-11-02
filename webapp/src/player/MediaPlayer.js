@@ -67,17 +67,17 @@ export class MediaPlayer {
       return Promise.resolve(this.#_instance);
 
     // This promise resolves when the player core is loaded and initialized (i.e. bound to the DOM)
-    return new Promise(resolvePlayerReady => {
-      import(/* webpackChunkName: "player" */ './MediaPlayerCore').then(m => {
+    return import(/* webpackChunkName: "player" */ './MediaPlayerCore')
+      .then(m => (this.#_instance = new m.default()))
+      .then(playerInstance => {
         if (!this.loadListener)
           throw Error('Cannot initialize player, no load listener defined');
 
-        // We have the player, call the load listener (to spin up the UI) and let this resolve afterwards
-        const playerInstance = new m.default();
-        this.loadListener()
-          .then(({aTag, bTag}) => playerInstance.initialize(aTag, bTag))
-          .then(() => resolvePlayerReady(playerInstance));
+        // We have the player, call the load listener which generates a future to spin up the UI
+        return this.loadListener().then(({aTag, bTag}) => {
+          playerInstance.playbackEngine.attachDOM(aTag, bTag);
+          return playerInstance;
+        });
       });
-    }).then(inst => this.#_instance = inst);
   }
 }

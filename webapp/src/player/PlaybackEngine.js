@@ -1,8 +1,9 @@
+import {AdaptivePlayerSource} from './delivery/AdaptivePlayerSource';
+import {StreamDecrypter} from './StreamDecrypter';
+
 /**
  * Holds and swaps HTML Media tags (or anything given) for pseudo-gapless playback support
  */
-import {StreamDecrypter} from './StreamDecrypter';
-
 class ABTags {
 
   aTag;
@@ -47,6 +48,7 @@ export class PlaybackEngine {
   set #currentItemId(value) {
     this.#_currentItemId = value;
     this.#emeDecrypter.currentItemId = value;
+    this.#notifyMediaChange();
   }
 
   /** @type {string} */
@@ -106,42 +108,18 @@ export class PlaybackEngine {
 
     // We can optimize if new media == next media hint, but gapless playback may sound weird while doing this
 
-    // Set up a callback to play the thing
-    const playOnReady = () => {
-      if (seekTime > 0) mediaElement.currentTime = seekTime;
-      mediaElement.play();
-      this.#playbackState = PlayStates.PLAYING;
-    };
-
-    // If no track was specified play the current one
-    if (mediaItemId === null) {
-      playOnReady();
-      return;
+    // If a track was specified let's switch to the new one
+    if (mediaItemId !== null) {
+      const source = new AdaptivePlayerSource(this.#mediaProvider, mediaItemId)
+        .onError(err => this.stop());
+      mediaElement.src = source.sourceURL;
     }
 
-    // Else switch to the new track and only then play
-    this.#mediaProvider.fetchMedia(mediaItemId).then(mediaRes => {
-      const url = mediaRes.streams[0].variants[0].urls[0];
-
-      const mediaSource = new MediaSource();
-      mediaElement.src = URL.createObjectURL(mediaSource);
-      mediaSource.addEventListener('sourceopen', e => {
-        URL.revokeObjectURL(mediaElement.src);
-        const mime = 'audio/webm; codecs="vorbis"';
-        const mediaSource = e.target;
-
-        const sourceBuffer = mediaSource.addSourceBuffer(mime);
-        sourceBuffer.addEventListener('updateend', e => {
-          if (!sourceBuffer.updating && mediaSource.readyState === 'open') mediaSource.endOfStream();
-        });
-
-        fetch(url)
-          .then(response => response.arrayBuffer())
-          .then(buffer => sourceBuffer.appendBuffer(buffer));
-      });
-
-      this.#currentItemId = mediaItemId;
-    }).then(playOnReady);
+    // Let's play the thing
+    this.#currentItemId = mediaItemId;
+    if (seekTime > 0) mediaElement.currentTime = seekTime;
+    mediaElement.play();
+    this.#playbackState = PlayStates.PLAYING;
   }
 
   pause() {
@@ -152,19 +130,22 @@ export class PlaybackEngine {
 
   stop() {
     this.#checkNotDetached();
-    this.#htmlMediaTags.current.src = null;
+    this.#htmlMediaTags.current.removeAttribute('src');
     this.#playbackState = PlayStates.STOPPED;
   }
 
   #mediaElementListener(event) {
+    //console.log('MediaElementListener', this, event);
     // TODO magic
   }
 
   #notifyMediaChange() {
+    console.log('New media', this.currentItemId);
     if (this.statusListener) this.statusListener({status: 'mediaChange'});
   }
 
   #notifyStateChange() {
+    console.log('New playback state', this.playbackState);
     if (this.statusListener) this.statusListener({status: 'stateChange', newState: this.playbackState});
   }
 

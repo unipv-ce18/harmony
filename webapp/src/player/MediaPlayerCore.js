@@ -33,10 +33,6 @@ class MediaPlayerCore {
     }
   }
 
-  initialize(aTag, bTag) {
-    this.playbackEngine.attachDOM(aTag, bTag);
-  }
-
 }
 
 export default MediaPlayerCore;
