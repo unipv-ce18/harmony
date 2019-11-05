@@ -5,6 +5,17 @@ const webpack = require('webpack');
 
 const APPLICATION_NAME = 'Harmony';
 
+const babelOpts = {
+  presets: ['@babel/preset-env'],
+  plugins: [
+    '@babel/plugin-syntax-jsx',
+    "@babel/plugin-transform-property-mutators",
+    ["@babel/plugin-proposal-private-methods", {"loose": true}],
+    ["@babel/plugin-proposal-class-properties", {"loose": true}],
+    ['@babel/plugin-transform-react-jsx', {'pragma': '__h', 'pragmaFrag': 'Fragment'}]
+  ]
+};
+
 module.exports = {
 
   entry: './src/main.js',
@@ -19,23 +30,29 @@ module.exports = {
         }
       },
       {
+        test: /\.ts(x?)$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: babelOpts
+          },
+          'ts-loader'
+        ]
+      },
+      {
         test: /\.m?js$/,
         //exclude: /(node_modules|bower_components)/,
         use: {
           loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],
-            plugins: [
-              '@babel/plugin-syntax-jsx',
-              "@babel/plugin-transform-property-mutators",
-              ["@babel/plugin-proposal-private-methods", {"loose": true}],
-              ["@babel/plugin-proposal-class-properties", {"loose": true}],
-              ['@babel/plugin-transform-react-jsx', {'pragma': '__h', 'pragmaFrag': 'Fragment'}]
-            ]
-          }
+          options: babelOpts
         }
       }
     ]
+  },
+
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
   },
 
   plugins: [
