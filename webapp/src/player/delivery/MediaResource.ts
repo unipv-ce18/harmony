@@ -1,22 +1,21 @@
-type MediaResourceSegment = { t: number, d: number, u: string };
+export type MediaResourceSegment = { t: number, d: number, u: string };
 
 export class MediaResource {
 
-    constructor(
-        public readonly id: string,
-        public readonly category: string = 'music',
-        public readonly streams: Array<MediaResourceStream> = []) {
+    constructor(public readonly id: string,
+                public readonly category: string,
+                public readonly duration?: number,
+                public readonly streams: Array<MediaResourceStream> = []) {
     }
 
 }
 
 export class MediaResourceStream {
 
-    constructor(
-        public readonly id: number,
-        public readonly type: string = 'audio',
-        public readonly variants: Array<MediaResourceVariant> = []
-    ) {
+    constructor(public readonly id: number,
+                public readonly contentType: string,
+                public readonly codec: string,
+                public readonly variants: Array<MediaResourceVariant> = []) {
     }
 
 }
@@ -32,12 +31,8 @@ export class MediaResourceVariant {
     public initSegment?: string;
     public segments?: Array<MediaResourceSegment>;
 
-    constructor(
-        public readonly bitrate: number,
-        public readonly codec?: string,
-        public readonly sampleRate?: number,
-        public readonly duration?: number
-    ) {
+    constructor(public readonly bitrate: number,
+                public readonly sampleRate?: number) {
     }
 
     updateProgress(progress: number) {
