@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from flask_pymongo import PyMongo
-import utils
 import security
+from database import Queries
 
 app = Flask(__name__)
 
@@ -14,11 +14,11 @@ api = Api(app, prefix="/api/v1")
 jwt = security.JWTManager(app)
 mongo = PyMongo(app)
 authparser = reqparse.RequestParser()
+query = Queries(mongo.db)
 
 
 class HelloWorld(Resource):
     def get(self):
-        # default 200 OK
         return {"hello": "world"}
 
 
@@ -31,7 +31,12 @@ class AuthRegister(Resource):
     # todo: if user credentials are correct, generate a jwt token
     def post(self):
         data = authparser.parse_args()
-        return {"to": "do"}
+        username = data["username"]
+        data["password"] = security.hash_password(data["password"])
+        if query.search_user(username) is None:
+            return 200 if query.add_user(data) else 401
+        else:
+            return {"error": "user already exists"}, 401
 
 
 class AuthLogin(Resource):
@@ -50,6 +55,7 @@ class AuthLogout(Resource):
 # request parsers that automatically refuse requests without specified fields
 authparser.add_argument('username', help="This field cannot be blank", required=True)
 authparser.add_argument('password', help='This field cannot be blank', required=True)
+authparser.add_argument('email', help='This field cannot be blank', required=False)
 # route API methods to their specific addresses (remember the prefix!)
 api.add_resource(HelloWorld, "/")
 api.add_resource(UserInfo, "/users")

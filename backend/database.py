@@ -1,98 +1,64 @@
-import pymongo
-import utils
+class Queries:
+    def __init__(self, database):
+        self.db = database
+        self.db.artists = database['artists']
+        self.db.albums = database['albums']
+        self.db.songs = database['songs']
+        self.db.users = database['users']
+        self.db.blacklist = database['blacklist']
 
-client = pymongo.MongoClient(utils.config['database']['uri'],
-                             username=utils.config['database']['username'],
-                             password=utils.config['database']['password'])
+    def add_artist(self, a):
+        for artist in self.db.artists.find():
+            if artist['name'].lower() == a['name'].lower():
+                return
+        self.db.artists.insert_one(a)
 
-harmony = client[utils.config['database']['name']]
+    def add_album(self, a):
+        for album in self.db.albums.find():
+            if album['name'].lower() == a['name'].lower() and album['artist'].lower() == a['artist'].lower():
+                return
+        self.db.albums.insert_one(a)
 
-artists = harmony['artists']
-albums = harmony['albums']
-songs = harmony['songs']
-users = harmony['users']
-blacklist = harmony['blacklist']
+    def add_albums(self, a):
+        if self.db.albums.count() != 0:
+            for i in range(len(a)):
+                self.add_album(a[i])
+        else:
+            self.db.albums.insert_many(a)
 
+    def add_song(self, s):
+        for song in self.db.songs.find():
+            if song['title'].lower() == s['title'].lower() and song['album'].lower() == s['album'].lower():
+                return
+        self.db.songs.insert_one(s)
 
-def add_artist(a):
-    for artist in artists.find():
-        if artist['name'].lower() == a['name'].lower():
-            return
-    artists.insert_one(a)
+    def add_songs(self, s):
+        if self.db.songs.count() != 0:
+            for i in range(len(s)):
+                self.add_song(s[i])
+        else:
+            self.db.songs.insert_many(s)
 
+    def add_user(self, user):
+        res = self.db.users.find_one({"username": {"$regex": user["username"], "$options": "-i"}})
+        return self.db.users.insert_one(user) if res is None else False
 
-def add_artists(a):
-    if artists.count() != 0:
-        for i in range(len(a)):
-            add_artist(a[i])
-    else:
-        artists.insert_many(a)
+    def search_artist(self, artist):
+        query = {"name": {"$regex": artist, "$options": "-i"}}
+        result = self.db.artists.find_one(query)
+        return result
 
+    def search_album(self, album):
+        query = {"name": {"$regex": album, "$options": "-i"}}
+        result = self.db.albums.find_one(query)
+        return result
 
-def add_album(a):
-    for album in albums.find():
-        if album['name'].lower() == a['name'].lower() and album['artist'].lower() == a['artist'].lower():
-            return
-    albums.insert_one(a)
+    def search_song(self, song):
+        query = {"title": {"$regex": song, "$options": "-i"}}
+        result = self.db.songs.find_one(query)
+        return result
 
-
-def add_albums(a):
-    if albums.count() != 0:
-        for i in range(len(a)):
-            add_album(a[i])
-    else:
-        albums.insert_many(a)
-
-
-def add_song(s):
-    for song in songs.find():
-        if song['title'].lower() == s['title'].lower() and song['album'].lower() == s['album'].lower():
-            return
-    songs.insert_one(s)
-
-
-def add_songs(s):
-    if songs.count() != 0:
-        for i in range(len(s)):
-            add_song(s[i])
-    else:
-        songs.insert_many(s)
-
-
-def add_user(u):
-    for user in users.find():
-        if user['username'].lower() == u['username'].lower() or user['email'].lower() == u['email'].lower():
-            return
-    users.insert_one(u)
-
-
-def add_users(u):
-    if users.count() != 0:
-        for i in range(len(u)):
-            add_user(u[i])
-    else:
-        users.insert_many(u)
-
-
-def search_artist(artist):
-    query = {"name": {"$regex": artist, "$options": "-i"}}
-    result = artists.find(query)
-    return [res for res in result]
-
-
-def search_album(album):
-    query = {"name": {"$regex": album, "$options": "-i"}}
-    result = albums.find(query)
-    return [res for res in result]
-
-
-def search_song(song):
-    query = {"title": {"$regex": song, "$options": "-i"}}
-    result = songs.find(query)
-    return [res for res in result]
-
-
-def search_user(user):
-    query = {"username": {"$regex": user, "$options": "-i"}}
-    result = users.find(query)
-    return [res for res in result]
+    def search_user(self, username):
+        query = {"username": {"$regex": username, "$options": "-i"}}
+        result = self.db.users.find_one(query)
+        return result
