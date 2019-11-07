@@ -84,7 +84,7 @@ export class BufferManager {
         this.triggerBufferUpdate(this.mediaElement.currentTime * 1000000);
     }
 
-    set errorHandler(value: (err: Error) => void) {
+    set errorHandler(value: ((err: Error) => void) | undefined) {
         this.bufferUpdater.errorCallback = value;
     }
 
