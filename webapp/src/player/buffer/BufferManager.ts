@@ -43,7 +43,11 @@ export class BufferManager {
      * @param sourceBuffer - The source buffer where new segments should be appended
      */
     constructor(private readonly mediaElement: HTMLMediaElement, sourceBuffer: SourceBuffer) {
-        this.mediaElement.addEventListener('timeupdate', this.onTimeUpdate.bind(this));
+        this.onMediaEvent = this.onMediaEvent.bind(this);
+        // We want to trigger continuous buffer updates during playback...
+        this.mediaElement.addEventListener('timeupdate', this.onMediaEvent);
+        // ...and when the tag is buffering on lack of data (if currentTime was changed manually)
+        this.mediaElement.addEventListener('waiting', this.onMediaEvent);
         this.bufferUpdater = new SourceBufferUpdater(sourceBuffer, this.onBufferUpdateEnd.bind(this));
     }
 
@@ -91,26 +95,28 @@ export class BufferManager {
     private findSegment(timestamp: number): number {
         const refSegments = this.variants[this._currentVariantIndex!].segments!;
 
-        if (this.currentSegment) {
+        if (this.currentSegment !== undefined) {
             // First assume the segment did not change
             if (timeInSegment(refSegments[this.currentSegment], timestamp))
                 return this.currentSegment;
 
-            // Try the next segment
-            const nextSegment = refSegments[this.currentSegment + 1];
-            if (nextSegment === undefined) // past last segment
-                return -1;
-            if (timeInSegment(nextSegment, timestamp))
+            // Try the next segment (if we are not last)
+            const notLast = this.currentSegment < refSegments.length - 1;
+            if (notLast && timeInSegment(refSegments[this.currentSegment + 1], timestamp))
                 return this.currentSegment + 1;
         }
 
-        // As a last resort, try them all (returns -1 if it fails)
+        // If time is past last skip checking and return -1
+        const lastSegment = refSegments[refSegments.length - 1];
+        if (timestamp > lastSegment.t + lastSegment.d) return -1;
+
+        // As a last resort, perform an exhaustive search (returns -1 if it fails)
         return refSegments.findIndex(s => timeInSegment(s, timestamp));
     }
 
     private triggerBufferUpdate(currentTimestamp: number) {
         const newSegment = this.findSegment(currentTimestamp);
-        console.log(TAG, 'Trigger update', {ts: currentTimestamp, seg: newSegment});
+        //console.log(TAG, 'Trigger update', {ts: currentTimestamp, seg: this.currentSegment, nxSeg: newSegment});
 
         // If we haven't changed segment (or we reached the end), do nothing and return
         if (this.currentSegment === newSegment || newSegment === -1) return;
@@ -121,7 +127,7 @@ export class BufferManager {
 
         const segSource = this.variants[this._currentVariantIndex!].segments!;
         const segMap = this.segmentMap!;
-        for (let i = newSegment; i <= Math.min(newSegment + SEGMENT_PREFETCH_COUNT, segSource.length); ++i) {
+        for (let i = newSegment; i < Math.min(newSegment + SEGMENT_PREFETCH_COUNT, segSource.length); ++i) {
             if (segMap[i] === undefined || segMap[i]! > this._currentVariantIndex!) {
                 // Add variant and segment indices so we can update the map when the buffer has been updated
                 fetchList.push({varIdx: this._currentVariantIndex, segIdx: i, ...segSource[i]});
@@ -132,11 +138,8 @@ export class BufferManager {
         fetchList.forEach(s => this.bufferUpdater.enqueue(s));
     }
 
-    private onTimeUpdate(event: {target: HTMLMediaElement}) {
-        // Do nothing if the media element is paused (or seeking)
-        if (event.target.paused) return;
-
-        this.triggerBufferUpdate(event.target.currentTime * 1000000);
+    private onMediaEvent(event: Event) {
+        this.triggerBufferUpdate((event.target as HTMLMediaElement).currentTime * 1000000);
     }
 
     private onBufferUpdateEnd(segmentData: ExtSegmentData) {
@@ -144,7 +147,7 @@ export class BufferManager {
         for (let i = 0; i < buffered.length; ++i)
             console.log(TAG, 'Buffered', `#${i} ${buffered.start(i)}:${buffered.end(i)}`);
 
-        if (segmentData.varIdx)  // Ensure not an init segment
+        if (segmentData.varIdx !== undefined)  // Ensure not an init segment
             this.segmentMap![segmentData.segIdx!] = segmentData.varIdx;
     }
 
