@@ -15,6 +15,7 @@ export class MediaLoader {
     private readonly mediaSource = new MediaSource();
 
     private bufferManager?: BufferManager;
+    private onInfoFetchCallback?: (mediaRes: MediaResource) => void;
     private errorCallback?: (err: Error) => void;
 
     constructor(private readonly mediaProvider: MediaProvider,
@@ -22,13 +23,17 @@ export class MediaLoader {
                 private mediaItemId: string) {
         const sourceURL = URL.createObjectURL(this.mediaSource);
         this.mediaSource.addEventListener('sourceopen', this.onSourceOpen.bind(this, sourceURL));
-        this.mediaElement.addEventListener('timeupdate', this.onMediaTimeUpdate.bind(this));
         this.mediaElement.src = sourceURL;
     }
 
     public onError(errorCallback: (err: Error) => void): this {
         this.errorCallback = errorCallback;
         if (this.bufferManager) this.bufferManager.errorHandler = errorCallback;
+        return this;
+    }
+
+    public onInfoFetch(onInfoFetchCallback: (mediaRes: MediaResource) => void): this {
+        this.onInfoFetchCallback = onInfoFetchCallback;
         return this;
     }
 
@@ -43,13 +48,13 @@ export class MediaLoader {
         //});
 
         this.mediaProvider.fetchMediaInfo(this.mediaItemId)
-            .then(awaitFirstVariant)
+            .then(mediaRes => {
+                this.mediaSource.duration = mediaRes.duration!;
+                if (this.onInfoFetchCallback) this.onInfoFetchCallback(mediaRes);
+                return awaitFirstVariant(mediaRes);
+            })
             .then(mediaVariant => this.bufferManager!.putVariant(0, mediaVariant))
             .catch(error => this.errorCallback && this.errorCallback(error));
-    }
-
-    private onMediaTimeUpdate(e: Event) {
-        // Needed?
     }
 
 }

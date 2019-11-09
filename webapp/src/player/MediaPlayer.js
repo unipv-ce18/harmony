@@ -49,7 +49,7 @@ export class MediaItemInfo {
 export class MediaPlayer {
 
   /** @type {function} */
-  loadListener = null;
+  playerInitializer = null;
 
   #_instance = null;
 
@@ -70,14 +70,11 @@ export class MediaPlayer {
     return import(/* webpackChunkName: "player" */ './MediaPlayerCore')
       .then(m => (this.#_instance = new m.default()))
       .then(playerInstance => {
-        if (!this.loadListener)
-          throw Error('Cannot initialize player, no load listener defined');
+        if (!this.playerInitializer)
+          throw Error('Cannot initialize player, no initializer defined');
 
         // We have the player, call the load listener which generates a future to spin up the UI
-        return this.loadListener().then(({aTag, bTag}) => {
-          playerInstance.playbackEngine.attachDOM(aTag, bTag);
-          return playerInstance;
-        });
+        return this.playerInitializer().then(() => playerInstance);
       });
   }
 }

@@ -1,5 +1,4 @@
 const PlayStates = Object.freeze({
-  DETACHED: 0,
   STOPPED: 1,
   PAUSED: 2,
   BUFFERING: 3,

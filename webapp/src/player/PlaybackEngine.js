@@ -1,34 +1,7 @@
-import {AdaptivePlayerSource} from './delivery/AdaptivePlayerSource';
+import {MediaLoader} from './delivery/MediaLoader';
 import {StreamDecrypter} from './StreamDecrypter';
 import PlayStates from './PlayStates';
-
-/**
- * Holds and swaps HTML Media tags (or anything given) for pseudo-gapless playback support
- */
-class ABTags {
-
-  aTag;
-  bTag;
-  #state = false;
-
-  constructor(aTag, bTag) {
-    this.aTag = aTag;
-    this.bTag = bTag;
-  }
-
-  flip() {
-    this.#state = !this.#state;
-  }
-
-  get current() {
-    return this.#state ? this.bTag : this.aTag;
-  }
-
-  get next() {
-    return this.#state ? this.aTag : this.bTag;
-  }
-
-}
+import PlayerEvents from './PlayerEvents';
 
 const MEDIA_ELEMENT_WATCHED_EVENTS = [
   'play',       // Playback starts
@@ -39,7 +12,10 @@ const MEDIA_ELEMENT_WATCHED_EVENTS = [
   'waiting'     // Playback stopped due to a temporary lack of data
 ];
 
-export class PlaybackEngine extends EventTarget {
+export class PlaybackEngine {
+
+  /** @type {EventTarget} */
+  #eventTarget;
 
   /** @type {string} */
   #_currentItemId = undefined;
@@ -51,22 +27,24 @@ export class PlaybackEngine extends EventTarget {
   set #currentItemId(value) {
     this.#_currentItemId = value;
     this.#emeDecrypter.currentItemId = value;
-    this.#notifyMediaChange();
   }
 
   /** @type {string} */
   #nextItemIdHint = undefined;
 
-  /** @type {ABTags} */
-  #htmlMediaTags = null;
+  /** @type {HTMLMediaElement} */
+  #mediaTag;
 
   /** @type {MediaProvider} */
-  #mediaProvider = null;
+  #mediaProvider;
+
+  /** @type {MediaLoader} */
+  #mediaLoader;
 
   /** @type {StreamDecrypter} */
   #emeDecrypter = null;
 
-  #_playbackState = PlayStates.DETACHED;
+  #_playbackState = PlayStates.STOPPED;
 
   get playbackState() {
     return this.#_playbackState;
@@ -78,32 +56,22 @@ export class PlaybackEngine extends EventTarget {
     if (changed) this.#notifyStateChange();
   }
 
-  constructor(mediaProvider) {
-    super();
+  constructor(eventTarget, mediaProvider, mediaElement) {
+    this.#eventTarget = eventTarget;
     this.#mediaProvider = mediaProvider;
-    this.#emeDecrypter = new StreamDecrypter(mediaProvider);
-  }
-
-  attachDOM(aTag, bTag) {
-    if (!(aTag instanceof HTMLMediaElement && bTag instanceof HTMLMediaElement))
+    if (!(mediaElement instanceof HTMLMediaElement))
       throw Error('Tags need to be instance of HTMLMediaElement');
 
+    // Bind listener to media element
     const listener = this.#mediaElementListener.bind(this);
-    for (let evt of MEDIA_ELEMENT_WATCHED_EVENTS) {
-      aTag.addEventListener(evt, listener);
-      bTag.addEventListener(evt, listener)
-    }
-    this.#emeDecrypter.attach(aTag);
-    this.#emeDecrypter.attach(bTag);
+    for (let evt of MEDIA_ELEMENT_WATCHED_EVENTS)
+      mediaElement.addEventListener(evt, listener);
 
-    this.#htmlMediaTags = new ABTags(aTag, bTag);
-    this.#playbackState = PlayStates.STOPPED;
+    this.#mediaTag = mediaElement;
+    this.#emeDecrypter = new StreamDecrypter(mediaProvider, mediaElement);
   }
 
   play(mediaItemId = null, seekTime = -1) {
-    this.#checkNotDetached();
-    const mediaElement = this.#htmlMediaTags.current;
-
     // Do nothing if no current item and no passed item
     if (this.currentItemId === null && mediaItemId === null) return;
 
@@ -111,16 +79,19 @@ export class PlaybackEngine extends EventTarget {
 
     // If a track was specified let's switch to the new one
     if (mediaItemId !== null) {
-      const source = new AdaptivePlayerSource(this.#mediaProvider, mediaItemId)
-        .onError(err => this.#playbackState = PlayStates.ERRORED);
-      mediaElement.src = source.sourceURL;
+      this.#mediaLoader = new MediaLoader(this.#mediaProvider, this.#mediaTag, mediaItemId)
+        .onInfoFetch(this.#notifyMediaChange.bind(this))
+        .onError(err => {
+          console.error('Error during segment fetch', err);
+          this.#playbackState = PlayStates.ERRORED
+        });
       this.#currentItemId = mediaItemId;
     }
 
     if (this.currentItemId) {
       // Let's play the thing
-      if (seekTime >= 0) mediaElement.currentTime = seekTime;
-      mediaElement.play();
+      if (seekTime >= 0) this.#mediaTag.currentTime = seekTime;
+      this.#mediaTag.play();
       this.#playbackState = PlayStates.BUFFERING;
     } else {
       console.warn('No media to play');
@@ -128,21 +99,20 @@ export class PlaybackEngine extends EventTarget {
   }
 
   seek(seekTime) {
-    this.#htmlMediaTags.current.currentTime = seekTime;
+    this.#mediaTag.currentTime = seekTime;
+    if (this.playbackState === PlayStates.PLAYING) this.#mediaTag.play();
   }
 
   pause() {
     if (this.playbackState !== PlayStates.PLAYING) return;
 
-    this.#checkNotDetached();
-    this.#htmlMediaTags.current.pause();
+    this.#mediaTag.pause();
     this.#playbackState = PlayStates.PAUSED;
   }
 
   stop() {
-    this.#checkNotDetached();
-    this.#htmlMediaTags.current.pause();
-    this.#htmlMediaTags.current.currentTime = 0;
+    this.#mediaTag.pause();
+    this.#mediaTag.currentTime = 0;
     this.#playbackState = PlayStates.STOPPED;
   }
 
@@ -155,28 +125,19 @@ export class PlaybackEngine extends EventTarget {
         this.#playbackState = PlayStates.BUFFERING;
         break;
       case 'timeupdate':
-        // TODO: start prefetching next media
-        this.dispatchEvent(new CustomEvent('timeupdate', {
-          detail: {
-            cur: this.#htmlMediaTags.current.currentTime,
-            end: this.#htmlMediaTags.current.duration
-          }
-        }));
+        this.#eventTarget.dispatchEvent(
+          new CustomEvent(PlayerEvents.TIME_UPDATE, {detail: {cur: this.#mediaTag.currentTime}}));
     }
   }
 
-  #notifyMediaChange() {
-    console.log('New media', this.currentItemId);
-    this.dispatchEvent(new CustomEvent('newmedia'))
+  #notifyMediaChange(mediaRes) {
+    this.#eventTarget.dispatchEvent(
+      new CustomEvent(PlayerEvents.NEW_MEDIA, {detail: {id: this.currentItemId, res: mediaRes}}))
   }
 
   #notifyStateChange() {
-    this.dispatchEvent(new CustomEvent('statechange', {detail: {newState: this.playbackState}}));
-  }
-
-  #checkNotDetached() {
-    if (this.playbackState === PlayStates.DETACHED)
-      throw Error('PlaybackEngine not attached to DOM');
+    this.#eventTarget.dispatchEvent(
+      new CustomEvent(PlayerEvents.STATE_CHANGE, {detail: {newState: this.playbackState}}));
   }
 
 }

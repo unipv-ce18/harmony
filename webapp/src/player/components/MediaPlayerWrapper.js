@@ -11,7 +11,7 @@ class MediaPlayerWrapper extends Component {
 
   constructor(props) {
     super(props);
-    props.playerLoader.loadListener = this.onPlayerLoad.bind(this);
+    props.playerLoader.playerInitializer = this.onPlayerLoad.bind(this);
   }
 
   onPlayerLoad() {

@@ -32,7 +32,7 @@ export class MediaProvider {
   pendingKeys = {};
 
   fetchMediaInfo(mediaId: string): Promise<MediaResource> {
-    return Promise.resolve(parseResource(require('./sampleManifest')));
+    return Promise.resolve(parseResource(require('./sampleManifest.json')));
   }
 
   fetchEncryptionKey(mediaId: string, keyId: string, streamId = 0, variantBitrate = 0) {

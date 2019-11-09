@@ -3,14 +3,21 @@ import {PlaybackEngine} from './PlaybackEngine';
 import {MediaProvider} from './delivery/MediaProvider';
 import PlayStates from './PlayStates';
 
-class MediaPlayerCore {
+class MediaPlayerCore extends EventTarget {
 
-  playbackEngine = new PlaybackEngine(new MediaProvider());
+  #playbackEngine;
 
   #playlistIndex = 0;
   #playlist = [];
 
+  initialize(mediaTag) {
+    this.#playbackEngine = new PlaybackEngine(this, new MediaProvider(), mediaTag);
+  }
+
   play(items, startMode = PlayStartModes.APPEND_PLAYLIST_AND_PLAY) {
+    if (!this.#playbackEngine)
+        throw Error('PlaybackEngine not initialized');
+
     // If we add new items for playback let's alter the playlist first
     if (items) {
       if (items instanceof Object) items = [items];
@@ -35,14 +42,26 @@ class MediaPlayerCore {
 
       // If we have items switch to the new track
       if (items) {
-        this.playbackEngine.play(this.#playlist[this.#playlistIndex].id, 0);
+        this.#playbackEngine.play(this.#playlist[this.#playlistIndex].id, 0);
         return;
       }
 
       // If no items and the player not already playing, simply start/resume
-      if (this.playbackEngine.playbackState !== PlayStates.PLAYING)
-        this.playbackEngine.play();
+      if (this.#playbackEngine.playbackState !== PlayStates.PLAYING)
+        this.#playbackEngine.play();
     }
+  }
+
+  pause() {
+    this.#playbackEngine.pause();
+  }
+
+  stop() {
+    this.#playbackEngine.stop();
+  }
+
+  seek(seekTime) {
+    this.#playbackEngine.seek(seekTime)
   }
 
   previous() {
