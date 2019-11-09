@@ -50,14 +50,20 @@ export class StreamDecrypter {
   // TODO async await?
   #obtainLicense(emeMessage) {
     const request = JSON.parse(new TextDecoder().decode(emeMessage));
+    console.log('EME request', request);
 
-    // TODO: handle requests with multiple KIDs
-    console.assert(request.kids.length === 1);
+    const fetchPromises = request.kids.map(kid => this.#mediaProvider.fetchEncryptionKey(this.currentItemId, kid));
 
-    return this.#mediaProvider.fetchFragmentKey(this.currentItemId, request.kids[0]).then(key => {
-      const keyObj = {kty: 'oct', alg: 'A128W', kid: request.kids[0], k: toBase64(key)};
-      return new TextEncoder().encode(JSON.stringify({keys: [keyObj]}));
-    });
+    return Promise.all(fetchPromises)
+      .then(keys => keys.map((key, idx) => {
+        console.log(key, idx);
+        return {kty: 'oct', alg: 'A128W', kid: request.kids[idx], k: toBase64(key)};
+      }))
+      .then(keySpec => {
+        const license = {keys: keySpec};
+        console.log('EME response', license);
+        return new TextEncoder().encode(JSON.stringify(license));
+      });
   }
 
 }
