@@ -19,24 +19,29 @@ export class StreamDecrypter {
   /** @type {MediaProvider} */
   #mediaProvider = null;
 
-  constructor(mediaProvider) {
+  constructor(mediaProvider, mediaElement) {
     this.#mediaProvider = mediaProvider;
+    mediaElement.addEventListener('encrypted', this.#handleEncrypted.bind(this), false);
   }
 
-  attach(element) {
-    element.addEventListener('encrypted', this.#handleEncrypted.bind(this), false);
-    navigator.requestMediaKeySystemAccess('org.w3.clearkey', EME_CONFIG)
+  #obtainMediaKeys(mediaElement) {
+    if (mediaElement.mediaKeys)
+      return Promise.resolve(mediaElement.mediaKeys);
+
+    return navigator.requestMediaKeySystemAccess('org.w3.clearkey', EME_CONFIG)
       .then(keySysAccess => keySysAccess.createMediaKeys())
-      .then(mediaKeys => element.setMediaKeys(mediaKeys))
+      .then(mediaKeys => mediaElement.setMediaKeys(mediaKeys))
+      .then(() => mediaElement.mediaKeys)
       .catch(error => console.error('Failed to set up MediaKeys', error));
   }
 
   #handleEncrypted(event) {
-    // TODO ensure event.target is media element
-    const session = event.target.mediaKeys.createSession();
-    session.addEventListener('message', this.#handleEMEMessage.bind(this), false);
-    session.generateRequest(event.initDataType, event.initData)
-      .catch(error => console.error('Failed to generate a license request', error));
+    this.#obtainMediaKeys(event.target).then(mediaKeys => {
+      const session = mediaKeys.createSession();
+      session.addEventListener('message', this.#handleEMEMessage.bind(this), false);
+      session.generateRequest(event.initDataType, event.initData)
+        .catch(error => console.error('Failed to generate a license request', error));
+    });
   }
 
   #handleEMEMessage(event) {
