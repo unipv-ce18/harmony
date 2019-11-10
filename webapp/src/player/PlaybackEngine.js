@@ -1,4 +1,4 @@
-import {MediaLoader} from './delivery/MediaLoader';
+import {MediaLoader} from './MediaLoader';
 import {StreamDecrypter} from './StreamDecrypter';
 import PlayStates from './PlayStates';
 import PlayerEvents from './PlayerEvents';
@@ -18,19 +18,19 @@ export class PlaybackEngine {
   #eventTarget;
 
   /** @type {string} */
-  #_currentItemId = undefined;
+  #_currentMediaId = undefined;
 
-  get currentItemId() {
-    return this.#_currentItemId;
+  get currentMediaId() {
+    return this.#_currentMediaId;
   }
 
-  set #currentItemId(value) {
-    this.#_currentItemId = value;
+  set #currentMediaId(value) {
+    this.#_currentMediaId = value;
     this.#emeDecrypter.currentItemId = value;
   }
 
-  /** @type {string} */
-  #nextItemIdHint = undefined;
+  /** @type {function} */
+  #nextMediaIdSource;
 
   /** @type {HTMLMediaElement} */
   #mediaTag;
@@ -56,7 +56,7 @@ export class PlaybackEngine {
     if (changed) this.#notifyStateChange();
   }
 
-  constructor(eventTarget, mediaProvider, mediaElement) {
+  constructor(eventTarget, mediaProvider, mediaElement, nextMediaIdSource) {
     this.#eventTarget = eventTarget;
     this.#mediaProvider = mediaProvider;
     if (!(mediaElement instanceof HTMLMediaElement))
@@ -68,27 +68,28 @@ export class PlaybackEngine {
       mediaElement.addEventListener(evt, listener);
 
     this.#mediaTag = mediaElement;
+    this.#nextMediaIdSource = nextMediaIdSource;
     this.#emeDecrypter = new StreamDecrypter(mediaProvider, mediaElement);
   }
 
   play(mediaItemId = null, seekTime = -1) {
     // Do nothing if no current item and no passed item
-    if (this.currentItemId === null && mediaItemId === null) return;
+    if (this.currentMediaId === null && mediaItemId === null) return;
 
     // We can optimize if new media == next media hint, but gapless playback may sound weird while doing this
 
     // If a track was specified let's switch to the new one
     if (mediaItemId !== null) {
-      this.#mediaLoader = new MediaLoader(this.#mediaProvider, this.#mediaTag, mediaItemId)
-        .onInfoFetch(this.#notifyMediaChange.bind(this))
+      this.#mediaLoader = new MediaLoader(this.#mediaProvider, this.#mediaTag, mediaItemId, this.#nextMediaIdSource)
+        .onMediaResource(this.#notifyMediaChange.bind(this))
         .onError(err => {
           console.error('Error during segment fetch', err);
           this.#playbackState = PlayStates.ERRORED
         });
-      this.#currentItemId = mediaItemId;
+      this.#currentMediaId = mediaItemId;
     }
 
-    if (this.currentItemId) {
+    if (this.currentMediaId) {
       // Let's play the thing
       if (seekTime >= 0) this.#mediaTag.currentTime = seekTime;
       this.#mediaTag.play();
@@ -100,7 +101,6 @@ export class PlaybackEngine {
 
   seek(seekTime) {
     this.#mediaTag.currentTime = seekTime;
-    if (this.playbackState === PlayStates.PLAYING) this.#mediaTag.play();
   }
 
   pause() {
@@ -132,7 +132,7 @@ export class PlaybackEngine {
 
   #notifyMediaChange(mediaRes) {
     this.#eventTarget.dispatchEvent(
-      new CustomEvent(PlayerEvents.NEW_MEDIA, {detail: {id: this.currentItemId, res: mediaRes}}))
+      new CustomEvent(PlayerEvents.NEW_MEDIA, {detail: {id: this.currentMediaId, res: mediaRes}}))
   }
 
   #notifyStateChange() {

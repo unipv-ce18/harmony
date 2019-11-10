@@ -11,7 +11,10 @@ class MediaPlayerCore extends EventTarget {
   #playlist = [];
 
   initialize(mediaTag) {
-    this.#playbackEngine = new PlaybackEngine(this, new MediaProvider(), mediaTag);
+    this.#playbackEngine = new PlaybackEngine(this, new MediaProvider(), mediaTag, () => {
+      console.log('Next media requested');
+      return this.#playlist[this.#playlistIndex++].id; // same item for now
+    });
   }
 
   play(items, startMode = PlayStartModes.APPEND_PLAYLIST_AND_PLAY) {
