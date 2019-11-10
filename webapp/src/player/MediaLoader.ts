@@ -13,6 +13,10 @@ function awaitFirstVariant(mediaRes: MediaResource): MediaResourceVariant {
 
 type NextMediaData = {res: MediaResource, startTime: number}
 
+/**
+ * Obtains media information from a {@link MediaProvider} and coordinates {@link BufferManager}(s)
+ * to allow (continuous) playback over a given {@link HTMLMediaElement} using the browser {@link MediaSource} API.
+ */
 export class MediaLoader {
 
     private readonly mediaSource = new MediaSource();
@@ -24,6 +28,14 @@ export class MediaLoader {
     private onMediaResourceCallback?: (mediaRes: MediaResource) => void;
     private errorCallback?: (err: Error) => void;
 
+    /**
+     * Creates a new  {@link MediaLoader} instance
+     *
+     * @param mediaProvider - The {@link MediaProvider} used to obtain media manifests
+     * @param mediaElement - The `<audio>` or `<video>` tag to configure
+     * @param mediaItemId - The ID of the element to fetch from `mediaProvider`
+     * @param nextItemProvider - A function returning more media to prefetch when the current one is being finished
+     */
     constructor(private readonly mediaProvider: MediaProvider,
                 private readonly mediaElement: HTMLMediaElement,
                 mediaItemId: string,
@@ -36,12 +48,23 @@ export class MediaLoader {
         this.mediaElement.src = sourceURL;
     }
 
+    /**
+     * Sets a callback to be called in case of errors while fetching data
+     *
+     * @param errorCallback - The function to call when errors occur
+     */
     public onError(errorCallback: (err: Error) => void): this {
         this.errorCallback = errorCallback;
         if (this.sourceBufferWrapper) this.sourceBufferWrapper.errorCallback = errorCallback;
         return this;
     }
 
+    /**
+     * Sets a function to call when new media is to be played
+     *
+     * @param onInfoFetchCallback - The function to call on new media,
+     *                              the fetched {@link MediaResource} is passed as an argument
+     */
     public onMediaResource(onInfoFetchCallback: (mediaRes: MediaResource) => void): this {
         this.onMediaResourceCallback = onInfoFetchCallback;
         return this;
