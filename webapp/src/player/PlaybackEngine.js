@@ -18,15 +18,10 @@ export class PlaybackEngine {
   #eventTarget;
 
   /** @type {string} */
-  #_currentMediaId = undefined;
+  #currentMediaId = undefined;
 
   get currentMediaId() {
-    return this.#_currentMediaId;
-  }
-
-  set #currentMediaId(value) {
-    this.#_currentMediaId = value;
-    this.#emeDecrypter.currentItemId = value;
+    return this.#currentMediaId;
   }
 
   /** @type {function} */
@@ -34,6 +29,9 @@ export class PlaybackEngine {
 
   /** @type {HTMLMediaElement} */
   #mediaTag;
+
+  /** @type {number} */
+  #mediaTimeOffset = 0;
 
   /** @type {MediaProvider} */
   #mediaProvider;
@@ -81,15 +79,14 @@ export class PlaybackEngine {
     // If a track was specified let's switch to the new one
     if (mediaItemId !== null) {
       this.#mediaLoader = new MediaLoader(this.#mediaProvider, this.#mediaTag, mediaItemId, this.#nextMediaIdSource)
-        .onMediaResource(this.#notifyMediaChange.bind(this))
+        .onMediaResource(this.#onMediaChange.bind(this))
         .onError(err => {
           console.error('Error during segment fetch', err);
           this.#playbackState = PlayStates.ERRORED
         });
-      this.#currentMediaId = mediaItemId;
     }
 
-    if (this.currentMediaId) {
+    if (this.currentMediaId !== null || mediaItemId !== null) {
       // Let's play the thing
       if (seekTime >= 0) this.#mediaTag.currentTime = seekTime;
       this.#mediaTag.play();
@@ -100,7 +97,7 @@ export class PlaybackEngine {
   }
 
   seek(seekTime) {
-    this.#mediaTag.currentTime = seekTime;
+    this.#mediaTag.currentTime = this.#mediaTimeOffset + parseInt(seekTime);
   }
 
   pause() {
@@ -126,13 +123,18 @@ export class PlaybackEngine {
         break;
       case 'timeupdate':
         this.#eventTarget.dispatchEvent(
-          new CustomEvent(PlayerEvents.TIME_UPDATE, {detail: {cur: this.#mediaTag.currentTime}}));
+          new CustomEvent(PlayerEvents.TIME_UPDATE, {detail: {cur: this.#mediaTag.currentTime - this.#mediaTimeOffset}}));
     }
   }
 
-  #notifyMediaChange(mediaRes) {
+  #onMediaChange(mediaData) {
+    // Note, we are using the ID from the resource to set our current ID and the decrypter one
+    this.#currentMediaId = mediaData.res.id;
+    this.#emeDecrypter.currentItemId = mediaData.res.id;
+
+    this.#mediaTimeOffset = mediaData.startTime;
     this.#eventTarget.dispatchEvent(
-      new CustomEvent(PlayerEvents.NEW_MEDIA, {detail: {id: this.currentMediaId, res: mediaRes}}))
+      new CustomEvent(PlayerEvents.NEW_MEDIA, {detail: {id: this.currentMediaId, res: mediaData.res}}))
   }
 
   #notifyStateChange() {
