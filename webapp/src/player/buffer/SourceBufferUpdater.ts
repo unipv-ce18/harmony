@@ -7,17 +7,16 @@ const TAG = '[Player.SourceBufferUpdater]';
  */
 export class SourceBufferUpdater<SegmentType extends SegmentData> {
 
+    private readonly updateEndCallbacks: Array<(segmentData: SegmentType) => void> = [];
     private fetchQueue: Array<SegmentType> = [];
     private pendingFetchData?: SegmentType;
 
     /**
      * Creates a new updater instance
      * @param sourceBuffer - The source buffer to operate on
-     * @param updateEndCallback - The function to call when a segment update finishes
      * @param errorCallback - The function to call in case of errors
      */
     constructor(private readonly sourceBuffer: SourceBuffer,
-                public updateEndCallback?: (segmentData: SegmentType) => void,
                 public errorCallback?: (err: Error) => void) {
         sourceBuffer.mode = 'sequence';
         sourceBuffer.addEventListener('updateend', this.onBufferUpdateEnd.bind(this));
@@ -36,6 +35,13 @@ export class SourceBufferUpdater<SegmentType extends SegmentData> {
             this.fetchQueue.push(segmentData);
         else
             this.startFetch(segmentData);
+    }
+
+    /**
+     * @param updateEndCallback - The function to call when a segment update finishes
+     */
+    public addUpdateEndCallback(updateEndCallback: (segmentData: SegmentType) => void) {
+        this.updateEndCallbacks.push(updateEndCallback);
     }
 
     /**
@@ -62,7 +68,7 @@ export class SourceBufferUpdater<SegmentType extends SegmentData> {
     }
 
     private onBufferUpdateEnd(e: Event) {
-        if (this.updateEndCallback) this.updateEndCallback(this.pendingFetchData!);
+        this.updateEndCallbacks.forEach(f => f(this.pendingFetchData!));
 
         const next = this.fetchQueue.shift();   // Either the next item or undefined
         if (next)
