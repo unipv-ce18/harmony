@@ -12,6 +12,10 @@ const SEGMENT_MAP_PENDING_FLAG = -1;
 // Extension of SegmentData to hold tracking indices we need to update our mapping of the buffer
 type ExtSegmentData = SegmentData & { varIdx?: number, segIdx?: number };
 
+export type ExhaustionCallbackParams = { endTimestamp: number };
+type ExhaustionCallback = (params: ExhaustionCallbackParams) => void;
+type EndedCallback = () => void;
+
 function timeInSegment({t, d}: MediaResourceSegment, timestamp: number) {
     return timestamp >= t && timestamp < t + d;
 }
@@ -29,26 +33,31 @@ function timeInSegment({t, d}: MediaResourceSegment, timestamp: number) {
  */
 export class BufferManager {
 
-    private readonly bufferUpdater: SourceBufferUpdater<ExtSegmentData>;
     private readonly variants: Array<MediaResourceVariant> = [];
 
     private _currentVariantIndex?: number;
     private currentSegment?: number;
     private segmentMap?: Array<number | undefined>;
+    private exhaustionCallback?: ExhaustionCallback;
+    private endedCallback?: EndedCallback;
 
     /**
      * Creates a new {@link BufferManager} instance
      *
      * @param mediaElement - The DOM media element to listen for time update events
-     * @param sourceBuffer - The source buffer where new segments should be appended
+     * @param bufferUpdater - The source buffer wrapper where new segments should be appended
+     * @param timeOffset - The relative time from the start of the buffer to operate on
      */
-    constructor(private readonly mediaElement: HTMLMediaElement, sourceBuffer: SourceBuffer) {
+    constructor(private readonly mediaElement: HTMLMediaElement,
+                private readonly bufferUpdater: SourceBufferUpdater<ExtSegmentData>,
+                private readonly timeOffset: number = 0) {
         this.onMediaEvent = this.onMediaEvent.bind(this);
+        this.onBufferUpdateEnd = this.onBufferUpdateEnd.bind(this);
         // We want to trigger continuous buffer updates during playback...
-        this.mediaElement.addEventListener('timeupdate', this.onMediaEvent);
+        mediaElement.addEventListener('timeupdate', this.onMediaEvent);
         // ...and when the tag is buffering on lack of data (if currentTime was changed manually)
-        this.mediaElement.addEventListener('waiting', this.onMediaEvent);
-        this.bufferUpdater = new SourceBufferUpdater(sourceBuffer, this.onBufferUpdateEnd.bind(this));
+        mediaElement.addEventListener('waiting', this.onMediaEvent);
+        this.bufferUpdater.addUpdateEndCallback(this.onBufferUpdateEnd);
     }
 
     /**
@@ -71,6 +80,9 @@ export class BufferManager {
         }
     }
 
+    /**
+     * The currently selected variant index
+     */
     get currentVariantIndex() {
         return this._currentVariantIndex;
     }
@@ -85,11 +97,38 @@ export class BufferManager {
 
         // Put initialization segment and re-fetch the segments using the new variant
         this.bufferUpdater.enqueue({u: this.variants[value].initSegment!});
-        this.triggerBufferUpdate(this.mediaElement.currentTime * 1000000);
+        this.triggerBufferUpdate(this.currentSegment || 0, true);
     }
 
-    set errorHandler(value: ((err: Error) => void) | undefined) {
-        this.bufferUpdater.errorCallback = value;
+    /**
+     * Sets a callback to be called when the last segment of the media resource has been consumed and more segments
+     * are needed to provide continuous playback of new media
+     *
+     * @param exhaustionCallback - The function to call, parameters given by {@link ExhaustionCallback}
+     */
+    public onResourceExhausted(exhaustionCallback: ExhaustionCallback): this {
+        this.exhaustionCallback = exhaustionCallback;
+        return this;
+    }
+
+    /**
+     * Sets a callback to be called when the media current time reaches the end of the managed media resource
+     *
+     * The control is performed in the timeupdate event on the media, precision is not guaranteed.
+     */
+    public onResourceEnded(endedCallback: EndedCallback): this {
+        console.log(TAG, 'Resource ended');
+        this.endedCallback = endedCallback;
+        return this;
+    }
+
+    /**
+     * Prepares this instance for removal and stops listening for media element events
+     */
+    public detach() {
+        this.mediaElement.removeEventListener('timeupdate', this.onMediaEvent);
+        this.mediaElement.removeEventListener('waiting', this.onMediaEvent);
+        this.bufferUpdater.removeUpdateEndCallback(this.onBufferUpdateEnd);
     }
 
     private findSegment(timestamp: number): number {
@@ -114,12 +153,9 @@ export class BufferManager {
         return refSegments.findIndex(s => timeInSegment(s, timestamp));
     }
 
-    private triggerBufferUpdate(currentTimestamp: number) {
-        const newSegment = this.findSegment(currentTimestamp);
-        //console.log(TAG, 'Trigger update', {ts: currentTimestamp, seg: this.currentSegment, nxSeg: newSegment});
-
+    private triggerBufferUpdate(newSegment: number, force: boolean = false) {
         // If we haven't changed segment (or we reached the end), do nothing and return
-        if (this.currentSegment === newSegment || newSegment === -1) return;
+        if (!force && (this.currentSegment === newSegment || newSegment === -1)) return;
 
         // Update the current segment property and schedule new fetches to update the buffer
         this.currentSegment = newSegment;
@@ -127,10 +163,21 @@ export class BufferManager {
 
         const segSource = this.variants[this._currentVariantIndex!].segments!;
         const segMap = this.segmentMap!;
-        for (let i = newSegment; i < Math.min(newSegment + SEGMENT_PREFETCH_COUNT, segSource.length); ++i) {
+        for (let i = newSegment; i < newSegment + SEGMENT_PREFETCH_COUNT; ++i) {
+            if (i >= segSource.length) {  // We reached the last segment
+                if (this.exhaustionCallback) {
+                    console.log(TAG, 'Reaching end of resource');
+                    this.exhaustionCallback({endTimestamp: this.getEndTime()!});
+                }
+                break;
+            }
+
             if (segMap[i] === undefined || segMap[i]! > this._currentVariantIndex!) {
                 // Add variant and segment indices so we can update the map when the buffer has been updated
-                fetchList.push({varIdx: this._currentVariantIndex, segIdx: i, ...segSource[i]});
+                fetchList.push({
+                    varIdx: this._currentVariantIndex, segIdx: i,
+                    u: segSource[i].u, t: segSource[i].t + this.timeOffset
+                });
                 segMap[i] = SEGMENT_MAP_PENDING_FLAG;
             }
         }
@@ -139,7 +186,15 @@ export class BufferManager {
     }
 
     private onMediaEvent(event: Event) {
-        this.triggerBufferUpdate((event.target as HTMLMediaElement).currentTime * 1000000);
+        const absTimestamp = ((event.target as HTMLMediaElement).currentTime * 1000000);
+
+        const endTime = this.getEndTime();
+        if (endTime !== undefined && this.endedCallback && absTimestamp >= endTime)
+            this.endedCallback();
+
+        const newSegment = this.findSegment(absTimestamp - this.timeOffset);
+        //console.log(TAG, 'Trigger update', {ts: currentTimestamp, seg: this.currentSegment, nxSeg: newSegment});
+        this.triggerBufferUpdate(newSegment);
     }
 
     private onBufferUpdateEnd(segmentData: ExtSegmentData) {
@@ -149,6 +204,13 @@ export class BufferManager {
 
         if (segmentData.varIdx !== undefined)  // Ensure not an init segment
             this.segmentMap![segmentData.segIdx!] = segmentData.varIdx;
+    }
+
+    private getEndTime(): number | undefined {
+        if (this._currentVariantIndex === undefined) return undefined;
+        const segSource = this.variants[this._currentVariantIndex].segments!;
+        const lastSeg = segSource[segSource.length - 1];
+        return lastSeg.t + lastSeg.d + this.timeOffset;
     }
 
 }

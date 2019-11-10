@@ -38,10 +38,22 @@ export class SourceBufferUpdater<SegmentType extends SegmentData> {
     }
 
     /**
-     * @param updateEndCallback - The function to call when a segment update finishes
+     * Adds a callback to be invoked when a segment update finishes
+     *
+     * @param updateEndCallback - The function to call
      */
     public addUpdateEndCallback(updateEndCallback: (segmentData: SegmentType) => void) {
         this.updateEndCallbacks.push(updateEndCallback);
+    }
+
+    /**
+     * Removes callback previously registered through {@link addUpdateEndCallback}
+     *
+     * @param updateEndCallback - The function to remove from the callbacks list
+     */
+    public removeUpdateEndCallback(updateEndCallback: (segmentData: SegmentType) => void) {
+        const idx = this.updateEndCallbacks.indexOf(updateEndCallback);
+        if (idx > -1) this.updateEndCallbacks.splice(idx, 1);
     }
 
     /**
