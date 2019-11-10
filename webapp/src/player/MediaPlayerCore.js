@@ -20,7 +20,7 @@ class MediaPlayerCore extends EventTarget {
 
     // If we add new items for playback let's alter the playlist first
     if (items) {
-      if (items instanceof Object) items = [items];
+      if (!(items instanceof Array)) items = [items];
       if (items.length === 0) return;
 
       for (let item of items) {
