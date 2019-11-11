@@ -52,7 +52,6 @@ class AuthLogin(Resource):
             return {"access-token": access, "refresh-token": refresh}, 200
 
 
-@security.jwt_required
 class AuthLogout(Resource):
     # todo: validate user and blacklist his token
     def post(self):

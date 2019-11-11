@@ -1,4 +1,4 @@
-from bson.objectid import ObjectId
+import bson.objectid
 
 
 class Queries:
@@ -88,7 +88,7 @@ class Queries:
         return result
 
     def get_complete_artist(self, id):
-        query = {"_id": ObjectId(id)}
+        query = {"_id": bson.objectid.ObjectId(id)}
         result = self.artists.find(query)
         artist = [res for res in result]
         try:
@@ -106,7 +106,6 @@ class Queries:
             return False
 
     def get_song_from_id(self, id):
-        query = {"_id": ObjectId(id)}
-        result = self.songs.find(query)
-        song = [res for res in result]
-        return song[0]
+        query = {"_id": bson.objectid.ObjectId(id)}
+        result = self.songs.find_one(query)
+        return result
