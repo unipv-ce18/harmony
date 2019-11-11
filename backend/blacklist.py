@@ -1,6 +1,7 @@
 import datetime
-from database import blacklist
+import database
 import security
+
 
 def add_token_to_blacklist(token):
     payload = security.decode_token(token)
@@ -9,8 +10,8 @@ def add_token_to_blacklist(token):
     delta = (expiration - current_time).total_seconds()
 
     if delta > 0:
-        blacklist.create_index("date", expireAfterSeconds=delta)
-        blacklist.insert({
+        database.blacklist.create_index("date", expireAfterSeconds=delta)
+        database.blacklist.insert({
             "token": token,
             "date": datetime.datetime.utcnow()
         })
@@ -20,6 +21,6 @@ def add_token_to_blacklist(token):
 
 
 def check_blacklisted_token(token):
-    result = blacklist.find({"token": token})
+    result = database.blacklist.find({"token": token})
     for res in result:
         return res

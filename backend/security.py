@@ -1,6 +1,6 @@
 import hashlib, binascii, os
 import utils, jwt, datetime
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_claims
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, create_refresh_token, get_jwt_claims
 
 
 # encrypt salt+password to avoid duplicate entries of the same password

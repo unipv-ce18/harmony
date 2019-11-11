@@ -40,14 +40,21 @@ class AuthRegister(Resource):
 
 
 class AuthLogin(Resource):
-    # todo: check if user is registered, otherwise refuse him
+    # todo: check if user exists in db; if so, generate a valid token
     def post(self):
         data = authparser.parse_args()
-        return {"to": "do"}
+        user = query.search_user(data["username"])
+        if user is None:
+            return 401
+        else:
+            access = security.create_access_token(identity=data["username"])
+            refresh = security.create_refresh_token(identity=data["username"])
+            return {"access-token": access, "refresh-token": refresh}, 200
 
 
+@security.jwt_required
 class AuthLogout(Resource):
-    # todo: validate and blacklist a token
+    # todo: validate user and blacklist his token
     def post(self):
         return {"to": "do"}
 
