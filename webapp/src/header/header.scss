@@ -1,0 +1,41 @@
+header {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+
+  div {
+    display: inline-block;
+    width: 30%;
+  }
+
+  ul {
+    list-style-type: none;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  li {
+    float: left;
+  }
+
+  li a {
+    display: block;
+    text-decoration: none;
+  }
+
+  .userDiv {
+    float: right;
+    margin-left: auto;
+    margin-right:0;
+
+    p {
+      padding-right: 0.5em;
+      float: right;
+      text-align: right;
+    }
+    .userImage {
+      float: right;
+      width: 30px;
+    }
+  }
+}
