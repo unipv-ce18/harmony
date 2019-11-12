@@ -1,8 +1,9 @@
 import {Component, Fragment} from 'preact';
 import Router from 'preact-router';
+import Match from 'preact-router/match';
 
 import Redirect from './components/Redirect';
-import Navbar from './components/Navbar';
+import HeaderBar from './header/HeaderBar';
 import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
 import MediaPlayerWrapper from './player/components/MediaPlayerWrapper';
@@ -35,7 +36,7 @@ class App extends Component {
 
     return (
       <Fragment>
-        <Navbar/>
+        <Match>{({path}) => (<HeaderBar page={path}/>)}</Match>
         <div class={styles.content}>{router}</div>
         {session.loggedIn && <MediaPlayerWrapper playerLoader={mediaPlayer}/>}
       </Fragment>

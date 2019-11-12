@@ -5,7 +5,7 @@ import Search from "../search/Search";
 class MiddleBar extends Component {
   render(props) {
     let content;
-    if(this.props.page === 'homepage'){
+    if(this.props.page === '/'){
         content =  <img src={logoImage} alt=""/>
      } else {
        content = <Search />

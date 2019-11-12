@@ -6,6 +6,9 @@ import RightBar from "./RightBar";
 
 class HeaderBar extends Component {
   render(props, state) {
+    // No header in login page
+    if (this.props.page === '/login') return null;
+
     return (
       <header>
         <LeftBar />
