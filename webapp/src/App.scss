@@ -8,6 +8,8 @@
 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    color: $text-color-default;
   }
 
   code {
@@ -15,7 +17,7 @@
   }
 
   a {
-    color: #00ffe0;
+    color: $text-color-link;
   }
 }
 
