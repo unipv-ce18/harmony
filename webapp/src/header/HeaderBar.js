@@ -1,4 +1,4 @@
-import {h, Component} from "preact";
+import {Component} from "preact";
 import styles from './header.scss';
 import LeftBar from "./LeftBar";
 import MiddleBar from "./MiddleBar";

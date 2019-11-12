@@ -1,7 +1,11 @@
+@import '../styledefs';
+
 header {
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: $navbar-height;
 
   div {
     display: inline-block;
@@ -11,6 +15,7 @@ header {
   ul {
     list-style-type: none;
     overflow: hidden;
+    margin: 0;
     padding: 0;
   }
 
@@ -28,7 +33,7 @@ header {
     margin-left: auto;
     margin-right:0;
 
-    p {
+    span {
       padding-right: 0.5em;
       float: right;
       text-align: right;
