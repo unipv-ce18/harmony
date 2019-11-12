@@ -1,4 +1,4 @@
-import {h, Component} from "preact";
+import {Component} from "preact";
 import SongResults from './SongResults';
 import AlbumResults from "./AlbumResults";
 

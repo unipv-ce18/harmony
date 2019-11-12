@@ -1,4 +1,4 @@
-import {h, Component} from "preact";
+import {Component} from "preact";
 
 class AlbumResults extends Component {
   render(props, state, context) {

@@ -1,7 +1,7 @@
-import {h, Component} from 'preact';
+import {Component} from 'preact';
 
-import albums from './testAlbums';
-import songs from './testSongs';
+import albums from '../../testAlbums';
+import songs from '../../testSongs';
 import ResultsSearch from './ResultsSearch';
 
 class SearchPage extends Component {

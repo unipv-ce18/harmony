@@ -1,4 +1,4 @@
-import {h, Component} from "preact";
+import {Component} from "preact";
 import styles from './search.scss';
 
 class Search extends Component {

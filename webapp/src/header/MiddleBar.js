@@ -1,6 +1,6 @@
 import {Component} from "preact";
 import logoImage from "../assets/logo.svg";
-import Search from "../search/Search";
+import Search from "../components/search/Search";
 
 class MiddleBar extends Component {
   render(props) {
