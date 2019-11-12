@@ -18,6 +18,10 @@ class MediaPlayerCore extends EventTarget {
     });
   }
 
+  get playbackState() {
+    return this.#playbackEngine.playbackState;
+  }
+
   play(items, startMode = PlayStartModes.APPEND_PLAYLIST_AND_PLAY) {
     if (!this.#playbackEngine)
         throw Error('PlaybackEngine not initialized');
