@@ -1,5 +1,4 @@
-import bson.objectid
-
+from bson.objectid import ObjectId
 
 class Queries:
     def __init__(self, database):
@@ -15,6 +14,13 @@ class Queries:
             if artist['name'].lower() == a['name'].lower():
                 return
         self.db.artists.insert_one(a)
+
+    def add_artists(self, a):
+        if self.db.artists.count() != 0:
+            for i in range(len(a)):
+                self.add_artist(a[i])
+        else:
+            self.db.artists.insert_many(a)
 
     def add_album(self, a):
         for album in self.db.albums.find():
@@ -42,38 +48,51 @@ class Queries:
         else:
             self.db.songs.insert_many(s)
 
+    def add_user_2v(self, u):
+        for user in self.db.users.find():
+            if user['username'] == u['username'] or user['email'] == u['email']:
+                return
+            self.db.users.insert_one(u)
+
+    def add_users(self, u):
+        if self.db.users.count() != 0:
+            for i in range(len(u)):
+                self.add_user_2v(u[i])
+        else:
+            self.db.users.insert_many(u)
+
     def add_user(self, user):
         res = self.db.users.find_one({"username": {"$regex": user["username"], "$options": "-i"}})
         return self.db.users.insert_one(user) if res is None else False
 
     def search_artist(self, artist):
-        query = {"name": {"$regex": artist, "$options": "-i"}}
-        result = self.db.artists.find_one(query)
-        return result
+        query = {"name": {"$regex": f'^{artist}', "$options": "-i"}}
+        result = self.db.artists.find(query, {"genres": 0, "description": 0})
+        return [res for res in result]
 
     def search_album(self, album):
-        query = {"name": {"$regex": album, "$options": "-i"}}
-        result = self.db.albums.find_one(query)
-        return result
+        query = {"name": {"$regex": f'^{album}', "$options": "-i"}}
+        result = self.db.albums.find(query)
+        return [res for res in result]
 
     def search_song(self, song):
-        query = {"title": {"$regex": song, "$options": "-i"}}
-        result = self.db.songs.find_one(query)
-        return result
+        query = {"title": {"$regex": f'^{song}', "$options": "-i"}}
+        result = self.db.songs.find(query)
+        return [res for res in result]
 
-    def search_user(self, username):
-        query = {"username": {"$regex": username, "$options": "-i"}}
+    def search_user(self, user):
+        query = {"username": user}
         result = self.db.users.find_one(query)
         return result
 
     def get_artist_albums(self, artist):
         query = {"artist": artist}
-        result = self.albums.find(query, {"artist": 0})
+        result = self.db.albums.find(query, {"artist": 0})
         return [res for res in result]
 
     def get_album_songs(self, artist, album):
         query = {"artist": artist, "album": album}
-        result = self.songs.find(query, {"album": 0, "link": 0})
+        result = self.db.songs.find(query, {"album": 0, "link": 0})
         return [res for res in result]
 
     def search(self, item):
@@ -88,8 +107,8 @@ class Queries:
         return result
 
     def get_complete_artist(self, id):
-        query = {"_id": bson.objectid.ObjectId(id)}
-        result = self.artists.find(query)
+        query = {"_id": ObjectId(id)}
+        result = self.db.artists.find(query)
         artist = [res for res in result]
         try:
             artist_name = artist[0]['name']
@@ -106,6 +125,6 @@ class Queries:
             return False
 
     def get_song_from_id(self, id):
-        query = {"_id": bson.objectid.ObjectId(id)}
-        result = self.songs.find_one(query)
+        query = {"_id": ObjectId(id)}
+        result = self.db.songs.find_one(query)
         return result

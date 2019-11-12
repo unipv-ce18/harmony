@@ -1,7 +1,6 @@
 import ffmpy
 import database
 
-
 def transcoding_song(id, bitrate='128k', sample_rate=44100, channels=2, extension='.webm'):
     lossless_song = database.get_song_from_id(id)
     title = lossless_song['title']
@@ -32,7 +31,6 @@ def transcoding_song(id, bitrate='128k', sample_rate=44100, channels=2, extensio
     )
     ff.run()
 
-
-def transcoding_songs(id_list, bitrate='128k', sample_rate=44100):
+def transcoding_songs(id_list, bitrate='128k', sample_rate=44100, channels=2, extension='.webm'):
     for id in id_list:
-        transcoding_song(id, bitrate, sample_rate)
+        transcoding_song(id, bitrate, sample_rate, channels, extension)

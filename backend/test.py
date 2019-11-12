@@ -1,36 +1,26 @@
-import json, pymongo, utils, ffmpeg
+import json, pymongo
 from pprint import pprint
 from database import Queries
+import utils, ffmpeg
 
-
-client = pymongo.MongoClient(utils.config['MONGO_URI'],
-                             username=utils.config['MONGO_USERNAME'],
-                             password=utils.config['MONGO_PASSWORD'],
+client = pymongo.MongoClient(utils.config['database']['url'],
+                             username=utils.config['database']['username'],
+                             password=utils.config['database']['password'],
+                             authSource=utils.config['database']['name'],
                              authMechanism='SCRAM-SHA-1')
 
 harmony = client[utils.config['database']['name']]
 query = Queries(harmony)
 
-
-def read_json(path):
-    with open(path, 'r') as f:
-        data = f.read()
-    json_data = json.loads(data)
-    if isinstance(json_data, dict):
-        return [json_data]
-    return json_data
-
-
-artists_list = read_json('resources/artists.json')
-albums_list = read_json('resources/albums.json')
-songs_list = read_json('resources/songs.json')
-users_list = read_json('resources/users.json')
+artists_list = utils.read_json('resources/artists.json')
+albums_list = utils.read_json('resources/albums.json')
+songs_list = utils.read_json('resources/songs.json')
+users_list = utils.read_json('resources/users.json')
 
 query.add_artists(artists_list)
 query.add_albums(albums_list)
 query.add_songs(songs_list)
 query.add_users(users_list)
-
 
 #pprint(search_artist('queens'))
 #pprint(get_artist_albums('Queens of the Stone Age'))
