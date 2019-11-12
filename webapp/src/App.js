@@ -6,6 +6,7 @@ import Redirect from './components/Redirect';
 import HeaderBar from './header/HeaderBar';
 import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
+import SearchPage from "./components/search/SearchPage";
 import MediaPlayerWrapper from './player/components/MediaPlayerWrapper';
 
 import {session, mediaPlayer} from './Harmony';
@@ -25,6 +26,7 @@ class App extends Component {
     const router = session.loggedIn ? (
       <Router>
         <HomePage path="/"/>
+        <SearchPage path="/search/:query"/>
         <Redirect default to="/"/>
       </Router>
     ) : (
