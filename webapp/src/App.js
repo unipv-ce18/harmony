@@ -5,24 +5,23 @@ import Redirect from './components/Redirect';
 import Navbar from './components/Navbar';
 import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
+import MediaPlayerWrapper from './player/components/MediaPlayerWrapper';
 
-import {Session} from './core/Session';
+import {session, mediaPlayer} from './Harmony';
 import styles from './App.scss';
-
-export const sessionInstance = new Session();
 
 class App extends Component {
 
   constructor(props) {
     super(props);
-    sessionInstance.addStatusListener(() => {
-      console.log('Event logged in:', sessionInstance.loggedIn);
+    session.addStatusListener(() => {
+      console.log('Event logged in:', session.loggedIn);
       this.forceUpdate()
     });
   }
 
   render() {
-    const router = sessionInstance.loggedIn ? (
+    const router = session.loggedIn ? (
       <Router>
         <HomePage path="/"/>
         <Redirect default to="/"/>
@@ -38,6 +37,7 @@ class App extends Component {
       <Fragment>
         <Navbar/>
         <div class={styles.content}>{router}</div>
+        {session.loggedIn && <MediaPlayerWrapper playerLoader={mediaPlayer}/>}
       </Fragment>
     );
   }

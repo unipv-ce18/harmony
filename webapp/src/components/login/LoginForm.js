@@ -1,13 +1,13 @@
 import {Component} from 'preact';
 
 import styles from './LoginForm.scss';
-import {sessionInstance} from "../../App";
+import {session} from '../../Harmony';
 
 class LoginForm extends Component {
 
   onSubmit(e) {
     e.preventDefault();
-    sessionInstance.doLogin(e.target.user.value, e.target.pass.value)
+    session.doLogin(e.target.user.value, e.target.pass.value)
       .catch(e => alert('Login failed'));
   }
 
