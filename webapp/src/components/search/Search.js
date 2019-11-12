@@ -1,4 +1,6 @@
-import {Component} from "preact";
+import {Component} from 'preact';
+import {route} from 'preact-router';
+
 import styles from './search.scss';
 
 class Search extends Component {
@@ -14,7 +16,7 @@ class Search extends Component {
   }
 
   handleSubmit(event) {
-    alert('Search this: ' + this.state.value);
+    route('/search/' + this.state.value.replace(/[^a-z0-9]/gi, ' ').replace(/ /g, '+'));
     event.preventDefault();
   }
 
