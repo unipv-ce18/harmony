@@ -1,7 +1,8 @@
 import json, pymongo
 from pprint import pprint
 from database import Queries
-import utils, ffmpeg
+from transcoder import Transcoder
+import utils
 
 client = pymongo.MongoClient(utils.config['database']['url'],
                              username=utils.config['database']['username'],
@@ -34,4 +35,5 @@ id_list = [
     '5dbac87a0f70f40bc954c04c'
 ]
 
-ffmpeg.transcoding_songs(id_list, bitrate='96k')
+transcoder = Transcoder(harmony)
+transcoder.transcoding_songs(id_list, bitrate='96k')

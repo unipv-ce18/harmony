@@ -108,16 +108,15 @@ class Queries:
 
     def get_complete_artist(self, id):
         query = {"_id": ObjectId(id)}
-        result = self.db.artists.find(query)
-        artist = [res for res in result]
+        artist = self.db.artists.find_one(query)
         try:
-            artist_name = artist[0]['name']
+            artist_name = artist['name']
             albums = self.get_artist_albums(artist_name)
             complete_artist = {
                 "name": artist_name,
-                "genres": artist[0]['genres'],
-                "description": artist[0]['description'],
-                "image": artist[0]['image'],
+                "genres": artist['genres'],
+                "description": artist['description'],
+                "image": artist['image'],
                 "album": albums
             }
             return complete_artist
@@ -128,3 +127,6 @@ class Queries:
         query = {"_id": ObjectId(id)}
         result = self.db.songs.find_one(query)
         return result
+
+    def get_blacklist(self):
+        return self.db.blacklist
