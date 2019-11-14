@@ -6,6 +6,7 @@ header {
   left: 0;
   width: 100%;
   height: $navbar-height;
+  background-color: rgba($application-background, .5);
 
   div {
     display: inline-block;

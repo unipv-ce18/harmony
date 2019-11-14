@@ -7,6 +7,7 @@ import HeaderBar from './header/HeaderBar';
 import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
 import SearchPage from "./components/search/SearchPage";
+import ArtistPage from "./components/artist/ArtistPage";
 import MediaPlayerWrapper from './player/components/MediaPlayerWrapper';
 
 import {session, mediaPlayer} from './Harmony';
@@ -27,6 +28,7 @@ class App extends Component {
       <Router>
         <HomePage path="/"/>
         <SearchPage path="/search/:query"/>
+        <ArtistPage path="/artist/:id"/>
         <Redirect default to="/"/>
       </Router>
     ) : (

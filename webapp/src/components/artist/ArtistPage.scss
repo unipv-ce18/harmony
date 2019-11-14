@@ -1,0 +1,17 @@
+@import "../../styledefs";
+
+.artistPage {
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.artistPageContent {
+  width: 100%;
+  border-radius: 16px;
+  min-height: calc(100vh - 32px - #{$navbar-height});
+
+  background-color: $panel-color;
+  color: $panel-text-color;
+  overflow: hidden;
+}
