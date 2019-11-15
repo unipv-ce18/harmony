@@ -1,11 +1,11 @@
 import datetime
-from database import Queries
+from database import Database
 import security
 
 class Blacklist:
-    def __init__(self, database):
-        self.query = Queries(database)
-        self.blacklist = self.query.get_blacklist()
+    def __init__(self, db_connection):
+        self.db = Database(db_connection)
+        self.blacklist = self.db.get_blacklist()
 
     def add_token_to_blacklist(self, token):
         payload = security.decode_token(token)
@@ -21,7 +21,6 @@ class Blacklist:
                     "date": current_time
                 })
                 return True
-            return False
         return False
 
     def check_blacklisted_token(self, token):

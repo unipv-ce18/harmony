@@ -1,6 +1,6 @@
-import json, pymongo
+import pymongo
 from pprint import pprint
-from database import Queries
+from database import Database
 from transcoder import Transcoder
 import utils
 
@@ -11,29 +11,25 @@ client = pymongo.MongoClient(utils.config['database']['url'],
                              authMechanism='SCRAM-SHA-1')
 
 harmony = client[utils.config['database']['name']]
-query = Queries(harmony)
+db = Database(harmony)
 
 artists_list = utils.read_json('resources/artists.json')
-albums_list = utils.read_json('resources/albums.json')
-songs_list = utils.read_json('resources/songs.json')
 users_list = utils.read_json('resources/users.json')
 
-query.add_artists(artists_list)
-query.add_albums(albums_list)
-query.add_songs(songs_list)
-query.add_users(users_list)
+db.drop_artists_collection()
 
-#pprint(search_artist('queens'))
-#pprint(get_artist_albums('Queens of the Stone Age'))
-pprint(query.get_album_songs('Queens of the Stone Age', 'Queens of the Stone Age'))
-#pprint(get_complete_artist('5dbac87a0f70f40bc954c042'))
-#pprint(search('queens'))
+db.add_artists(artists_list)
 
-id_list = [
-    '5dbac87a0f70f40bc954c04a',
-    '5dbac87a0f70f40bc954c04b',
-    '5dbac87a0f70f40bc954c04c'
-]
+pprint(db.search('queens'))
+#pprint(db.get_complete_artist('5dcde7a752b971e9950f95e4'))
+#pprint(db.search_song('leg'))
+#pprint(db.get_artist_albums('5dcdf078cace0a7137a88687'))
 
-transcoder = Transcoder(harmony)
-transcoder.transcoding_songs(id_list, bitrate='96k')
+#id_list = [
+#    '5dbac87a0f70f40bc954c04a',
+#    '5dbac87a0f70f40bc954c04b',
+#    '5dbac87a0f70f40bc954c04c'
+#]
+
+#transcoder = Transcoder(harmony)
+#transcoder.transcoding_songs(id_list, bitrate='96k')

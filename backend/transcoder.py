@@ -1,12 +1,12 @@
 import ffmpy
-from database import Queries
+from database import Database
 
 class Transcoder:
-    def __init__(self, database):
-        self.query = Queries(database)
+    def __init__(self, db_connection):
+        self.db = Database(db_connection)
 
     def transcoding_song(self, id, bitrate='128k', sample_rate=44100, channels=2, extension='.webm'):
-        lossless_song = self.query.get_song_from_id(id)
+        lossless_song = self.db.get_song_from_id(id)
         title = lossless_song['title']
         artist = lossless_song['artist']
         album = lossless_song['album']

@@ -1,132 +1,112 @@
 from bson.objectid import ObjectId
 
-class Queries:
-    def __init__(self, database):
-        self.db = database
-        self.db.artists = database['artists']
-        self.db.albums = database['albums']
-        self.db.songs = database['songs']
-        self.db.users = database['users']
-        self.db.blacklist = database['blacklist']
+class Database:
+    def __init__(self, db_connection):
+        self.artists = db_connection['artists']
+        self.users = db_connection['users']
+        self.blacklist = db_connection['blacklist']
 
     def add_artist(self, a):
-        for artist in self.db.artists.find():
-            if artist['name'].lower() == a['name'].lower():
-                return
-        self.db.artists.insert_one(a)
+        self.artists.insert_one(a)
 
     def add_artists(self, a):
-        if self.db.artists.count() != 0:
+        if self.artists.count() != 0:
             for i in range(len(a)):
                 self.add_artist(a[i])
         else:
-            self.db.artists.insert_many(a)
+            self.artists.insert_many(a)
 
-    def add_album(self, a):
-        for album in self.db.albums.find():
-            if album['name'].lower() == a['name'].lower() and album['artist'].lower() == a['artist'].lower():
-                return
-        self.db.albums.insert_one(a)
-
-    def add_albums(self, a):
-        if self.db.albums.count() != 0:
-            for i in range(len(a)):
-                self.add_album(a[i])
-        else:
-            self.db.albums.insert_many(a)
-
-    def add_song(self, s):
-        for song in self.db.songs.find():
-            if song['title'].lower() == s['title'].lower() and song['album'].lower() == s['album'].lower():
-                return
-        self.db.songs.insert_one(s)
-
-    def add_songs(self, s):
-        if self.db.songs.count() != 0:
-            for i in range(len(s)):
-                self.add_song(s[i])
-        else:
-            self.db.songs.insert_many(s)
-
-    def add_user_2v(self, u):
-        for user in self.db.users.find():
-            if user['username'] == u['username'] or user['email'] == u['email']:
-                return
-            self.db.users.insert_one(u)
+    def add_user(self, u):
+        query_username = {"username": u['username']}
+        result_username = self.users.find_one(query_username)
+        if result_username is None:
+            query_email = {"email": u['email']}
+            result_email = self.users.find_one(query_email)
+            if result_email is None:
+                return self.users.insert_one(u)
+        return False
 
     def add_users(self, u):
-        if self.db.users.count() != 0:
+        if self.users.count() != 0:
             for i in range(len(u)):
-                self.add_user_2v(u[i])
+                self.add_user(u[i])
         else:
-            self.db.users.insert_many(u)
-
-    def add_user(self, user):
-        res = self.db.users.find_one({"username": {"$regex": user["username"], "$options": "-i"}})
-        return self.db.users.insert_one(user) if res is None else False
+            self.users.insert_many(u)
 
     def search_artist(self, artist):
         query = {"name": {"$regex": f'^{artist}', "$options": "-i"}}
-        result = self.db.artists.find(query, {"genres": 0, "description": 0})
-        return [res for res in result]
+        result = self.artists.find(query, {"genres": 0, "description": 0, "albums": 0})
+        artists_list = [res for res in result]
+        for i in range(len(artists_list)):
+            artists_list[i]['_id'] = str(artists_list[i]['_id'])
+        return artists_list
 
     def search_album(self, album):
-        query = {"name": {"$regex": f'^{album}', "$options": "-i"}}
-        result = self.db.albums.find(query)
-        return [res for res in result]
+        query = {"albums.name": {"$regex": f'^{album}', "$options": "-i"}}
+        pipeline = [
+            {'$unwind': '$albums'},
+            {'$match': query},
+            {'$project': {
+                'name': '$albums.name',
+                'year': '$albums.year',
+                'cover': '$albums.cover'
+            } }
+        ]
+        result = self.artists.aggregate(pipeline=pipeline)
+        albums_list = [res for res in result]
+        for i in range(len(albums_list)):
+            albums_list[i]['_id'] = str(albums_list[i]['_id'])
+        return albums_list
 
+    # to fix
     def search_song(self, song):
-        query = {"title": {"$regex": f'^{song}', "$options": "-i"}}
-        result = self.db.songs.find(query)
-        return [res for res in result]
+        query = {"albums.songs.title": {"$regex": f'^{song}', "$options": "-i"}}
+        pipeline = [
+            {'$unwind': '$albums'},
+            {'$match': query},
+            {'$project': {
+                'title': '$albums.songs.title',
+                'artist': '$albums.songs.artist',
+                'album': '$albums.songs.album',
+                'length': '$albums.songs.length'
+            } }
+        ]
+        result = self.artists.aggregate(pipeline=pipeline)
+        songs_list = [res for res in result]
+        for i in range(len(songs_list)):
+            songs_list[i]['_id'] = str(songs_list[i]['_id'])
+        return songs_list
 
-    def search_user(self, user):
-        query = {"username": user}
-        result = self.db.users.find_one(query)
+    def search_user(self, id):
+        query = {"_id": ObjectId(id)}
+        result = self.users.find_one(query, {"_id": 0})
         return result
 
-    def get_artist_albums(self, artist):
-        query = {"artist": artist}
-        result = self.db.albums.find(query, {"artist": 0})
-        return [res for res in result]
+    def get_artist_albums(self, id):
+        query = {"_id": ObjectId(id)}
+        artist = self.artists.find_one(query, {"_id": 0, "name": 0, "genres": 0, "description": 0, "image": 0, "albums.artist": 0, "albums.songs": 0})
+        return artist
 
     def get_album_songs(self, artist, album):
-        query = {"artist": artist, "album": album}
-        result = self.db.songs.find(query, {"album": 0, "link": 0})
-        return [res for res in result]
+        pass
 
     def search(self, item):
-        art = self.search_artist(item)
-        alb = self.search_album(item)
-        s = self.search_song(item)
-        result = {
-            "artist": art,
-            "album": alb,
-            "song": s
+        return {
+            'artist': self.search_artist(item),
+            'album': self.search_album(item),
+            'song': self.search_song(item)
         }
-        return result
 
     def get_complete_artist(self, id):
         query = {"_id": ObjectId(id)}
-        artist = self.db.artists.find_one(query)
-        try:
-            artist_name = artist['name']
-            albums = self.get_artist_albums(artist_name)
-            complete_artist = {
-                "name": artist_name,
-                "genres": artist['genres'],
-                "description": artist['description'],
-                "image": artist['image'],
-                "album": albums
-            }
-            return complete_artist
-        except:
-            return False
+        artist = self.artists.find_one(query, {"_id": 0})
+        return artist
 
     def get_song_from_id(self, id):
-        query = {"_id": ObjectId(id)}
-        result = self.db.songs.find_one(query)
-        return result
+        pass
 
     def get_blacklist(self):
-        return self.db.blacklist
+        return self.blacklist
+
+    def drop_artists_collection(self):
+        self.artists.drop()

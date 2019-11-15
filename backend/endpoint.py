@@ -2,7 +2,7 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from flask_pymongo import PyMongo
 import security
-from database import Queries
+from database import Database
 
 app = Flask(__name__)
 
@@ -14,7 +14,7 @@ api = Api(app, prefix="/api/v1")
 jwt = security.JWTManager(app)
 mongo = PyMongo(app)
 authparser = reqparse.RequestParser()
-query = Queries(mongo.db)
+db = Database(mongo.db)
 
 
 class HelloWorld(Resource):
@@ -33,8 +33,8 @@ class AuthRegister(Resource):
         data = authparser.parse_args()
         username = data["username"]
         data["password"] = security.hash_password(data["password"])
-        if query.search_user(username) is None:
-            return 200 if query.add_user(data) else 401
+        if db.search_user(username) is None:
+            return 200 if db.add_user(data) else 401
         else:
             return {"error": "user already exists"}, 401
 
@@ -43,7 +43,7 @@ class AuthLogin(Resource):
     # todo: check if user exists in db; if so, generate a valid token
     def post(self):
         data = authparser.parse_args()
-        user = query.search_user(data["username"])
+        user = db.search_user(data["username"])
         if user is None:
             return 401
         else:
