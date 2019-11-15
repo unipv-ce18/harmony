@@ -16,13 +16,19 @@ class Database:
         else:
             self.artists.insert_many(a)
 
+    def check_username(self, username):
+        query = {"username": username}
+        result self.users.find_one(query)
+        return result
+
+    def check_email(self, email):
+        query = {"email": email}
+        result = self.users.find_one(query)
+        return result
+
     def add_user(self, u):
-        query_username = {"username": u['username']}
-        result_username = self.users.find_one(query_username)
-        if result_username is None:
-            query_email = {"email": u['email']}
-            result_email = self.users.find_one(query_email)
-            if result_email is None:
+        if self.check_username(u['username']) is None:
+            if self.check_email(u['email']) is None:
                 return self.users.insert_one(u)
         return False
 

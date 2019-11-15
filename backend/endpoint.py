@@ -33,7 +33,7 @@ class AuthRegister(Resource):
         data = authparser.parse_args()
         username = data["username"]
         data["password"] = security.hash_password(data["password"])
-        if db.search_user(username) is None:
+        if db.check_username(username) is None:
             return 200 if db.add_user(data) else 401
         else:
             return {"error": "user already exists"}, 401
@@ -43,7 +43,7 @@ class AuthLogin(Resource):
     # todo: check if user exists in db; if so, generate a valid token
     def post(self):
         data = authparser.parse_args()
-        user = db.search_user(data["username"])
+        user = db.check_username(data["username"])
         if user is None:
             return 401
         else:
