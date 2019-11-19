@@ -1,6 +1,8 @@
 import datetime
-from database import Database
-import security
+
+from backend import security
+from .database import Database
+
 
 class Blacklist:
     def __init__(self, db_connection):

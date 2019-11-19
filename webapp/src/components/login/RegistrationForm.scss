@@ -1,4 +1,4 @@
-.loginDiv {
+.regisDiv {
   position: fixed;
   top: 55%;
   left: 50%;
@@ -7,7 +7,7 @@
   max-width: 350px;
 }
 
-.loginForm {
+.regisForm {
   text-align: center;
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 10px;
@@ -28,7 +28,7 @@
     display: block;
     width: 100%;
 
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     box-sizing: border-box;
 
     font-size: 16px;
@@ -50,15 +50,9 @@
     }
   }
 
-  input[type=checkbox], label {
-    float: left;
-    font-size: 13px;
-  }
-
   input[type=submit] {
-    float: right;
 
-    padding: 5px 30px;
+    padding: 5px 50px;
     margin-top: -6px;
 
     border: none;

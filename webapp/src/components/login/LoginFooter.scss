@@ -21,7 +21,7 @@
 
   transition: opacity .5s;
 
-  @media (max-height: 350px) {
+  @media (max-height: 470px) {
     opacity: 0;
   }
 }

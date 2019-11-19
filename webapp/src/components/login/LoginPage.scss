@@ -9,18 +9,18 @@
   min-width: 250px;
 
   text-align: center;
-  margin-top: 20vh;
+  margin-top: 12vh;
   float: bottom;
 
   transition: opacity .5s;
 
-  @media (max-height: 350px) {
-    opacity: 3%;
+  @media (max-height: 430px) {
+    opacity: 1%;
   }
-  @media (min-height: 350px) and (max-height: 450px) {
+  @media (min-height: 430px) and (max-height: 470px) {
     opacity: 10%;
   }
-  @media (min-height: 450px) and (max-height: 500px) {
-    opacity: 50%;
+  @media (min-height: 470px) and (max-height: 500px) {
+    opacity: 40%;
   }
 }

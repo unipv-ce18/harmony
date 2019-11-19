@@ -8,11 +8,15 @@ import styles from './LoginPage.scss';
 import logoImage from "../../assets/logo.svg";
 
 class LoginPage extends Component {
+  state = {registration : false}
+
+  switchPage = () => this.setState({registration : !this.state.registration});
+
   render(_, {registration}) {
     return (
       <div class={styles.loginPage}>
         <img class={styles.logoDiv} src={logoImage} alt=""/>
-        {registration ? <RegistrationForm/> : <LoginForm/>}
+        {registration ? <RegistrationForm switchPage={this.switchPage} /> : <LoginForm switchPage={this.switchPage} />}
         <LoginFooter/>
       </div>
     );
