@@ -8,7 +8,8 @@ import styles from './LoginPage.scss';
 import logoImage from "../../assets/logo.svg";
 
 class LoginPage extends Component {
-  state = {registration : false}
+
+  state = {registration: false};
 
   switchPage = () => this.setState({registration : !this.state.registration});
 

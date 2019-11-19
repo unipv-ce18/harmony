@@ -44,16 +44,12 @@ class LoginForm extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    if (!this.unameValidation()) return false;
-    else return this.passwordValidation();
-  }
-    /*
-    e.preventDefault();
-    session.doLogin(e.target.user.value, e.target.pass.value)
+    if (!this.unameValidation() || !this.passwordValidation())
+      return false;
+
+    session.doLogin(e.target.lname.value, e.target.lpsw.value)
       .catch(e => alert('Login failed'));
-
-     */
-
+  }
 
   render(props) {
     return (
