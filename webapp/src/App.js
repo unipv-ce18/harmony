@@ -1,6 +1,5 @@
 import {Component, Fragment} from 'preact';
 import Router from 'preact-router';
-import Match from 'preact-router/match';
 
 import Redirect from './components/Redirect';
 import HeaderBar from './header/HeaderBar';
@@ -15,6 +14,8 @@ import styles from './App.scss';
 
 class App extends Component {
 
+  state = {currentPath: null};
+
   constructor(props) {
     super(props);
     session.addStatusListener(() => {
@@ -23,16 +24,18 @@ class App extends Component {
     });
   }
 
-  render() {
+  handleRoute = e => this.setState({currentPath: e.url});
+
+  render(_, {currentPath}) {
     const router = session.loggedIn ? (
-      <Router>
+      <Router onChange={this.handleRoute}>
         <HomePage path="/"/>
         <SearchPage path="/search/:query"/>
         <ArtistPage path="/artist/:id"/>
         <Redirect default to="/"/>
       </Router>
     ) : (
-      <Router>
+      <Router onChange={this.handleRoute}>
         <LoginPage path="/login"/>
         <Redirect default to="/login"/>
       </Router>
@@ -40,7 +43,7 @@ class App extends Component {
 
     return (
       <Fragment>
-        <Match>{({path}) => (<HeaderBar page={path}/>)}</Match>
+        <HeaderBar page={currentPath}/>
         <div class={styles.content}>{router}</div>
         {session.loggedIn && <MediaPlayerWrapper playerLoader={mediaPlayer}/>}
       </Fragment>
