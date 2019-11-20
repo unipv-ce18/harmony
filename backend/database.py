@@ -18,7 +18,7 @@ class Database:
 
     def check_username(self, username):
         query = {"username": username}
-        result self.users.find_one(query)
+        result = self.users.find_one(query)
         return result
 
     def check_email(self, email):
