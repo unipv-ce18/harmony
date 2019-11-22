@@ -47,7 +47,7 @@ class LoginForm extends Component {
     if (!this.unameValidation() || !this.passwordValidation())
       return false;
 
-    session.doLogin(e.target.lname.value, e.target.lpsw.value)
+    session.doLogin(this.state.lname, this.state.lpsw)
       .catch(e => alert('Login failed'));
   }
 
