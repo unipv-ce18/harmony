@@ -1,6 +1,7 @@
 import {getCurrentTime} from './utils'
 
 const API_LOGIN_URL = API_BASE_URL + '/auth/login';
+const API_REGISTRATION_URL = API_BASE_URL + '/auth/register';
 
 export function execLogin(username, password) {
   // TODO: Temporary dummy data to for testing
@@ -18,4 +19,13 @@ export function execLogin(username, password) {
       return response.json();
     });
   */
+}
+
+export function execRegistration(email, username, password) {
+  const data = {email, username, password};
+  return fetch(API_REGISTRATION_URL, {method: 'POST', body: JSON.stringify(data)} )
+    .then(response => {
+      if (!response.ok) throw Error('Registration failed');
+      return response.json();
+    });
 }

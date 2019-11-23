@@ -9,6 +9,7 @@ class LoginForm extends Component {
     this.state = {
       lname: "",
       lpsw: "",
+      bgColor: "",
       error: {type: "", value: ""}
     };
 
@@ -19,7 +20,8 @@ class LoginForm extends Component {
 
   unameValidation() {
     if (this.state.lname === "") {
-      this.setState({error: {type: "usernameE", value: "This field cannot be empty"}});
+      this.setState({error: {type: "usernameE", value: "This field cannot be empty."}});
+      this.setState({bgColor: "red"});
       return false;
     }
     return true;
@@ -27,7 +29,7 @@ class LoginForm extends Component {
 
   passwordValidation() {
     if (this.state.lpsw === "") {
-      this.setState({error: {type: "passE", value: "This field cannot be empty"}});
+      this.setState({error: {type: "passE", value: "This field cannot be empty."}});
       return false;
     }
     return true;
@@ -53,15 +55,21 @@ class LoginForm extends Component {
 
   render(props) {
     return (
-      <div class={styles.loginDiv}>
-        <form class={styles.loginForm} onSubmit={this.handleSubmit}>
+      <div className={styles.loginDiv}>
+        <form className={styles.loginForm} onSubmit={this.handleSubmit}>
           <div>
-            <input type="text" placeholder="Username" name="lname" onChange={this.handleChange}
-                   onFocus={this.handleFocus} autoFocus/>
-            {this.state.error.type === "usernameE" && (<div>{this.state.error.value}</div>)}
+            <div>
+              <input type="text" placeholder="Username" name="lname" onChange={this.handleChange}
+                     onFocus={this.handleFocus}
+                     style={this.state.error.type === "usernameE" ? "border: 1px solid #bf0000" : "border: ''"} autoFocus />
+              {this.state.error.type === "usernameE" && (
+                <div className={styles.errorField}><span/>{this.state.error.value}</div>)}
+            </div>
             <input type="password" placeholder="Password" name="lpsw" onChange={this.handleChange}
-                   onFocus={this.handleFocus}/>
-            {this.state.error.type === "passE" && (<div>{this.state.error.value}</div>)}
+                   onFocus={this.handleFocus}
+                   style={this.state.error.type === "passE" ? "border: 1px solid #bf0000" : "border: ''"}/>
+            {this.state.error.type === "passE" && (
+              <div className={styles.errorField}><span/>{this.state.error.value}</div>)}
           </div>
           <div>
             <input type="checkbox"/>

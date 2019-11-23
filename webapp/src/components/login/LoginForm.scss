@@ -13,14 +13,14 @@
   border-radius: 10px;
 
   > div:first-of-type {
-    padding: 30px 20px 0;
+    padding: 15px 20px 0;
   }
 
   > div:last-of-type {
     width: 100%;
     overflow: hidden; /* clear fix */
 
-    padding: 10px 16px 16px;
+    padding: 25px 16px 16px;
     box-sizing: border-box;
   }
 
@@ -28,7 +28,8 @@
     display: block;
     width: 100%;
 
-    margin-bottom: 20px;
+    margin-top: 15px;
+    margin-bottom: 5px;
     box-sizing: border-box;
 
     font-size: 16px;
@@ -82,4 +83,24 @@
   background-color: #2a0c12;
 }
 
+
+.errorField {
+  position:fixed;
+  left: 5px;
+  background-color: #232729;
+  padding: 12px 15px 13px;
+  border-radius: 5px;
+  font-size: 15px;
+
+  span {
+    display: block;
+    width: 20px;
+    height: 10px;
+    top: -10px;
+    left: 8px;
+    background-color: #232729;
+    position: absolute;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+}
 

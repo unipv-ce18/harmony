@@ -45,6 +45,7 @@
     }
 
     transition: background-color .25s;
+
     &:focus {
       background-color: rgba(255, 255, 255, .05);
     }
@@ -75,5 +76,28 @@
   font-size: 14px;
   background-color: #2a0c12;
 }
+
+
+.errorField {
+  position: fixed;
+  left: 5px;
+  background-color: #232729;
+  padding: 12px 15px 13px;
+  border-radius: 5px;
+  font-size: 15px;
+
+  span {
+    display: block;
+    width: 20px;
+    height: 10px;
+    top: -10px;
+    left: 8px;
+    background-color: #232729;
+    position: absolute;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+}
+
+
 
 
