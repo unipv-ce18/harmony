@@ -1,9 +1,7 @@
-const preact = require('preact');
 const HarmonyConf = require('./harmony-webapp.conf');
 
 module.exports = {
   globals: {
-    __h: preact.h,
     API_BASE_URL: HarmonyConf.API_BASE_URL
   },
   setupFilesAfterEnv: [

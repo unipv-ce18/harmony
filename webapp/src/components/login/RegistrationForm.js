@@ -67,7 +67,7 @@ class RegistrationForm extends Component {
       return false;
     } else {
       if (this.state.rpsw1 !== this.state.rpsw2) {
-        this.setState({error: {type: "passe2E", value: "Passwords don't match."}});
+        this.setState({error: {type: "pass2E", value: "Passwords don't match."}});
         return false;
       }
     }
@@ -88,7 +88,7 @@ class RegistrationForm extends Component {
     if (!this.emailValidation() || !this.unameValidation() ||
       !this.password1Validation() || !this.password2Validation())
       return false;
-    execRegistration(this.state.email, this.state.rname, this.state.rpsw1)
+    execRegistration(this.state.remail, this.state.rname, this.state.rpsw1)
       .then(_ => {
         session.doLogin(this.state.rname, this.state.rpsw1)
       })
