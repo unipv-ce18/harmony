@@ -1,8 +1,10 @@
-import {h, Component} from 'preact';
+import {Component} from 'preact';
 
-import styles from './RegistrationForm.scss';
 import {execRegistration} from '../../core/apiCalls';
 import {session} from "../../Harmony";
+
+import style from './formsCommon.scss';
+import styleRegistration from './RegistrationForm.scss';
 
 class RegistrationForm extends Component {
   constructor(props) {
@@ -99,35 +101,35 @@ class RegistrationForm extends Component {
 
   render(props) {
     return (
-      <div className={styles.regisDiv}>
-        <form className={styles.regisForm} onSubmit={this.handleSubmit}>
+      <div class={style.formWrapper}>
+        <form class={`${style.form} ${styleRegistration.regisForm}`} onSubmit={this.handleSubmit}>
           <div>
             <input type="text" placeholder="Email" name="remail" onChange={this.handleChange}
                    onFocus={this.handleFocus}
                    style={this.state.error.type === "emailE" ? "border: 1px solid #bf0000" : "border: ''"}/>
             {this.state.error.type === "emailE" && (
-              <div className={styles.errorField}><span/>{this.state.error.value}</div>)}
+              <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             <input type="text" placeholder="Username" name="rname" onChange={this.handleChange}
                    onFocus={this.handleFocus}
                    style={this.state.error.type === "usernameE" ? "border: 1px solid #bf0000" : "border: ''"}/>
             {this.state.error.type === "usernameE" && (
-              <div className={styles.errorField}><span/>{this.state.error.value}</div>)}
+              <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             <input type="password" placeholder="Password" name="rpsw1" onChange={this.handleChange}
                    onFocus={this.handleFocus}
                    style={this.state.error.type === "pass1E" ? "border: 1px solid #bf0000" : "border: ''"}/>
             {this.state.error.type === "pass1E" && (
-              <div className={styles.errorField}><span/>{this.state.error.value}</div>)}
+              <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             <input type="password" placeholder="Repeat Password" name="rpsw2" onChange={this.handleChange}
                    onFocus={this.handleFocus}
                    style={this.state.error.type === "pass2E" ? "border: 1px solid #bf0000" : "border: ''"}/>
             {this.state.error.type === "pass2E" && (
-              <div className={styles.errorField}><span/>{this.state.error.value}</div>)}
+              <div class={style.errorField}><span/>{this.state.error.value}</div>)}
           </div>
           <div>
             <input type="submit" value="Sign Up"/>
           </div>
         </form>
-        <p className={styles.regLink}>Are you already registered? <a href="#" onClick={props.switchPage}>Login</a> now
+        <p class={style.regLink}>Are you already registered? <a href="#" onClick={props.switchPage}>Login</a> now
         </p>
       </div>
     );

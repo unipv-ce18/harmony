@@ -1,7 +1,9 @@
 import {Component} from 'preact';
 
-import styles from './LoginForm.scss';
 import {session} from '../../Harmony';
+
+import style from './formsCommon.scss';
+import styleLogin from './LoginForm.scss';
 
 class LoginForm extends Component {
   constructor(props) {
@@ -55,21 +57,21 @@ class LoginForm extends Component {
 
   render(props) {
     return (
-      <div className={styles.loginDiv}>
-        <form className={styles.loginForm} onSubmit={this.handleSubmit}>
+      <div class={style.formWrapper}>
+        <form class={`${style.form} ${styleLogin.loginForm}`} onSubmit={this.handleSubmit}>
           <div>
             <div>
               <input type="text" placeholder="Username" name="lname" onChange={this.handleChange}
                      onFocus={this.handleFocus}
                      style={this.state.error.type === "usernameE" ? "border: 1px solid #bf0000" : "border: ''"} autoFocus />
               {this.state.error.type === "usernameE" && (
-                <div className={styles.errorField}><span/>{this.state.error.value}</div>)}
+                <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             </div>
             <input type="password" placeholder="Password" name="lpsw" onChange={this.handleChange}
                    onFocus={this.handleFocus}
                    style={this.state.error.type === "passE" ? "border: 1px solid #bf0000" : "border: ''"}/>
             {this.state.error.type === "passE" && (
-              <div className={styles.errorField}><span/>{this.state.error.value}</div>)}
+              <div class={style.errorField}><span/>{this.state.error.value}</div>)}
           </div>
           <div>
             <input type="checkbox"/>
@@ -77,7 +79,7 @@ class LoginForm extends Component {
             <input type="submit" value="Login"/>
           </div>
         </form>
-        <p className={styles.regLink}>Not yet registered? <a href="#" onClick={props.switchPage}>Sign Up</a> now</p>
+        <p class={style.regLink}>Not yet registered? <a href="#" onClick={props.switchPage}>Sign Up</a> now</p>
       </div>
     );
   }
