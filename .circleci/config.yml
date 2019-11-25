@@ -1,0 +1,44 @@
+version: 2
+
+jobs:
+  test-webapp:
+    docker:
+      - image: circleci/node:13.1.0
+    parallelism: 2
+    working_directory: ~/harmony/webapp
+    steps:
+      - checkout:
+          path: ~/harmony
+
+      - run:
+          name: Install yarn
+          command: sudo npm install -g yarn
+
+      - restore_cache:
+          key: dep-cache-{{ checksum "yarn.lock" }}
+
+      - run:
+          name: Install dependencies
+          command: yarn
+
+      - save_cache:
+          key: dep-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - ./node_modules
+
+      - run:
+          name: Execute tests
+          command: |
+            TESTFILES=$(circleci tests glob "test/**/*.test.js" | circleci tests split --split-by=timings)
+            yarn test --ci --runInBand $TESTFILES
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: test-results/jest
+
+      - store_test_results:
+          path: test-results
+
+workflows:
+  version: 2
+  main-workflow:
+    jobs:
+      - test-webapp
