@@ -240,6 +240,9 @@ class Database:
     def get_blacklist(self):
         return self.blacklist
 
+    def update_song_transcoding_info(self, id, key_id, key):
+        pass
+
     def drop_artists_collection(self):
         self.artists.drop()
 

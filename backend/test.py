@@ -1,6 +1,6 @@
 import pymongo
 from database.database import Database
-from transcoder import Transcoder
+from transcoder.transcoder import Transcoder
 from model.artist import Artist
 from model.release import Release
 from model.song import Song
@@ -13,6 +13,7 @@ client = pymongo.MongoClient(utils.config['MONGO_URI'],
 
 harmony = client[utils.config['MONGO_NAME']]
 db = Database(harmony)
+transcoder = Transcoder(harmony)
 
 artists_list = utils.read_json('resources/artists.json')
 users_list = utils.read_json('resources/users.json')
@@ -29,9 +30,7 @@ print(db.search('avon'))
 #print(db.get_artist_releases('5ddd1ca32af898b100e7ce6d'))
 #print(db.get_release_songs('5ddd1ca32af898b100e7ce0f'))
 
-id_list = [
-    '5ddd1ca32af898b100e7ce17'
-]
+id = '5ddd1ca32af898b100e7ce17'
 
-transcoder = Transcoder(harmony)
-#transcoder.transcoding_songs(id_list, bitrate='96k')
+transcoder.transcoding(id)
+transcoder.manifest_creation(id)
