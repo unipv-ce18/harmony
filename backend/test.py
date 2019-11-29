@@ -5,13 +5,13 @@ from model.artist import Artist
 from model.release import Release
 from model.song import Song
 import utils
+from config import current_config
 
+client = pymongo.MongoClient(current_config.MONGO_URI,
+                             username=current_config.MONGO_USERNAME,
+                             password=current_config.MONGO_PASSWORD)
 
-client = pymongo.MongoClient(utils.config['MONGO_URI'],
-                             username=utils.config['MONGO_USERNAME'],
-                             password=utils.config['MONGO_PASSWORD'])
-
-harmony = client[utils.config['MONGO_NAME']]
+harmony = client[current_config.MONGO_DBNAME]
 db = Database(harmony)
 
 artists_list = utils.read_json('resources/artists.json')
