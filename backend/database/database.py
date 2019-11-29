@@ -111,7 +111,7 @@ def objectid_to_str(res):
 
 
 def modify_artist(artist):
-    if 'releases' in artist
+    if 'releases' in artist:
         artist['releases'] = modify_releases(artist['releases'])
     return artist
 
