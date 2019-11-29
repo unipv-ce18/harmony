@@ -1,23 +1,25 @@
 import ffmpy
-from database import Database
+from database.database import Database
+from model.song import Song
+
 
 class Transcoder:
     def __init__(self, db_connection):
         self.db = Database(db_connection)
 
     def transcoding_song(self, id, bitrate='128k', sample_rate=44100, channels=2, extension='.webm'):
-        lossless_song = self.db.get_song_from_id(id)
+        lossless_song = self.db.get_song(id).get_song_as_dict()
         title = lossless_song['title']
-        artist = lossless_song['artist']
-        album = lossless_song['album']
+        artist = lossless_song['artist']['name']
+        release = lossless_song['release']['name']
 
         input = f'lossless_songs/{title}.flac'
         output = f'compressed_songs/{title}-{bitrate.replace("k", "")}{extension}'
 
         metadata_title = f'title="{title}"'
         metadata_artist = f'artist="{artist}"'
-        metadata_album = f'album="{album}"'
-        m = [metadata_title, metadata_artist, metadata_album]
+        metadata_release = f'album="{release}"'
+        m = [metadata_title, metadata_artist, metadata_release]
         metadata = ''
         for i in range(len(m)):
             metadata += f'-metadata {m[i]} '
