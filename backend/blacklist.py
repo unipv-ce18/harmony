@@ -1,7 +1,6 @@
 import datetime
-
-from backend import security
-from .database import Database
+from database.database import Database
+import security
 
 
 class Blacklist:

@@ -1,35 +1,37 @@
 import pymongo
-from pprint import pprint
-from database import Database
+from database.database import Database
 from transcoder import Transcoder
+from model.artist import Artist
+from model.release import Release
+from model.song import Song
 import utils
 
-client = pymongo.MongoClient(utils.config['database']['url'],
-                             username=utils.config['database']['username'],
-                             password=utils.config['database']['password'],
-                             authSource=utils.config['database']['name'],
-                             authMechanism='SCRAM-SHA-1')
 
-harmony = client[utils.config['database']['name']]
+client = pymongo.MongoClient(utils.config['MONGO_URI'],
+                             username=utils.config['MONGO_USERNAME'],
+                             password=utils.config['MONGO_PASSWORD'])
+
+harmony = client[utils.config['MONGO_NAME']]
 db = Database(harmony)
 
 artists_list = utils.read_json('resources/artists.json')
 users_list = utils.read_json('resources/users.json')
 
-db.drop_artists_collection()
+#db.drop_artists_collection()
+#db.drop_users_collection()
 
-db.add_artists(artists_list)
+#db.add_artists(artists_list)
+#db.add_users(users_list)
 
-pprint(db.search('queens'))
-#pprint(db.get_complete_artist('5dcde7a752b971e9950f95e4'))
-#pprint(db.search_song('leg'))
-#pprint(db.get_artist_albums('5dcdf078cace0a7137a88687'))
+print(db.search('avon'))
+#print(db.get_artist('5ddd1ca32af898b100e7ce6d'))
+#print(db.get_release('5ddd1ca32af898b100e7ce10'))
+#print(db.get_artist_releases('5ddd1ca32af898b100e7ce6d'))
+#print(db.get_release_songs('5ddd1ca32af898b100e7ce0f'))
 
-#id_list = [
-#    '5dbac87a0f70f40bc954c04a',
-#    '5dbac87a0f70f40bc954c04b',
-#    '5dbac87a0f70f40bc954c04c'
-#]
+id_list = [
+    '5ddd1ca32af898b100e7ce17'
+]
 
-#transcoder = Transcoder(harmony)
+transcoder = Transcoder(harmony)
 #transcoder.transcoding_songs(id_list, bitrate='96k')
