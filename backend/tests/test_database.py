@@ -16,7 +16,7 @@ def _connect_db():
         current_config.MONGO_URI,
         username=current_config.MONGO_USERNAME,
         password=current_config.MONGO_PASSWORD
-    )[current_config.MONGO_DBNAME])
+    ).get_database())
 
 
 class DatabaseTest(unittest.TestCase):

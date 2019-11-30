@@ -3,11 +3,12 @@ import os
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'vivalacarbonara'
-    JWT_SECRET_KEY = os.environ.get('SECRET_KEY') or 'aiutoamici'
-    MONGO_URI = os.environ.get('MONGO_URI') or 'mongodb://localhost:27017/harmony?authSource=harmony'
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'aiutoamici'
+
+    # Note: ?authSource  is not required if same db
+    MONGO_URI = os.environ.get('MONGO_URI') or 'mongodb://localhost/harmony'
     MONGO_USERNAME = os.environ.get('MONGO_USERNAME') or 'harmony'
     MONGO_PASSWORD = os.environ.get('MONGO_PASSWORD') or 'pastina'
-    MONGO_DBNAME = os.environ.get('MONGO_DBNAME') or 'harmony'
 
 
 class DevelopmentConfig(Config):

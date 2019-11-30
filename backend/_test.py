@@ -11,8 +11,7 @@ client = pymongo.MongoClient(current_config.MONGO_URI,
                              username=current_config.MONGO_USERNAME,
                              password=current_config.MONGO_PASSWORD)
 
-harmony = client[current_config.MONGO_DBNAME]
-db = Database(harmony)
+db = Database(client.get_database())
 
 artists_list = utils.read_json('resources/artists.json')
 users_list = utils.read_json('resources/users.json')
