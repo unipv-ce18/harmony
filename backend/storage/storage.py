@@ -57,9 +57,10 @@ class Storage:
         except ResponseError as err:
             print(err)
 
+    def delete_all_files(self, bucket):
+        for file in self.list_files(bucket):
+            self.delete_file(bucket, file)
+
     def upload_folder(self, bucket, folder, subfolder):
-        try:
-            for file in os.listdir(f'{folder}/{subfolder}'):
-                self.upload_file(bucket, f'{subfolder}/{file}', f'{folder}')
-        except ResponseError as err:
-            print(err)
+        for file in os.listdir(f'{folder}/{subfolder}'):
+            self.upload_file(bucket, f'{subfolder}/{file}', f'{folder}')
