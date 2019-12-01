@@ -7,17 +7,18 @@ from model.release import Release
 from model.song import Song
 from storage.storage import Storage
 import utils
+from config import current_config
+from transcoder.config import config_storage
 
+db_client = pymongo.MongoClient(current_config.MONGO_URI,
+                             username=current_config.MONGO_USERNAME,
+                             password=current_config.MONGO_PASSWORD)
+harmony = db_client.get_database()
 
-db_client = pymongo.MongoClient(utils.config['MONGO_URI'],
-                                username=utils.config['MONGO_USERNAME'],
-                                password=utils.config['MONGO_PASSWORD'])
-harmony = db_client[utils.config['MONGO_NAME']]
-
-minio_client = Minio(utils.config_storage['Endpoint'],
-                     access_key=utils.config_storage['AccessKey'],
-                     secret_key=utils.config_storage['SecretKey'],
-                     secure=utils.config_storage['TLS'])
+minio_client = Minio(config_storage['Endpoint'],
+                     access_key=config_storage['AccessKey'],
+                     secret_key=config_storage['SecretKey'],
+                     secure=config_storage['TLS'])
 
 
 db = Database(harmony)
