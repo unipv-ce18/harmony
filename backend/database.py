@@ -1,10 +1,28 @@
 from bson.objectid import ObjectId
 
+
 class Database:
     def __init__(self, db_connection):
         self.artists = db_connection['artists']
         self.users = db_connection['users']
         self.blacklist = db_connection['blacklist']
+
+    def store_token(self, token):
+        _my_token = {
+            "jti": token["jti"],
+            "user_identity": token["identity"],
+            "type": token["type"],
+            "exp": token["exp"],
+            "revoked": False
+        }
+        return self.blacklist.insert_one(_my_token)
+
+    def revoke_token(self, token_id):
+        self.blacklist.update_one({"jti": token_id}, {"$set": {"revoked": True}})
+
+    def is_token_revoked(self, token):
+        _tok = self.blacklist.find_one({"jti": token["jti"]})
+        return True if _tok is None else _tok["revoked"]
 
     def add_artist(self, a):
         self.artists.insert_one(a)
@@ -90,7 +108,8 @@ class Database:
 
     def get_artist_albums(self, id):
         query = {"_id": ObjectId(id)}
-        artist = self.artists.find_one(query, {"_id": 0, "name": 0, "genres": 0, "description": 0, "image": 0, "albums.artist": 0, "albums.songs": 0})
+        artist = self.artists.find_one(query, {"_id": 0, "name": 0, "genres": 0, "description": 0, "image": 0,
+                                               "albums.artist": 0, "albums.songs": 0})
         return artist
 
     def get_album_songs(self, artist, album):

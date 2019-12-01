@@ -17,18 +17,12 @@ authparser = reqparse.RequestParser()
 db = Database(mongo.db)
 
 
-class HelloWorld(Resource):
-    def get(self):
-        return {"hello": "world"}
-
-
-class UserInfo(Resource):
-    def get(self):
-        return {"count": mongo.db.users.count()}
+@jwt.token_in_blacklist_loader
+def check_token_revoked(decrypted_token):
+    return db.is_token_revoked(decrypted_token)
 
 
 class AuthRegister(Resource):
-    # todo: if user credentials are correct, generate a jwt token
     def post(self):
         data = authparser.parse_args()
         username = data["username"]
@@ -40,22 +34,42 @@ class AuthRegister(Resource):
 
 
 class AuthLogin(Resource):
-    # todo: check if user exists in db; if so, generate a valid token
     def post(self):
         data = authparser.parse_args()
         user = db.check_username(data["username"])
         if user is None:
             return 401
         else:
-            access = security.create_access_token(identity=data["username"])
-            refresh = security.create_refresh_token(identity=data["username"])
-            return {"access-token": access, "refresh-token": refresh}, 200
+            if security.verify_password(user["password"], data["password"]):
+                access = security.create_access_token(identity=data["username"])
+                refresh = security.create_refresh_token(identity=data["username"])
+                db.store_token(security.decode_token(access))
+                db.store_token(security.decode_token(refresh))
+                return {"access-token": access, "refresh-token": refresh}
+            else:
+                return 401
 
 
 class AuthLogout(Resource):
-    # todo: validate user and blacklist his token
+    @security.jwt_required
     def post(self):
-        return {"to": "do"}
+        _jwt = security.get_raw_jwt()
+        if _jwt:
+            db.revoke_token(_jwt["jti"])
+            return 200
+        return 401
+
+
+class TokenRefresh(Resource):
+    @security.jwt_refresh_token_required
+    def post(self):
+        user = security.get_jwt_identity()
+        _jwt = security.get_raw_jwt()
+        if _jwt:
+            access_token = security.create_access_token(user)
+            db.store_token(security.decode_token(access_token))
+            return {"access-token": access_token}, 200
+        return 401
 
 
 # request parsers that automatically refuse requests without specified fields
@@ -63,12 +77,13 @@ authparser.add_argument('username', help="This field cannot be blank", required=
 authparser.add_argument('password', help='This field cannot be blank', required=True)
 authparser.add_argument('email', help='This field cannot be blank', required=False)
 # route API methods to their specific addresses (remember the prefix!)
-api.add_resource(HelloWorld, "/")
-api.add_resource(UserInfo, "/users")
 api.add_resource(AuthRegister, "/auth/register")
 api.add_resource(AuthLogin, "/auth/login")
 api.add_resource(AuthLogout, "/auth/logout")
+api.add_resource(TokenRefresh, "/auth/refresh")
 
 if __name__ == '__main__':
+    # set cron job to delete tokens after 1 day
+    db.blacklist.createIndex({"exp": 1}, {"expiresAfterSeconds": 86400})
     # start the backend on specified address
     app.run(host='127.0.0.1:5000')
