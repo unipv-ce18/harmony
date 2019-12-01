@@ -2,7 +2,7 @@ version: 2
 
 jobs:
 
-  test-apisvc:
+  test-apiserver:
     docker:
       - image: circleci/python:3.8
         environment:
@@ -21,17 +21,17 @@ jobs:
           path: ~/harmony
 
       - restore_cache:
-          key: dep-cache-apisvc-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: dep-cache-apiserver-{{ .Branch }}-{{ checksum "common/requirements.txt"}}{{ checksum "apiserver/requirements.txt" }}
 
       - run:
           name: Install dependencies
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -r requirements.txt
+            pip install -r apiserver/requirements.txt
 
       - save_cache:
-          key: dep-cache-apisvc-{{ .Branch }}-{{ checksum "requirements.txt"}}
+          key: dep-cache-apiserver-{{ .Branch }}-{{ checksum "common/requirements.txt"}}{{ checksum "apiserver/requirements.txt" }}
           paths:
             - ./venv
 
@@ -81,5 +81,5 @@ workflows:
   version: 2
   main-workflow:
     jobs:
-      - test-apisvc
+      - test-apiserver
       - test-webapp
