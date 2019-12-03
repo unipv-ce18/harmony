@@ -1,9 +1,13 @@
-import os, subprocess, shutil
-import ffmpy
+import os
+import subprocess
+import shutil
 import hashlib
-from database.database import Database
-from storage.storage import Storage
-from model.song import Song
+
+import ffmpy
+
+from database import Database
+from storage import Storage
+from model import Song
 
 
 def _create_key(id):
@@ -21,6 +25,14 @@ _tmp_subfolder = ['compressed_songs', 'manifest_files']
 
 class Transcoder:
     def __init__(self, db_connection, minio_connection):
+        """Initialize Transcoder.
+
+        Retrieve instances of database and storage connections. Create the
+        temporary folders used during the transcode process.
+
+        :param pymongo.database.Database db_connection: database connection instance.
+        :param minio.api.Minio minio_connection: storage connection instance.
+        """
         self.db = Database(db_connection)
         self.st = Storage(minio_connection)
 
@@ -31,23 +43,32 @@ class Transcoder:
                 os.makedirs(os.path.join(_tmp_folder, subfolder))
 
     def transcoding_song(self, id, bitrate='160', sample_rate=44100, channels=2, extension='.webm'):
+        """Transcode a song from flac format to the format specified in extension.
+
+    	input file: downloaded from lossless-songs bucket inside storage server
+            and saved inside tmp folder.
+            input-file-name = {id}.flac
+    	output file: saved inside tmp/compressed_songs folder.
+            output-file-name = {id}-{bitrate}{extension} (default: {id}-160.webm)
+
+    	:param str id: id of the song to be transcoded and name of the input file.
+    	:param str bitrate: the bitrate of the output song. The default bitrate
+    		is 160 kbps.
+    	:param int sample_rate: the sample rate of the output song. The default
+    		sample rate is 44100 Hz.
+    	:param int channels: the number of channels of the ouput song. The default
+    		is 2, which stands for stereo; 1 is mono.
+    	:param str extension: the extension of the ouput song. The default is .webm.
+    	"""
         file_name = f'{id}.flac'
         output_file_name = f'{id}-{bitrate}{extension}'
 
         lossless_song = self.st.download_file('lossless-songs', file_name, _tmp_folder)
-        lossless_song_info = self.db.get_song(id).get_song_as_dict()
 
         input = f'{_tmp_folder}/{file_name}'
         output = f'{_tmp_folder}/{_tmp_subfolder[0]}/{output_file_name}'
 
-        m = [
-            f'title="{lossless_song_info["title"]}"',
-            f'artist="{lossless_song_info["artist"]["name"]}"',
-            f'album="{lossless_song_info["release"]["name"]}"'
-        ]
-        metadata = ''
-        for i in range(len(m)):
-            metadata += f'-metadata {m[i]} '
+        metadata = self.metadata(id)
 
         if channels > 2:
             channels = 2
@@ -61,13 +82,58 @@ class Transcoder:
         	outputs={output: output_options}
         )
         ff.run()
-        self.st.upload_file('compressed-songs', output_file_name, f'{_tmp_folder}/{_tmp_subfolder[0]}')
 
-    def transcoding(self, id, bitrate=_bitrate, sample_rate=44100, channels=2, extension='.webm'):
+    def metadata(self, id):
+        """Generate metadata for song from database information.
+
+        :param str id: id of the song to be transcoded.
+        """
+        lossless_song_info = self.db.get_song(id).get_song_as_dict()
+        m = [
+            f'title="{lossless_song_info["title"]}"',
+            f'artist="{lossless_song_info["artist"]["name"]}"',
+            f'album="{lossless_song_info["release"]["name"]}"'
+        ]
+        metadata = ''
+        for i in range(len(m)):
+            metadata += f'-metadata {m[i]} '
+        return metadata
+
+    def transcoding(self, id, sample_rate=44100, channels=2, extension='.webm'):
+        """Transcode a song in multiple bitrates.
+
+        Use the different bitrates specified inside _bitrate list to create three
+        different versions of the same song with three different qualities: low,
+        medium and high.
+
+        :param str id: id of the song to be transcoded and name of the input file.
+    	:param int sample_rate: the sample rate of the output song. The default
+    		sample rate is 44100 Hz.
+    	:param int channels: the number of channels of the ouput song. The default
+    		is 2, which stands for stereo; 1 is mono.
+    	:param str extension: the extension of the ouput song. The default is .webm.
+        """
         for b in _bitrate:
             self.transcoding_song(id, b, sample_rate, channels, extension)
 
     def manifest_creation(self, id):
+        """Create the manifest and the segments of a transcoded song.
+
+        Create the manifest file and the segments of the three different versions
+        of the transcoded song. The segments are encrypted using {key}, that has
+        to be a string of 16 or 32 hex digits (md5 hash is 32 digits). The {key}
+        and {key_id} are saved inside the database inside the song sub-document.
+        The songs are retrieved from the output folder of the transcoder (tmp/compressed_songs).
+
+        Use v2.3.0 packager-linux (https://github.com/google/shaka-packager/releases).
+
+        manifest file: saved as {id}.mpd inside tmp/manifest_files.
+        segments: saved inside tmp/{id} folder.
+            - init: saved as {bitrate}_init.webm
+            - template: saved as {bitrate}_$Time$.webm
+
+        :param str id: id of the transcoded song.
+        """
         key_id = _create_key(id)
         key = _create_key(id)
         param = lambda id, bitrate : f'in={_tmp_folder}/{_tmp_subfolder[0]}/{id}-{bitrate}.webm,\
@@ -93,20 +159,52 @@ class Transcoder:
         ]
 
         subprocess.run(command)
-
-        self.st.upload_file('manifest-files', manifest_file_name, manifest_path)
-        self.st.upload_folder('init-segments', _tmp_folder, id)
-
         self.db.update_song_transcoding_info(id, key_id, key)
 
+    def upload_files_to_storage_server(self, id, extension):
+        """Upload transcode process files to storage server.
+
+        Transcoded songs are uploaded to compressed-songs bucket.
+        Manifest file is uploaded to manifest-files bucket.
+        Segments are uploaded to init-segments bucket inside {id} folder.
+
+        :param str id: id of the transcoded song.
+        :param str extension: the extension of the transcoded song. The default is .webm.
+        """
+        song = lambda bitrate: f'{id}-{bitrate}{extension}'
+        for b in _bitrate:
+            self.st.upload_file('compressed-songs', song(b), f'{_tmp_folder}/{_tmp_subfolder[0]}')
+        self.st.upload_file('manifest-files', f'{id}.mpd', f'{_tmp_folder}/{_tmp_subfolder[1]}/{id}')
+        self.st.upload_folder('init-segments', _tmp_folder, id)
+
     def clear_transcoding_tmp_files(self, id, extension='.webm'):
+        """Delete all the temporary files created in the process of transcoding
+        the song, making the manifest file and creating the segments.
+
+        :param str id: id of the transcoded song.
+        :param str extension: the extension of the transcoded song. The default is .webm.
+        """
         for b in _bitrate:
             os.remove(f'{_tmp_folder}/{_tmp_subfolder[0]}/{id}-{b}{extension}')
         shutil.rmtree(f'{_tmp_folder}/{_tmp_subfolder[1]}/{id}')
         shutil.rmtree(f'{_tmp_folder}/{id}')
         os.remove(f'{_tmp_folder}/{id}.flac')
 
-    def complete_transcode(self, id, bitrate=_bitrate, sample_rate=44100, channels=2, extension='.webm'):
-        self.transcoding(id, bitrate, sample_rate, channels, extension)
+    def complete_transcode(self, id, sample_rate=44100, channels=2, extension='.webm'):
+        """Perform a complete transcode process on a song.
+
+        Retrieve the song from the storage server, transcode it in three different
+        qualities, create the manifest and the segments. Upload all the output files
+        to the storage server. Delete all the local temporary files.
+
+        :param str id: id of the song to be transcoded and name of the input file.
+    	:param int sample_rate: the sample rate of the output song. The default
+    		sample rate is 44100 Hz.
+    	:param int channels: the number of channels of the ouput song. The default
+    		is 2, which stands for stereo; 1 is mono.
+    	:param str extension: the extension of the ouput song. The default is .webm.
+        """
+        self.transcoding(id, sample_rate, channels, extension)
         self.manifest_creation(id)
+        self.upload_files_to_storage_server(id, extension)
         self.clear_transcoding_tmp_files(id, extension)

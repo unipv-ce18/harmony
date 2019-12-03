@@ -1,15 +1,12 @@
 import os
 import pymongo
 from minio import Minio
-from database.database import Database
-from transcoder.transcoder import Transcoder
-from model.artist import Artist
-from model.release import Release
-from model.song import Song
-from storage.storage import Storage
+from database import Database
+from transcoder import Transcoder, config_storage
+from model import Artist, Release, Song
+from storage import Storage
 import utils
 from config import current_config
-from transcoder.config import config_storage
 
 
 def rename_songs_with_id(artist_id):
@@ -30,15 +27,14 @@ def rename_songs_with_id(artist_id):
 
 
 db_client = pymongo.MongoClient(current_config.MONGO_URI,
-                             username=current_config.MONGO_USERNAME,
-                             password=current_config.MONGO_PASSWORD)
+                                username=current_config.MONGO_USERNAME,
+                                password=current_config.MONGO_PASSWORD)
 harmony = db_client.get_database()
 
 minio_client = Minio(config_storage['Endpoint'],
                      access_key=config_storage['AccessKey'],
                      secret_key=config_storage['SecretKey'],
                      secure=config_storage['TLS'])
-
 
 db = Database(harmony)
 st = Storage(minio_client)
@@ -64,10 +60,10 @@ if NEW:
         st.upload_file('lossless-songs', file, 'lossless_songs')
 
 #print(db.search('avon'))
-#print(db.get_artist('5de3d93ae5d04b5bd5330397'))
-#print(db.get_release('5de3d93ae5d04b5bd5330339'))
-#print(db.get_artist_releases('5de3d93ae5d04b5bd5330397'))
-#print(db.get_release_songs('5de3d93ae5d04b5bd5330339'))
+#print(db.get_artist('5de5193278839c3c6c840681'))
+print(db.get_release('5de5193278839c3c6c840623').get_release_as_dict())
+#print(db.get_artist_releases('5de5193278839c3c6c840681'))
 
-transcoder.complete_transcode('5de3e829f1336219d87a27be')
-print(db.get_song('5de3e829f1336219d87a27be'))
+print(db.get_release_songs('5de5193278839c3c6c840623'))
+transcoder.complete_transcode('5de5193278839c3c6c84062b')
+#print(db.get_release_songs('5de5193278839c3c6c840623'))
