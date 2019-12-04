@@ -15,3 +15,44 @@
   color: $panel-text-color;
   overflow: hidden;
 }
+
+.artistInfo {
+  background-repeat: no-repeat;
+  .name {
+
+  }
+}
+
+.tags {
+  .tagButton {
+    border-radius: 5px;
+    background-color: blue;
+    padding: 0.1em 0.2em;
+    margin: 0 0.1em;
+  }
+}
+
+.artistBio {
+  padding: 10px;
+  font-size: 0.85em;
+}
+
+.albumsList {
+  padding: 10px;
+
+  .sort {
+    padding: 5px;
+  }
+  .album {
+    background-size: contain;
+    border-radius: 10px;
+    width: 200px;
+    height: 200px;
+    float: left;
+    margin: 0 0.1em;
+  }
+
+  .active {
+    background-color: #2a0c12;
+  }
+}

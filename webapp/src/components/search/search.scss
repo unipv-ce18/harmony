@@ -1,5 +1,47 @@
+@import "../../styledefs";
+
 .search {
-  margin-left: auto;
-  margin-right: auto;
-  display: inline-block;
+  background-color: white;
+  border-radius: 40px;
+  height: 30px;
+  width: 300px;
+  margin-bottom: 0.2em;
+  position: relative;
+  padding: 2px;
+}
+
+.searchSelect {
+  border: none;
+}
+
+.searchLine {
+  position: absolute;
+  margin-left: 10px;
+  margin-top: 5px;
+  width: 60%;
+  color: $application-background;
+  border: none;
+}
+
+.searchButton {
+  float: right;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: transparent;
+  background-color: $application-background;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.albumResult {
+  .album a {
+    text-decoration: none;
+  }
+
+  .artist a {
+    text-decoration: none;
+    font-size: 0.8em;
+  }
 }

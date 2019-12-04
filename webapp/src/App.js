@@ -30,7 +30,7 @@ class App extends Component {
     const router = session.loggedIn ? (
       <Router onChange={this.handleRoute}>
         <HomePage path="/"/>
-        <SearchPage path="/search/:query"/>
+        <SearchPage path="/search/:type/:query"/>
         <ArtistPage path="/artist/:id"/>
         <Redirect default to="/"/>
       </Router>
