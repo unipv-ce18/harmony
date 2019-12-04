@@ -2,12 +2,13 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from flask_pymongo import PyMongo
 import security
-from database import Database
+from config import current_config
+from database.database import Database
 
 app = Flask(__name__)
 
-# load configs from json file
-app.config.from_json("resources/config.json")
+# load configs
+app.config.from_object(current_config)
 
 # instance the backend as well as request parsers, jwt and connect to database
 api = Api(app, prefix="/api/v1")
