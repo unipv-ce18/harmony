@@ -6,6 +6,7 @@ import security
 from database import Database
 
 app = Flask(__name__)
+CORS(app)
 
 # load configs from json file
 app.config.from_json("resources/config.json")
