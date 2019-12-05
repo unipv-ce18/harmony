@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 
-_fields = ['id', 'title', 'artist', 'release', 'length', 'lyrics', 'link']
+_fields = ['id', 'title', 'artist', 'release', 'length', 'lyrics', 'link', 'key_id', 'key']
 _default_song = {f: None for f in _fields}
 
 

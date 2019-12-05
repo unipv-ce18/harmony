@@ -1,7 +1,9 @@
+import datetime
+
 from bson.objectid import ObjectId
-from model.artist import Artist
-from model.release import Release
-from model.song import Song
+
+from model import Artist, Release, Song
+import security
 
 
 _ARTIST_PROJECTION = {
@@ -59,7 +61,9 @@ _SONG_PROJECTION = {
         'name': '$releases.name',
         'cover': '$releases.cover'
     },
-    'length': '$releases.songs.length'
+    'length': '$releases.songs.length',
+    'key_id': '$key_id',
+    'key': '$key'
 }
 
 
@@ -140,11 +144,11 @@ class Database:
         self.blacklist = db_connection['blacklist']
 
     def add_artist(self, artist):
-        self.artists.insert_one(modify_artist(artist))
+        x = self.artists.insert_one(modify_artist(artist))
+        return x.inserted_id
 
     def add_artists(self, artists):
-        for i in range(len(artists)):
-            self.add_artist(artists[i])
+        return [self.add_artist(artists[i]) for i in range(len(artists))]
 
     def check_username(self, username):
         query = {'username': username}
@@ -237,8 +241,40 @@ class Database:
         result = self.artists.aggregate(pipeline=_song_pipeline(query))
         return [Song(objectid_to_str(res)) for res in result][0]
 
-    def get_blacklist(self):
-        return self.blacklist
+    # to fix, it updates all the songs
+    def update_song_transcoding_info(self, id, key_id, key):
+        query = {'releases.songs._id': ObjectId(id)}
+        self.artists.update(
+            query,
+            {'$set': {
+                'key_id': key_id,
+                'key': key
+            } }
+        )
+
+    def delete_artist(self, id):
+        query = {'_id': ObjectId(id)}
+        self.artists.remove(query)
+
+    def add_token_to_blacklist(self, token):
+        payload = security.decode_token(token)
+        if isinstance(payload, list):
+            expiration = payload['exp']
+            current_time = datetime.datetime.utcnow()
+            delta = (expiration - current_time).total_seconds()
+
+            if delta > 0:
+                self.blacklist.create_index('date', expireAfterSeconds=delta)
+                self.blacklist.insert({
+                    'token': token,
+                    'date': current_time
+                })
+                return True
+        return False
+
+    def check_blacklisted_token(self, token):
+        result = self.blacklist.find_one({'token': token})
+        return bool(result)
 
     def drop_artists_collection(self):
         self.artists.drop()
