@@ -1,0 +1,89 @@
+.formWrapper {
+  position: fixed;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 350px;
+}
+
+.form {
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+
+  > div:last-of-type {
+    width: 100%;
+    overflow: hidden; /* clear fix */
+    box-sizing: border-box;
+  }
+
+  input[type="text"], input[type="password"] {
+    display: block;
+    width: 100%;
+
+    box-sizing: border-box;
+
+    font-size: 16px;
+    text-align: center;
+    padding: 10px;
+    border: none;
+
+    background-color: rgba(0, 0, 0, .1);
+    color: #ddd;
+    transition: background-color .25s;
+
+    &::placeholder {
+      color: #bbb;
+      font-style: italic;
+    }
+
+    &:focus {
+      background-color: rgba(255, 255, 255, .05);
+    }
+  }
+
+  input[type="submit"] {
+    margin-top: -6px;
+
+    border: none;
+    background-color: rgba(92, 92, 92, 0.7);
+    color: white;
+    cursor: pointer;
+
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+}
+
+.regLink {
+  margin: 10px 0 0 0;
+  font-size: 14px;
+  background-color: #2a0c12;
+}
+
+.errorField {
+  position: fixed;
+  left: 5px;
+  background-color: #232729;
+  padding: 12px 15px 13px;
+  border-radius: 5px;
+  font-size: 15px;
+
+  span {
+    display: block;
+    width: 20px;
+    height: 10px;
+    top: -10px;
+    left: 8px;
+    background-color: #232729;
+    position: absolute;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+}

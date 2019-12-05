@@ -1,0 +1,530 @@
+{
+  "name": "Queens of the Stone Age",
+  "sort_name": "Queens of the Stone Age",
+  "country": "US",
+  "life_span": {"begin": "1996", "end": null},
+  "genres": ["alternative rock", "stoner rock", "hard rock", "alternative metal"],
+  "bio": "Queens of the Stone Age is an American rock band formed in 1996 in Palm Desert, California. The band's line-up includes founder Josh Homme (lead vocals, guitar, piano), Troy Van Leeuwen (guitar, lap steel, keyboard, percussion, backing vocals), Michael Shuman (bass guitar, keyboard, backing vocals), Dean Fertita (keyboards, guitar, percussion, backing vocals), and Jon Theodore (drums, percussion).",
+  "members": [
+    {
+      "name": "Josh Homme",
+      "role": "lead vocals, guitar, piano"
+    },
+    {
+      "name": "Troy Van Leeuwen",
+      "role": "guitar, lap steel guitar, keyboards, synthesizers, percussion, backing vocals"
+    },
+    {
+      "name": "Michael Shuman",
+      "role": "bass, synthesizers, backing vocals"
+    },
+    {
+      "name": "Dean Fertita",
+      "role": "keyboards, synthesizers, guitar, percussion, backing vocals"
+    },
+    {
+      "name": "Jon Theodore",
+      "role": "drums, percussion, samplers"
+    }
+  ],
+  "links": {
+    "website": "https://qotsa.com",
+    "facebook": "https://www.facebook.com/QOTSA",
+    "twitter": "https://twitter.com/qotsa",
+    "instagram": "https://www.instagram.com/queensofthestoneage"
+  },
+  "image": "",
+  "releases": [
+    {
+      "name": "Queens of the Stone Age",
+      "date": "1998-10-06",
+      "type": "album",
+      "cover": "",
+      "songs": [
+        {
+          "title": "Regular John",
+          "length": 261000,
+          "link": ""
+        },
+        {
+          "title": "Avon",
+          "length": 193200,
+          "link": ""
+        },
+        {
+          "title": "If Only",
+          "length": 192000,
+          "link": ""
+        },
+        {
+          "title": "Walkin' on the Sidewalks",
+          "length": 301800,
+          "link": ""
+        },
+        {
+          "title": "You Would Know",
+          "length": 249600,
+          "link": ""
+        },
+        {
+          "title": "How to Handle a Rope",
+          "length": 198000,
+          "link": ""
+        },
+        {
+          "title": "Mexicola",
+          "length": 272400,
+          "link": ""
+        },
+        {
+          "title": "Hispanic Impressions",
+          "length": 146400,
+          "link": ""
+        },
+        {
+          "title": "You Can't Quit Me Baby",
+          "length": 380400,
+          "link": ""
+        },
+        {
+          "title": "Give the Mule What He Wants",
+          "length": 185400,
+          "link": ""
+        },
+        {
+          "title": "I Was a Teenage Hand Model",
+          "length": 300600,
+          "link": ""
+        }
+      ]
+    },
+    {
+      "name": "Rated R",
+      "date": "2000-06-06",
+      "type": "album",
+      "cover": "",
+      "songs": [
+        {
+          "title": "Feel Good Hit of the Summer",
+          "length": 145800,
+          "link": ""
+        },
+        {
+          "title": "The Lost Art of Keeping a Secret",
+          "length": 201600,
+          "link": ""
+        },
+        {
+          "title": "Leg of Lamb",
+          "length": 148800,
+          "link": ""
+        },
+        {
+          "title": "Auto Pilot",
+          "length": 240600,
+          "link": ""
+        },
+        {
+          "title": "Better Living Through Chemistry",
+          "length": 329400,
+          "link": ""
+        },
+        {
+          "title": "Monsters in the Parasol",
+          "length": 196200,
+          "link": ""
+        },
+        {
+          "title": "Quick and to the Pointless",
+          "length": 85200,
+          "link": ""
+        },
+        {
+          "title": "Feel Good Hit of the Summer (Reprise)",
+          "length": 20400,
+          "link": ""
+        },
+        {
+          "title": "In the Fade",
+          "length": 210600,
+          "link": ""
+        },
+        {
+          "title": "Tension Head",
+          "length": 151200,
+          "link": ""
+        },
+        {
+          "title": "Lightning Song",
+          "length": 124200,
+          "link": ""
+        },
+        {
+          "title": "I Think I Lost My Headache",
+          "length": 504000,
+          "link": ""
+        }
+      ]
+    },
+    {
+      "name": "Songs for the Deaf",
+      "date": "2002-08-27",
+      "type": "album",
+      "cover": "",
+      "songs": [
+        {
+          "title": "The Real Song for the Deaf",
+          "length": 79800,
+          "link": ""
+        },
+        {
+          "title": "You Think I Ain't Worth a Dollar, But I Feel Like a Millionaire",
+          "length": 187200,
+          "link": ""
+        },
+        {
+          "title": "No One Knows",
+          "length": 262800,
+          "link": ""
+        },
+        {
+          "title": "First it Giveth",
+          "length": 190800,
+          "link": ""
+        },
+        {
+          "title": "A Song for the Dead",
+          "length": 331200,
+          "link": ""
+        },
+        {
+          "title": "The Sky Is Fallin'",
+          "length": 369000,
+          "link": ""
+        },
+        {
+          "title": "Six Shooter",
+          "length": 71400,
+          "link": ""
+        },
+        {
+          "title": "Hangin' Tree",
+          "length": 183600,
+          "link": ""
+        },
+        {
+          "title": "Go With the Flow",
+          "length": 184200,
+          "link": ""
+        },
+        {
+          "title": "Gonna Leave You",
+          "length": 150000,
+          "link": ""
+        },
+        {
+          "title": "Do It Again",
+          "length": 242400,
+          "link": ""
+        },
+        {
+          "title": "God Is in the Radio",
+          "length": 362400,
+          "link": ""
+        },
+        {
+          "title": "Another Love Song",
+          "length": 189600,
+          "link": ""
+        },
+        {
+          "title": "A Song for the Deaf",
+          "length": 385200,
+          "link": ""
+        },
+        {
+          "title": "Mosquito Song",
+          "length": 322200,
+          "link": ""
+        },
+        {
+          "title": "Everybody's Gonna Be Happy",
+          "length": 141000,
+          "link": ""
+        }
+      ]
+    },
+    {
+      "name": "Lullabies to Paralyze",
+      "date": "2005-03-21",
+      "type": "album",
+      "cover": "",
+      "songs": [
+        {
+          "title": "This Lullaby",
+          "length": 73200,
+          "link": ""
+        },
+        {
+          "title": "Medication",
+          "length": 92400,
+          "link": ""
+        },
+        {
+          "title": "Everybody Knows That You Are Insane",
+          "length": 248400,
+          "link": ""
+        },
+        {
+          "title": "Tangled Up in Plaid",
+          "length": 247800,
+          "link": ""
+        },
+        {
+          "title": "Burn the Witch",
+          "length": 201000,
+          "link": ""
+        },
+        {
+          "title": "In My Head",
+          "length": 240600,
+          "link": ""
+        },
+        {
+          "title": "Little Sister",
+          "length": 152400,
+          "link": ""
+        },
+        {
+          "title": "I Never Came",
+          "length": 268800,
+          "link": ""
+        },
+        {
+          "title": "Someone's in the Wolf",
+          "length": 429000,
+          "link": ""
+        },
+        {
+          "title": "The Blood Is Love",
+          "length": 382200,
+          "link": ""
+        },
+        {
+          "title": "Skin on Skin",
+          "length": 205200,
+          "link": ""
+        },
+        {
+          "title": "Broken Box",
+          "length": 181200,
+          "link": ""
+        },
+        {
+          "title": "You Got a Killer Scene There, Man...",
+          "length": 273600,
+          "link": ""
+        },
+        {
+          "title": "Long Slow Goodbye",
+          "length": 390000,
+          "link": ""
+        },
+        {
+          "title": "Like a Drug",
+          "length": 189000,
+          "link": ""
+        }
+      ]
+    },
+    {
+      "name": "Era Vulgaris",
+      "date": "2007-06-12",
+      "type": "album",
+      "cover": "",
+      "songs": [
+        {
+          "title": "Turnin' on the Screw",
+          "length": 312000,
+          "link": ""
+        },
+        {
+          "title": "Sick, Sick, Sick",
+          "length": 200400,
+          "link": ""
+        },
+        {
+          "title": "I'm Designer",
+          "length": 242400,
+          "link": ""
+        },
+        {
+          "title": "Into the Hollow",
+          "length": 205200,
+          "link": ""
+        },
+        {
+          "title": "Misfit Love",
+          "length": 323400,
+          "link": ""
+        },
+        {
+          "title": "Battery Acid",
+          "length": 243600,
+          "link": ""
+        },
+        {
+          "title": "Make It Wit Chu",
+          "length": 270000,
+          "link": ""
+        },
+        {
+          "title": "3's & 7's",
+          "length": 200400,
+          "link": ""
+        },
+        {
+          "title": "Suture Up Your Future",
+          "length": 262200,
+          "link": ""
+        },
+        {
+          "title": "River in the Road",
+          "length": 191400,
+          "link": ""
+        },
+        {
+          "title": "Run, Pig, Run",
+          "length": 264000,
+          "link": ""
+        },
+        {
+          "title": "Running Joke",
+          "length": 154200,
+          "link": ""
+        },
+        {
+          "title": "Era Vulgaris",
+          "length": 253800,
+          "link": ""
+        },
+        {
+          "title": "The Fun Machine Took a Shit & Died",
+          "length": 393000,
+          "link": ""
+        }
+      ]
+    },
+    {
+      "name": "...Like Clockwork",
+      "date": "2013-06-03",
+      "type": "album",
+      "cover": "",
+      "songs": [
+        {
+          "title": "Keep Your Eyes Peeled",
+          "length": 302400,
+          "link": ""
+        },
+        {
+          "title": "I Sat by the Ocean",
+          "length": 213000,
+          "link": ""
+        },
+        {
+          "title": "The Vampyre of Time and Memory",
+          "length": 200400,
+          "link": ""
+        },
+        {
+          "title": "If I Had a Tail",
+          "length": 273000,
+          "link": ""
+        },
+        {
+          "title": "My God Is the Sun",
+          "length": 213000,
+          "link": ""
+        },
+        {
+          "title": "Kalopsia",
+          "length": 262800,
+          "link": ""
+        },
+        {
+          "title": "Fairweather Friends",
+          "length": 205800,
+          "link": ""
+        },
+        {
+          "title": "Smooth Sailing",
+          "length": 270600,
+          "link": ""
+        },
+        {
+          "title": "I Appear Missing",
+          "length": 360000,
+          "link": ""
+        },
+        {
+          "title": "...Like Clockwork",
+          "length": 314400,
+          "link": ""
+        }
+      ]
+    },
+    {
+      "name": "Villains",
+      "date": "2017-08-25",
+      "type": "album",
+      "cover": "",
+      "songs": [
+        {
+          "title": "Feet Don't Fail Me",
+          "length": 324600,
+          "link": ""
+        },
+        {
+          "title": "The Way You Used To Do",
+          "length": 260400,
+          "link": ""
+        },
+        {
+          "title": "Domesticated Animals",
+          "length": 312000,
+          "link": ""
+        },
+        {
+          "title": "Fortress",
+          "length": 316200,
+          "link": ""
+        },
+        {
+          "title": "Head Like A Haunted House",
+          "length": 192600,
+          "link": ""
+        },
+        {
+          "title": "Un-Reborn Again",
+          "length": 384000,
+          "link": ""
+        },
+        {
+          "title": "Hideaway",
+          "length": 250800,
+          "link": ""
+        },
+        {
+          "title": "The Evil Has Landed",
+          "length": 378000,
+          "link": ""
+        },
+        {
+          "title": "Villains Of Circumstance",
+          "length": 365400,
+          "link": ""
+        }
+      ]
+    }
+  ]
+}

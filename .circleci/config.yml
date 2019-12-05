@@ -1,0 +1,85 @@
+version: 2
+
+jobs:
+
+  test-apiserver:
+    docker:
+      - image: circleci/python:3.8
+        environment:
+          FLASK_CONFIG: development
+          MONGO_URI: mongodb://localhost:27017/harmony?authSource=admin
+          MONGO_USERNAME: test_db_user
+          MONGO_PASSWORD: test_db_pass
+      - image: circleci/mongo:4.2.1
+        environment:
+          # The image creates our user in the admin DB
+          MONGO_INITDB_ROOT_USERNAME: test_db_user
+          MONGO_INITDB_ROOT_PASSWORD: test_db_pass
+    working_directory: ~/harmony/backend
+    steps:
+      - checkout:
+          path: ~/harmony
+
+      - restore_cache:
+          key: dep-cache-apiserver-{{ .Branch }}-{{ checksum "common/requirements.txt"}}{{ checksum "apiserver/requirements.txt" }}
+
+      - run:
+          name: Install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r apiserver/requirements.txt
+
+      - save_cache:
+          key: dep-cache-apiserver-{{ .Branch }}-{{ checksum "common/requirements.txt"}}{{ checksum "apiserver/requirements.txt" }}
+          paths:
+            - ./venv
+
+      - run:
+          name: Execute tests
+          command: |
+            . venv/bin/activate
+            nose2 -v
+
+  test-webapp:
+    docker:
+      - image: circleci/node:13.1.0
+    parallelism: 2
+    working_directory: ~/harmony/webapp
+    steps:
+      - checkout:
+          path: ~/harmony
+
+      - run:
+          name: Install yarn
+          command: sudo npm install -g yarn
+
+      - restore_cache:
+          key: dep-cache-webapp-{{ .Branch }}-{{ checksum "yarn.lock" }}
+
+      - run:
+          name: Install dependencies
+          command: yarn
+
+      - save_cache:
+          key: dep-cache-webapp-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - ./node_modules
+
+      - run:
+          name: Execute tests
+          command: |
+            TESTFILES=$(circleci tests glob "test/**/*.test.js" | circleci tests split --split-by=timings)
+            yarn test --ci --runInBand $TESTFILES
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: test-results/jest
+
+      - store_test_results:
+          path: test-results
+
+workflows:
+  version: 2
+  main-workflow:
+    jobs:
+      - test-apiserver
+      - test-webapp

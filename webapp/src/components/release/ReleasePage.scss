@@ -1,0 +1,99 @@
+@import "../../styledefs";
+
+.releasePage {
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.releasePageContent {
+  width: 100%;
+  border-radius: 16px;
+  min-height: calc(100vh - 32px - #{$navbar-height});
+
+  background-color: $panel-color-test;
+  //background: radial-gradient(circle, #5B1A27 20%,#2A0C12 75%);
+
+  color: $panel-text-color-test;
+  overflow: hidden;
+  display: inline-block;
+  text-align: center;
+  padding: 20px 0;
+
+  > div:first-of-type {
+    display: inline-block;
+    height: 200px;
+    margin: 100px 0 0;
+
+    img {
+      width: 200px;
+      height: 200px;
+      border-radius: 15px 0;
+    }
+
+    div {
+      display: inline-block;
+
+      p:nth-of-type(1) {
+        font-size: 14px;
+        margin: 10px;
+      }
+
+      p:nth-of-type(2) {
+        font-size: 30px;
+        margin: 40px 50px 10px;
+      }
+
+      p:nth-of-type(3) {
+        font-size: 18px;
+        margin: 10px 0 40px;
+      }
+
+      p:nth-of-type(4) {
+        font-size: 13px;
+        margin: 10px;
+      }
+    }
+  }
+
+  > div:last-of-type {
+    width: 50%;
+    margin: 100px 25%;
+    text-align: justify;
+
+    div {
+      div {
+        display: table;
+        &:hover {
+          background-color: $panel-text-color-test;
+          color: $application-background;
+          border-radius: 20px;
+          padding: 0 20px;
+          margin: 0 -20px
+        }
+
+        span {
+          padding: 10px 0;
+          display: table-cell;
+          white-space: nowrap;
+        }
+
+        span:nth-of-type(2) {
+          width: 100%;
+        }
+      }
+      hr {
+        width: 95%;
+        margin: 0;
+        height: 1px;
+        border-color: transparent;
+        background: linear-gradient(to right,
+          rgba(255,255,255, 0),
+          white,
+          rgba(255,255,255, 0)
+        );
+      }
+    }
+  }
+
+}

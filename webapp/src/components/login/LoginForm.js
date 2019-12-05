@@ -1,7 +1,10 @@
 import {Component} from 'preact';
 
-import styles from './LoginForm.scss';
 import {session} from '../../Harmony';
+
+import style from './formsCommon.scss';
+import styleLogin from './LoginForm.scss';
+import {route} from "preact-router";
 
 class LoginForm extends Component {
   constructor(props) {
@@ -9,6 +12,7 @@ class LoginForm extends Component {
     this.state = {
       lname: "",
       lpsw: "",
+      bgColor: "",
       error: {type: "", value: ""}
     };
 
@@ -19,7 +23,8 @@ class LoginForm extends Component {
 
   unameValidation() {
     if (this.state.lname === "") {
-      this.setState({error: {type: "usernameE", value: "This field cannot be empty"}});
+      this.setState({error: {type: "usernameE", value: "This field cannot be empty."}});
+      this.setState({bgColor: "red"});
       return false;
     }
     return true;
@@ -27,7 +32,7 @@ class LoginForm extends Component {
 
   passwordValidation() {
     if (this.state.lpsw === "") {
-      this.setState({error: {type: "passE", value: "This field cannot be empty"}});
+      this.setState({error: {type: "passE", value: "This field cannot be empty."}});
       return false;
     }
     return true;
@@ -47,21 +52,28 @@ class LoginForm extends Component {
     if (!this.unameValidation() || !this.passwordValidation())
       return false;
 
-    session.doLogin(e.target.lname.value, e.target.lpsw.value)
+    session.doLogin(this.state.lname, this.state.lpsw)
       .catch(e => alert('Login failed'));
   }
 
   render(props) {
+    const errorStyle = `border: 1px solid #bf0000`;
     return (
-      <div class={styles.loginDiv}>
-        <form class={styles.loginForm} onSubmit={this.handleSubmit}>
+      <div class={style.formWrapper}>
+        <form class={`${style.form} ${styleLogin.loginForm}`} onSubmit={this.handleSubmit}>
           <div>
-            <input type="text" placeholder="Username" name="lname" onChange={this.handleChange}
-                   onFocus={this.handleFocus} autoFocus/>
-            {this.state.error.type === "usernameE" && (<div>{this.state.error.value}</div>)}
+            <div>
+              <input type="text" placeholder="Username" name="lname" onChange={this.handleChange}
+                     onFocus={this.handleFocus}
+                     style={this.state.error.type === "usernameE" && errorStyle} autoFocus />
+              {this.state.error.type === "usernameE" && (
+                <div class={style.errorField}><span/>{this.state.error.value}</div>)}
+            </div>
             <input type="password" placeholder="Password" name="lpsw" onChange={this.handleChange}
-                   onFocus={this.handleFocus}/>
-            {this.state.error.type === "passE" && (<div>{this.state.error.value}</div>)}
+                   onFocus={this.handleFocus}
+                   style={this.state.error.type === "passE" && errorStyle}/>
+            {this.state.error.type === "passE" && (
+              <div class={style.errorField}><span/>{this.state.error.value}</div>)}
           </div>
           <div>
             <input type="checkbox"/>
@@ -69,7 +81,7 @@ class LoginForm extends Component {
             <input type="submit" value="Login"/>
           </div>
         </form>
-        <p className={styles.regLink}>Not yet registered? <a href="#" onClick={props.switchPage}>Sign Up</a> now</p>
+        <p class={style.regLink}>Not yet registered? <a href="#" onClick={props.switchPage}>Sign Up</a> now</p>
       </div>
     );
   }
