@@ -25,6 +25,11 @@ def check_token_revoked(decrypted_token):
     return db.is_token_revoked(decrypted_token)
 
 
+class HelloWorld(Resource):
+    def get(self):
+        return {'hello': 'world'}
+
+
 class AuthRegister(Resource):
     def post(self):
         data = authparser.parse_args()
@@ -84,6 +89,7 @@ api.add_resource(AuthRegister, "/auth/register")
 api.add_resource(AuthLogin, "/auth/login")
 api.add_resource(AuthLogout, "/auth/logout")
 api.add_resource(TokenRefresh, "/auth/refresh")
+api.add_resource(HelloWorld, "/sayhello")
 
 if __name__ == '__main__':
     # set cron job to delete tokens after 1 day
