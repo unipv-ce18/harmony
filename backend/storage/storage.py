@@ -3,7 +3,7 @@ import os
 from minio.error import ResponseError
 
 
-_buckets = ['lossless-songs', 'compressed-songs', 'manifest-files', 'init-segments']
+_buckets = ['lossless-songs', 'compressed-songs']
 
 
 class Storage:

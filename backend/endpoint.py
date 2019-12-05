@@ -3,7 +3,7 @@ from flask_restful import Resource, Api, reqparse
 from flask_pymongo import PyMongo
 import security
 from config import current_config
-from database.database import Database
+from database import Database
 
 app = Flask(__name__)
 
@@ -72,4 +72,4 @@ api.add_resource(AuthLogout, "/auth/logout")
 
 if __name__ == '__main__':
     # start the backend on specified address
-    app.run(host='127.0.0.1:5000')
+    app.run(host='127.0.0.1', port=5000)

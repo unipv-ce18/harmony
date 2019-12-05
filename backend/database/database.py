@@ -25,12 +25,7 @@ _ARTIST_COMPLETE_PROJECTION = {
     'bio': '$bio',
     'members': '$members',
     'links': '$links',
-    'image': '$image',
-    'releases':  [{
-        'id': '$releases._id',
-        'name': '$releases.name',
-        'cover': '$releases.cover'
-    }]
+    'image': '$image'
 }
 
 
@@ -77,8 +72,6 @@ def _artist_pipeline(match_params):
 def _artist_complete_pipeline(match_params):
     return [
         {'$match': match_params},
-    #    {'$unwind': '$releases'},
-    #    {'$match': match_params},
         {'$project': _ARTIST_COMPLETE_PROJECTION}
     ]
 
@@ -223,13 +216,15 @@ class Database:
         result = self.artists.aggregate(pipeline=_song_pipeline(query))
         return [Song(objectid_to_str(res)) for res in result]
 
-    # to fix release return
     def get_artist(self, id):
         query = {'_id': ObjectId(id)}
         result = self.artists.aggregate(pipeline=_artist_complete_pipeline(query))
-        #for r in result:
-        #    print(r)
-        return [Artist(objectid_to_str(res)) for res in result][0]
+        result2 =  self.artists.aggregate(pipeline=_release_pipeline(query))
+        res = []
+        for r in result:
+            r['releases'] = [r2 for r2 in result2]
+            res.append(r)
+        return Artist(objectid_to_str(res[0]))
 
     def get_release(self, id):
         query = {'releases._id': ObjectId(id)}
@@ -244,7 +239,7 @@ class Database:
     # to fix, it updates all the songs
     def update_song_transcoding_info(self, id, key_id, key):
         query = {'releases.songs._id': ObjectId(id)}
-        self.artists.update(
+        self.artists.update_one(
             query,
             {'$set': {
                 'key_id': key_id,
