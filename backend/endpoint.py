@@ -89,4 +89,4 @@ if __name__ == '__main__':
     # set cron job to delete tokens after 1 day
     db.blacklist.createIndex({"exp": 1}, {"expiresAfterSeconds": 86400})
     # start the backend on specified address
-    app.run(host='127.0.0.1:5000')
+    app.run(host='127.0.0.1', port=5000)
