@@ -95,33 +95,34 @@ class RegistrationForm extends Component {
         session.doLogin(this.state.rname, this.state.rpsw1)
       })
       .catch(e => {
-        this.setState({error: {type: "emailE", value: "This email already exists."}});
+        this.setState({error: {type: "emailE", value: e}});
       })
   }
 
   render(props) {
+    const errorStyle = `border: 1px solid #bf0000`;
     return (
       <div class={style.formWrapper}>
         <form class={`${style.form} ${styleRegistration.regisForm}`} onSubmit={this.handleSubmit}>
           <div>
             <input type="text" placeholder="Email" name="remail" onChange={this.handleChange}
                    onFocus={this.handleFocus}
-                   style={this.state.error.type === "emailE" ? "border: 1px solid #bf0000" : "border: ''"}/>
+                   style={this.state.error.type === "emailE" && errorStyle}/>
             {this.state.error.type === "emailE" && (
               <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             <input type="text" placeholder="Username" name="rname" onChange={this.handleChange}
                    onFocus={this.handleFocus}
-                   style={this.state.error.type === "usernameE" ? "border: 1px solid #bf0000" : "border: ''"}/>
+                   style={this.state.error.type === "usernameE" && errorStyle}/>
             {this.state.error.type === "usernameE" && (
               <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             <input type="password" placeholder="Password" name="rpsw1" onChange={this.handleChange}
                    onFocus={this.handleFocus}
-                   style={this.state.error.type === "pass1E" ? "border: 1px solid #bf0000" : "border: ''"}/>
+                   style={this.state.error.type === "pass1E" && errorStyle}/>
             {this.state.error.type === "pass1E" && (
               <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             <input type="password" placeholder="Repeat Password" name="rpsw2" onChange={this.handleChange}
                    onFocus={this.handleFocus}
-                   style={this.state.error.type === "pass2E" ? "border: 1px solid #bf0000" : "border: ''"}/>
+                   style={this.state.error.type === "pass2E" && errorStyle}/>
             {this.state.error.type === "pass2E" && (
               <div class={style.errorField}><span/>{this.state.error.value}</div>)}
           </div>

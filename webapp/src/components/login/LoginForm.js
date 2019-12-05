@@ -4,6 +4,7 @@ import {session} from '../../Harmony';
 
 import style from './formsCommon.scss';
 import styleLogin from './LoginForm.scss';
+import {route} from "preact-router";
 
 class LoginForm extends Component {
   constructor(props) {
@@ -56,6 +57,7 @@ class LoginForm extends Component {
   }
 
   render(props) {
+    const errorStyle = `border: 1px solid #bf0000`;
     return (
       <div class={style.formWrapper}>
         <form class={`${style.form} ${styleLogin.loginForm}`} onSubmit={this.handleSubmit}>
@@ -63,13 +65,13 @@ class LoginForm extends Component {
             <div>
               <input type="text" placeholder="Username" name="lname" onChange={this.handleChange}
                      onFocus={this.handleFocus}
-                     style={this.state.error.type === "usernameE" ? "border: 1px solid #bf0000" : "border: ''"} autoFocus />
+                     style={this.state.error.type === "usernameE" && errorStyle} autoFocus />
               {this.state.error.type === "usernameE" && (
                 <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             </div>
             <input type="password" placeholder="Password" name="lpsw" onChange={this.handleChange}
                    onFocus={this.handleFocus}
-                   style={this.state.error.type === "passE" ? "border: 1px solid #bf0000" : "border: ''"}/>
+                   style={this.state.error.type === "passE" && errorStyle}/>
             {this.state.error.type === "passE" && (
               <div class={style.errorField}><span/>{this.state.error.value}</div>)}
           </div>

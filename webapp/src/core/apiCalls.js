@@ -25,7 +25,7 @@ export function execRegistration(email, username, password) {
   const data = {email, username, password};
   return fetch(API_REGISTRATION_URL, {method: 'POST', body: JSON.stringify(data)} )
     .then(response => {
-      if (!response.ok) throw Error('Registration failed');
+      if (!response.ok) throw Error(response);
       return response.json();
     });
 }
