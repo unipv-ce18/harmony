@@ -1,5 +1,6 @@
 import {Component} from "preact";
 import {route} from "preact-router";
+import styles from './SearchPage.scss';
 
 class ArtistResults extends Component {
   constructor(props) {

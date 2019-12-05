@@ -1,7 +1,9 @@
 import {Component} from "preact";
 import SongResults from './SongResults';
-import AlbumResults from "./AlbumResults";
+import ReleaseResults from "./ReleaseResults";
 import ArtistResults from "./ArtistResults";
+import styles from './SearchPage.scss';
+
 
 //DA RIVEDERE
 
@@ -9,13 +11,13 @@ class ResultsSearch extends Component {
   render (props) {
     let results = this.props.results;
     let type = this.props.type;
-    let albums = [];
+    let release = [];
     let songs = [];
     let artists = [];
     Object.keys(results).forEach(function(key) {
-      if (results[key].hasOwnProperty('albums') && (type ==="all" || type === "albums")) {
-        Object.keys(results[key].albums).forEach(function (key2) {
-          albums.push(results[key].albums[key2]);
+      if (results[key].hasOwnProperty('releases') && (type ==="all" || type === "release")) {
+        Object.keys(results[key].releases).forEach(function (key2) {
+          release.push(results[key].releases[key2]);
         });
       }
       if (results[key].hasOwnProperty('songs') && (type ==="all" || type === "songs")) {
@@ -33,7 +35,7 @@ class ResultsSearch extends Component {
    return (
      <div>
        {songs.length ? (<div><h1>Songs</h1> {songs.map(item => <SongResults key={item.id} values={item} />)}</div>) : null}
-       {albums.length ? (<div><h1>Albums</h1> {albums.map(item => <AlbumResults key= {item.id} values = {item} />)}</div>) : null}
+       {release.length ? (<div><h1>Releases</h1> {release.map(item => <ReleaseResults key= {item.id} values = {item} />)}</div>) : null}
        {artists.length ? (<div><h1>Artists</h1> {artists.map(item => <ArtistResults key = {item.id} values = {item} />)}</div>) : null}
      </div>
    );

@@ -1,4 +1,5 @@
 import {Component} from "preact";
+import styles from './SearchPage.scss';
 
 class SongResults extends Component {
   render(props, state, context) {

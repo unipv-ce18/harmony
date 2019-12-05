@@ -12,6 +12,10 @@
 
 .searchSelect {
   border: none;
+  margin-top: 5px;
+  margin-left: 2px;
+  background: transparent;
+  color: $application-background;
 }
 
 .searchLine {
@@ -33,15 +37,4 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.albumResult {
-  .album a {
-    text-decoration: none;
-  }
-
-  .artist a {
-    text-decoration: none;
-    font-size: 0.8em;
-  }
 }

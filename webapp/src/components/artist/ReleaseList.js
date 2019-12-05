@@ -1,7 +1,7 @@
 import {Component} from "preact";
 import styles from './ArtistPage.scss';
 
-class AlbumsList extends Component {
+class ReleaseList extends Component {
   constructor(props) {
     super(props);
     this.state = {order: 'date'};
@@ -31,7 +31,7 @@ class AlbumsList extends Component {
       }});
 
     return(
-      <div class={styles.albumsList}>
+      <div class={styles.releaseList}>
         <div className={styles.sort}>
           Sort by:
           <button className={order == 'az' ? "active" : ""} onClick={this.handleChangeOrder} name='az'>AZ</button>
@@ -39,10 +39,10 @@ class AlbumsList extends Component {
           <button className={order == 'type' ? "active" : ""} onClick={this.handleChangeOrder} name='type'>TYPE</button>
           <button className={order == 'date' ? "active" : ""} onClick={this.handleChangeOrder} name='date'>DATE</button>
         </div>
-        {list.map(item => <div class = {styles.album} style={{backgroundImage : "url('" + item.cover + "')"}}>{item.name} - {item.date} - {item.type}</div> ) }
+        {list.map(item => <div class = {styles.release} style={{backgroundImage : "url('" + item.cover + "')"}}>{item.name} - {item.date} - {item.type}</div> ) }
       </div>
     );
   }
 }
 
-export default AlbumsList;
+export default ReleaseList;

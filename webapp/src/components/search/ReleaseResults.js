@@ -1,14 +1,16 @@
 import {Component} from "preact";
 import {route} from "preact-router";
+import styles from './SearchPage.scss';
 
-class AlbumResults extends Component {
+class ReleaseResults extends Component {
   constructor(props) {
     super(props);
-    this.handleClick = this.handleClick.bind(this);
+    this.handleClickRelease = this.handleClickRelease.bind(this);
+    this.handleClickArtist = this.handleClickArtist.bind(this);
   }
 
-  handleClickAlbum(event) {
-    route('/album/' + this.props.values.id );
+  handleClickRelease(event) {
+    route('/release/' + this.props.values.id );
     event.preventDefault();
   }
 
@@ -20,12 +22,12 @@ class AlbumResults extends Component {
 
   render(props, state, context) {
     return(
-      <div class={styles.albumResult}>
-        <p class={styles.album}><a href='#' onClick={this.handleClickAlbum}>{props.values.name}</a></p>
+      <div class={styles.releaseResult}>
+        <p class={styles.release}><a href='#' onClick={this.handleClickRelease}>{props.values.name}</a></p>
         <p class={styles.artist}><a href='#' onClick={this.handleClickArtist}>{props.values.artist}</a></p>
       </div>
     );
   }
 }
 
-export default AlbumResults;
+export default ReleaseResults;

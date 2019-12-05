@@ -2,6 +2,8 @@ import {Component} from 'preact';
 
 import results from './test';
 import ResultsSearch from './ResultsSearch';
+import styles from './SearchPage.scss';
+
 
 class SearchPage extends Component {
   render({type, query}) {

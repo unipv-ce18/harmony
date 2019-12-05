@@ -1,5 +1,5 @@
 const results = [{
-  "albums" : [
+  "releases" : [
     {
       "name": "Queens of the Stone Age",
       "artist": "Queens of the Stone Age",

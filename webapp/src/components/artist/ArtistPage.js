@@ -3,7 +3,7 @@ import {Component} from 'preact';
 import styles from './ArtistPage.scss';
 import test from './test.js';
 import ArtistInfo from "./ArtistInfo";
-import AlbumsList from "./AlbumsList";
+import ReleaseList from "./ReleaseList";
 
 class ArtistPage extends Component {
   render({id}) {
@@ -16,7 +16,7 @@ class ArtistPage extends Component {
         <div class={styles.artistPageContent}>
           <ArtistInfo info = {info}/>
           {/*<Songs list = {songTest}/>*/}
-          <AlbumsList list = {result.releases} />
+          <ReleaseList list = {result.releases} />
           {/*<SimilarArtists />*/}
         </div>
       </div>);
