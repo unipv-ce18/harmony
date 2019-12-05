@@ -4,12 +4,13 @@ from flask_cors import CORS
 from flask_pymongo import PyMongo
 import security
 from database import Database
+from config import current_config
 
 app = Flask(__name__)
 CORS(app)
 
 # load configs from json file
-app.config.from_json("resources/config.json")
+app.config.from_object(current_config)
 
 # instance the backend as well as request parsers, jwt and connect to database
 api = Api(app, prefix="/api/v1")

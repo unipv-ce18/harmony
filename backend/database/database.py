@@ -1,6 +1,130 @@
 from bson.objectid import ObjectId
 
 
+_ARTIST_PROJECTION = {
+    '_id': 0,
+    'id': '$_id',
+    'name': '$name',
+    'image': '$image'
+}
+
+
+_ARTIST_COMPLETE_PROJECTION = {
+    '_id': 0,
+    'id': '$_id',
+    'name': '$name',
+    'sort_name': '$sort_name',
+    'country': '$country',
+    'life_span': '$life_span',
+    'genres': '$genres',
+    'bio': '$bio',
+    'members': '$members',
+    'links': '$links',
+    'image': '$image'
+}
+
+
+_RELEASE_PROJECTION = {
+    '_id': 0,
+    'id': '$releases._id',
+    'name': '$releases.name',
+    'artist': {
+        'id': '$_id',
+        'name': '$name'
+    },
+    'date': '$releases.date',
+    'type': '$releases.type',
+    'cover': '$releases.cover'
+}
+
+
+_SONG_PROJECTION = {
+    '_id': 0,
+    'id': '$releases.songs._id',
+    'title': '$releases.songs.title',
+    'artist': {
+        'id': '$_id',
+        'name': '$name'
+    },
+    'release': {
+        'id': '$releases._id',
+        'name': '$releases.name',
+        'cover': '$releases.cover'
+    },
+    'length': '$releases.songs.length',
+    'key_id': '$key_id',
+    'key': '$key'
+}
+
+
+def _artist_pipeline(match_params):
+    return [
+        {'$match': match_params},
+        {'$project': _ARTIST_PROJECTION}
+    ]
+
+
+def _artist_complete_pipeline(match_params):
+    return [
+        {'$match': match_params},
+        {'$project': _ARTIST_COMPLETE_PROJECTION}
+    ]
+
+
+def _release_pipeline(match_params):
+    return [
+        {'$unwind': '$releases'},
+        {'$match': match_params},
+        {'$project': _RELEASE_PROJECTION}
+    ]
+
+
+def _song_pipeline(match_params):
+    return [
+        {'$unwind': '$releases'},
+        {'$match': match_params},
+        {'$unwind': '$releases.songs'},
+        {'$match': match_params},
+        {'$project': _SONG_PROJECTION}
+    ]
+
+
+def objectid_to_str(res):
+    for k, v in res.items():
+        if k == 'id':
+            res[k] = str(res[k])
+        if isinstance(v, dict):
+            objectid_to_str(res[k])
+        if isinstance(v, list):
+            for i in range(len(v)):
+                if isinstance(v[i], dict):
+                    objectid_to_str(v[i])
+    return res
+
+
+def modify_artist(artist):
+    if 'releases' in artist:
+        artist['releases'] = modify_releases(artist['releases'])
+    return artist
+
+
+def modify_releases(releases):
+    release_list = [add_objectid(release) for release in releases]
+    for r in release_list:
+        if 'songs' in r:
+            r['songs'] = modify_songs(r['songs'])
+    return release_list
+
+
+def modify_songs(songs):
+    return [add_objectid(song) for song in songs]
+
+
+def add_objectid(item):
+    item['_id'] = ObjectId()
+    return item
+
+
 class Database:
     def __init__(self, db_connection):
         self.artists = db_connection['artists']

@@ -1,5 +1,5 @@
 # Project specific
-/resources/config.json
+#/resources/config.json
 
 # Python generic
 __pycache__/
