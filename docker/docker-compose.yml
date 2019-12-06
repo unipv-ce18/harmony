@@ -1,0 +1,23 @@
+# Configuration base for docker-compose
+version: '3.7'
+services:
+  mongodb:
+    image: mongo:4.2.1
+    environment:
+      MONGO_INITDB_DATABASE: harmony
+    volumes:
+      - ./mongo.init.d:/docker-entrypoint-initdb.d:ro
+      - mongo-data:/data/db
+
+  apiserver:
+    build:
+      context: ../backend
+      dockerfile: apiserver/Dockerfile
+    image: harmony/apiserver:dev
+    environment:
+      FLASK_CONFIG: development
+    ports:
+      - '80:80'
+
+volumes:
+  mongo-data:
