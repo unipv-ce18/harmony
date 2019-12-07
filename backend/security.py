@@ -17,4 +17,4 @@ def verify_password(stored_password, provided_password):
     stored_password = stored_password[64:]
     pwdhash = hashlib.pbkdf2_hmac('sha512', provided_password.encode('utf-8'), salt.encode('ascii'), 100000)
     pwdhash = binascii.hexlify(pwdhash).decode('ascii')
-    return True if pwdhash == stored_password else False
+    return pwdhash == stored_password

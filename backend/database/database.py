@@ -54,6 +54,7 @@ _SONG_PROJECTION = {
         'cover': '$releases.cover'
     },
     'length': '$releases.songs.length',
+    'lyrics': '$releases.songs.lyrics',
     'key_id': '$key_id',
     'key': '$key'
 }

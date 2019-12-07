@@ -1,0 +1,6 @@
+{
+  "host": "localhost",
+  "exchange": "id_exchange",
+  "routing": "id",
+  "queue": "transcoder"
+}

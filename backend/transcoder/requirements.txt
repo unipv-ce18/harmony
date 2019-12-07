@@ -1,2 +1,3 @@
 -r ../common/requirements.txt
 ffmpy==0.2.2
+pika==1.1.0

@@ -2,6 +2,6 @@ from os.path import realpath, dirname
 import json
 
 
-cfg_storage_path = realpath(dirname(__file__) + '/resources/config_storage.json')
-with open(cfg_storage_path, 'r') as f:
-    config_storage = json.load(f)
+cfg_rabbitmq_path = realpath(dirname(__file__) + '/resources/config_rabbitmq.json')
+with open(cfg_rabbitmq_path, 'r') as f:
+    config_rabbitmq = json.load(f)
