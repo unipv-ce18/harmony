@@ -16,7 +16,6 @@ app.config.from_object(current_config)
 api = Api(app, prefix='/api/v1')
 jwt = security.JWTManager(app)
 mongo = PyMongo(app)
-authparser = reqparse.RequestParser()
 db = Database(mongo.db)
 
 
@@ -43,14 +42,15 @@ class AuthRegister(Resource):
 
 class AuthLogin(Resource):
     def post(self):
-        data = authparser.parse_args()
-        user = db.check_username(data['username'])
+        data = loginparser.parse_args()
+        print(data)
+        user = db.check_username(data['identity']) or db.check_email(data['identity'])
         if user is None:
             return 401
         else:
             if security.verify_password(user['password'], data['password']):
-                access = security.create_access_token(identity=data['username'])
-                refresh = security.create_refresh_token(identity=data['username'])
+                access = security.create_access_token(identity=user['username'])
+                refresh = security.create_refresh_token(identity=user['username'])
                 db.store_token(security.decode_token(access))
                 db.store_token(security.decode_token(refresh))
                 return {'access-token': access, 'refresh-token': refresh}
@@ -81,9 +81,13 @@ class TokenRefresh(Resource):
 
 
 # request parsers that automatically refuse requests without specified fields
+authparser = reqparse.RequestParser()
 authparser.add_argument('username', help='This field cannot be blank', required=True)
 authparser.add_argument('password', help='This field cannot be blank', required=True)
-authparser.add_argument('email', help='This field cannot be blank', required=False)
+authparser.add_argument('email', help="field required in registration form", required=True)
+loginparser = authparser.copy()
+loginparser.remove_argument('email')
+loginparser.replace_argument('username', dest='identity')
 # route API methods to their specific addresses (remember the prefix!)
 api.add_resource(AuthRegister, '/auth/register')
 api.add_resource(AuthLogin, '/auth/login')
