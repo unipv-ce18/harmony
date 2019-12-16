@@ -1,3 +1,5 @@
+import datetime
+
 from bson.objectid import ObjectId
 
 from model import Artist, Release, Song
@@ -133,6 +135,8 @@ class Database:
         self.artists = db_connection['artists']
         self.users = db_connection['users']
         self.blacklist = db_connection['blacklist']
+        self.transcoder = db_connection['transcoder']
+        self.transcoder.create_index('exp', expireAfterSeconds=60)
 
     def add_artist(self, artist):
         x = self.artists.insert_one(modify_artist(artist))
@@ -266,8 +270,28 @@ class Database:
         _tok = self.blacklist.find_one({'jti': token['jti']})
         return True if _tok is None else _tok['revoked']
 
+    def store_song_id(self, id):
+        current_time = datetime.datetime.utcnow()
+        self.transcoder.insert_one({
+            '_id': ObjectId(id),
+            'exp': current_time
+        })
+
+    def remove_song_id(self, id):
+        self.transcoder.delete_one({
+            '_id': ObjectId(id)
+        })
+
+    def song_in_transcoding(self, id):
+        query = {'_id': ObjectId(id)}
+        result = self.transcoder.find_one(query)
+        return bool(result)
+
     def drop_artists_collection(self):
         self.artists.drop()
 
     def drop_users_collection(self):
         self.users.drop()
+
+    def drop_transcoder_collection(self):
+        self.transcoder.drop()

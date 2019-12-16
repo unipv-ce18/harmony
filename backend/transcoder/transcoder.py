@@ -168,8 +168,14 @@ class Transcoder:
         :param str id: id of the transcoded song.
         :param str extension: the extension of the transcoded song. The default is .webm.
         """
-        song = lambda bitrate : f'{id}-{bitrate}{extension}'
         self.st.upload_folder('compressed-songs', _tmp_folder, id)
+
+    def remove_id_from_queue(self, id):
+        """Remove the id of the transcoded song from RabbitMQ queue.
+
+        :param str id: id of the transcoded song.
+        """
+        self.db.remove_song_id(id)
 
     def clear_transcoding_tmp_files(self, id, extension='.webm'):
         """Delete all the temporary files created in the process of transcoding
@@ -200,4 +206,5 @@ class Transcoder:
         self.transcoding(id, sample_rate, channels, extension)
         self.manifest_creation(id)
         self.upload_files_to_storage_server(id, extension)
+        self.remove_id_from_queue(id)
         self.clear_transcoding_tmp_files(id, extension)
