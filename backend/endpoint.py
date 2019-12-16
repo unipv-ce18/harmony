@@ -84,7 +84,7 @@ class TokenRefresh(Resource):
 authparser = reqparse.RequestParser()
 authparser.add_argument('username', help='This field cannot be blank', required=True)
 authparser.add_argument('password', help='This field cannot be blank', required=True)
-authparser.add_argument('email', help="field required in registration form", required=True)
+authparser.add_argument('email', help='field required in registration form', required=True)
 loginparser = authparser.copy()
 loginparser.remove_argument('email')
 loginparser.replace_argument('username', dest='identity')
@@ -98,5 +98,6 @@ api.add_resource(HelloWorld, '/sayhello')
 if __name__ == '__main__':
     # set cron job to delete tokens after 1 day
     db.blacklist.create_index('exp', expireAfterSeconds=86400)
+    db.transcoder.create_index('exp', expireAfterSeconds=60)
     # start the backend on specified address
     app.run(host='127.0.0.1', port=5000)

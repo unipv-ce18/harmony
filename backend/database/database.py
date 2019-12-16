@@ -136,7 +136,6 @@ class Database:
         self.users = db_connection['users']
         self.blacklist = db_connection['blacklist']
         self.transcoder = db_connection['transcoder']
-        self.transcoder.create_index('exp', expireAfterSeconds=60)
 
     def add_artist(self, artist):
         x = self.artists.insert_one(modify_artist(artist))
