@@ -3,7 +3,7 @@ from flask_restful import Resource, Api, reqparse
 from flask_cors import CORS
 from flask_pymongo import PyMongo
 import security
-from database import Database
+from common.database import Database
 from config import current_config
 
 app = Flask(__name__)
@@ -35,7 +35,7 @@ class AuthRegister(Resource):
         data = authparser.parse_args()
         username = data['username']
         data['password'] = security.hash_password(data['password'])
-        if db.check_username(username) is None:
+        if db.get_user_by_name(username) is None:
             return 200 if db.add_user(data) else 401
         else:
             return {'error': 'user already exists'}, 401
@@ -44,7 +44,7 @@ class AuthRegister(Resource):
 class AuthLogin(Resource):
     def post(self):
         data = authparser.parse_args()
-        user = db.check_username(data['username'])
+        user = db.get_user_by_name(data['username'])
         if user is None:
             return 401
         else:

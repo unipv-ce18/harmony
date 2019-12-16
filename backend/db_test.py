@@ -1,6 +1,5 @@
 import pymongo
-from database import Database
-from model import Artist, Release, Song
+from common.database import Database
 from config import current_config
 
 
