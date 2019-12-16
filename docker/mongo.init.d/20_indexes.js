@@ -8,3 +8,6 @@ db.artists.createIndex({'releases._id': 1});
 db.artists.createIndex({'releases.name': 1});
 db.artists.createIndex({'releases.songs._id': 1});
 db.artists.createIndex({'releases.songs.title': 1});
+
+// Blacklist TTL index
+db.blacklist.create_index({'exp': 1}, {expireAfterSeconds: 86400})

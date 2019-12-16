@@ -1,3 +1,4 @@
+import json
 import logging
 import unittest
 from os import path
@@ -5,8 +6,7 @@ from os import path
 import pymongo
 
 from common.database import Database
-from config import current_config
-from utils import read_json
+from apiserver.config import current_config
 
 
 def _connect_db():
@@ -18,6 +18,16 @@ def _connect_db():
 
 
 _test_resources_dir = path.join(path.dirname(path.realpath(__file__)), 'resources')
+
+
+def read_json(file_path):
+    with open(file_path, 'r') as f:
+        data = f.read()
+    json_data = json.loads(data, strict=False)
+    if isinstance(json_data, dict):
+        return [json_data]
+    return json_data
+
 
 test_artist_data = read_json(path.join(_test_resources_dir, 'test_artists.json'))
 

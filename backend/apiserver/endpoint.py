@@ -1,10 +1,11 @@
 from flask import Flask
-from flask_restful import Resource, Api, reqparse
 from flask_cors import CORS
 from flask_pymongo import PyMongo
-import security
+from flask_restful import Resource, Api, reqparse
+
 from common.database import Database
-from config import current_config
+from . import security
+from .config import current_config
 
 app = Flask(__name__)
 CORS(app)
@@ -90,9 +91,3 @@ api.add_resource(AuthLogin, '/auth/login')
 api.add_resource(AuthLogout, '/auth/logout')
 api.add_resource(TokenRefresh, '/auth/refresh')
 api.add_resource(HelloWorld, '/sayhello')
-
-if __name__ == '__main__':
-    # set cron job to delete tokens after 1 day
-    db.blacklist.create_index('exp', expireAfterSeconds=86400)
-    # start the backend on specified address
-    app.run(host='127.0.0.1', port=5000)

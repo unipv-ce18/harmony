@@ -1,9 +1,11 @@
 import os
+
 import pymongo
+
+from apiserver.config import current_config
 from common.database import Database
 from storage import Storage, minio_client
-from config import current_config
-import utils
+from tests.db_test_utils import read_json
 
 
 def rename_songs_with_id(artist_id):
@@ -31,8 +33,8 @@ harmony = db_client.get_database()
 db = Database(harmony)
 st = Storage(minio_client)
 
-artists_list = utils.read_json('tests/resources/test_artists.json')
-users_list = utils.read_json('tests/resources/test_users.json')
+artists_list = read_json('tests/resources/test_artists.json')
+users_list = read_json('tests/resources/test_users.json')
 
 db.artists.drop()
 db.users.drop()
