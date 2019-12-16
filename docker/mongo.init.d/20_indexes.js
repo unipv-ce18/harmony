@@ -11,3 +11,6 @@ db.artists.createIndex({'releases.songs.title': 1});
 
 // Blacklist TTL index
 db.blacklist.create_index({'exp': 1}, {expireAfterSeconds: 86400})
+
+// Transcoder TTL index
+db.transcoder.create_index({'exp': 1}, {expireAfterSeconds: 60})

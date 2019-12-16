@@ -1,5 +1,5 @@
 import pymongo
-from transcoder import TranscoderProducer, TranscoderWorker
+from transcoder import TranscoderWorker
 from apiserver.config import current_config
 
 
@@ -9,8 +9,10 @@ db_client = pymongo.MongoClient(current_config.MONGO_URI,
 harmony = db_client.get_database()
 
 
-producer = TranscoderProducer()
-worker = TranscoderWorker(harmony)
+def consumer_work(db_connection):
+    worker = TranscoderWorker(harmony)
+    worker.consuming()
 
-producer.add_to_queue('5de5193278839c3c6c84062f')
-worker.consuming()
+
+if __name__ == '__main__':
+    consumer_work(harmony)

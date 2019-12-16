@@ -3,6 +3,7 @@ from .ops_token import TokenOpsMixin
 from .ops_artist import ArtistOpsMixin
 from .ops_release import ReleaseOpsMixin
 from .ops_song import SongOpsMixin
+from .ops_transcoder import TranscoderOpsMixin
 
 
 # This is because Python...
@@ -17,6 +18,7 @@ class Database(
         ArtistOpsMixin,
         ReleaseOpsMixin,
         SongOpsMixin,
+        TranscoderOpsMixin,
         _DbBase):
 
     def __init__(self, db_connection):

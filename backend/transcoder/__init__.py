@@ -1,2 +1,3 @@
 from .transcoder_worker import TranscoderWorker
 from .transcoder_producer import TranscoderProducer
+from .transcoder_worker_notification import TranscoderWorkerNotification
