@@ -2,9 +2,9 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from flask_cors import CORS
 from flask_pymongo import PyMongo
-from backend import security
-from backend.database import Database
-from backend.config import current_config
+import security
+from database import Database
+from config import current_config
 
 app = Flask(__name__)
 CORS(app)
@@ -38,10 +38,8 @@ class AuthRegister(Resource):
         if db.check_email(email) is None:
             if db.check_username(username) is None:
                 return 200 if db.add_user(data) else 401
-
             else:
                 return {'error': {'type': 'usernameE', 'value': 'Username already exists.'}}, 401
-
         else:
             return {'error': {'type': 'emailE', 'value': 'Email already exists.'}}, 401
 
