@@ -2,9 +2,9 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from flask_cors import CORS
 from flask_pymongo import PyMongo
-import security
-from database import Database
-from config import current_config
+from backend import security
+from backend.database import Database
+from backend.config import current_config
 
 app = Flask(__name__)
 CORS(app)
@@ -33,17 +33,22 @@ class AuthRegister(Resource):
     def post(self):
         data = authparser.parse_args()
         username = data['username']
+        email = data['email']
         data['password'] = security.hash_password(data['password'])
-        if db.check_username(username) is None:
-            return 200 if db.add_user(data) else 401
+        if db.check_email(email) is None:
+            if db.check_username(username) is None:
+                return 200 if db.add_user(data) else 401
+
+            else:
+                return {'error': {'type': 'usernameE', 'value': 'Username already exists.'}}, 401
+
         else:
-            return {'error': 'user already exists'}, 401
+            return {'error': {'type': 'emailE', 'value': 'Email already exists.'}}, 401
 
 
 class AuthLogin(Resource):
     def post(self):
         data = loginparser.parse_args()
-        print(data)
         user = db.check_username(data['identity']) or db.check_email(data['identity'])
         if user is None:
             return 401
@@ -53,7 +58,7 @@ class AuthLogin(Resource):
                 refresh = security.create_refresh_token(identity=user['username'])
                 db.store_token(security.decode_token(access))
                 db.store_token(security.decode_token(refresh))
-                return {'access-token': access, 'refresh-token': refresh}
+                return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 900}
             else:
                 return 401
 
@@ -76,8 +81,17 @@ class TokenRefresh(Resource):
         if _jwt:
             access_token = security.create_access_token(user)
             db.store_token(security.decode_token(access_token))
-            return {'access-token': access_token}, 200
+            return {'access_token': access_token}, 200
         return 401
+
+
+class GetRelease(Resource):
+    def post(self):
+        data = reqparse.RequestParser().add_argument('id').parse_args()
+        release = db.get_release(data['id']).get_release_as_dict()
+        if release is None:
+            return 401
+        return release, 200
 
 
 # request parsers that automatically refuse requests without specified fields
@@ -93,6 +107,7 @@ api.add_resource(AuthRegister, '/auth/register')
 api.add_resource(AuthLogin, '/auth/login')
 api.add_resource(AuthLogout, '/auth/logout')
 api.add_resource(TokenRefresh, '/auth/refresh')
+api.add_resource(GetRelease, '/release')
 api.add_resource(HelloWorld, '/sayhello')
 
 if __name__ == '__main__':

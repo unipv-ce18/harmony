@@ -1,4 +1,5 @@
 import {execLogin} from './apiCalls';
+import {execLogout} from './apiCalls';
 import {getCurrentTime} from './utils'
 
 const SESSION_STORE_KEY = 'session';
@@ -100,11 +101,22 @@ export class Session {
   /**
    * Performs a logout and erases the saved session storage
    */
+
+  /*
   doLogout() {
     if (!this.loggedIn) return;
 
     if (this.valid) {
       // TODO: actually log out on the server
+    }
+    this.#store = null;
+  }
+   */
+  doLogout() {
+    if (!this.loggedIn) return;
+
+    if (this.valid) {
+      execLogout();
     }
     this.#store = null;
   }

@@ -2,7 +2,7 @@ import datetime
 
 from bson.objectid import ObjectId
 
-from model import Artist, Release, Song
+from backend.model import Artist, Release, Song
 
 
 _ARTIST_PROJECTION = {

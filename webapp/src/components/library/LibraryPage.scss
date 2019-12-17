@@ -1,0 +1,48 @@
+@import "../../styledefs";
+
+.libraryPage {
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.libraryPageContent {
+  width: 100%;
+  border-radius: 16px;
+  min-height: calc(100vh - 32px - #{$navbar-height});
+
+  background-color: $panel-color-test;
+  //background: radial-gradient(circle, #5B1A27 20%,#2A0C12 75%);
+
+  color: $panel-text-color-test;
+  overflow: hidden;
+  display: inline-block;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.inputs {
+  width: 90%;
+  margin-left: 5%;
+  input{
+    width: 200px;
+  }
+}
+
+.playlists {
+  padding-top: 50px;
+
+  span {
+    display: inline-block;
+    margin: 20px 8%;
+
+    img {
+      width: 150px;
+      height: 150px;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+}

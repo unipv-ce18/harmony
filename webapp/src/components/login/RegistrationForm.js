@@ -90,13 +90,15 @@ class RegistrationForm extends Component {
     if (!this.emailValidation() || !this.unameValidation() ||
       !this.password1Validation() || !this.password2Validation())
       return false;
-    execRegistration(this.state.remail, this.state.rname, this.state.rpsw1)
-      .then(_ => {
-        session.doLogin(this.state.rname, this.state.rpsw1)
-      })
-      .catch(e => {
-        this.setState({error: {type: "emailE", value: e}});
-      })
+    (execRegistration(this.state.remail, this.state.rname, this.state.rpsw1)
+        .then(value => {
+          if (value === 200) {
+            session.doLogin(this.state.rname, this.state.rpsw1);
+          } else {
+            this.setState(value);
+          }
+        })
+    );
   }
 
   render(props) {

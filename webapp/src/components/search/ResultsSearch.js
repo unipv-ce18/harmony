@@ -10,7 +10,7 @@ class ResultsSearch extends Component {
     Object.keys(results).forEach(function(key) {
       if(results[key].type == 'albums') {
         Object.keys(results[key].values).forEach(function(key2){
-          albums.push(results[key].values[key2]);
+          zalbums.push(results[key].values[key2]);
         });
       }
       if(results[key].type == 'songs')
