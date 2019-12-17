@@ -15,7 +15,9 @@ app.config.from_object(current_config)
 # instance the backend as well as request parsers, jwt and connect to database
 api = Api(app, prefix='/api/v1')
 jwt = security.JWTManager(app)
-mongo = PyMongo(app)
+mongo = PyMongo(app,
+                username=current_config.MONGO_USERNAME,
+                password=current_config.MONGO_PASSWORD)
 db = Database(mongo.db)
 
 
