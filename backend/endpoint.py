@@ -41,9 +41,9 @@ class AuthRegister(Resource):
             if db.check_username(username) is None:
                 return 200 if db.add_user(data) else 401
             else:
-                return {'error': {'type': 'usernameE', 'value': 'Username already exists.'}}, 401
+                return {'message': 'Username already exists'}, 401
         else:
-            return {'error': {'type': 'emailE', 'value': 'Email already exists.'}}, 401
+            return {'message': 'Email already exists'}, 401
 
 
 class AuthLogin(Resource):

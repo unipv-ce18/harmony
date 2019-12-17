@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 
-import {execRegistration} from '../../core/apiCalls';
+import {ApiError, execRegistration} from '../../core/apiCalls';
 import {session} from "../../Harmony";
 
 import style from './formsCommon.scss';
@@ -90,15 +90,16 @@ class RegistrationForm extends Component {
     if (!this.emailValidation() || !this.unameValidation() ||
       !this.password1Validation() || !this.password2Validation())
       return false;
-    (execRegistration(this.state.remail, this.state.rname, this.state.rpsw1)
-        .then(value => {
-          if (value === 200) {
-            session.doLogin(this.state.rname, this.state.rpsw1);
-          } else {
-            this.setState(value);
-          }
-        })
-    );
+    execRegistration(this.state.remail, this.state.rname, this.state.rpsw1)
+      .then(_ => {
+        session.doLogin(this.state.rname, this.state.rpsw1);
+      })
+      .catch(e => {
+        if (e instanceof ApiError)
+          e.response.json().then(d => this.#processServerError(d));
+        else
+          this.#processServerError({message: `Generic server error: ${e.message}`});
+      });
   }
 
   render(props) {
@@ -137,6 +138,21 @@ class RegistrationForm extends Component {
       </div>
     );
   }
+
+  #processServerError({message}) {
+    switch (message) {
+      case 'Username already exists':
+        this.setState({error: {type: 'usernameE', value: message}});
+        break;
+      case 'Email already exists':
+        this.setState({error: {type: 'emailE', value: message}});
+        break;
+      default:
+        // We may want to display this in a better way
+        alert(message)
+    }
+  }
+
 }
 
 export default RegistrationForm;
