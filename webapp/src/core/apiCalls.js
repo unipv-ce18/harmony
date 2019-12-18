@@ -4,6 +4,7 @@ const API_LOGIN_URL = API_BASE_URL + '/auth/login';
 const API_REGISTRATION_URL = API_BASE_URL + '/auth/register';
 const API_LOGOUT_URL = API_BASE_URL + '/auth/logout';
 const API_RELEASE_URL = API_BASE_URL + '/release';
+const API_ARTIST_URL = API_BASE_URL + '/artist';
 
 export class ApiError extends Error {
   constructor(response) {
@@ -50,10 +51,15 @@ export function execLogout() {
 }
 
 export function getRelease(id) {
-  const data = {id};
-  return fetch(API_RELEASE_URL, {
-    method: 'POST',
-    headers: new Headers({'Content-Type': 'application/json'}),
-    body: JSON.stringify(data)
-  }).then(response => {return response.json()})
+  return fetch(API_RELEASE_URL + '?id=' + id)
+    .then(response => {
+      return response.json()
+    })
+}
+
+export function getArtist(id) {
+  return fetch(API_ARTIST_URL + '?id=' + id)
+    .then(response => {
+      return response.json()
+    })
 }

@@ -15,7 +15,6 @@ class ReleasePage extends Component {
       songList: []
     };
 
-    //this.cipolla = this.cipolla.bind(this);
   }
 
   composeTime(time) {
@@ -29,7 +28,6 @@ class ReleasePage extends Component {
   }
 
   componentDidMount() {
-
     let songList = [];
     for (let [key, value] of Object.entries(release)) {
       if (key === 'songs') {
@@ -42,11 +40,9 @@ class ReleasePage extends Component {
         });
       }
     }
-    this.setState({songList : songList});
+    this.setState({songList: songList});
 
-    console.log(window.location.href);
-    getRelease("5df661200f5a399f9df75a5c").then(result => {
-      console.log(result);
+    getRelease(/[^/]*$/.exec(window.location.href)[0]).then(result => {
       this.setState({release: result});
 
       let artistObj = {};

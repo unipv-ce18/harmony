@@ -86,9 +86,18 @@ class TokenRefresh(Resource):
 
 
 class GetRelease(Resource):
-    def post(self):
+    def get(self):
         data = reqparse.RequestParser().add_argument('id').parse_args()
         release = db.get_release(data['id']).get_release_as_dict()
+        if release is None:
+            return 401
+        return release, 200
+
+
+class GetArtist(Resource):
+    def get(self):
+        data = reqparse.RequestParser().add_argument('id').parse_args()
+        release = db.get_artist(data['id']).get_release_as_dict()
         if release is None:
             return 401
         return release, 200
@@ -108,6 +117,7 @@ api.add_resource(AuthLogin, '/auth/login')
 api.add_resource(AuthLogout, '/auth/logout')
 api.add_resource(TokenRefresh, '/auth/refresh')
 api.add_resource(GetRelease, '/release')
+api.add_resource(GetArtist, '/artist')
 api.add_resource(HelloWorld, '/sayhello')
 
 if __name__ == '__main__':
