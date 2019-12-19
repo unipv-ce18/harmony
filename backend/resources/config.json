@@ -1,0 +1,11 @@
+{
+  "SECRET_KEY": "vivalacarbonara",
+  "DEBUG": true,
+  "MONGO_NAME": "harmony",
+  "MONGO_URI": "mongodb://localhost:27017/harmony?authSource=harmony",
+  "MONGO_USERNAME": "admin",
+  "MONGO_PASSWORD": "pastina",
+  "JWT_SECRET_KEY": "aiutoamici",
+  "JWT_BLACKLIST_ENABLED": true,
+  "JWT_BLACKLIST_TOKEN_CHECK": ["access", "refresh"]
+}

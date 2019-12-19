@@ -4,7 +4,7 @@ from os import path
 
 import pymongo
 
-from database.database import Database
+from database import Database
 from utils import read_json
 from config import current_config
 

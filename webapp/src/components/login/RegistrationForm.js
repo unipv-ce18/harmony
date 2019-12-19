@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 
-import {execRegistration} from '../../core/apiCalls';
+import {ApiError, execRegistration} from '../../core/apiCalls';
 import {session} from "../../Harmony";
 
 import style from './formsCommon.scss';
@@ -92,36 +92,40 @@ class RegistrationForm extends Component {
       return false;
     execRegistration(this.state.remail, this.state.rname, this.state.rpsw1)
       .then(_ => {
-        session.doLogin(this.state.rname, this.state.rpsw1)
+        session.doLogin(this.state.rname, this.state.rpsw1);
       })
       .catch(e => {
-        this.setState({error: {type: "emailE", value: "This email already exists."}});
-      })
+        if (e instanceof ApiError)
+          e.response.json().then(d => this.#processServerError(d));
+        else
+          this.#processServerError({message: `Generic server error: ${e.message}`});
+      });
   }
 
   render(props) {
+    const errorStyle = `border: 1px solid #bf0000`;
     return (
       <div class={style.formWrapper}>
         <form class={`${style.form} ${styleRegistration.regisForm}`} onSubmit={this.handleSubmit}>
           <div>
             <input type="text" placeholder="Email" name="remail" onChange={this.handleChange}
                    onFocus={this.handleFocus}
-                   style={this.state.error.type === "emailE" ? "border: 1px solid #bf0000" : "border: ''"}/>
+                   style={this.state.error.type === "emailE" && errorStyle}/>
             {this.state.error.type === "emailE" && (
               <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             <input type="text" placeholder="Username" name="rname" onChange={this.handleChange}
                    onFocus={this.handleFocus}
-                   style={this.state.error.type === "usernameE" ? "border: 1px solid #bf0000" : "border: ''"}/>
+                   style={this.state.error.type === "usernameE" && errorStyle}/>
             {this.state.error.type === "usernameE" && (
               <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             <input type="password" placeholder="Password" name="rpsw1" onChange={this.handleChange}
                    onFocus={this.handleFocus}
-                   style={this.state.error.type === "pass1E" ? "border: 1px solid #bf0000" : "border: ''"}/>
+                   style={this.state.error.type === "pass1E" && errorStyle}/>
             {this.state.error.type === "pass1E" && (
               <div class={style.errorField}><span/>{this.state.error.value}</div>)}
             <input type="password" placeholder="Repeat Password" name="rpsw2" onChange={this.handleChange}
                    onFocus={this.handleFocus}
-                   style={this.state.error.type === "pass2E" ? "border: 1px solid #bf0000" : "border: ''"}/>
+                   style={this.state.error.type === "pass2E" && errorStyle}/>
             {this.state.error.type === "pass2E" && (
               <div class={style.errorField}><span/>{this.state.error.value}</div>)}
           </div>
@@ -134,6 +138,21 @@ class RegistrationForm extends Component {
       </div>
     );
   }
+
+  #processServerError({message}) {
+    switch (message) {
+      case 'Username already exists':
+        this.setState({error: {type: 'usernameE', value: message}});
+        break;
+      case 'Email already exists':
+        this.setState({error: {type: 'emailE', value: message}});
+        break;
+      default:
+        // We may want to display this in a better way
+        alert(message)
+    }
+  }
+
 }
 
 export default RegistrationForm;

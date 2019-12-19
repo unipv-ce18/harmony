@@ -20,7 +20,7 @@ def _create_key(id):
 _bitrate = ['96', '160', '320']
 
 _tmp_folder = 'tmp'
-_tmp_subfolder = ['compressed_songs', 'manifest_files']
+_tmp_subfolder = 'compressed_songs'
 
 
 class Transcoder:
@@ -38,9 +38,8 @@ class Transcoder:
 
         if not os.path.exists(_tmp_folder):
             os.makedirs(_tmp_folder)
-        for subfolder in _tmp_subfolder:
-            if not os.path.exists(f'{_tmp_folder}/{subfolder}'):
-                os.makedirs(os.path.join(_tmp_folder, subfolder))
+        if not os.path.exists(f'{_tmp_folder}/{_tmp_subfolder}'):
+            os.makedirs(os.path.join(_tmp_folder, _tmp_subfolder))
 
     def transcoding_song(self, id, bitrate='160', sample_rate=44100, channels=2, extension='.webm'):
         """Transcode a song from flac format to the format specified in extension.
@@ -66,7 +65,7 @@ class Transcoder:
         lossless_song = self.st.download_file('lossless-songs', file_name, _tmp_folder)
 
         input = f'{_tmp_folder}/{file_name}'
-        output = f'{_tmp_folder}/{_tmp_subfolder[0]}/{output_file_name}'
+        output = f'{_tmp_folder}/{_tmp_subfolder}/{output_file_name}'
 
         metadata = self.metadata(id)
 
@@ -127,7 +126,7 @@ class Transcoder:
 
         Use v2.3.0 packager-linux (https://github.com/google/shaka-packager/releases).
 
-        manifest file: saved as {id}.mpd inside tmp/manifest_files.
+        manifest file: saved as manifest.mpd inside tmp/{id} folder.
         segments: saved inside tmp/{id} folder.
             - init: saved as {bitrate}_init.webm
             - template: saved as {bitrate}_$Time$.webm
@@ -136,14 +135,13 @@ class Transcoder:
         """
         key_id = _create_key(id)
         key = _create_key(id)
-        param = lambda id, bitrate : f'in={_tmp_folder}/{_tmp_subfolder[0]}/{id}-{bitrate}.webm,\
+        param = lambda id, bitrate : f'in={_tmp_folder}/{_tmp_subfolder}/{id}-{bitrate}.webm,\
                                       stream=audio,init_segment={_tmp_folder}/{id}/{bitrate}_init.webm,\
                                       segment_template={_tmp_folder}/{id}/{bitrate}_$Time$.webm,\
                                       drm_label=AUDIO'
 
         packager_path = os.path.realpath(os.path.dirname(__file__))
-        manifest_file_name = f'{id}.mpd'
-        manifest_path = f'{_tmp_folder}/{_tmp_subfolder[1]}/{id}'
+        manifest_path = f'{_tmp_folder}/{id}'
 
         command = [
             f'{packager_path}/packager-linux',
@@ -155,7 +153,7 @@ class Transcoder:
             f'label=AUDIO:key_id={key_id}:key={key}',
             '--generate_static_mpd',
             '--mpd_output',
-            f'{manifest_path}/{manifest_file_name}'
+            f'{manifest_path}/manifest.mpd'
         ]
 
         subprocess.run(command)
@@ -164,18 +162,20 @@ class Transcoder:
     def upload_files_to_storage_server(self, id, extension):
         """Upload transcode process files to storage server.
 
-        Transcoded songs are uploaded to compressed-songs bucket.
-        Manifest file is uploaded to manifest-files bucket.
-        Segments are uploaded to init-segments bucket inside {id} folder.
+        Manifest file and segments are uploaded to compressed-songs bucket inside
+        {id} folder.
 
         :param str id: id of the transcoded song.
         :param str extension: the extension of the transcoded song. The default is .webm.
         """
-        song = lambda bitrate: f'{id}-{bitrate}{extension}'
-        for b in _bitrate:
-            self.st.upload_file('compressed-songs', song(b), f'{_tmp_folder}/{_tmp_subfolder[0]}')
-        self.st.upload_file('manifest-files', f'{id}.mpd', f'{_tmp_folder}/{_tmp_subfolder[1]}/{id}')
-        self.st.upload_folder('init-segments', _tmp_folder, id)
+        self.st.upload_folder('compressed-songs', _tmp_folder, id)
+
+    def remove_id_from_queue(self, id):
+        """Remove the id of the transcoded song from RabbitMQ queue.
+
+        :param str id: id of the transcoded song.
+        """
+        self.db.remove_song_id(id)
 
     def clear_transcoding_tmp_files(self, id, extension='.webm'):
         """Delete all the temporary files created in the process of transcoding
@@ -185,8 +185,7 @@ class Transcoder:
         :param str extension: the extension of the transcoded song. The default is .webm.
         """
         for b in _bitrate:
-            os.remove(f'{_tmp_folder}/{_tmp_subfolder[0]}/{id}-{b}{extension}')
-        shutil.rmtree(f'{_tmp_folder}/{_tmp_subfolder[1]}/{id}')
+            os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{id}-{b}{extension}')
         shutil.rmtree(f'{_tmp_folder}/{id}')
         os.remove(f'{_tmp_folder}/{id}.flac')
 
@@ -207,4 +206,5 @@ class Transcoder:
         self.transcoding(id, sample_rate, channels, extension)
         self.manifest_creation(id)
         self.upload_files_to_storage_server(id, extension)
+        self.remove_id_from_queue(id)
         self.clear_transcoding_tmp_files(id, extension)

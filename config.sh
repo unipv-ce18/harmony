@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # use: bash config.sh path/to/config.json path/to/requirements.txt
+# well... no more config file, sooo....
 
 function readJson {
 	VALUE=`grep -m 1 "\"${2}\"" ${1} | sed '-r' 's/^ *//;s/.*: *"//;s/",?// '`

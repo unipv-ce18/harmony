@@ -3,7 +3,6 @@ import datetime
 from bson.objectid import ObjectId
 
 from model import Artist, Release, Song
-import security
 
 
 _ARTIST_PROJECTION = {
@@ -25,12 +24,7 @@ _ARTIST_COMPLETE_PROJECTION = {
     'bio': '$bio',
     'members': '$members',
     'links': '$links',
-    'image': '$image',
-    'releases':  [{
-        'id': '$releases._id',
-        'name': '$releases.name',
-        'cover': '$releases.cover'
-    }]
+    'image': '$image'
 }
 
 
@@ -62,6 +56,7 @@ _SONG_PROJECTION = {
         'cover': '$releases.cover'
     },
     'length': '$releases.songs.length',
+    'lyrics': '$releases.songs.lyrics',
     'key_id': '$key_id',
     'key': '$key'
 }
@@ -77,8 +72,6 @@ def _artist_pipeline(match_params):
 def _artist_complete_pipeline(match_params):
     return [
         {'$match': match_params},
-    #    {'$unwind': '$releases'},
-    #    {'$match': match_params},
         {'$project': _ARTIST_COMPLETE_PROJECTION}
     ]
 
@@ -142,6 +135,7 @@ class Database:
         self.artists = db_connection['artists']
         self.users = db_connection['users']
         self.blacklist = db_connection['blacklist']
+        self.transcoder = db_connection['transcoder']
 
     def add_artist(self, artist):
         x = self.artists.insert_one(modify_artist(artist))
@@ -223,13 +217,15 @@ class Database:
         result = self.artists.aggregate(pipeline=_song_pipeline(query))
         return [Song(objectid_to_str(res)) for res in result]
 
-    # to fix release return
     def get_artist(self, id):
         query = {'_id': ObjectId(id)}
         result = self.artists.aggregate(pipeline=_artist_complete_pipeline(query))
-        #for r in result:
-        #    print(r)
-        return [Artist(objectid_to_str(res)) for res in result][0]
+        result2 =  self.artists.aggregate(pipeline=_release_pipeline(query))
+        res = []
+        for r in result:
+            r['releases'] = [r2 for r2 in result2]
+            res.append(r)
+        return Artist(objectid_to_str(res[0]))
 
     def get_release(self, id):
         query = {'releases._id': ObjectId(id)}
@@ -244,7 +240,7 @@ class Database:
     # to fix, it updates all the songs
     def update_song_transcoding_info(self, id, key_id, key):
         query = {'releases.songs._id': ObjectId(id)}
-        self.artists.update(
+        self.artists.update_one(
             query,
             {'$set': {
                 'key_id': key_id,
@@ -256,24 +252,38 @@ class Database:
         query = {'_id': ObjectId(id)}
         self.artists.remove(query)
 
-    def add_token_to_blacklist(self, token):
-        payload = security.decode_token(token)
-        if isinstance(payload, list):
-            expiration = payload['exp']
-            current_time = datetime.datetime.utcnow()
-            delta = (expiration - current_time).total_seconds()
+    def store_token(self, token):
+        _my_token = {
+            'jti': token['jti'],
+            'user_identity': token['identity'],
+            'type': token['type'],
+            'exp': token['exp'],
+            'revoked': False
+        }
+        return self.blacklist.insert_one(_my_token)
 
-            if delta > 0:
-                self.blacklist.create_index('date', expireAfterSeconds=delta)
-                self.blacklist.insert({
-                    'token': token,
-                    'date': current_time
-                })
-                return True
-        return False
+    def revoke_token(self, token_id):
+        self.blacklist.update_one({'jti': token_id}, {'$set': {'revoked': True}})
 
-    def check_blacklisted_token(self, token):
-        result = self.blacklist.find_one({'token': token})
+    def is_token_revoked(self, token):
+        _tok = self.blacklist.find_one({'jti': token['jti']})
+        return True if _tok is None else _tok['revoked']
+
+    def store_song_id(self, id):
+        current_time = datetime.datetime.utcnow()
+        self.transcoder.insert_one({
+            '_id': ObjectId(id),
+            'exp': current_time
+        })
+
+    def remove_song_id(self, id):
+        self.transcoder.delete_one({
+            '_id': ObjectId(id)
+        })
+
+    def song_in_transcoding(self, id):
+        query = {'_id': ObjectId(id)}
+        result = self.transcoder.find_one(query)
         return bool(result)
 
     def drop_artists_collection(self):
@@ -281,3 +291,6 @@ class Database:
 
     def drop_users_collection(self):
         self.users.drop()
+
+    def drop_transcoder_collection(self):
+        self.transcoder.drop()
