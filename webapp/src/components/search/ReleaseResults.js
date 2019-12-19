@@ -1,6 +1,7 @@
 import {Component} from "preact";
 import {route} from "preact-router";
 import styles from './SearchPage.scss';
+import release from "../release/testRelease";
 
 class ReleaseResults extends Component {
   constructor(props) {
@@ -10,21 +11,22 @@ class ReleaseResults extends Component {
   }
 
   handleClickRelease(event) {
-    route('/release/' + this.props.values.id );
+    route('/release/' + this.props.release.id );
     event.preventDefault();
   }
 
   handleClickArtist(event) {
-    // DA RICONTROLLARE PER L'ID (come avere quello dell'artista?)
-    route('/artist/' + this.props.values.id );
+    route('/artist/' + this.props.release.artist.id );
     event.preventDefault();
   }
 
   render(props, state, context) {
+    let release = this.props.release;
     return(
       <div class={styles.releaseResult}>
-        <p class={styles.release}><a href='#' onClick={this.handleClickRelease}>{props.values.name}</a></p>
-        <p class={styles.artist}><a href='#' onClick={this.handleClickArtist}>{props.values.artist}</a></p>
+        <img src={release.cover} onClick={this.handleClickSong} class={styles.image}/>
+        <span><span class={styles.release}><a href='#' onClick={this.handleClickRelease}>{release.name}</a></span>
+          <span class={styles.artistRelease}><a href='#' onClick={this.handleClickArtist}>{release.artist.name}</a></span></span>
       </div>
     );
   }

@@ -42,7 +42,7 @@ class ArtistInfo extends Component {
 
     if (additional) {
       additionalInfo = (
-        <div id='additionalInfo'>
+        <div class={styles.additionalInfo}>
           {life_span}
           {members}
           {links}

@@ -18,21 +18,29 @@
 
 .artistInfo {
   background-repeat: no-repeat;
+  padding: 0.5em;
   .name {
+    margin: 0;
+    padding: 0.2em;
+  }
+
+  ul {
 
   }
+
 }
 
 .tags {
   .tagButton {
     border-radius: 5px;
-    background-color: blue;
+    background-color: $application-background;
+    color: $text-color-default;
     padding: 0.1em 0.2em;
     margin: 0 0.1em;
   }
 }
 
-.artistBio {
+.artistBio, .additionalInfo {
   padding: 10px;
   font-size: 0.85em;
 }
@@ -43,9 +51,16 @@
   .sort {
     padding: 5px;
   }
-  .release {
-    background-size: contain;
+
+  img {
     border-radius: 10px;
+    width: 200px;
+    height: 200px;
+  }
+
+  .release {
+    //background-size: contain;
+    //border-radius: 10px;
     width: 200px;
     height: 200px;
     float: left;

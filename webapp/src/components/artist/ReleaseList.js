@@ -1,16 +1,24 @@
 import {Component} from "preact";
 import styles from './ArtistPage.scss';
+import {route} from "preact-router";
 
 class ReleaseList extends Component {
   constructor(props) {
     super(props);
     this.state = {order: 'date'};
     this.handleChangeOrder = this.handleChangeOrder.bind(this);
+    this.handleClickRelease = this.handleClickRelease.bind(this);
   }
+
+  handleClickRelease(event) {
+    route('/release/' + event.target.getAttribute('href'));
+    event.preventDefault();
+  }
+
 
   handleChangeOrder(event) {
     this.setState({
-      order: event.target.name
+      order: event.target.value
     });
   }
 
@@ -34,12 +42,14 @@ class ReleaseList extends Component {
       <div class={styles.releaseList}>
         <div className={styles.sort}>
           Sort by:
-          <button className={order == 'az' ? "active" : ""} onClick={this.handleChangeOrder} name='az'>AZ</button>
-          <button className={order == 'za' ? "active" : ""} onClick={this.handleChangeOrder} name='za'>ZA</button>
-          <button className={order == 'type' ? "active" : ""} onClick={this.handleChangeOrder} name='type'>TYPE</button>
-          <button className={order == 'date' ? "active" : ""} onClick={this.handleChangeOrder} name='date'>DATE</button>
+          <select value={this.state.order} onChange={this.handleChangeOrder} class={styles.sortSelect}>
+            <option value='az'>AZ</option>
+            <option value='za'>ZA</option>
+            <option value='type'>TYPE</option>
+            <option value='date' selected>DATE</option>
+          </select>
         </div>
-        {list.map(item => <div class = {styles.release} style={{backgroundImage : "url('" + item.cover + "')"}}>{item.name} - {item.date} - {item.type}</div> ) }
+        {list.map(item => <div class = {styles.release}><a href='1' onClick={this.handleClickRelease}><img src={item.cover} alt={item.name}/></a></div> ) }
       </div>
     );
   }

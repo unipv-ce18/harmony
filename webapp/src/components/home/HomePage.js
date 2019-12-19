@@ -1,6 +1,7 @@
 import {Component} from 'preact';
 
 import Search from "../search/Search";
+import styles from './HomePage.scss';
 
 import {session, mediaPlayer} from '../../Harmony';
 import {MediaItemInfo, PlayStartModes} from "../../player/MediaPlayer";
@@ -9,7 +10,7 @@ class HomePage extends Component {
   render(props, state, context) {
     // Behold the almighty home page of Harmony!
     return (
-      <div>
+      <div class={styles.homepage}>
         <Search/>
 
         {/* Temporary player controls */}

@@ -33,7 +33,7 @@ class App extends Component {
         <HomePage path="/"/>
         <SearchPage path="/search/:type/:query"/>
         <ArtistPage path="/artist/:id"/>
-        <ReleasePage path="/release/"/>
+        <ReleasePage path="/release/:id"/>
         <Redirect default to="/"/>
       </Router>
     ) : (

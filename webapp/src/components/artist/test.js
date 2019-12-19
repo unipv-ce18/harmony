@@ -33,49 +33,49 @@ const test = {
     "twitter": "https://twitter.com/qotsa",
     "instagram": "https://www.instagram.com/queensofthestoneage"
   },
-  "image": "",
+  "image": "https://lastfm.freetls.fastly.net/i/u/770x0/51632dbdb3884f3796033776d33016ae.jpg",
   "releases": [
     {
       "name": "Queens of the Stone Age",
       "date": "1998-10-06",
       "type": "album",
-      "cover": ""
+      "cover": "https://lastfm.freetls.fastly.net/i/u/770x0/1319ef46e1da47f5c7dd7afdfb11aa53.jpg#1319ef46e1da47f5c7dd7afdfb11aa53"
     },
     {
       "name": "Rated R",
       "date": "2000-06-06",
       "type": "album",
-      "cover": ""
+      "cover": "https://lastfm.freetls.fastly.net/i/u/770x0/1319ef46e1da47f5c7dd7afdfb11aa53.jpg#1319ef46e1da47f5c7dd7afdfb11aa53"
     },
     {
       "name": "Songs for the Deaf",
       "date": "2002-08-27",
       "type": "album",
-      "cover": ""
+      "cover": "https://lastfm.freetls.fastly.net/i/u/770x0/1319ef46e1da47f5c7dd7afdfb11aa53.jpg#1319ef46e1da47f5c7dd7afdfb11aa53"
     },
     {
       "name": "Lullabies to Paralyze",
       "date": "2005-03-21",
       "type": "album",
-      "cover": ""
+      "cover": "https://lastfm.freetls.fastly.net/i/u/770x0/1319ef46e1da47f5c7dd7afdfb11aa53.jpg#1319ef46e1da47f5c7dd7afdfb11aa53"
     },
     {
       "name": "Era Vulgaris",
       "date": "2007-06-12",
       "type": "album",
-      "cover": ""
+      "cover": "https://lastfm.freetls.fastly.net/i/u/770x0/1319ef46e1da47f5c7dd7afdfb11aa53.jpg#1319ef46e1da47f5c7dd7afdfb11aa53"
     },
     {
       "name": "...Like Clockwork",
       "date": "2013-06-03",
       "type": "album",
-      "cover": ""
+      "cover": "https://lastfm.freetls.fastly.net/i/u/770x0/1319ef46e1da47f5c7dd7afdfb11aa53.jpg#1319ef46e1da47f5c7dd7afdfb11aa53"
     },
     {
       "name": "Villains",
       "date": "2017-08-25",
       "type": "album",
-      "cover": ""
+      "cover": "https://lastfm.freetls.fastly.net/i/u/770x0/1319ef46e1da47f5c7dd7afdfb11aa53.jpg#1319ef46e1da47f5c7dd7afdfb11aa53"
     }
   ]
 };

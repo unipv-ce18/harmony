@@ -1,0 +1,9 @@
+@import "../../styledefs";
+
+.homePage {
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  min-height: calc(100vh - 32px - #{$navbar-height});
+  text-align: center;
+}

@@ -9,16 +9,16 @@ class ArtistResults extends Component {
   }
 
   handleClick(event) {
-    route('/artist/' + this.props.values.id );
+    route('/artist/' + this.props.artist.id );
     event.preventDefault();
   }
 
 
   render(props) {
+    let artist = this.props.artist;
     return(
-      <div>
-        <p>Artist name: <a href='#' onClick={this.handleClick}>{props.values.name}</a></p>
-        <p>Genre: {props.values.genres}</p>
+      <div class={styles.artistResult} style={{backgroundImage : "url('" + artist.image + "')"}}>
+        <a href='#' onClick={this.handleClick}>{artist.name}</a>
       </div>
     );
   }

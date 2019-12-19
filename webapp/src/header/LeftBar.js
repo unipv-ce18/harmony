@@ -1,14 +1,30 @@
-import {h, Component} from "preact";
+import {Component} from "preact";
 import styles from './header.scss';
+import {route} from "preact-router";
 
 class LeftBar extends Component {
+  constructor(props){
+    super(props);
+    this.clickHome = this.clickHome.bind(this);
+    this.clickLibrary = this.clickLibrary.bind(this);
+  }
+
+  clickHome(event) {
+    route('/');
+    event.preventDefault();
+  }
+
+  clickLibrary(event) {
+    route('/library/');
+    event.preventDefault();
+  }
+
   render() {
     return (
-      <div>
+      <div class={styles.leftBar}>
         <ul>
-          <li>Home</li>
-          {/*<li><a href='./'></a>Home</li>*/}
-          <li></li>
+          <li><a href='#' onClick={this.clickHome}>Home</a></li>
+          <li><a href='#' onClick={this.clickLibrary}>Library</a></li>
         </ul>
       </div>
     );
