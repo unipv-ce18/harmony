@@ -170,12 +170,12 @@ class Transcoder:
         """
         self.st.upload_folder('compressed-songs', _tmp_folder, id)
 
-    def remove_id_from_queue(self, id):
-        """Remove the id of the transcoded song from RabbitMQ queue.
+    def remove_pending_song(self, id):
+        """Remove the id of the pending song in RabbitMQ queue from database.
 
         :param str id: id of the transcoded song.
         """
-        self.db.remove_song_id(id)
+        self.db.remove_transcoder_pending_song(id)
 
     def clear_transcoding_tmp_files(self, id, extension='.webm'):
         """Delete all the temporary files created in the process of transcoding
@@ -206,5 +206,5 @@ class Transcoder:
         self.transcoding(id, sample_rate, channels, extension)
         self.manifest_creation(id)
         self.upload_files_to_storage_server(id, extension)
-        self.remove_id_from_queue(id)
+        self.remove_pending_song(id)
         self.clear_transcoding_tmp_files(id, extension)

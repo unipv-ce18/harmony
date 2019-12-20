@@ -27,7 +27,7 @@ class TranscoderProducer:
 
     def producing_declare(self):
         self.channel.exchange_declare(
-            exchange=config_rabbitmq['exchange'],
+            exchange=config_rabbitmq['api_exchange'],
             exchange_type='direct'
         )
 
@@ -45,7 +45,7 @@ class TranscoderProducer:
 
     def add_to_queue(self, id):
         self.channel.basic_publish(
-            exchange=config_rabbitmq['exchange'],
+            exchange=config_rabbitmq['api_exchange'],
             routing_key=config_rabbitmq['routing'],
             body=id,
             properties=pika.BasicProperties(

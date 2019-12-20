@@ -136,6 +136,7 @@ class Database:
         self.users = db_connection['users']
         self.blacklist = db_connection['blacklist']
         self.transcoder = db_connection['transcoder']
+        self.consumers = db_connection['consumers']
 
     def add_artist(self, artist):
         x = self.artists.insert_one(modify_artist(artist))
@@ -269,22 +270,38 @@ class Database:
         _tok = self.blacklist.find_one({'jti': token['jti']})
         return True if _tok is None else _tok['revoked']
 
-    def store_song_id(self, id):
+    def put_transcoder_pending_song(self, id):
         current_time = datetime.datetime.utcnow()
         self.transcoder.insert_one({
             '_id': ObjectId(id),
             'exp': current_time
         })
 
-    def remove_song_id(self, id):
+    def remove_transcoder_pending_song(self, id):
         self.transcoder.delete_one({
             '_id': ObjectId(id)
         })
 
-    def song_in_transcoding(self, id):
+    def song_is_transcoding(self, id):
         query = {'_id': ObjectId(id)}
         result = self.transcoder.find_one(query)
         return bool(result)
+
+    def get_count_transcoder_collection(self):
+        return self.transcoder.count()
+
+    def store_consumer_tag(self, consumer_tag):
+        self.consumers.insert_one({
+            'consumer_tag': consumer_tag
+        })
+
+    def remove_consumer_tag(self, consumer_tag):
+        self.consumers.delete_one({
+            'consumer_tag': consumer_tag
+        })
+
+    def get_count_consumers_collection(self):
+        return self.consumers.count()
 
     def drop_artists_collection(self):
         self.artists.drop()

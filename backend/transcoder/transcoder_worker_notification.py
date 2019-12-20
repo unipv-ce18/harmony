@@ -15,6 +15,7 @@ class TranscoderWorkerNotification(threading.Thread):
         print('Connection to RabbitMQ...')
 
         self.connect()
+        self.notification_declare()
 
         print('...made')
 
@@ -30,13 +31,14 @@ class TranscoderWorkerNotification(threading.Thread):
         self.connection = pika.BlockingConnection(params)
         self.channel = self.connection.channel()
 
-    def run(self):
+    def notification_declare(self):
         self.channel.queue_bind(
             exchange=config_rabbitmq['notification_exchange'],
             queue=self.queue,
             routing_key=self.id
         )
 
+    def run(self):
         self.consumer_tag = uuid.uuid1().hex
 
         self.channel.basic_consume(
@@ -47,7 +49,6 @@ class TranscoderWorkerNotification(threading.Thread):
         )
 
         self.channel.start_consuming()
-
 
     def callback(self, ch, method, properties, body):
         print(f'received {body}')

@@ -3,8 +3,10 @@
   "port": 5672,
   "username": "guest",
   "password": "guest",
-  "exchange": "id_exchange",
+  "api_exchange": "api_exchange",
+  "transcoder_exchange": "transcoder_exchange",
   "notification_exchange": "notification_exchange",
   "routing": "id",
-  "queue": "transcoder"
+  "api_queue": "api_queue",
+  "transcoder_queue": "transcoder_queue"
 }

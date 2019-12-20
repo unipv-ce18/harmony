@@ -1,26 +1,15 @@
 import pymongo
-from transcoder import TranscoderProducer
-from transcoder import TranscoderWorkerNotification
-from database import Database
-from config import current_config
-
-
-db_client = pymongo.MongoClient(current_config.MONGO_URI,
-                                username=current_config.MONGO_USERNAME,
-                                password=current_config.MONGO_PASSWORD)
-harmony = db_client.get_database()
-db = Database(harmony)
-
-producer = TranscoderProducer()
-queue = producer.get_queue()
+from transcoder import TranscoderProducer, TranscoderWorkerNotification
 
 
 def producer_work(producer, queue, id):
     td = TranscoderWorkerNotification(queue, id)
     td.start()
-    if not db.song_in_transcoding(id):
-        producer.add_to_queue(id)
-        db.store_song_id(id)
+    producer.add_to_queue(id)
+
+
+producer = TranscoderProducer()
+queue = producer.get_queue()
 
 
 id_list = [
