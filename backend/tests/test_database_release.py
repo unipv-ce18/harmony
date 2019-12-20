@@ -1,4 +1,4 @@
-from common.model import Artist, Release
+from common.database.codec import artist_from_document, release_from_document
 from tests.db_test_utils import DatabaseTest, test_artist_data, make_artist_ref
 
 
@@ -8,7 +8,7 @@ class ReleaseDatabaseTest(DatabaseTest):
         super().setUp()
 
         # Insert releases in the database
-        self.artist_in = Artist(test_artist_data[0])
+        self.artist_in = artist_from_document(test_artist_data[0])
         self.artist_id = self.db.put_artist(self.artist_in)
 
         self.release_ids = self.db.put_releases(self.artist_id, self.artist_in.releases)
@@ -43,7 +43,7 @@ class ReleaseDatabaseTest(DatabaseTest):
         self.assertEqual(1, len(search_result),
                          'Search result should only have one item for the given query')
 
-        expected_result = Release({
+        expected_result = release_from_document({
             '_id': self.release_ids[3],
             'name': self.artist_in.releases[3].name,
             'artist': make_artist_ref(self.artist_id, self.artist_in),

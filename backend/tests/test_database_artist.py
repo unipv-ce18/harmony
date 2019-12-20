@@ -1,6 +1,6 @@
 from bson import ObjectId
 
-from common.model import Artist
+from common.database.codec import artist_from_document
 from tests.db_test_utils import DatabaseTest, test_artist_data
 
 
@@ -8,7 +8,7 @@ class ArtistDatabaseTest(DatabaseTest):
 
     def test_db_artist_crud(self):
         # Put an artist inside the database and get it back
-        artist_in = Artist(test_artist_data[0])
+        artist_in = artist_from_document(test_artist_data[0])
         artist_id = self.db.put_artist(artist_in)
         artist_out = self.db.get_artist(artist_id, include_releases=True)
 
@@ -36,7 +36,7 @@ class ArtistDatabaseTest(DatabaseTest):
 
     def test_db_artist_search(self):
         # Put artist in DB
-        artist_in = Artist(test_artist_data[0])
+        artist_in = artist_from_document(test_artist_data[0])
         artist_id = self.db.put_artist(artist_in)
 
         # Check non-matching search query
@@ -50,7 +50,7 @@ class ArtistDatabaseTest(DatabaseTest):
                          'Matching search should return one result')
 
         # Check projection correctness
-        artist_search_result = Artist({
+        artist_search_result = artist_from_document({
             '_id': ObjectId(artist_id),
             'name': artist_in.name,
             'image': artist_in.image,

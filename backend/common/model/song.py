@@ -14,47 +14,19 @@ _song_tuple = namedtuple('Song', [
 ])
 
 
-class Song:
-    def __init__(self, song_data=None):
-        my_data = {}
-        if song_data is None:
-            song_data = {}
-
-        if '_id' in song_data:
-            my_data['id'] = str(song_data['_id'])
-        if 'artist' in song_data:
-            my_data['artist'] = {
-                'id': str(song_data['artist']['id']),
-                'name': song_data['artist']['name']
-            }
-        if 'release' in song_data:
-            my_data['release'] = {
-                'id': str(song_data['release']['id']),
-                'name': song_data['release']['name'],
-                'date': song_data['release']['date'],
-                'type': song_data['release']['type'],
-                'cover': song_data['release']['cover']
-            }
-
-        for f in _song_tuple._fields:
-            if f not in my_data:
-                my_data[f] = song_data[f] if f in song_data else None
-        self.data = _song_tuple(**my_data)
-
-    def __getattr__(self, item):
-        return getattr(self.data, item)
+class Song(_song_tuple):
 
     def __repr__(self):
         song = ''
-        for k, v in self.data._asdict().items():
+        for k, v in self._asdict().items():
             song += f'\n\t\t\t\t{k}: {v}'
         return song
 
     def __str__(self):
         song = ''
-        for k, v in self.data._asdict().items():
+        for k, v in self._asdict().items():
             song += f'{k}: {v}\n'
         return song
 
     def to_dict(self):
-        return dict(self.data._asdict())
+        return dict(self._asdict())

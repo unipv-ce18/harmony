@@ -1,6 +1,6 @@
 from random import randrange
 
-from common.model import Artist, Song
+from common.database.codec import artist_from_document, song_from_document
 from tests.db_test_utils import DatabaseTest, test_artist_data, make_artist_ref, make_release_ref
 
 
@@ -10,7 +10,7 @@ class SongDatabaseTest(DatabaseTest):
         super().setUp()
 
         # Insert songs in the database
-        self.artist_in = Artist(test_artist_data[0])
+        self.artist_in = artist_from_document(test_artist_data[0])
         self.artist_id = self.db.put_artist(self.artist_in)
 
         self.release_ids = []
@@ -65,7 +65,7 @@ class SongDatabaseTest(DatabaseTest):
         self.assertEqual(1, len(search_result),
                          'Search result should have only two items for the given query')
 
-        expected_result = Song({
+        expected_result = song_from_document({
             '_id': self.song_ids[1][1],
             'title': self.artist_in.releases[1].songs[1].title,
             'artist': make_artist_ref(self.artist_id, self.artist_in),
