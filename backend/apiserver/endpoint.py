@@ -1,10 +1,11 @@
 from flask import Flask
-from flask_restful import Resource, Api, reqparse
 from flask_cors import CORS
 from flask_pymongo import PyMongo
-import security
-from database import Database
-from config import current_config
+from flask_restful import Resource, Api, reqparse
+
+from common.database import Database
+from . import security
+from .config import current_config
 
 app = Flask(__name__)
 CORS(app)
@@ -37,8 +38,8 @@ class AuthRegister(Resource):
         username = data['username']
         email = data['email']
         data['password'] = security.hash_password(data['password'])
-        if db.check_email(email) is None:
-            if db.check_username(username) is None:
+        if db.get_user_by_mail(email) is None:
+            if db.get_user_by_name(username) is None:
                 return 200 if db.add_user(data) else 401
             else:
                 return {'message': 'Username already exists'}, 401
@@ -49,7 +50,7 @@ class AuthRegister(Resource):
 class AuthLogin(Resource):
     def post(self):
         data = loginparser.parse_args()
-        user = db.check_username(data['identity']) or db.check_email(data['identity'])
+        user = db.get_user_by_name(data['identity']) or db.get_user_by_mail(data['identity'])
         if user is None:
             return 401
         else:
@@ -119,10 +120,3 @@ api.add_resource(TokenRefresh, '/auth/refresh')
 api.add_resource(GetRelease, '/release')
 api.add_resource(GetArtist, '/artist')
 api.add_resource(HelloWorld, '/sayhello')
-
-if __name__ == '__main__':
-    # set cron job to delete tokens after 1 day
-    db.blacklist.create_index('exp', expireAfterSeconds=86400)
-    db.transcoder.create_index('exp', expireAfterSeconds=60)
-    # start the backend on specified address
-    app.run(host='127.0.0.1', port=5000)

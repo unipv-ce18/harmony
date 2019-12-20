@@ -1,0 +1,21 @@
+# Development configuration for docker-compose
+version: '3.7'
+services:
+  mongodb:
+    environment:
+      # Dummy credentials for dev use
+      MONGO_INITDB_ROOT_USERNAME: sauron
+      MONGO_INITDB_ROOT_PASSWORD: svarione
+      MONGO_INITDB_USERNAME: harmony
+      MONGO_INITDB_PASSWORD: pastina
+    ports:
+      # Expose port so we can access it at localhost:27017 with external tools
+      - '27017:27017'
+
+  apiserver:
+    environment:
+      # Enable hot-reload of Flask app
+      GUNICORN_CMD_ARGS: --reload
+    volumes:
+      # Mount our local files inside the container
+      - ../backend:/app:ro

@@ -1,6 +1,6 @@
 import pymongo
 from transcoder import Orchestrator
-from config import current_config
+from apiserver.config import current_config
 
 
 db_client = pymongo.MongoClient(current_config.MONGO_URI,

@@ -1,9 +1,11 @@
 import os
+
 import pymongo
-from database import Database
+
+from apiserver.config import current_config
+from common.database import Database
 from storage import Storage, minio_client
-from config import current_config
-import utils
+from tests.db_test_utils import read_json
 
 
 def rename_songs_with_id(artist_id):
@@ -22,6 +24,7 @@ def rename_songs_with_id(artist_id):
             if k == f.replace('.flac', ''):
                 os.rename(f'lossless_songs/{f}', f'lossless_songs/{v}.flac')
 
+
 db_client = pymongo.MongoClient(current_config.MONGO_URI,
                                 username=current_config.MONGO_USERNAME,
                                 password=current_config.MONGO_PASSWORD)
@@ -30,11 +33,11 @@ harmony = db_client.get_database()
 db = Database(harmony)
 st = Storage(minio_client)
 
-artists_list = utils.read_json('resources/artists.json')
-users_list = utils.read_json('resources/users.json')
+artists_list = read_json('tests/resources/test_artists.json')
+users_list = read_json('tests/resources/test_users.json')
 
-db.drop_artists_collection()
-db.drop_users_collection()
+db.artists.drop()
+db.users.drop()
 st.delete_all_files('lossless-songs')
 st.delete_all_files('compressed-songs')
 

@@ -5,9 +5,8 @@ import hashlib
 
 import ffmpy
 
-from database import Database
+from common.database import Database
 from storage import Storage
-from model import Song
 
 
 def _create_key(id):

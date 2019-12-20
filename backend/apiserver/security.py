@@ -1,5 +1,5 @@
 import hashlib, binascii, os
-import utils, jwt, datetime
+import jwt, datetime
 from flask_jwt_extended import *
 
 

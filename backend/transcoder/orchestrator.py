@@ -3,7 +3,7 @@ import uuid
 
 import pika
 
-from database import Database
+from common.database import Database
 from .transcoder_worker import TranscoderWorker
 from .config import config_rabbitmq
 
