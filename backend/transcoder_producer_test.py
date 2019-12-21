@@ -1,4 +1,3 @@
-import pymongo
 from transcoder import TranscoderProducer, TranscoderWorkerNotification
 
 
@@ -13,9 +12,9 @@ queue = producer.get_queue()
 
 
 id_list = [
-    '5de5193278839c3c6c84062f',
-    '5de5193278839c3c6c840634',
-    '5de5193278839c3c6c840632'
+    '5dfd65de57475213eea24160',
+    '5dfd65de57475213eea24164',
+    '5dfd65de57475213eea24174'
 ]
 
 for id in id_list:

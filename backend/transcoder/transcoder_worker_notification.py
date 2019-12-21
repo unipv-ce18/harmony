@@ -39,7 +39,7 @@ class TranscoderWorkerNotification(threading.Thread):
         )
 
     def run(self):
-        self.consumer_tag = uuid.uuid1().hex
+        self.consumer_tag = uuid.uuid4().hex
 
         self.channel.basic_consume(
             queue=self.queue,

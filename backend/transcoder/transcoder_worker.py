@@ -11,7 +11,7 @@ class TranscoderWorker:
     def __init__(self, db_connection, consumer_tag=None):
         self.transcoder = Transcoder(db_connection, minio_client)
 
-        self.consumer_tag = consumer_tag if consumer_tag is not None else uuid.uuid1().hex
+        self.consumer_tag = consumer_tag if consumer_tag is not None else uuid.uuid4().hex
 
         print('Connection to RabbitMQ...')
 

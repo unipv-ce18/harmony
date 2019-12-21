@@ -103,7 +103,7 @@ class Orchestrator:
         return self.db.song_is_transcoding(id)
 
     def create_worker(self):
-        consumer_tag = uuid.uuid1().hex
+        consumer_tag = uuid.uuid4().hex
         worker = TranscoderWorker(self.db_connection, consumer_tag)
         self.store_consumer_tag(consumer_tag)
         p = Process(target=worker.consuming)

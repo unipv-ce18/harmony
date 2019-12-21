@@ -86,7 +86,7 @@ class Transcoder:
 
         :param str id: id of the song to be transcoded.
         """
-        lossless_song_info = self.db.get_song(id).get_song_as_dict()
+        lossless_song_info = self.db.get_song(id).to_dict()
         m = [
             f'title="{lossless_song_info["title"]}"',
             f'artist="{lossless_song_info["artist"]["name"]}"',
@@ -156,7 +156,11 @@ class Transcoder:
         ]
 
         subprocess.run(command)
-        self.db.update_song_transcoding_info(id, key_id, key)
+        repr_data = {
+            'key_id': key_id,
+            'key': key
+        }
+        self.db.put_song_representation_data(id, repr_data)
 
     def upload_files_to_storage_server(self, id, extension):
         """Upload transcode process files to storage server.

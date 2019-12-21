@@ -12,12 +12,12 @@ def rename_songs_with_id(artist_id):
     a = db.get_artist_releases(artist_id)
     b = []
     for i in range(len(a)):
-        a[i] = a[i].get_release_as_dict()
+        a[i] = a[i].to_dict()
         b.append(db.get_release_songs(a[i]['id']))
     c = {}
     for i in range(len(b)):
         for j in range(len(b[i])):
-            b[i][j] = b[i][j].get_song_as_dict()
+            b[i][j] = b[i][j].to_dict()
             c[b[i][j]['title']] = b[i][j]['id']
     for f in os.listdir('lossless_songs'):
         for k, v in c.items():

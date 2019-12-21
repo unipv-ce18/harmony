@@ -25,7 +25,7 @@ class OrchestratorOpsMixin:
         return bool(self.transcoder.find_one({'_id': ObjectId(song_id)}))
 
     def get_count_transcoder_collection(self):
-        return self.transcoder.count_documents()
+        return self.transcoder.count_documents({})
 
     def store_consumer_tag(self, consumer_tag):
         self.consumers.insert_one({
@@ -38,4 +38,4 @@ class OrchestratorOpsMixin:
         })
 
     def get_count_consumers_collection(self):
-        return self.consumers.count_documents()
+        return self.consumers.count_documents({})
