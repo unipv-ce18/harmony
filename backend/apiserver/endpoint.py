@@ -89,7 +89,7 @@ class TokenRefresh(Resource):
 class GetRelease(Resource):
     def get(self):
         data = reqparse.RequestParser().add_argument('id').parse_args()
-        release = db.get_release(data['id']).get_release_as_dict()
+        release = db.get_release(data['id']).to_dict()
         if release is None:
             return 401
         return release, 200
@@ -98,10 +98,10 @@ class GetRelease(Resource):
 class GetArtist(Resource):
     def get(self):
         data = reqparse.RequestParser().add_argument('id').parse_args()
-        release = db.get_artist(data['id']).get_release_as_dict()
-        if release is None:
+        artist = db.get_artist(data['id']).to_dict()
+        if artist is None:
             return 401
-        return release, 200
+        return artist, 200
 
 
 # request parsers that automatically refuse requests without specified fields
