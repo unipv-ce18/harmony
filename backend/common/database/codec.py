@@ -88,8 +88,9 @@ def artist_from_document(doc: dict) -> Artist:
             return str(doc[c.ARTIST_ID]) \
                 if c.ARTIST_ID in doc else None
         if k == c.ARTIST_RELEASES:
-            return [release_from_document(release) for release in doc[c.ARTIST_RELEASES]] \
-                if c.ARTIST_RELEASES in doc else None
+            releases = doc.get(c.ARTIST_RELEASES)
+            return [release_from_document(release) for release in releases] \
+                if releases is not None else None
         return doc.get(k)
 
     return Artist(**{model_property: get_prop(doc_field)
@@ -117,8 +118,9 @@ def release_from_document(doc: dict) -> Release:
             return str(doc[c.RELEASE_ID]) \
                 if c.RELEASE_ID in doc else None
         if k == c.RELEASE_SONGS:
-            return [song_from_document(song) for song in doc[c.RELEASE_SONGS]] \
-                if c.RELEASE_SONGS in doc else None
+            songs = doc.get(c.RELEASE_SONGS)
+            return [song_from_document(song) for song in songs] \
+                if songs is not None else None
         if k == c.RELEASE_ARTIST_REF:
             return _artist_ref_from_document(doc[c.RELEASE_ARTIST_REF]) \
                 if c.RELEASE_ARTIST_REF in doc else None

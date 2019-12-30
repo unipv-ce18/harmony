@@ -55,6 +55,23 @@ class SongDatabaseTest(DatabaseTest):
                 self.assertDictEqual(song_in_data, song_out_data,
                                      'Extracted release content should match inserted')
 
+    def test_db_release_songs(self):
+        for i in range(len(self.release_ids)):
+            # Get release with songs
+            rich_release_out = self.db.get_release(self.release_ids[i], include_songs=True)
+
+            # Check name equals
+            release_in = self.artist_in.releases[i]
+            self.assertEqual(release_in.name, rich_release_out.name,
+                             'Extracted release name should match inserted')
+
+            # For each song, check if it matches inserted
+            for j in range(len(release_in.songs)):
+                song_in = release_in.songs[j].to_dict()
+                song_out = rich_release_out.songs[j].to_dict()
+                song_out['id'] = None
+                self.assertDictEqual(song_in, song_out)
+
     def test_db_song_search(self):
         # Test search
         search_result = self.db.search_song('margidda')

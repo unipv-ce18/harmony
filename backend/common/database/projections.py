@@ -39,7 +39,9 @@ def artist_projection(include_releases=False):
         c.ARTIST_IMAGE: f'${c.ARTIST_IMAGE}'
     }
     if include_releases:
-        projection.update(release_projection(c.ARTIST_RELEASES))
+        projection.update(_prefix_projection(
+            release_projection(include_ref=False),
+            c.ARTIST_RELEASES))
     return projection
 
 
@@ -51,7 +53,7 @@ def artist_projection_search_result():
     }
 
 
-def release_projection(prefix='', include_songs=False):
+def release_projection(include_ref=True, include_songs=False):
     projection = {
         c.RELEASE_ID: f'${c.ARTIST_RELEASES}.{c.RELEASE_ID}',
         c.RELEASE_NAME: f'${c.ARTIST_RELEASES}.{c.RELEASE_NAME}',
@@ -60,14 +62,14 @@ def release_projection(prefix='', include_songs=False):
         c.RELEASE_COVER: f'${c.ARTIST_RELEASES}.{c.RELEASE_COVER}'
     }
     if include_songs:
-        projection.update(song_projection(c.RELEASE_SONGS))
-
-    if prefix == '':
-        # This is to get a single release, include artist reference
+        projection[c.RELEASE_SONGS] = {
+            '$map': {
+                'input': f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}',
+                'in': song_projection(include_ref=False, this_name='$$this')
+            }
+        }
+    if include_ref:
         projection[c.RELEASE_ARTIST_REF] = _ARTIST_REF_PROJECTION
-    else:
-        # This is inside an artist projection, add prefix
-        projection = _prefix_projection(projection, prefix)
     return projection
 
 
@@ -80,22 +82,18 @@ def release_projection_search_result():
     }
 
 
-def song_projection(prefix=''):
+def song_projection(include_ref=True, this_name=f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}'):
     projection = {
-        c.SONG_ID: f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}.{c.SONG_ID}',
-        c.SONG_TITLE: f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}.{c.SONG_TITLE}',
-        c.SONG_LENGTH: f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}.{c.SONG_LENGTH}',
-        c.SONG_LYRICS: f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}.{c.SONG_LYRICS}',
-        c.SONG_REFERENCE_URL: f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}.{c.SONG_REFERENCE_URL}',
-        c.SONG_REPRESENTATION_DATA: f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}.{c.SONG_REPRESENTATION_DATA}',
+        c.SONG_ID: f'{this_name}.{c.SONG_ID}',
+        c.SONG_TITLE: f'{this_name}.{c.SONG_TITLE}',
+        c.SONG_LENGTH: f'{this_name}.{c.SONG_LENGTH}',
+        c.SONG_LYRICS: f'{this_name}.{c.SONG_LYRICS}',
+        c.SONG_REFERENCE_URL: f'{this_name}.{c.SONG_REFERENCE_URL}',
+        c.SONG_REPRESENTATION_DATA: f'{this_name}.{c.SONG_REPRESENTATION_DATA}',
     }
-    if prefix == '':
-        # This is projection for a single song, include artist and release reference
+    if include_ref:
         projection[c.SONG_ARTIST_REF] = _ARTIST_REF_PROJECTION
         projection[c.SONG_RELEASE_REF] = _RELEASE_REF_PROJECTION
-    else:
-        # This is inside an artist projection, add prefix
-        projection = _prefix_projection(projection, prefix)
     return projection
 
 
