@@ -33,6 +33,7 @@ class Artist(_artist_tuple):
     def to_dict(self):
         artist_dict = dict(self._asdict())
         if self.releases is not None:
-            release_dict = [r.to_dict() for r in self.releases]
+            release_dict = [r.to_dict() for r in self.releases] \
+                if isinstance(self.releases, list) else self.releases.to_dict()
             artist_dict['releases'] = release_dict
         return artist_dict

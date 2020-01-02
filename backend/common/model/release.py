@@ -29,6 +29,7 @@ class Release(_release_tuple):
     def to_dict(self):
         release_dict = dict(self._asdict())
         if self.songs is not None:
-            song_dict = [s.to_dict() for s in self.songs]
+            song_dict = [s.to_dict() for s in self.songs] \
+                if isinstance(self.songs, list) else self.songs.to_dict()
             release_dict['songs'] = song_dict
         return release_dict

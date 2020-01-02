@@ -11,7 +11,7 @@ harmony = db_client.get_database()
 
 db = Database(harmony)
 
-print(db.search('you'))
-#print(db.get_artist('5de5193278839c3c6c840681'))
-#print(db.get_release('5de5193278839c3c6c840623'))
-#print(db.get_artist_releases('5de5193278839c3c6c840681'))
+#print(db.search('you'))
+#print(db.get_artist('5dfd65de57475213eea241b3', include_releases=True).to_dict())
+print(db.get_release('5dfd65de57475213eea2415a').to_dict())
+#print(db.get_artist_releases('5dfd65de57475213eea241b3'))
