@@ -9,6 +9,11 @@ from storage import minio_client
 
 class TranscoderWorker:
     def __init__(self, db_connection, consumer_tag=None):
+        """Initialize Transcoder Worker.
+
+        :param pymongo.database.Database db_connection: database connection instance
+        :param str consumer_tag: the consumer tag specific of the worker
+        """
         self.transcoder = Transcoder(db_connection, minio_client)
 
         self.consumer_tag = consumer_tag if consumer_tag is not None else uuid.uuid4().hex
@@ -22,6 +27,7 @@ class TranscoderWorker:
         print('...made')
 
     def connect(self):
+        """Connect to RabbitMQ."""
         params = pika.ConnectionParameters(
             host=config_rabbitmq['host'],
             port=config_rabbitmq['port'],
@@ -34,6 +40,10 @@ class TranscoderWorker:
         self.channel = self.connection.channel()
 
     def consuming_declare(self):
+        """Declare the exchange used to receive the id of the songs to transcode.
+        Declare the durable queue where the messages arrive and bind it to the
+        transcoder exchange.
+        """
         self.channel.exchange_declare(
             exchange=config_rabbitmq['transcoder_exchange'],
             exchange_type='direct'
@@ -52,12 +62,18 @@ class TranscoderWorker:
         )
 
     def notification_declare(self):
+        """Declare the exchange used to notify the api server."""
         self.channel.exchange_declare(
             exchange=config_rabbitmq['notification_exchange'],
             exchange_type='direct'
         )
 
     def consuming(self):
+        """Wait for song to transcode in transcoder queue.
+
+        prefetch_count is set to 1 so that no more than one message can be
+        unacknowledged for each worker.
+        """
         self.channel.basic_qos(prefetch_count=1)
 
         self.channel.basic_consume(
@@ -73,6 +89,15 @@ class TranscoderWorker:
             self.connection.close()
 
     def callback(self, ch, method, properties, body):
+        """Callback function.
+
+        When the message arrives, perform transcoding on it, publish a notification
+        to the notification exchange, and send an acknowledgment to RabbitMQ broker.
+
+        :param pika.adapters.blocking_connection.BlockingChannel ch: channel
+        :param bytes body: the body of the message, i.e. the id of the song to
+            transcode
+        """
         print(f'received {body}')
         self.transcoder.complete_transcode(body.decode('utf-8'))
 

@@ -29,8 +29,8 @@ class Transcoder:
         Retrieve instances of database and storage connections. Create the
         temporary folders used during the transcode process.
 
-        :param pymongo.database.Database db_connection: database connection instance.
-        :param minio.api.Minio minio_connection: storage connection instance.
+        :param pymongo.database.Database db_connection: database connection instance
+        :param minio.api.Minio minio_connection: storage connection instance
         """
         self.db = Database(db_connection)
         self.st = Storage(minio_connection)
@@ -49,14 +49,14 @@ class Transcoder:
     	output file: saved inside tmp/compressed_songs folder.
             output-file-name = {id}-{bitrate}{extension} (default: {id}-160.webm)
 
-    	:param str id: id of the song to be transcoded and name of the input file.
+    	:param str id: id of the song to be transcoded and name of the input file
     	:param str bitrate: the bitrate of the output song. The default bitrate
-    		is 160 kbps.
+    		is 160 kbps
     	:param int sample_rate: the sample rate of the output song. The default
-    		sample rate is 44100 Hz.
+    		sample rate is 44100 Hz
     	:param int channels: the number of channels of the ouput song. The default
-    		is 2, which stands for stereo; 1 is mono.
-    	:param str extension: the extension of the ouput song. The default is .webm.
+    		is 2, which stands for stereo; 1 is mono
+    	:param str extension: the extension of the ouput song. The default is .webm
     	"""
         file_name = f'{id}.flac'
         output_file_name = f'{id}-{bitrate}{extension}'
@@ -84,7 +84,7 @@ class Transcoder:
     def metadata(self, id):
         """Generate metadata for song from database information.
 
-        :param str id: id of the song to be transcoded.
+        :param str id: id of the song to be transcoded
         """
         lossless_song_info = self.db.get_song(id).to_dict()
         m = [
@@ -104,12 +104,12 @@ class Transcoder:
         different versions of the same song with three different qualities: low,
         medium and high.
 
-        :param str id: id of the song to be transcoded and name of the input file.
+        :param str id: id of the song to be transcoded and name of the input file
     	:param int sample_rate: the sample rate of the output song. The default
-    		sample rate is 44100 Hz.
+    		sample rate is 44100 Hz
     	:param int channels: the number of channels of the ouput song. The default
-    		is 2, which stands for stereo; 1 is mono.
-    	:param str extension: the extension of the ouput song. The default is .webm.
+    		is 2, which stands for stereo; 1 is mono
+    	:param str extension: the extension of the ouput song. The default is .webm
         """
         for b in _bitrate:
             self.transcoding_song(id, b, sample_rate, channels, extension)
@@ -130,7 +130,7 @@ class Transcoder:
             - init: saved as {bitrate}_init.webm
             - template: saved as {bitrate}_$Time$.webm
 
-        :param str id: id of the transcoded song.
+        :param str id: id of the transcoded song
         """
         key_id = _create_key(id)
         key = _create_key(id)
@@ -168,15 +168,15 @@ class Transcoder:
         Manifest file and segments are uploaded to compressed-songs bucket inside
         {id} folder.
 
-        :param str id: id of the transcoded song.
-        :param str extension: the extension of the transcoded song. The default is .webm.
+        :param str id: id of the transcoded song
+        :param str extension: the extension of the transcoded song. The default is .webm
         """
         self.st.upload_folder('compressed-songs', _tmp_folder, id)
 
     def remove_pending_song(self, id):
         """Remove the id of the pending song in RabbitMQ queue from database.
 
-        :param str id: id of the transcoded song.
+        :param str id: id of the transcoded song
         """
         self.db.remove_transcoder_pending_song(id)
 
@@ -184,8 +184,8 @@ class Transcoder:
         """Delete all the temporary files created in the process of transcoding
         the song, making the manifest file and creating the segments.
 
-        :param str id: id of the transcoded song.
-        :param str extension: the extension of the transcoded song. The default is .webm.
+        :param str id: id of the transcoded song
+        :param str extension: the extension of the transcoded song. The default is .webm
         """
         for b in _bitrate:
             os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{id}-{b}{extension}')
@@ -199,12 +199,12 @@ class Transcoder:
         qualities, create the manifest and the segments. Upload all the output files
         to the storage server. Delete all the local temporary files.
 
-        :param str id: id of the song to be transcoded and name of the input file.
+        :param str id: id of the song to be transcoded and name of the input file
     	:param int sample_rate: the sample rate of the output song. The default
-    		sample rate is 44100 Hz.
+    		sample rate is 44100 Hz
     	:param int channels: the number of channels of the ouput song. The default
-    		is 2, which stands for stereo; 1 is mono.
-    	:param str extension: the extension of the ouput song. The default is .webm.
+    		is 2, which stands for stereo; 1 is mono
+    	:param str extension: the extension of the ouput song. The default is .webm
         """
         self.transcoding(id, sample_rate, channels, extension)
         self.manifest_creation(id)

@@ -8,6 +8,14 @@ from .config import config_rabbitmq
 
 class TranscoderWorkerNotification(threading.Thread):
     def __init__(self, queue, id):
+        """Initialize Transcoder Worker Notification.
+
+        Each instance is a thread.
+
+        :param str queue: specific queue of the api server from where the thread
+            is created.
+        :param str id: id of the song to be notified
+        """
         threading.Thread.__init__(self)
         self.queue = queue
         self.id = id
@@ -20,6 +28,7 @@ class TranscoderWorkerNotification(threading.Thread):
         print('...made')
 
     def connect(self):
+        """Connect to RabbitMQ."""
         params = pika.ConnectionParameters(
             host=config_rabbitmq['host'],
             port=config_rabbitmq['port'],
@@ -32,6 +41,10 @@ class TranscoderWorkerNotification(threading.Thread):
         self.channel = self.connection.channel()
 
     def notification_declare(self):
+        """Bind the queue of the api server that asked a transcoding to
+        the notification exchange with the routing key equal to the id of the
+        song requested.
+        """
         self.channel.queue_bind(
             exchange=config_rabbitmq['notification_exchange'],
             queue=self.queue,
@@ -39,6 +52,7 @@ class TranscoderWorkerNotification(threading.Thread):
         )
 
     def run(self):
+        """Wait for the notification."""
         self.consumer_tag = uuid.uuid4().hex
 
         self.channel.basic_consume(
@@ -51,5 +65,13 @@ class TranscoderWorkerNotification(threading.Thread):
         self.channel.start_consuming()
 
     def callback(self, ch, method, properties, body):
+        """Callback function.
+
+        When the message arrives, it prints it, then the worker cancel itself.
+
+        :param pika.adapters.blocking_connection.BlockingChannel ch: channel
+        :param bytes body: the body of the message, i.e. the id of the transcoded
+            song
+        """
         print(f'received {body}')
         ch.basic_cancel(consumer_tag=self.consumer_tag)

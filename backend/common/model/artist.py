@@ -1,5 +1,6 @@
 from collections import namedtuple
 
+
 _artist_tuple = namedtuple('Artist', [
     'id',
     'name',
@@ -30,4 +31,8 @@ class Artist(_artist_tuple):
         return artist
 
     def to_dict(self):
-        return dict(self._asdict())
+        artist_dict = dict(self._asdict())
+        if self.releases is not None:
+            release_dict = [r.to_dict() for r in self.releases]
+            artist_dict['releases'] = release_dict
+        return artist_dict

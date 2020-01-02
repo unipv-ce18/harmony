@@ -1,5 +1,6 @@
 from collections import namedtuple
 
+
 _release_tuple = namedtuple('Release', [
     'id',
     'name',
@@ -26,4 +27,8 @@ class Release(_release_tuple):
         return release
 
     def to_dict(self):
-        return dict(self._asdict())
+        release_dict = dict(self._asdict())
+        if self.songs is not None:
+            song_dict = [s.to_dict() for s in self.songs]
+            release_dict['songs'] = song_dict
+        return release_dict

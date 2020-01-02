@@ -1,5 +1,6 @@
 from collections import namedtuple
 
+
 _song_tuple = namedtuple('Song', [
     'id',
     'title',
