@@ -1,6 +1,5 @@
-import string
+from bson import ObjectId
 
-import bson
 from flask import Flask
 from flask_cors import CORS
 from flask_pymongo import PyMongo
@@ -54,17 +53,14 @@ class AuthLogin(Resource):
     def post(self):
         data = loginparser.parse_args()
         user = db.get_user_by_name(data['identity']) or db.get_user_by_mail(data['identity'])
-        if user is None:
-            return 401
-        else:
+        if user is not None:
             if security.verify_password(user['password'], data['password']):
                 access = security.create_access_token(identity=user['username'])
                 refresh = security.create_refresh_token(identity=user['username'])
                 db.store_token(security.decode_token(access))
                 db.store_token(security.decode_token(refresh))
                 return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 900}
-            else:
-                return 401
+        return 401
 
 
 class AuthLogout(Resource):
@@ -91,14 +87,12 @@ class TokenRefresh(Resource):
 
 class GetRelease(Resource):
     def get(self, id):
-        if not bson.objectid.ObjectId.is_valid(id):
+        if not ObjectId.is_valid(id):
             return 'Id not valid', 401
-        data = reqparse.RequestParser().add_argument('songs').parse_args()
 
-        if data['songs'] == '1':
-            release = db.get_release(id, True)
-        else:
-            release = db.get_release(id, False)
+        data = reqparse.RequestParser().add_argument('songs').parse_args()
+        include_songs = data['songs'] == '1'
+        release = db.get_release(id, include_songs)
 
         if release is None:
             return 'No release', 401
@@ -107,15 +101,12 @@ class GetRelease(Resource):
 
 class GetArtist(Resource):
     def get(self, id):
-        if not bson.objectid.ObjectId.is_valid(id):
+        if not ObjectId.is_valid(id):
             return 'Id not valid', 401
 
         data = reqparse.RequestParser().add_argument('releases').parse_args()
-
-        if data['releases'] == '1':
-            artist = db.get_artist(id, True)
-        else:
-            artist = db.get_artist(id, False)
+        include_releases = data['releases'] == '1'
+        artist = db.get_artist(id, include_releases)
 
         if artist is None:
             return 'No artist', 401
