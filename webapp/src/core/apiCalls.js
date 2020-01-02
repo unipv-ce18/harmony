@@ -50,15 +50,21 @@ export function execLogout() {
   });
 }
 
-export function getRelease(id) {
-  return fetch(API_RELEASE_URL + '?id=' + id)
+export function getRelease(id, with_song) {
+  // with_song == true includes the songs in the result
+  let query = API_RELEASE_URL + '/' + id;
+  if (with_song) query += '?songs=1';
+  return fetch(query)
     .then(response => {
       return response.json()
     })
 }
 
-export function getArtist(id) {
-  return fetch(API_ARTIST_URL + '?id=' + id)
+export function getArtist(id, with_releases) {
+  // with_releases == true includes the releases in the result
+  let query = API_ARTIST_URL + '/' + id;
+  if (with_releases) query += '?releases=1';
+  return fetch(query)
     .then(response => {
       return response.json()
     })
