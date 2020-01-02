@@ -1,6 +1,5 @@
-import string
+from bson import ObjectId
 
-import bson
 from flask import Flask
 from flask_cors import CORS
 from flask_pymongo import PyMongo
@@ -91,14 +90,12 @@ class TokenRefresh(Resource):
 
 class GetRelease(Resource):
     def get(self, id):
-        if not bson.objectid.ObjectId.is_valid(id):
+        if not ObjectId.is_valid(id):
             return 'Id not valid', 401
-        data = reqparse.RequestParser().add_argument('songs').parse_args()
 
-        if data['songs'] == '1':
-            release = db.get_release(id, True)
-        else:
-            release = db.get_release(id, False)
+        data = reqparse.RequestParser().add_argument('songs').parse_args()
+        include_songs = data['songs'] == '1'
+        release = db.get_release(id, include_songs)
 
         if release is None:
             return 'No release', 401
@@ -107,15 +104,12 @@ class GetRelease(Resource):
 
 class GetArtist(Resource):
     def get(self, id):
-        if not bson.objectid.ObjectId.is_valid(id):
+        if not ObjectId.is_valid(id):
             return 'Id not valid', 401
 
         data = reqparse.RequestParser().add_argument('releases').parse_args()
-
-        if data['releases'] == '1':
-            artist = db.get_artist(id, True)
-        else:
-            artist = db.get_artist(id, False)
+        include_releases = data['releases'] == '1'
+        artist = db.get_artist(id, include_releases)
 
         if artist is None:
             return 'No artist', 401
