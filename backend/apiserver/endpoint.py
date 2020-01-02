@@ -1,3 +1,6 @@
+import string
+
+import bson
 from flask import Flask
 from flask_cors import CORS
 from flask_pymongo import PyMongo
@@ -88,22 +91,35 @@ class TokenRefresh(Resource):
 
 class GetRelease(Resource):
     def get(self, id):
+        if not bson.objectid.ObjectId.is_valid(id):
+            return 'Id not valid', 401
         data = reqparse.RequestParser().add_argument('songs').parse_args()
+
         if data['songs'] == '1':
-            release = db.get_release(id, True).to_dict()
+            release = db.get_release(id, True)
         else:
-            release = db.get_release(id, False).to_dict()
+            release = db.get_release(id, False)
+
         if release is None:
-            return 401
-        return release, 200
+            return 'No release', 401
+        return release.to_dict(), 200
 
 
 class GetArtist(Resource):
     def get(self, id):
-        artist = db.get_artist(id).to_dict()
+        if not bson.objectid.ObjectId.is_valid(id):
+            return 'Id not valid', 401
+
+        data = reqparse.RequestParser().add_argument('releases').parse_args()
+
+        if data['releases'] == '1':
+            artist = db.get_artist(id, True)
+        else:
+            artist = db.get_artist(id, False)
+
         if artist is None:
-            return 401
-        return artist, 200
+            return 'No artist', 401
+        return artist.to_dict(), 200
 
 
 # request parsers that automatically refuse requests without specified fields

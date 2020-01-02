@@ -56,6 +56,7 @@ export function getRelease(id, with_song) {
   if (with_song) query += '?songs=1';
   return fetch(query)
     .then(response => {
+      if (!response.ok) throw new ApiError(response);
       return response.json()
     })
 }
@@ -66,6 +67,7 @@ export function getArtist(id, with_releases) {
   if (with_releases) query += '?releases=1';
   return fetch(query)
     .then(response => {
+      if (!response.ok) throw new ApiError(response);
       return response.json()
     })
 }
