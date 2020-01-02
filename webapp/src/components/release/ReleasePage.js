@@ -4,6 +4,7 @@ import release from './testRelease';
 import styles from './ReleasePage.scss';
 import {getRelease} from "../../core/apiCalls";
 import {session} from "../../Harmony";
+import {route} from "preact-router";
 
 class ReleasePage extends Component {
   constructor(props) {
@@ -30,9 +31,13 @@ class ReleasePage extends Component {
 
 
   componentDidMount() {
-    getRelease(/[^/]*$/.exec(window.location.href)[0], true).then(result => {
-      this.setState({release: result});
-    });
+    getRelease(/[^/]*$/.exec(window.location.href)[0], true)
+      .then(result => {
+        this.setState({release: result});
+      })
+      .catch( e => {
+        route('/');
+      });
   }
 
   render() {
@@ -51,7 +56,7 @@ class ReleasePage extends Component {
 
           </div>
           <div>
-            {this.state.release.songs.map(item =>
+            {this.state.release.songs === null ? '' : this.state.release.songs.map(item =>
               <div>
                 <hr/>
                 <div><span>{item.title}</span><span/><span>{this.composeTime(item.length)}</span></div>
