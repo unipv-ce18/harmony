@@ -40,13 +40,12 @@ class AuthRegister(Resource):
         username = data['username']
         email = data['email']
         data['password'] = security.hash_password(data['password'])
+        
         if db.get_user_by_mail(email) is None:
             if db.get_user_by_name(username) is None:
                 return 200 if db.add_user(data) else 401
-            else:
-                return {'message': 'Username already exists'}, 401
-        else:
-            return {'message': 'Email already exists'}, 401
+            return {'message': 'Username already exists'}, 401
+        return {'message': 'Email already exists'}, 401
 
 
 class AuthLogin(Resource):
