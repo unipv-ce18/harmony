@@ -18,10 +18,7 @@ class UserOpsMixin:
         return result
 
     def add_user(self, u):
-        if self.get_user_by_name(u['username']) is None:
-            if self.get_user_by_mail(u['email']) is None:
-                return self.users.insert_one(u)
-        return False
+        return self.users.insert_one(u).acknowledged
 
     def add_users(self, u):
         if self.users.count() != 0:
