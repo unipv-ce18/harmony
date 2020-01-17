@@ -1,4 +1,4 @@
 from .transcoder_worker import TranscoderWorker
 from .transcoder_producer import TranscoderProducer
-from .transcoder_worker_notification import TranscoderWorkerNotification
+from .notification_worker import NotificationWorker
 from .orchestrator import Orchestrator

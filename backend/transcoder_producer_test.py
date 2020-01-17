@@ -1,8 +1,8 @@
-from transcoder import TranscoderProducer, TranscoderWorkerNotification
+from transcoder import TranscoderProducer, NotificationWorker
 
 
 def producer_work(producer, queue, id):
-    td = TranscoderWorkerNotification(queue, id)
+    td = NotificationWorker(queue, id)
     td.start()
     producer.add_to_queue(id)
 

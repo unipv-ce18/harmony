@@ -6,9 +6,9 @@ import pika
 from .config import config_rabbitmq
 
 
-class TranscoderWorkerNotification(threading.Thread):
+class NotificationWorker(threading.Thread):
     def __init__(self, queue, id):
-        """Initialize Transcoder Worker Notification.
+        """Initialize Notification Worker.
 
         Each instance is a thread.
 
