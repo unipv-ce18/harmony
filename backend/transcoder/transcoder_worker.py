@@ -4,6 +4,7 @@ import pika
 
 from .transcoder import Transcoder
 from .config import config_rabbitmq
+from common.database import Database
 from storage import minio_client
 
 
@@ -15,6 +16,7 @@ class TranscoderWorker:
         :param str consumer_tag: the consumer tag specific of the worker
         """
         self.transcoder = Transcoder(db_connection, minio_client)
+        self.db = Database(db_connection)
 
         self.consumer_tag = consumer_tag if consumer_tag is not None else uuid.uuid4().hex
 
@@ -84,7 +86,8 @@ class TranscoderWorker:
 
         try:
             self.channel.start_consuming()
-        except KeyboardInterrupt:
+        except:
+            self.db.remove_consumer_tag(self.consumer_tag)
             print('\nClosing connection')
             self.connection.close()
 

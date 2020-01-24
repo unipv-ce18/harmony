@@ -101,8 +101,8 @@ class Orchestrator:
         id = body.decode('utf-8')
 
         if not self.song_is_transcoding(id):
-            self.store_pending_song(id)
             self.push_song_in_queue(id)
+            self.store_pending_song(id)
             if self.consumers_less_than_pending_song():
                 self.create_worker()
 
@@ -173,7 +173,3 @@ class Orchestrator:
         :rtype: bool
         """
         return self.get_number_of_consumers() < self.get_number_of_pending_song()
-
-    def delete_worker(self, consumer_tag):
-        """Delete the consumer tag from database."""
-        self.db.remove_consumer_tag(consumer_tag)
