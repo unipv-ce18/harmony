@@ -17,14 +17,6 @@ class Orchestrator:
         self.db_connection = db_connection
         self.db = Database(self.db_connection)
 
-        print('Connection to RabbitMQ...')
-
-        self.connect()
-        self.consuming_declare()
-        self.producing_declare()
-
-        print('...made')
-
     def connect(self):
         """Connect to RabbitMQ."""
         params = pika.ConnectionParameters(
@@ -67,7 +59,7 @@ class Orchestrator:
             exchange_type='direct'
         )
 
-    def run(self):
+    def consume(self):
         """Wait for messages from api servers and publish them filtered to
         transcoding exchange.
         """
@@ -78,11 +70,27 @@ class Orchestrator:
             on_message_callback=self.callback
         )
 
-        try:
-            self.channel.start_consuming()
-        except KeyboardInterrupt:
-            print('\nClosing connection')
-            self.connection.close()
+        self.channel.start_consuming()
+
+    def run(self):
+        """Making the Orchestrator run."""
+        while True:
+            try:
+                print('Connection to RabbitMQ...')
+
+                self.connect()
+                self.consuming_declare()
+                self.producing_declare()
+
+                print('...made')
+
+                self.consume()
+            except KeyboardInterrupt:
+                print('\nClosing connection')
+                self.connection.close()
+                break
+            except:
+                continue
 
     def callback(self, ch, method, properties, body):
         """Callback function.
