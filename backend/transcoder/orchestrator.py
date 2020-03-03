@@ -52,6 +52,13 @@ class Orchestrator:
             routing_key=config_rabbitmq['routing']
         )
 
+    def notification_declare(self):
+        """Declare the exchange used to notify the api server."""
+        self.channel.exchange_declare(
+            exchange=config_rabbitmq['notification_exchange'],
+            exchange_type='direct'
+        )
+
     def producing_declare(self):
         """Declare the exchange used to publish the songs to transcode."""
         self.channel.exchange_declare(
@@ -108,11 +115,14 @@ class Orchestrator:
         print(f'received {body}')
         id = body.decode('utf-8')
 
-        if not self.song_is_transcoding(id):
-            self.push_song_in_queue(id)
-            self.store_pending_song(id)
-            if self.consumers_less_than_pending_song():
-                self.create_worker()
+        if not self.song_is_already_transcoded(id):
+            if not self.song_is_transcoding(id):
+                self.push_song_in_queue(id)
+                self.store_pending_song(id)
+                if self.consumers_less_than_pending_song():
+                    self.create_worker()
+        else:
+            self.notify_api_server(id)
 
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -124,6 +134,21 @@ class Orchestrator:
         self.channel.basic_publish(
             exchange=config_rabbitmq['transcoder_exchange'],
             routing_key=config_rabbitmq['routing'],
+            body=id,
+            properties=pika.BasicProperties(
+                delivery_mode=2,
+            )
+        )
+
+    def notify_api_server(self, id):
+        """Publish a notification to the notification exchange.
+
+        :param str id: id of the song
+        """
+        print(f'{id} already transcoded')
+        self.channel.basic_publish(
+            exchange=config_rabbitmq['notification_exchange'],
+            routing_key=id,
             body=id,
             properties=pika.BasicProperties(
                 delivery_mode=2,
@@ -181,3 +206,12 @@ class Orchestrator:
         :rtype: bool
         """
         return self.get_number_of_consumers() < self.get_number_of_pending_song()
+
+    def song_is_already_transcoded(self, id):
+        """Check if the song is already transcoded.
+
+        :param str id: id of the song
+        :return: True if the song is already transcoded, False otherwise
+        :rtype: bool
+        """
+        return True if self.db.get_song_representation_data(id) is not None else False

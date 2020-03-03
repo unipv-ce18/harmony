@@ -77,12 +77,18 @@ class Storage:
         :param str bucket: name of the bucket
         :param str file_name: name of the file to upload
         :param str file_path: local path to the file
+        :return: True if file is uploaded, False otherwise
+        :rtype: bool
         """
         try:
             self.minio_client.fput_object(bucket, file_name, f'{file_path}/{file_name}')
             print(f'{file_name} uploaded to {bucket}!')
+            return True
         except ResponseError as err:
             print(err)
+        except Exception as e:
+            print(e)
+        return False
 
     def download_file(self, bucket, file_name, file_path):
         """Download a file from a bucket.
@@ -90,11 +96,17 @@ class Storage:
         :param str bucket: name of the bucket
         :param str file_name: name of the file to download
         :param str file_path: local path where the file will be saved
+        :return: True if file is downloaded, False otherwise
+        :rtype: bool
         """
         try:
             self.minio_client.fget_object(bucket, file_name, f'{file_path}/{file_name}')
+            return True
         except ResponseError as err:
             print(err)
+        except Exception as e:
+            print(e)
+        return False
 
     def delete_file(self, bucket, file_name):
         """Delete a file from a bucket.
@@ -123,4 +135,4 @@ class Storage:
         :param str subfolder: the folder with files to upload to bucket
         """
         for file in os.listdir(f'{folder}/{subfolder}'):
-            self.upload_file(bucket, f'{subfolder}/{file}', f'{folder}')
+            self.upload_file(bucket, f'{subfolder}/{file}', folder)

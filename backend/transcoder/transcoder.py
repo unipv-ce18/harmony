@@ -6,7 +6,7 @@ import hashlib
 import ffmpy
 
 from common.database import Database
-from storage import Storage
+from storage import Storage, config_storage
 
 
 def _create_key(id):
@@ -16,7 +16,7 @@ def _create_key(id):
     return hash
 
 
-_bitrate = ['96', '160', '320']
+_bitrate = [96, 160, 320]
 
 _tmp_folder = 'tmp'
 _tmp_subfolder = 'compressed_songs'
@@ -40,7 +40,7 @@ class Transcoder:
         if not os.path.exists(f'{_tmp_folder}/{_tmp_subfolder}'):
             os.makedirs(os.path.join(_tmp_folder, _tmp_subfolder))
 
-    def transcoding_song(self, id, bitrate='160', sample_rate=44100, channels=2, extension='.webm'):
+    def transcoding_song(self, id, bitrate=160, sample_rate=44100, channels=2, extension='.webm', include_metadata=False):
         """Transcode a song from flac format to the format specified in extension.
 
     	input file: downloaded from lossless-songs bucket inside storage server
@@ -57,16 +57,16 @@ class Transcoder:
     	:param int channels: the number of channels of the ouput song. The default
     		is 2, which stands for stereo; 1 is mono
     	:param str extension: the extension of the ouput song. The default is .webm
+        :param bool include_metadata: include metadata in the output song if True.
+            The default value is False
     	"""
         file_name = f'{id}.flac'
         output_file_name = f'{id}-{bitrate}{extension}'
 
-        lossless_song = self.st.download_file('lossless-songs', file_name, _tmp_folder)
-
         input = f'{_tmp_folder}/{file_name}'
         output = f'{_tmp_folder}/{_tmp_subfolder}/{output_file_name}'
 
-        metadata = self.metadata(id)
+        metadata = self.metadata(id) if include_metadata else ''
 
         if channels > 2:
             channels = 2
@@ -97,7 +97,7 @@ class Transcoder:
             metadata += f'-metadata {m[i]} '
         return metadata
 
-    def transcoding(self, id, sample_rate=44100, channels=2, extension='.webm'):
+    def transcoding(self, id, sample_rate=44100, channels=2, extension='.webm', include_metadata=False):
         """Transcode a song in multiple bitrates.
 
         Use the different bitrates specified inside _bitrate list to create three
@@ -110,9 +110,11 @@ class Transcoder:
     	:param int channels: the number of channels of the ouput song. The default
     		is 2, which stands for stereo; 1 is mono
     	:param str extension: the extension of the ouput song. The default is .webm
+        :param bool include_metadata: include metadata in the output song if True.
+            The default value is False
         """
         for b in _bitrate:
-            self.transcoding_song(id, b, sample_rate, channels, extension)
+            self.transcoding_song(id, b, sample_rate, channels, extension, include_metadata)
 
     def manifest_creation(self, id):
         """Create the manifest and the segments of a transcoded song.
@@ -141,6 +143,7 @@ class Transcoder:
 
         packager_path = os.path.realpath(os.path.dirname(__file__))
         manifest_path = f'{_tmp_folder}/{id}'
+        manifest_name = 'manifest.mpd'
 
         command = [
             f'{packager_path}/packager-linux',
@@ -152,15 +155,25 @@ class Transcoder:
             f'label=AUDIO:key_id={key_id}:key={key}',
             '--generate_static_mpd',
             '--mpd_output',
-            f'{manifest_path}/manifest.mpd'
+            f'{manifest_path}/{manifest_name}'
         ]
-
         subprocess.run(command)
+
         repr_data = {
             'key_id': key_id,
-            'key': key
+            'key': key,
+            'manifest': f'{config_storage["Endpoint"]}/compressed-songs/{id}/{manifest_name}'
         }
         self.db.put_song_representation_data(id, repr_data)
+
+    def download_song_from_storage_server(self, id):
+        """Download the song to transcode from storage server.
+
+        :param str id: id of the song to transcode
+        :return: True if song is downloaded, False otherwise
+        :rtype: bool
+        """
+        return self.st.download_file('lossless-songs', f'{id}.flac', _tmp_folder)
 
     def upload_files_to_storage_server(self, id, extension):
         """Upload transcode process files to storage server.
@@ -192,7 +205,7 @@ class Transcoder:
         shutil.rmtree(f'{_tmp_folder}/{id}')
         os.remove(f'{_tmp_folder}/{id}.flac')
 
-    def complete_transcode(self, id, sample_rate=44100, channels=2, extension='.webm'):
+    def complete_transcode(self, id, sample_rate=44100, channels=2, extension='.webm', include_metadata=False):
         """Perform a complete transcode process on a song.
 
         Retrieve the song from the storage server, transcode it in three different
@@ -205,9 +218,12 @@ class Transcoder:
     	:param int channels: the number of channels of the ouput song. The default
     		is 2, which stands for stereo; 1 is mono
     	:param str extension: the extension of the ouput song. The default is .webm
+        :param bool include_metadata: include metadata in the output song if True.
+            The default value is False
         """
-        self.transcoding(id, sample_rate, channels, extension)
-        self.manifest_creation(id)
-        self.upload_files_to_storage_server(id, extension)
+        if self.download_song_from_storage_server(id):
+            self.transcoding(id, sample_rate, channels, extension, include_metadata)
+            self.manifest_creation(id)
+            self.upload_files_to_storage_server(id, extension)
+            self.clear_transcoding_tmp_files(id, extension)
         self.remove_pending_song(id)
-        self.clear_transcoding_tmp_files(id, extension)
