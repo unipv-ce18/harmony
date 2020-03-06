@@ -7,7 +7,7 @@ from .config import config_rabbitmq
 
 
 class NotificationWorker(threading.Thread):
-    def __init__(self, queue, id):
+    def __init__(self, queue, id, socketio):
         """Initialize Notification Worker.
 
         Each instance is a thread.
@@ -15,10 +15,12 @@ class NotificationWorker(threading.Thread):
         :param str queue: specific queue of the api server from where the thread
             is created.
         :param str id: id of the song to be notified
+        :param flask_socketio.SocketIO socketio: socketio instance
         """
         threading.Thread.__init__(self)
         self.queue = queue
         self.id = id
+        self.socketio = socketio
 
         print('Connection to RabbitMQ...')
 
@@ -74,4 +76,6 @@ class NotificationWorker(threading.Thread):
             song
         """
         print(f'received {body}')
+        self.socketio.emit('client', f'{body}')
+        print('sent to client')
         ch.basic_cancel(consumer_tag=self.consumer_tag)

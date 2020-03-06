@@ -1,3 +1,3 @@
-from .endpoint import app
+from .endpoint import app, socketio
 
 application = app

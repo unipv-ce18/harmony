@@ -6,7 +6,7 @@ from .config import config_rabbitmq
 class TranscoderProducer:
     def __init__(self):
         """Initialize Transcoder Producer."""
-        print('Connection to RabbitMQ...')
+        print('Connection of Producer to RabbitMQ...')
 
         self.connect()
         self.producing_declare()

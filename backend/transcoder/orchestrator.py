@@ -83,7 +83,7 @@ class Orchestrator:
         """Making the Orchestrator run."""
         while True:
             try:
-                print('Connection to RabbitMQ...')
+                print('Connection of Orchestrator to RabbitMQ...')
 
                 self.connect()
                 self.consuming_declare()

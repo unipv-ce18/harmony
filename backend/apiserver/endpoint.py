@@ -4,10 +4,12 @@ from flask import Flask
 from flask_cors import CORS
 from flask_pymongo import PyMongo
 from flask_restful import Resource, Api, reqparse
+from flask_socketio import SocketIO
 
 from common.database import Database
 from . import security
 from .config import current_config
+from transcoder import TranscoderProducer, NotificationWorker
 
 app = Flask(__name__)
 CORS(app)
@@ -22,6 +24,11 @@ mongo = PyMongo(app,
                 username=current_config.MONGO_USERNAME,
                 password=current_config.MONGO_PASSWORD)
 db = Database(mongo.db)
+
+socketio = SocketIO(app)
+
+producer = TranscoderProducer()
+queue = producer.get_queue()
 
 
 @jwt.token_in_blacklist_loader
@@ -40,7 +47,7 @@ class AuthRegister(Resource):
         username = data['username']
         email = data['email']
         data['password'] = security.hash_password(data['password'])
-        
+
         if db.get_user_by_mail(email) is None:
             if db.get_user_by_name(username) is None:
                 return 200 if db.add_user(data) else 401
@@ -110,6 +117,14 @@ class GetArtist(Resource):
         if artist is None:
             return 'No artist', 401
         return artist.to_dict(), 200
+
+
+@socketio.on('transcoding')
+def transcode(id):
+    print(f'received {id}')
+    td = NotificationWorker(queue, id, socketio)
+    td.start()
+    producer.add_to_queue(id)
 
 
 # request parsers that automatically refuse requests without specified fields
