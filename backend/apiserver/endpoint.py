@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 from bson import ObjectId
 
 from flask import Flask
@@ -25,7 +28,7 @@ mongo = PyMongo(app,
                 password=current_config.MONGO_PASSWORD)
 db = Database(mongo.db)
 
-socketio = SocketIO(app)
+socketio = SocketIO(app, message_queue='amqp://guest:guest@localhost:5672')
 
 producer = TranscoderProducer()
 queue = producer.get_queue()
@@ -119,7 +122,7 @@ class GetArtist(Resource):
         return artist.to_dict(), 200
 
 
-@socketio.on('transcoding')
+@socketio.on('play_song')
 def transcode(id):
     print(f'received {id}')
     td = NotificationWorker(queue, id, socketio)
