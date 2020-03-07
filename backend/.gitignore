@@ -12,4 +12,3 @@ env/
 venv/
 
 packager-linux
-config_storage.json
