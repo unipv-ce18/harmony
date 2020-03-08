@@ -3,7 +3,7 @@ import uuid
 
 import pika
 
-from .config import config_rabbitmq
+from common import config_rabbitmq
 
 
 class NotificationWorker(threading.Thread):

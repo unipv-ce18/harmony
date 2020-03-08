@@ -3,7 +3,7 @@ import uuid
 import pika
 
 from .transcoder import Transcoder
-from .config import config_rabbitmq
+from common import config_rabbitmq
 from common.database import Database
 from storage import minio_client
 

@@ -5,7 +5,7 @@ import pika
 
 from common.database import Database
 from .transcoder_worker import TranscoderWorker
-from .config import config_rabbitmq
+from common import config_rabbitmq
 
 
 class Orchestrator:

@@ -1,6 +1,6 @@
 import pika
 
-from .config import config_rabbitmq
+from common import config_rabbitmq
 
 
 class TranscoderProducer:

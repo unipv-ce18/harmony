@@ -1,149 +1,50 @@
-import eventlet
-eventlet.monkey_patch()
-
-from bson import ObjectId
-
 from flask import Flask
 from flask_cors import CORS
 from flask_pymongo import PyMongo
-from flask_restful import Resource, Api, reqparse
+from flask_restful import Api
 from flask_socketio import SocketIO
 
 from common.database import Database
 from . import security
 from .config import current_config
-from transcoder import TranscoderProducer, NotificationWorker
-
-app = Flask(__name__)
-CORS(app)
-
-# load configs from json file
-app.config.from_object(current_config)
-
-# instance the backend as well as request parsers, jwt and connect to database
-api = Api(app, prefix='/api/v1')
-jwt = security.JWTManager(app)
-mongo = PyMongo(app,
-                username=current_config.MONGO_USERNAME,
-                password=current_config.MONGO_PASSWORD)
-db = Database(mongo.db)
-
-socketio = SocketIO(app)#, message_queue='amqp://guest:guest@localhost:5672')
-
-producer = TranscoderProducer()
-queue = producer.get_queue()
+from .authentication import AuthRegister, AuthLogin, AuthLogout, TokenRefresh
+from .retrieve_info import GetRelease, GetArtist
+from .transcoder_producer import TranscoderProducer
+from .transcode_namespace import TranscodeNamespace
 
 
-@jwt.token_in_blacklist_loader
-def check_token_revoked(decrypted_token):
-    return db.is_token_revoked(decrypted_token)
+def create_app():
+    app = Flask(__name__)
+    CORS(app)
 
+    # load configs from json file
+    app.config.from_object(current_config)
 
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
+    # instance the backend as well as request parsers, jwt and connect to database
+    api = Api(app, prefix='/api/v1')
+    jwt = security.JWTManager(app)
+    mongo = PyMongo(app,
+                    username=current_config.MONGO_USERNAME,
+                    password=current_config.MONGO_PASSWORD)
+    db = Database(mongo.db)
 
+    socketio = SocketIO(app)#, message_queue='amqp://guest:guest@localhost:5672')
 
-class AuthRegister(Resource):
-    def post(self):
-        data = authparser.parse_args()
-        username = data['username']
-        email = data['email']
-        data['password'] = security.hash_password(data['password'])
+    producer = TranscoderProducer()
+    queue = producer.get_queue()
 
-        if db.get_user_by_mail(email) is None:
-            if db.get_user_by_name(username) is None:
-                return 200 if db.add_user(data) else 401
-            return {'message': 'Username already exists'}, 401
-        return {'message': 'Email already exists'}, 401
+    @jwt.token_in_blacklist_loader
+    def check_token_revoked(decrypted_token):
+        return db.is_token_revoked(decrypted_token)
 
+    # route API methods to their specific addresses (remember the prefix!)
+    api.add_resource(AuthRegister, '/auth/register', resource_class_kwargs={'db': db})
+    api.add_resource(AuthLogin, '/auth/login', resource_class_kwargs={'db': db})
+    api.add_resource(AuthLogout, '/auth/logout', resource_class_kwargs={'db': db})
+    api.add_resource(TokenRefresh, '/auth/refresh', resource_class_kwargs={'db': db})
+    api.add_resource(GetRelease, '/release/<id>', resource_class_kwargs={'db': db})
+    api.add_resource(GetArtist, '/artist/<id>', resource_class_kwargs={'db': db})
 
-class AuthLogin(Resource):
-    def post(self):
-        data = loginparser.parse_args()
-        user = db.get_user_by_name(data['identity']) or db.get_user_by_mail(data['identity'])
-        if user is not None:
-            if security.verify_password(user['password'], data['password']):
-                access = security.create_access_token(identity=user['username'])
-                refresh = security.create_refresh_token(identity=user['username'])
-                db.store_token(security.decode_token(access))
-                db.store_token(security.decode_token(refresh))
-                return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 900}
-        return 401
+    socketio.on_namespace(TranscodeNamespace(socketio=socketio, producer=producer, queue=queue))
 
-
-class AuthLogout(Resource):
-    @security.jwt_required
-    def post(self):
-        _jwt = security.get_raw_jwt()
-        if _jwt:
-            db.revoke_token(_jwt['jti'])
-            return 200
-        return 401
-
-
-class TokenRefresh(Resource):
-    @security.jwt_refresh_token_required
-    def post(self):
-        user = security.get_jwt_identity()
-        _jwt = security.get_raw_jwt()
-        if _jwt:
-            access_token = security.create_access_token(user)
-            db.store_token(security.decode_token(access_token))
-            return {'access_token': access_token}, 200
-        return 401
-
-
-class GetRelease(Resource):
-    def get(self, id):
-        if not ObjectId.is_valid(id):
-            return 'Id not valid', 401
-
-        data = reqparse.RequestParser().add_argument('songs').parse_args()
-        include_songs = data['songs'] == '1'
-        release = db.get_release(id, include_songs)
-
-        if release is None:
-            return 'No release', 401
-        return release.to_dict(), 200
-
-
-class GetArtist(Resource):
-    def get(self, id):
-        if not ObjectId.is_valid(id):
-            return 'Id not valid', 401
-
-        data = reqparse.RequestParser().add_argument('releases').parse_args()
-        include_releases = data['releases'] == '1'
-        artist = db.get_artist(id, include_releases)
-
-        if artist is None:
-            return 'No artist', 401
-        return artist.to_dict(), 200
-
-
-@socketio.on('play_song')
-def transcode(song):
-    id = song['id']
-    print(f'received {id}')
-    td = NotificationWorker(queue, id, socketio)
-    td.start()
-    producer.add_to_queue(id)
-
-
-# request parsers that automatically refuse requests without specified fields
-authparser = reqparse.RequestParser()
-authparser.add_argument('username', help='This field cannot be blank', required=True)
-authparser.add_argument('password', help='This field cannot be blank', required=True)
-authparser.add_argument('email', help='field required in registration form', required=True)
-loginparser = authparser.copy()
-loginparser.remove_argument('email')
-loginparser.replace_argument('username', dest='identity')
-# route API methods to their specific addresses (remember the prefix!)
-api.add_resource(AuthRegister, '/auth/register')
-api.add_resource(AuthLogin, '/auth/login')
-api.add_resource(AuthLogout, '/auth/logout')
-api.add_resource(TokenRefresh, '/auth/refresh')
-api.add_resource(GetRelease, '/release/<id>')
-api.add_resource(GetArtist, '/artist/<id>')
-api.add_resource(HelloWorld, '/sayhello')
+    return app, socketio

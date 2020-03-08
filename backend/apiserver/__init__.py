@@ -1,3 +1,4 @@
-from .endpoint import app, socketio
+from .endpoint import create_app
 
-application = app
+
+app, socketio = create_app()
