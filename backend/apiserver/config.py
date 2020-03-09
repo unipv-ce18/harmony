@@ -2,6 +2,7 @@ import os
 
 
 class Config:
+    DEBUG = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'vivalacarbonara'
 
     # Note: ?authSource  is not required if same db

@@ -24,4 +24,4 @@ WORKDIR /app
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=5s CMD python3 -m apiserver.docker_healthcheck
 
-CMD ["gunicorn", "-c", "apiserver/gunicorn.conf.py", "apiserver"]
+CMD ["gunicorn", "-c", "apiserver/gunicorn.conf.py", "apiserver.wsgi"]
