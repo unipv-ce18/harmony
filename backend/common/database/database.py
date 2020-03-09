@@ -23,12 +23,3 @@ class Database(
 
     def __init__(self, db_connection):
         super().__init__(db_connection)
-
-    def search(self, item):
-        # TODO: Structure of search results is a job of the API and not the database module,
-        #       remove this and embed in /search Flask resource
-        return {
-            'artists': self.search_artist(item),
-            'releases': self.search_release(item),
-            'songs': self.search_song(item)
-        }
