@@ -7,6 +7,7 @@ from flask_socketio import SocketIO
 from common.database import Database
 from . import security
 from .config import current_config
+from .hello_world import HelloWorld
 from .authentication import AuthRegister, AuthLogin, AuthLogout, TokenRefresh
 from .retrieve_info import GetRelease, GetArtist
 from .search import Search
@@ -39,6 +40,7 @@ def create_app():
         return db.is_token_revoked(decrypted_token)
 
     # route API methods to their specific addresses (remember the prefix!)
+    api.add_resource(HelloWorld, '/sayhello')
     api.add_resource(AuthRegister, '/auth/register', resource_class_kwargs={'db': db})
     api.add_resource(AuthLogin, '/auth/login', resource_class_kwargs={'db': db})
     api.add_resource(AuthLogout, '/auth/logout', resource_class_kwargs={'db': db})

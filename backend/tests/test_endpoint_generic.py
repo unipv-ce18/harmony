@@ -1,6 +1,6 @@
 import unittest
 
-from apiserver.endpoint import app
+from apiserver import app
 
 
 class EndpointGenericTest(unittest.TestCase):
