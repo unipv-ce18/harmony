@@ -5,14 +5,12 @@ from flask_restful import Api
 from flask_socketio import SocketIO
 
 from common.database import Database
-from . import security
 from .config import current_config
-from .hello_world import HelloWorld
-from .authentication import AuthRegister, AuthLogin, AuthLogout, TokenRefresh
-from .retrieve_info import GetRelease, GetArtist
-from .search import Search
 from .transcoder_producer import TranscoderProducer
-from .transcode_namespace import TranscodeNamespace
+from .api import security
+from .api import (HelloWorld, AuthRegister, AuthLogin,
+                  AuthLogout, TokenRefresh, GetRelease,
+                  GetArtist, Search, TranscodeNamespace)
 
 
 def create_app():
@@ -22,7 +20,7 @@ def create_app():
     # load configs from json file
     app.config.from_object(current_config)
 
-    # instance the backend as well as request parsers, jwt and connect to database
+    # instance the backend as well as jwt and connect to database
     api = Api(app, prefix='/api/v1')
     jwt = security.JWTManager(app)
     mongo = PyMongo(app,
