@@ -9,8 +9,14 @@ services:
       MONGO_INITDB_USERNAME: harmony
       MONGO_INITDB_PASSWORD: pastina
     ports:
-      # Expose port so we can access it at localhost:27017 with external tools
-      - '27017:27017'
+      - '27017:27017'   # Expose port so we can access it at localhost:27017 with external tools
+
+  rabbitmq:
+    # Use image with management plugin for WebUI
+    image: rabbitmq:3.8.2-management-alpine
+    ports:
+      - '5672:5672'     # Expose port so we can access it locally
+      - '15672:15672'   # Access it at localhost:15672, credentials guest:guest
 
   apiserver:
     environment:

@@ -9,6 +9,11 @@ services:
       - ./mongo.init.d:/docker-entrypoint-initdb.d:ro
       - mongo-data:/data/db
 
+  rabbitmq:
+    image: rabbitmq:3.8.2-alpine
+    volumes:
+      - rabbit-data:/var/lib/rabbitmq
+
   apiserver:
     build:
       context: ../backend
@@ -16,8 +21,14 @@ services:
     image: harmony/apiserver:dev
     environment:
       FLASK_CONFIG: development
+      MONGO_URI: mongodb://mongodb:27017/harmony
+      QUEUE_HOST: rabbitmq
+    depends_on:
+      - mongodb
+      - rabbitmq
     ports:
       - '80:80'
 
 volumes:
   mongo-data:
+  rabbit-data:
