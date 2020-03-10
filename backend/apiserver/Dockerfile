@@ -15,7 +15,10 @@ COPY common /app/common
 COPY apiserver/requirements.txt /app/apiserver/
 
 RUN set -ex \
-  && python3 -m pip install --no-cache-dir -r /app/apiserver/requirements.txt gunicorn
+  && apk add --no-cache --virtual .build-tools \
+      gcc musl-dev python3-dev \
+  && python3 -m pip install --no-cache-dir -r /app/apiserver/requirements.txt gunicorn \
+  && apk del .build-tools
 
 COPY apiserver /app/apiserver
 
