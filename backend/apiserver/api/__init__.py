@@ -11,6 +11,6 @@ def on_register(state: BlueprintSetupState):
     global db
     db = state.options['db']
 
-
-# Import resources to register them with the blueprint
-from . import hello_world, authentication, media_info, search  # noqa
+    # Import resources to register them with the blueprint
+    # Do it only after registration so they see the updated db instance
+    from . import hello_world, authentication, media_info, search  # noqa
