@@ -5,7 +5,7 @@ import pika
 
 from common.database import Database
 from .transcoder_worker import TranscoderWorker
-from common import config_rabbitmq
+from .config import transcoder_config
 
 
 class Orchestrator:
@@ -19,13 +19,11 @@ class Orchestrator:
 
     def connect(self):
         """Connect to RabbitMQ."""
+        # TODO: Put a function in common to create these params once and for all
         params = pika.ConnectionParameters(
-            host=config_rabbitmq['host'],
-            port=config_rabbitmq['port'],
-            credentials=pika.PlainCredentials(
-                config_rabbitmq['username'],
-                config_rabbitmq['password']
-            )
+            host=transcoder_config.QUEUE_HOST,
+            port=transcoder_config.QUEUE_PORT,
+            credentials=pika.PlainCredentials(transcoder_config.QUEUE_USERNAME, transcoder_config.QUEUE_PASSWORD)
         )
         self.connection = pika.BlockingConnection(params)
         self.channel = self.connection.channel()
@@ -36,33 +34,33 @@ class Orchestrator:
         bind it to the api exchange.
         """
         self.channel.exchange_declare(
-            exchange=config_rabbitmq['api_exchange'],
+            exchange=transcoder_config.QUEUE_EXCHANGE_APISERVER,
             exchange_type='direct'
         )
 
         self.channel.queue_declare(
-            queue=config_rabbitmq['api_queue'],
+            queue=transcoder_config.QUEUE_APISERVER,
             durable=True,
             arguments={'x-message-ttl': 60000}
         )
 
         self.channel.queue_bind(
-            exchange=config_rabbitmq['api_exchange'],
-            queue=config_rabbitmq['api_queue'],
-            routing_key=config_rabbitmq['routing']
+            exchange=transcoder_config.QUEUE_EXCHANGE_APISERVER,
+            queue=transcoder_config.QUEUE_APISERVER,
+            routing_key='id'
         )
 
     def notification_declare(self):
         """Declare the exchange used to notify the api server."""
         self.channel.exchange_declare(
-            exchange=config_rabbitmq['notification_exchange'],
+            exchange=transcoder_config.QUEUE_EXCHANGE_NOTIFICATION,
             exchange_type='direct'
         )
 
     def producing_declare(self):
         """Declare the exchange used to publish the songs to transcode."""
         self.channel.exchange_declare(
-            exchange=config_rabbitmq['transcoder_exchange'],
+            exchange=transcoder_config.QUEUE_EXCHANGE_TRANSCODER,
             exchange_type='direct'
         )
 
@@ -73,7 +71,7 @@ class Orchestrator:
         self.channel.basic_qos(prefetch_count=5)
 
         self.channel.basic_consume(
-            queue=config_rabbitmq['api_queue'],
+            queue=transcoder_config.QUEUE_APISERVER,
             on_message_callback=self.callback
         )
 
@@ -132,8 +130,8 @@ class Orchestrator:
         :param str id: id of the song
         """
         self.channel.basic_publish(
-            exchange=config_rabbitmq['transcoder_exchange'],
-            routing_key=config_rabbitmq['routing'],
+            exchange=transcoder_config.QUEUE_EXCHANGE_TRANSCODER,
+            routing_key='id',
             body=id,
             properties=pika.BasicProperties(
                 delivery_mode=2,
@@ -147,7 +145,7 @@ class Orchestrator:
         """
         print(f'{id} already transcoded')
         self.channel.basic_publish(
-            exchange=config_rabbitmq['notification_exchange'],
+            exchange=transcoder_config.QUEUE_EXCHANGE_NOTIFICATION,
             routing_key=id,
             body=id,
             properties=pika.BasicProperties(

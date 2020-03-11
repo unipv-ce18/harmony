@@ -2,8 +2,8 @@ import uuid
 
 import pika
 
+from .config import transcoder_config
 from .transcoder import Transcoder
-from common import config_rabbitmq
 from common.database import Database
 from storage import minio_client
 
@@ -30,13 +30,11 @@ class TranscoderWorker:
 
     def connect(self):
         """Connect to RabbitMQ."""
+        # TODO: Put a function in common to create these params once and for all
         params = pika.ConnectionParameters(
-            host=config_rabbitmq['host'],
-            port=config_rabbitmq['port'],
-            credentials=pika.PlainCredentials(
-                config_rabbitmq['username'],
-                config_rabbitmq['password']
-            )
+            host=transcoder_config.QUEUE_HOST,
+            port=transcoder_config.QUEUE_PORT,
+            credentials=pika.PlainCredentials(transcoder_config.QUEUE_USERNAME, transcoder_config.QUEUE_PASSWORD)
         )
         self.connection = pika.BlockingConnection(params)
         self.channel = self.connection.channel()
@@ -47,26 +45,26 @@ class TranscoderWorker:
         transcoder exchange.
         """
         self.channel.exchange_declare(
-            exchange=config_rabbitmq['transcoder_exchange'],
+            exchange=transcoder_config.QUEUE_EXCHANGE_TRANSCODER,
             exchange_type='direct'
         )
 
         self.channel.queue_declare(
-            queue=config_rabbitmq['transcoder_queue'],
+            queue=transcoder_config.QUEUE_TRANSCODER,
             durable=True,
             arguments={'x-message-ttl': 60000}
         )
 
         self.channel.queue_bind(
-            exchange=config_rabbitmq['transcoder_exchange'],
-            queue=config_rabbitmq['transcoder_queue'],
-            routing_key=config_rabbitmq['routing']
+            exchange=transcoder_config.QUEUE_EXCHANGE_TRANSCODER,
+            queue=transcoder_config.QUEUE_TRANSCODER,
+            routing_key='id'
         )
 
     def notification_declare(self):
         """Declare the exchange used to notify the api server."""
         self.channel.exchange_declare(
-            exchange=config_rabbitmq['notification_exchange'],
+            exchange=transcoder_config.QUEUE_EXCHANGE_NOTIFICATION,
             exchange_type='direct'
         )
 
@@ -79,7 +77,7 @@ class TranscoderWorker:
         self.channel.basic_qos(prefetch_count=1)
 
         self.channel.basic_consume(
-            queue=config_rabbitmq['transcoder_queue'],
+            queue=transcoder_config.QUEUE_TRANSCODER,
             on_message_callback=self.callback,
             consumer_tag=self.consumer_tag
         )
@@ -105,7 +103,7 @@ class TranscoderWorker:
         self.transcoder.complete_transcode(body.decode('utf-8'))
 
         ch.basic_publish(
-            exchange=config_rabbitmq['notification_exchange'],
+            exchange=transcoder_config.QUEUE_EXCHANGE_NOTIFICATION,
             routing_key=body.decode('utf-8'),
             body=body,
             properties=pika.BasicProperties(

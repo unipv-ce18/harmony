@@ -11,9 +11,10 @@ class TranscoderClient:
     def __init__(self, config):
         self.config = config
         conn_params = pika.ConnectionParameters(
-            host=self.config['host'],
-            port=self.config['port'],
-            credentials=pika.PlainCredentials(self.config['username'], self.config['password'])
+            host=self.config.QUEUE_HOST,
+            port=self.config.QUEUE_PORT,
+            credentials=pika.PlainCredentials(self.config.QUEUE_USERNAME, self.config.QUEUE_PASSWORD),
+            connection_attempts=2, retry_delay=12    # cause Rabbit is slow to start (docker-compose), seriously 12s
         )
 
         log.debug('Connecting to RabbitMQ...')
@@ -32,8 +33,8 @@ class TranscoderClient:
         :param str song_id: ID of the song to transcode
         """
         self.channel.basic_publish(
-            exchange=self.config['api_exchange'],
-            routing_key=self.config['routing'],
+            exchange=self.config.QUEUE_EXCHANGE_APISERVER,
+            routing_key='id',
             body=id,
             properties=pika.BasicProperties(
                 delivery_mode=2,
@@ -56,13 +57,13 @@ class TranscoderClient:
     def _configure_server(self):
         # Producer exchange - used by API servers to notify the orchestrator
         self.channel.exchange_declare(
-            exchange=self.config['api_exchange'],
+            exchange=self.config.QUEUE_EXCHANGE_APISERVER,
             exchange_type='direct'
         )
 
         # Notification exchange - to be notified back when a transcoding op finishes
         self.channel.exchange_declare(
-            exchange=self.config['notification_exchange'],
+            exchange=self.config.QUEUE_EXCHANGE_NOTIFICATION,
             exchange_type='direct'
         )
 
