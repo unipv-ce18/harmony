@@ -35,7 +35,7 @@ class TranscoderClient:
         self.channel.basic_publish(
             exchange=self.config.QUEUE_EXCHANGE_APISERVER,
             routing_key='id',
-            body=id,
+            body=song_id,
             properties=pika.BasicProperties(
                 delivery_mode=2,
             )

@@ -1,7 +1,11 @@
 from flask_socketio import SocketIOTestClient
-from apiserver import app, socketio
+from apiserver import socketio
+from apiserver import create_app
 from time import sleep
+import os
 
+
+app = create_app(os.environ.get('FLASK_CONFIG', 'development'))
 
 socket_client = SocketIOTestClient(app, socketio)
 socket_client.connect()

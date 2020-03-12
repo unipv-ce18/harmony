@@ -56,6 +56,6 @@ def create_app(config_name=None):
 
     # Configure WebSocket
     transcoder_client = TranscoderClient(current_config)
-    socketio.on_namespace(PlaybackNamespace('/playback', transcoder_client))
+    socketio.on_namespace(PlaybackNamespace(transcoder_client=transcoder_client))
 
     return app

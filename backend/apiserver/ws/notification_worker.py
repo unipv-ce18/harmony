@@ -1,6 +1,8 @@
 import threading
 import uuid
 
+import pika
+
 
 class NotificationWorker(threading.Thread):
     def __init__(self, id, transcoder_client, socketio):
@@ -27,20 +29,16 @@ class NotificationWorker(threading.Thread):
 
     def connect(self):
         """Connect to RabbitMQ."""
-        #params = pika.ConnectionParameters(
-        #    host=self.transcoder_client.config.QUEUE_HOST,
-        #    port=self.transcoder_client.config.QUEUE_PORT,
-        #    credentials=pika.PlainCredentials(
-        #        self.transcoder_client.config.QUEUE_USERNAME,
-        #        self.transcoder_client.config.QUEUE_PASSWORD
-        #    )
-        #)
-        #self.connection = pika.BlockingConnection(params)
-        #self.channel = self.connection.channel()
-
-        # TODO: Check if this works
-        self.connection = self.transcoder_client.connection
-        self.channel = self.transcoder_client.channel
+        params = pika.ConnectionParameters(
+            host=self.transcoder_client.config.QUEUE_HOST,
+            port=self.transcoder_client.config.QUEUE_PORT,
+            credentials=pika.PlainCredentials(
+                self.transcoder_client.config.QUEUE_USERNAME,
+                self.transcoder_client.config.QUEUE_PASSWORD
+            )
+        )
+        self.connection = pika.BlockingConnection(params)
+        self.channel = self.connection.channel()
 
     def notification_declare(self):
         """Bind the queue of the api server that asked a transcoding to
