@@ -1,21 +1,22 @@
 import unittest
 
-from apiserver import app
+from apiserver import create_app
 
 
 class EndpointGenericTest(unittest.TestCase):
 
     # Executed before each test
     def setUp(self):
+        app = create_app()
         app.config['TESTING'] = True
-        self.app = app.test_client()
+        self.client = app.test_client()
 
     # Executed after each test
     def tearDown(self):
         pass
 
     def test_api_hello_world(self):
-        rv = self.app.get('/api/v1/sayhello', follow_redirects=True)
+        rv = self.client.get('/api/v1/sayhello', follow_redirects=True)
         self.assertEqual(200, rv.status_code)
         self.assertEqual({'hello': 'world'}, rv.get_json())
 
