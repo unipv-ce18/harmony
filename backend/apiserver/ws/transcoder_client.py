@@ -1,5 +1,8 @@
 import logging
+
 import pika
+
+from common.messaging.amq_util import machine_id, amq_connect_blocking
 
 
 log = logging.getLogger(__name__)
@@ -10,22 +13,23 @@ class TranscoderClient:
 
     def __init__(self, config):
         self.config = config
-        conn_params = pika.ConnectionParameters(
-            host=self.config.QUEUE_HOST,
-            port=self.config.QUEUE_PORT,
-            credentials=pika.PlainCredentials(self.config.QUEUE_USERNAME, self.config.QUEUE_PASSWORD),
-            connection_attempts=2, retry_delay=12    # cause Rabbit is slow to start (docker-compose), seriously 12s
-        )
 
-        log.debug('Connecting to RabbitMQ...')
-        self.connection = pika.BlockingConnection(conn_params)
+        self.connection = amq_connect_blocking(config)
         self.channel = self.connection.channel()
-        self.queue = None
+        log.debug('Connected to RabbitMQ')
 
-        log.debug('Declaring exchanges...')
-        self._configure_server()
+        # Now jobs exchange - used by API servers to notify the orchestrator about new transcoding tasks
+        self.channel.exchange_declare(self.config.MESSAGING_EXCHANGE_JOBS, exchange_type='direct')
+        # Notification exchange - to be notified back when a transcoding op finishes
+        self.channel.exchange_declare(self.config.MESSAGING_EXCHANGE_NOTIFICATION, exchange_type='direct')
+        log.debug('Exchanges declared')
 
-        log.debug('Ready')
+        # This queue is specific for each API server node
+        result = self.channel.queue_declare(f'apisvc-{machine_id}',
+                                            auto_delete=True,
+                                            arguments={'x-message-ttl': 60000})
+        self.queue_name = result.method.queue
+        log.debug('Notification queue "%s" created', self.queue_name)
 
     def start_transcode_job(self, song_id):
         """Publishes a new transcoding job to the orchestrator queue
@@ -33,14 +37,14 @@ class TranscoderClient:
         :param str song_id: ID of the song to transcode
         """
         self.channel.basic_publish(
-            exchange=self.config.QUEUE_EXCHANGE_APISERVER,
+            exchange=self.config.MESSAGING_EXCHANGE_JOBS,
             routing_key='id',
             body=song_id,
             properties=pika.BasicProperties(
                 delivery_mode=2,
             )
         )
-        log.info('Sent job for song %s', song_id)
+        log.info('Sent job for song (%s)', song_id)
 
     def get_local_queue(self):
         """Gets the local notification queue for this API server node
@@ -48,28 +52,8 @@ class TranscoderClient:
         :return: queue name of producer
         :rtype: str
         """
-        return self.queue
+        return self.queue_name
 
     def close_connection(self):
         """Close connection to AMQP server"""
         self.connection.close()
-
-    def _configure_server(self):
-        # Producer exchange - used by API servers to notify the orchestrator
-        self.channel.exchange_declare(
-            exchange=self.config.QUEUE_EXCHANGE_APISERVER,
-            exchange_type='direct'
-        )
-
-        # Notification exchange - to be notified back when a transcoding op finishes
-        self.channel.exchange_declare(
-            exchange=self.config.QUEUE_EXCHANGE_NOTIFICATION,
-            exchange_type='direct'
-        )
-
-        # This queue is specific for each API server node
-        result = self.channel.queue_declare(
-            queue='',
-            arguments={'x-message-ttl': 60000}
-        )
-        self.queue = result.method.queue

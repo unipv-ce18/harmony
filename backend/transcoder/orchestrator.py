@@ -4,6 +4,7 @@ import uuid
 import pika
 
 from common.database import Database
+from common.messaging.amq_util import machine_id, amq_connect_blocking
 from .transcoder_worker import TranscoderWorker
 from .config import transcoder_config
 
@@ -14,18 +15,16 @@ class Orchestrator:
 
         :param pymongo.database.Database db_connection: database connection instance
         """
+        self.queue_name = f'orchestrator-{machine_id}'
+
         self.db_connection = db_connection
         self.db = Database(self.db_connection)
+        self.connection = None
+        self.channel = None
 
     def connect(self):
         """Connect to RabbitMQ."""
-        # TODO: Put a function in common to create these params once and for all
-        params = pika.ConnectionParameters(
-            host=transcoder_config.QUEUE_HOST,
-            port=transcoder_config.QUEUE_PORT,
-            credentials=pika.PlainCredentials(transcoder_config.QUEUE_USERNAME, transcoder_config.QUEUE_PASSWORD)
-        )
-        self.connection = pika.BlockingConnection(params)
+        self.connection = amq_connect_blocking(transcoder_config)
         self.channel = self.connection.channel()
 
     def consuming_declare(self):
@@ -33,36 +32,21 @@ class Orchestrator:
         from any api server. Declare the durable queue where the messages arrive and
         bind it to the api exchange.
         """
-        self.channel.exchange_declare(
-            exchange=transcoder_config.QUEUE_EXCHANGE_APISERVER,
-            exchange_type='direct'
-        )
+        self.channel.exchange_declare(transcoder_config.MESSAGING_EXCHANGE_JOBS, exchange_type='direct')
 
-        self.channel.queue_declare(
-            queue=transcoder_config.QUEUE_APISERVER,
-            durable=True,
-            arguments={'x-message-ttl': 60000}
-        )
+        self.channel.queue_declare(self.queue_name, durable=True, arguments={'x-message-ttl': 60000})
 
-        self.channel.queue_bind(
-            exchange=transcoder_config.QUEUE_EXCHANGE_APISERVER,
-            queue=transcoder_config.QUEUE_APISERVER,
-            routing_key='id'
-        )
+        self.channel.queue_bind(exchange=transcoder_config.MESSAGING_EXCHANGE_JOBS,
+                                queue=self.queue_name,
+                                routing_key='id')
 
     def notification_declare(self):
         """Declare the exchange used to notify the api server."""
-        self.channel.exchange_declare(
-            exchange=transcoder_config.QUEUE_EXCHANGE_NOTIFICATION,
-            exchange_type='direct'
-        )
+        self.channel.exchange_declare(transcoder_config.MESSAGING_EXCHANGE_NOTIFICATION, exchange_type='direct')
 
     def producing_declare(self):
         """Declare the exchange used to publish the songs to transcode."""
-        self.channel.exchange_declare(
-            exchange=transcoder_config.QUEUE_EXCHANGE_TRANSCODER,
-            exchange_type='direct'
-        )
+        self.channel.exchange_declare(transcoder_config.MESSAGING_EXCHANGE_WORKER, exchange_type='direct')
 
     def consume(self):
         """Wait for messages from api servers and publish them filtered to
@@ -71,7 +55,7 @@ class Orchestrator:
         self.channel.basic_qos(prefetch_count=5)
 
         self.channel.basic_consume(
-            queue=transcoder_config.QUEUE_APISERVER,
+            queue=self.queue_name,
             on_message_callback=self.callback
         )
 
@@ -130,7 +114,7 @@ class Orchestrator:
         :param str id: id of the song
         """
         self.channel.basic_publish(
-            exchange=transcoder_config.QUEUE_EXCHANGE_TRANSCODER,
+            exchange=transcoder_config.MESSAGING_EXCHANGE_WORKER,
             routing_key='id',
             body=id,
             properties=pika.BasicProperties(
@@ -145,7 +129,7 @@ class Orchestrator:
         """
         print(f'{id} already transcoded')
         self.channel.basic_publish(
-            exchange=transcoder_config.QUEUE_EXCHANGE_NOTIFICATION,
+            exchange=transcoder_config.MESSAGING_EXCHANGE_NOTIFICATION,
             routing_key=id,
             body=id,
             properties=pika.BasicProperties(

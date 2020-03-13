@@ -13,9 +13,6 @@ class Config:
     JWT_BLACKLIST_ENABLED = True,
     JWT_BLACKLIST_TOKEN_CHECK = ['access', 'refresh']
 
-    QUEUE_EXCHANGE_APISERVER = 'api_exchange'               # Where transcoding jobs are published
-    QUEUE_EXCHANGE_NOTIFICATION = 'notification_exchange'   # Where completion notifications are fetched
-
 
 class DevelopmentConfig(Config, BackendConfigDev):
     DEBUG = True

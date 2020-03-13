@@ -10,10 +10,13 @@ class BackendConfig:
     MONGO_PASSWORD = os.environ.get('MONGO_PASSWORD', 'pastina')
 
     # RabbitMQ connection
-    QUEUE_HOST = os.environ.get('QUEUE_HOST', 'localhost')
-    QUEUE_PORT = int(os.environ.get('QUEUE_PORT', '5672'))
-    QUEUE_USERNAME = os.environ.get('QUEUE_USERNAME', 'guest')
-    QUEUE_PASSWORD = os.environ.get('QUEUE_PASSWORD', 'guest')
+    MESSAGING_HOST = os.environ.get('MESSAGING_HOST', 'localhost')
+    MESSAGING_PORT = int(os.environ.get('MESSAGING_PORT', '5672'))
+    MESSAGING_USERNAME = os.environ.get('MESSAGING_USERNAME', 'guest')
+    MESSAGING_PASSWORD = os.environ.get('MESSAGING_PASSWORD', 'guest')
+    MESSAGING_EXCHANGE_JOBS = 'harmony.transcode.jobs'                  # Where API server pushes new transcoding jobs
+    MESSAGING_EXCHANGE_NOTIFICATION = 'harmony.transcode.notification'  # Where completion notifications are to be sent
+    MESSAGING_EXCHANGE_WORKER = 'harmony.transcode.worker'              # Where orchestrator sends jobs to workers
 
 
 class BackendConfigDev(BackendConfig):

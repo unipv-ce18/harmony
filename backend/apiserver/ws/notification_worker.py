@@ -1,67 +1,49 @@
+import logging
 import threading
 import uuid
 
-import pika
+from common.messaging.amq_util import amq_connect_blocking
+
+
+log = logging.getLogger(__name__)
 
 
 class NotificationWorker(threading.Thread):
-    def __init__(self, id, transcoder_client, socketio):
+
+    def __init__(self, song_id, transcoder_client, socketio):
         """Initialize Notification Worker.
 
         Each instance is a thread.
 
-        :param str queue: specific queue of the api server from where the thread
-            is created.
-        :param str id: id of the song to be notified
+        :param str song_id: id of the song to be notified
+        :param apiserver.ws.transcoder_client.TranscoderClient transcoder_client:
+                transcoder client to which this worker is bound
         :param flask_socketio.SocketIO socketio: socketio instance
         """
         threading.Thread.__init__(self)
-        self.id = id
+        self.song_id = song_id
         self.transcoder_client = transcoder_client
         self.socketio = socketio
+        self.consumer_tag = uuid.uuid4().hex
 
-        print('Connection to RabbitMQ...')
-
-        self.connect()
-        self.notification_declare()
-
-        print('...made')
-
-    def connect(self):
-        """Connect to RabbitMQ."""
-        params = pika.ConnectionParameters(
-            host=self.transcoder_client.config.QUEUE_HOST,
-            port=self.transcoder_client.config.QUEUE_PORT,
-            credentials=pika.PlainCredentials(
-                self.transcoder_client.config.QUEUE_USERNAME,
-                self.transcoder_client.config.QUEUE_PASSWORD
-            )
-        )
-        self.connection = pika.BlockingConnection(params)
+        self.connection = amq_connect_blocking(self.transcoder_client.config)
         self.channel = self.connection.channel()
 
-    def notification_declare(self):
-        """Bind the queue of the api server that asked a transcoding to
-        the notification exchange with the routing key equal to the id of the
-        song requested.
-        """
-        self.channel.queue_bind(
-            exchange= self.transcoder_client.config.QUEUE_EXCHANGE_NOTIFICATION,
-            queue=self.transcoder_client.get_local_queue(),
-            routing_key=self.id
-        )
+        # Bind the queue of the api server that asked a transcoding to the
+        # notification exchange with the routing key equal to the id of the song requested.
+        self.channel.queue_bind(exchange=self.transcoder_client.config.MESSAGING_EXCHANGE_NOTIFICATION,
+                                queue=self.transcoder_client.get_local_queue(),
+                                routing_key=self.song_id)
+        log.debug('Started notification worker for song (%s)', song_id)
 
     def run(self):
         """Wait for the notification."""
-        self.consumer_tag = uuid.uuid4().hex
-
         self.channel.basic_consume(
             queue=self.transcoder_client.get_local_queue(),
             on_message_callback=self.callback,
             auto_ack=True,
             consumer_tag=self.consumer_tag
         )
-
         self.channel.start_consuming()
 
     def callback(self, ch, method, properties, body):
@@ -73,7 +55,6 @@ class NotificationWorker(threading.Thread):
         :param bytes body: the body of the message, i.e. the id of the transcoded
             song
         """
-        print(f'received {body}')
+        log.debug(f'Received notification: {body}')
         self.socketio.emit('client', f'{body}')
-        print('sent to client')
         ch.basic_cancel(consumer_tag=self.consumer_tag)

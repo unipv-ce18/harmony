@@ -1,11 +1,16 @@
+import logging
 import uuid
 
 import pika
 
+from common.messaging.amq_util import machine_id, amq_connect_blocking
 from .config import transcoder_config
 from .transcoder import Transcoder
 from common.database import Database
 from storage import minio_client
+
+
+log = logging.getLogger(__name__)
 
 
 class TranscoderWorker:
@@ -18,55 +23,33 @@ class TranscoderWorker:
         self.transcoder = Transcoder(db_connection, minio_client)
         self.db = Database(db_connection)
 
+        self.queue_name = f'worker-{machine_id}'
         self.consumer_tag = consumer_tag if consumer_tag is not None else uuid.uuid4().hex
 
-        print('Connection to RabbitMQ...')
+        self.connection = amq_connect_blocking(transcoder_config)
+        self.channel = self.connection.channel()
+        log.debug('Connected to RabbitMQ')
 
-        self.connect()
         self.consuming_declare()
         self.notification_declare()
-
-        print('...made')
-
-    def connect(self):
-        """Connect to RabbitMQ."""
-        # TODO: Put a function in common to create these params once and for all
-        params = pika.ConnectionParameters(
-            host=transcoder_config.QUEUE_HOST,
-            port=transcoder_config.QUEUE_PORT,
-            credentials=pika.PlainCredentials(transcoder_config.QUEUE_USERNAME, transcoder_config.QUEUE_PASSWORD)
-        )
-        self.connection = pika.BlockingConnection(params)
-        self.channel = self.connection.channel()
+        log.debug('Exchanges declared')
 
     def consuming_declare(self):
         """Declare the exchange used to receive the id of the songs to transcode.
         Declare the durable queue where the messages arrive and bind it to the
         transcoder exchange.
         """
-        self.channel.exchange_declare(
-            exchange=transcoder_config.QUEUE_EXCHANGE_TRANSCODER,
-            exchange_type='direct'
-        )
+        self.channel.exchange_declare(transcoder_config.MESSAGING_EXCHANGE_WORKER, exchange_type='direct')
 
-        self.channel.queue_declare(
-            queue=transcoder_config.QUEUE_TRANSCODER,
-            durable=True,
-            arguments={'x-message-ttl': 60000}
-        )
+        self.channel.queue_declare(self.queue_name, durable=True, arguments={'x-message-ttl': 60000})
 
-        self.channel.queue_bind(
-            exchange=transcoder_config.QUEUE_EXCHANGE_TRANSCODER,
-            queue=transcoder_config.QUEUE_TRANSCODER,
-            routing_key='id'
-        )
+        self.channel.queue_bind(exchange=transcoder_config.MESSAGING_EXCHANGE_WORKER,
+                                queue=self.queue_name,
+                                routing_key='id')
 
     def notification_declare(self):
         """Declare the exchange used to notify the api server."""
-        self.channel.exchange_declare(
-            exchange=transcoder_config.QUEUE_EXCHANGE_NOTIFICATION,
-            exchange_type='direct'
-        )
+        self.channel.exchange_declare(transcoder_config.MESSAGING_EXCHANGE_NOTIFICATION, exchange_type='direct')
 
     def consuming(self):
         """Wait for song to transcode in transcoder queue.
@@ -77,7 +60,7 @@ class TranscoderWorker:
         self.channel.basic_qos(prefetch_count=1)
 
         self.channel.basic_consume(
-            queue=transcoder_config.QUEUE_TRANSCODER,
+            queue=self.queue_name,
             on_message_callback=self.callback,
             consumer_tag=self.consumer_tag
         )
@@ -103,7 +86,7 @@ class TranscoderWorker:
         self.transcoder.complete_transcode(body.decode('utf-8'))
 
         ch.basic_publish(
-            exchange=transcoder_config.QUEUE_EXCHANGE_NOTIFICATION,
+            exchange=transcoder_config.MESSAGING_EXCHANGE_NOTIFICATION,
             routing_key=body.decode('utf-8'),
             body=body,
             properties=pika.BasicProperties(
