@@ -1,3 +1,4 @@
+import logging
 from multiprocessing import Process
 import uuid
 
@@ -7,6 +8,9 @@ from common.database import Database
 from common.messaging.amq_util import machine_id, amq_connect_blocking
 from .transcoder_worker import TranscoderWorker
 from .config import transcoder_config
+
+
+log = logging.getLogger(__name__)
 
 
 class Orchestrator:
@@ -22,42 +26,10 @@ class Orchestrator:
         self.connection = None
         self.channel = None
 
-    def connect(self):
-        """Connect to RabbitMQ."""
-        self.connection = amq_connect_blocking(transcoder_config)
-        self.channel = self.connection.channel()
-
-    def consuming_declare(self):
-        """Declare the exchange used to receive all the id of the songs to transcode
-        from any api server. Declare the durable queue where the messages arrive and
-        bind it to the api exchange.
-        """
-        self.channel.exchange_declare(transcoder_config.MESSAGING_EXCHANGE_JOBS, exchange_type='direct')
-
-        self.channel.queue_declare(self.queue_name, durable=True, arguments={'x-message-ttl': 60000})
-
-        self.channel.queue_bind(exchange=transcoder_config.MESSAGING_EXCHANGE_JOBS,
-                                queue=self.queue_name,
-                                routing_key='id')
-
-    def notification_declare(self):
-        """Declare the exchange used to notify the api server."""
-        self.channel.exchange_declare(transcoder_config.MESSAGING_EXCHANGE_NOTIFICATION, exchange_type='direct')
-
-    def producing_declare(self):
-        """Declare the exchange used to publish the songs to transcode."""
-        self.channel.exchange_declare(transcoder_config.MESSAGING_EXCHANGE_WORKER, exchange_type='direct')
-
     def consume(self):
-        """Wait for messages from api servers and publish them filtered to
-        transcoding exchange.
-        """
+        """Wait for messages from api servers and publish them filtered to transcoding exchange."""
         self.channel.basic_qos(prefetch_count=5)
-
-        self.channel.basic_consume(
-            queue=self.queue_name,
-            on_message_callback=self.callback
-        )
+        self.channel.basic_consume(self.queue_name, self.callback)
 
         self.channel.start_consuming()
 
@@ -65,15 +37,20 @@ class Orchestrator:
         """Making the Orchestrator run."""
         while True:
             try:
-                print('Connection of Orchestrator to RabbitMQ...')
+                self.connection = amq_connect_blocking(transcoder_config)
+                self.channel = self.connection.channel()
+                log.debug('Connected to RabbitMQ')
 
-                self.connect()
-                self.consuming_declare()
-                self.producing_declare()
-
-                print('...made')
+                # Create the incoming jobs queue and bind it to the global jobs exchange (where API servers publish)
+                self.channel.queue_declare(self.queue_name, durable=True, arguments={'x-message-ttl': 60000})
+                self.channel.queue_bind(exchange=transcoder_config.MESSAGING_EXCHANGE_JOBS,
+                                        queue=self.queue_name,
+                                        routing_key='id')
+                log.debug('Orchestrator queue "%s" created and bound to exchange "%s"',
+                          self.queue_name, transcoder_config.MESSAGING_EXCHANGE_JOBS)
 
                 self.consume()
+
             except KeyboardInterrupt:
                 print('\nClosing connection')
                 self.connection.close()

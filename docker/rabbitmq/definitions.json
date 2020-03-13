@@ -1,0 +1,33 @@
+{
+  "global_parameters": [{"name": "cluster_name", "value": "rabbit@harmony"}],
+  "vhosts": [{"name":"/"}],
+  "exchanges": [
+    {
+      "name": "harmony.transcode.jobs",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "harmony.transcode.notification",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "harmony.transcode.worker",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ]
+}

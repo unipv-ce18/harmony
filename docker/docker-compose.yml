@@ -10,8 +10,11 @@ services:
       - mongo-data:/data/db
 
   rabbitmq:
-    image: rabbitmq:3.8.2-alpine
+    # TODO: Change management WebUI credentials in production
+    image: rabbitmq:3.8.2-management-alpine
     volumes:
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbitmq/definitions.json:/definitions.json:ro
       - rabbit-data:/var/lib/rabbitmq
 
   apiserver:

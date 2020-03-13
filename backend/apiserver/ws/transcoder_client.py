@@ -13,22 +13,14 @@ class TranscoderClient:
 
     def __init__(self, config):
         self.config = config
+        self.queue_name = f'apisvc-{machine_id}'
 
         self.connection = amq_connect_blocking(config)
         self.channel = self.connection.channel()
         log.debug('Connected to RabbitMQ')
 
-        # Now jobs exchange - used by API servers to notify the orchestrator about new transcoding tasks
-        self.channel.exchange_declare(self.config.MESSAGING_EXCHANGE_JOBS, exchange_type='direct')
-        # Notification exchange - to be notified back when a transcoding op finishes
-        self.channel.exchange_declare(self.config.MESSAGING_EXCHANGE_NOTIFICATION, exchange_type='direct')
-        log.debug('Exchanges declared')
-
-        # This queue is specific for each API server node
-        result = self.channel.queue_declare(f'apisvc-{machine_id}',
-                                            auto_delete=True,
-                                            arguments={'x-message-ttl': 60000})
-        self.queue_name = result.method.queue
+        # Create a queue for this API server node, used to receive notifications
+        self.channel.queue_declare(self.queue_name, auto_delete=True, arguments={'x-message-ttl': 60000})
         log.debug('Notification queue "%s" created', self.queue_name)
 
     def start_transcode_job(self, song_id):
@@ -40,10 +32,7 @@ class TranscoderClient:
             exchange=self.config.MESSAGING_EXCHANGE_JOBS,
             routing_key='id',
             body=song_id,
-            properties=pika.BasicProperties(
-                delivery_mode=2,
-            )
-        )
+            properties=pika.BasicProperties(delivery_mode=2))
         log.info('Sent job for song (%s)', song_id)
 
     def get_local_queue(self):
