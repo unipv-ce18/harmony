@@ -7,9 +7,12 @@ import os
 
 app = create_app(os.environ.get('FLASK_CONFIG', 'development'))
 
+
+print('connecting...')
 socket_client = SocketIOTestClient(app, socketio)
 socket_client.connect()
 
+print('connected')
 socket_client.emit('play_song', {'id': '5dfd65de57475213eea24182'})
 socket_client.emit('play_song', {'id': '5dfd65de57475213eea24191'})
 

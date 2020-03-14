@@ -31,9 +31,12 @@ class NotificationWorker(threading.Thread):
 
         # Bind the queue of the api server that asked a transcoding to the
         # notification exchange with the routing key equal to the id of the song requested.
-        self.channel.queue_bind(exchange=self.transcoder_client.config.MESSAGING_EXCHANGE_NOTIFICATION,
-                                queue=self.transcoder_client.get_local_queue(),
-                                routing_key=self.song_id)
+        self.channel.queue_bind(
+            exchange=self.transcoder_client.config.MESSAGING_EXCHANGE_NOTIFICATION,
+            queue=self.transcoder_client.get_local_queue(),
+            routing_key=self.song_id
+        )
+        print('notificator connected')
         log.debug('Started notification worker for song (%s)', song_id)
 
     def run(self):
@@ -55,6 +58,6 @@ class NotificationWorker(threading.Thread):
         :param bytes body: the body of the message, i.e. the id of the transcoded
             song
         """
-        log.debug(f'Received notification: {body}')
+        log.debug('Received notification: %s', body)
         self.socketio.emit('client', f'{body}')
         ch.basic_cancel(consumer_tag=self.consumer_tag)

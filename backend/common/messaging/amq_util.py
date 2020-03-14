@@ -16,3 +16,65 @@ def amq_connect_blocking(config: BackendConfig):
         connection_attempts=2, retry_delay=12    # cause Rabbit is slow to start (docker-compose), seriously 12s
     )
     return pika.BlockingConnection(conn_params)
+
+
+def amq_notification_declaration(channel, config: BackendConfig):
+    channel.exchange_declare(
+        exchange=config.MESSAGING_EXCHANGE_NOTIFICATION,
+        exchange_type='direct'
+    )
+
+
+def amq_worker_declaration(channel, config: BackendConfig):
+    channel.exchange_declare(
+        config.MESSAGING_EXCHANGE_WORKER,
+        exchange_type='direct'
+    )
+    channel.queue_declare(
+        queue=config.MESSAGING_QUEUE_WORKER,
+        durable=True,
+        arguments={'x-message-ttl': 60000}
+    )
+    channel.queue_bind(
+        exchange=config.MESSAGING_EXCHANGE_WORKER,
+        queue=config.MESSAGING_QUEUE_WORKER,
+        routing_key='id'
+    )
+    amq_notification_declaration(channel, config)
+
+
+def amq_producer_declaration(channel, config: BackendConfig):
+    queue_name = f'apisvc-{machine_id}'
+
+    channel.exchange_declare(
+        exchange=config.MESSAGING_EXCHANGE_JOBS,
+        exchange_type='direct'
+    )
+    channel.queue_declare(
+        queue=queue_name,
+        arguments={
+            'x-expires': 86400000,    # queue expires if not used for 24 hours
+            'x-message-ttl': 60000
+        }
+    )
+    amq_notification_declaration(channel, config)
+
+    return queue_name
+
+
+def amq_orchestrator_declaration(channel, config: BackendConfig):
+    channel.exchange_declare(
+        exchange=config.MESSAGING_EXCHANGE_JOBS,
+        exchange_type='direct'
+    )
+    channel.queue_declare(
+        queue=config.MESSAGING_QUEUE_JOBS,
+        durable=True,
+        arguments={'x-message-ttl': 60000}
+    )
+    channel.queue_bind(
+        exchange=config.MESSAGING_EXCHANGE_JOBS,
+        queue=config.MESSAGING_QUEUE_JOBS,
+        routing_key='id'
+    )
+    amq_worker_declaration(channel, config)

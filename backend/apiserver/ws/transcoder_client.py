@@ -2,7 +2,7 @@ import logging
 
 import pika
 
-from common.messaging.amq_util import machine_id, amq_connect_blocking
+from common.messaging.amq_util import amq_connect_blocking, amq_producer_declaration
 
 
 log = logging.getLogger(__name__)
@@ -13,14 +13,13 @@ class TranscoderClient:
 
     def __init__(self, config):
         self.config = config
-        self.queue_name = f'apisvc-{machine_id}'
 
         self.connection = amq_connect_blocking(config)
         self.channel = self.connection.channel()
         log.debug('Connected to RabbitMQ')
 
         # Create a queue for this API server node, used to receive notifications
-        self.channel.queue_declare(self.queue_name, auto_delete=True, arguments={'x-message-ttl': 60000})
+        self.queue_name = amq_producer_declaration(self.channel, config)
         log.debug('Notification queue "%s" created', self.queue_name)
 
     def start_transcode_job(self, song_id):
@@ -32,7 +31,10 @@ class TranscoderClient:
             exchange=self.config.MESSAGING_EXCHANGE_JOBS,
             routing_key='id',
             body=song_id,
-            properties=pika.BasicProperties(delivery_mode=2))
+            properties=pika.BasicProperties(
+                delivery_mode=2,
+            )
+        )
         log.info('Sent job for song (%s)', song_id)
 
     def get_local_queue(self):

@@ -5,7 +5,7 @@ import uuid
 import pika
 
 from common.database import Database
-from common.messaging.amq_util import machine_id, amq_connect_blocking
+from common.messaging.amq_util import amq_connect_blocking, amq_orchestrator_declaration
 from .transcoder_worker import TranscoderWorker
 from .config import transcoder_config
 
@@ -19,8 +19,6 @@ class Orchestrator:
 
         :param pymongo.database.Database db_connection: database connection instance
         """
-        self.queue_name = f'orchestrator-{machine_id}'
-
         self.db_connection = db_connection
         self.db = Database(self.db_connection)
         self.connection = None
@@ -29,8 +27,11 @@ class Orchestrator:
     def consume(self):
         """Wait for messages from api servers and publish them filtered to transcoding exchange."""
         self.channel.basic_qos(prefetch_count=5)
-        self.channel.basic_consume(self.queue_name, self.callback)
 
+        self.channel.basic_consume(
+            queue=transcoder_config.MESSAGING_QUEUE_JOBS,
+            on_message_callback=self.callback
+        )
         self.channel.start_consuming()
 
     def run(self):
@@ -42,20 +43,17 @@ class Orchestrator:
                 log.debug('Connected to RabbitMQ')
 
                 # Create the incoming jobs queue and bind it to the global jobs exchange (where API servers publish)
-                self.channel.queue_declare(self.queue_name, durable=True, arguments={'x-message-ttl': 60000})
-                self.channel.queue_bind(exchange=transcoder_config.MESSAGING_EXCHANGE_JOBS,
-                                        queue=self.queue_name,
-                                        routing_key='id')
-                log.debug('Orchestrator queue "%s" created and bound to exchange "%s"',
-                          self.queue_name, transcoder_config.MESSAGING_EXCHANGE_JOBS)
-
+                amq_orchestrator_declaration(self.channel, transcoder_config)
+                log.debug('Orchestrator ready')
                 self.consume()
 
             except KeyboardInterrupt:
-                print('\nClosing connection')
+                log.debug('Closing connection')
                 self.connection.close()
                 break
             except:
+                log.debug('Closing connection')
+                self.connection.close()
                 continue
 
     def callback(self, ch, method, properties, body):
@@ -71,6 +69,7 @@ class Orchestrator:
         :param bytes body: the body of the message, i.e. the id of the song to
             transcode
         """
+        log.info('Received (%s)', body)
         print(f'received {body}')
         id = body.decode('utf-8')
 
@@ -104,7 +103,7 @@ class Orchestrator:
 
         :param str id: id of the song
         """
-        print(f'{id} already transcoded')
+        log.debug('(%s) already transcoded', id)
         self.channel.basic_publish(
             exchange=transcoder_config.MESSAGING_EXCHANGE_NOTIFICATION,
             routing_key=id,
