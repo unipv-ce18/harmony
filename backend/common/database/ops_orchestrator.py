@@ -49,5 +49,5 @@ class OrchestratorOpsMixin:
     def unbind_consumer_from_song(self, consumer_tag):
         self.consumers.update_one(
             {'consumer_tag': consumer_tag},
-            {'$unset': 'song_id': ''}}
+            {'$unset': {'song_id': ''}}
         )
