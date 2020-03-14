@@ -39,3 +39,9 @@ class OrchestratorOpsMixin:
 
     def get_count_consumers_collection(self):
         return self.consumers.count_documents({})
+
+    def bind_consumer_to_song(self, consumer_tag, song_id):
+        pass
+
+    def unbind_consumer_from_song(self, consumer_tag):
+        pass

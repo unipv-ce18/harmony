@@ -65,15 +65,22 @@ class TranscoderWorker:
         :param bytes body: the body of the message, i.e. the id of the song to
             transcode
         """
-        log.debug('(%s) received (%s)', self.consumer_tag, body)
-        self.transcoder.complete_transcode(body.decode('utf-8'))
+        song_id = body.decode('utf-8')
+        log.debug('(%s) received (%s)', self.consumer_tag, song_id)
+
+        # bind the consumer to the song to transcode
+        self.db.bind_consumer_to_song(self.consumer_tag, song_id)
+
+        self.transcoder.complete_transcode(song_id)
 
         ch.basic_publish(
             exchange=transcoder_config.MESSAGING_EXCHANGE_NOTIFICATION,
-            routing_key=body.decode('utf-8'),
+            routing_key=song_id,
             body=body,
             properties=pika.BasicProperties(
                 delivery_mode=2,
             )
         )
+        # unbind the consumer from the transcoded song
+        self.db.unbind_consumer_from_song(self.consumer_tag)
         ch.basic_ack(delivery_tag=method.delivery_tag)
