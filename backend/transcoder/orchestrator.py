@@ -26,7 +26,7 @@ class Orchestrator:
 
     def consume(self):
         """Wait for messages from api servers and publish them filtered to transcoding exchange."""
-        self.channel.basic_qos(prefetch_count=5)
+        self.channel.basic_qos(prefetch_count=25)
 
         self.channel.basic_consume(
             queue=transcoder_config.MESSAGING_QUEUE_JOBS,
@@ -45,8 +45,8 @@ class Orchestrator:
                 # Create the incoming jobs queue and bind it to the global jobs exchange (where API servers publish)
                 amq_orchestrator_declaration(self.channel, transcoder_config)
                 log.debug('Orchestrator ready')
-                self.consume()
 
+                self.consume()
             except KeyboardInterrupt:
                 log.debug('Closing connection')
                 self.connection.close()
@@ -69,9 +69,8 @@ class Orchestrator:
         :param bytes body: the body of the message, i.e. the id of the song to
             transcode
         """
-        log.info('Received (%s)', body)
-        print(f'received {body}')
         id = body.decode('utf-8')
+        log.info('Received (%s)', id)
 
         if not self.song_is_already_transcoded(id):
             if not self.song_is_transcoding(id):

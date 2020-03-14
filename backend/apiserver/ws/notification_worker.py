@@ -36,7 +36,6 @@ class NotificationWorker(threading.Thread):
             queue=self.transcoder_client.get_local_queue(),
             routing_key=self.song_id
         )
-        print('notificator connected')
         log.debug('Started notification worker for song (%s)', song_id)
 
     def run(self):
