@@ -41,7 +41,13 @@ class OrchestratorOpsMixin:
         return self.consumers.count_documents({})
 
     def bind_consumer_to_song(self, consumer_tag, song_id):
-        pass
+        self.consumers.update_one(
+            {'consumer_tag': consumer_tag},
+            {'$set': {'song_id': song_id}}
+        )
 
     def unbind_consumer_from_song(self, consumer_tag):
-        pass
+        self.consumers.update_one(
+            {'consumer_tag': consumer_tag},
+            {'$unset': 'song_id': ''}}
+        )
