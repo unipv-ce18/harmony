@@ -27,7 +27,7 @@ def amq_notification_declaration(channel, config: BackendConfig):
 
 def amq_worker_declaration(channel, config: BackendConfig):
     channel.exchange_declare(
-        config.MESSAGING_EXCHANGE_WORKER,
+        exchange=config.MESSAGING_EXCHANGE_WORKER,
         exchange_type='direct'
     )
     channel.queue_declare(

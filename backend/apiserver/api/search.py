@@ -15,9 +15,9 @@ _arg_parser_search = RequestParser()\
 class Search(Resource):
     def get(self, query):
         data = _arg_parser_search.parse_args()
-        type = data['t'] if data['t'] is not None else 'any'
-        start = data['s'] if data['s'] is not None else 0
-        count = data['c'] if data['c'] is not None else 50
+        type = data['t'] or 'any'
+        start = data['s'] or 0
+        count = data['c'] or 50
 
         result = {
             'any': {
