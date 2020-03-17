@@ -8,6 +8,7 @@ services:
     volumes:
       - ./mongo.init.d:/docker-entrypoint-initdb.d:ro
       - mongo-data:/data/db
+      - mongo-conf:/data/configdb
 
   rabbitmq:
     # TODO: Change management WebUI credentials in production
@@ -17,6 +18,12 @@ services:
       - ./rabbitmq/definitions.json:/definitions.json:ro
       - rabbit-data:/var/lib/rabbitmq
 
+  minio:
+    image: minio/minio:latest
+    command: server /data
+    volumes:
+      - minio-data:/data
+
   apiserver:
     build:
       context: ../backend
@@ -25,13 +32,16 @@ services:
     environment:
       FLASK_CONFIG: development
       MONGO_URI: mongodb://mongodb:27017/harmony
-      QUEUE_HOST: rabbitmq
+      MESSAGING_HOST: rabbitmq
     depends_on:
       - mongodb
       - rabbitmq
+      - minio
     ports:
       - '80:80'
 
 volumes:
+  mongo-conf:
   mongo-data:
   rabbit-data:
+  minio-data:

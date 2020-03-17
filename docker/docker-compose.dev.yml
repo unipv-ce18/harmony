@@ -16,6 +16,14 @@ services:
       - '5672:5672'     # Expose port so we can access it locally
       - '15672:15672'   # Access it at localhost:15672, credentials guest:guest
 
+  minio:
+    environment:
+      # To be consistent with application development config
+      MINIO_ACCESS_KEY: HVTH67YJMJ3BVSHPWJOM
+      MINIO_SECRET_KEY: kAeWXU3qV5vyofP3kTnyEmtp1BarIvE4CrQIF6wU
+    ports:
+      - '9000:9000'
+
   apiserver:
     environment:
       # Enable hot-reload of Flask app
