@@ -1,4 +1,5 @@
 # Project specific
+.env
 
 # Python generic
 __pycache__/

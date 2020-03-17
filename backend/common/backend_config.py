@@ -1,12 +1,18 @@
 import os
 
+from dotenv import load_dotenv
+
+
+# Load local environment from .env file
+load_dotenv()
+
 
 class BackendConfig:
     """Common infrastructure configuration"""
 
     # MongoDB connection
-    MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/harmony')  # "?authSource" not required if same db
-    MONGO_USERNAME = os.environ.get('MONGO_USERNAME', 'admin')  # TODO: Rename to harmony to match Docker config
+    MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/harmony')  # ?authSource not required if same db
+    MONGO_USERNAME = os.environ.get('MONGO_USERNAME', 'harmony')
     MONGO_PASSWORD = os.environ.get('MONGO_PASSWORD', 'pastina')
 
     # RabbitMQ connection
