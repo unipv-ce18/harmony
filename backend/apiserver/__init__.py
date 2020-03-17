@@ -7,6 +7,7 @@ from flask_jwt_extended import JWTManager
 from flask_pymongo import PyMongo
 from flask_socketio import SocketIO
 
+from common import log_util
 from common.database import Database
 from .config import config
 from .ws.playback_namespace import PlaybackNamespace
@@ -30,11 +31,9 @@ def create_app(config_name=None):
     app.config.from_object(current_config)
 
     # Configure logging for application modules
+    log_util.configure_logging(__package__, logging.DEBUG if current_config.DEBUG else None)
     if 'gunicorn' in os.environ.get('SERVER_SOFTWARE', ''):
         logging.getLogger().handlers = logging.getLogger('gunicorn.error').handlers
-    if current_config.DEBUG:
-        logging.getLogger('common').setLevel(logging.DEBUG)
-        logging.getLogger('apiserver').setLevel(logging.DEBUG)
 
     # Apply extensions
     cors.init_app(app)
