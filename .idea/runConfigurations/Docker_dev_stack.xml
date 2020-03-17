@@ -1,0 +1,23 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Docker dev stack" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="envVars">
+          <list>
+            <DockerEnvVarImpl>
+              <option name="name" value="COMPOSE_PROJECT_NAME" />
+              <option name="value" value="harmony" />
+            </DockerEnvVarImpl>
+          </list>
+        </option>
+        <option name="secondarySourceFiles">
+          <list>
+            <option value="docker/docker-compose.dev.yml" />
+          </list>
+        </option>
+        <option name="sourceFilePath" value="docker/docker-compose.yml" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>
