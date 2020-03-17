@@ -18,7 +18,7 @@ from .ws.transcoder_client import TranscoderClient
 cors = CORS()
 jwt = JWTManager()
 pymongo = PyMongo()
-socketio = SocketIO()
+socketio = SocketIO(cors_allowed_origins='*')
 
 
 def create_app(config_name=None):
