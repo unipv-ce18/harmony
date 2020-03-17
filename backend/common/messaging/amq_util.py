@@ -21,14 +21,16 @@ def amq_connect_blocking(config: BackendConfig):
 def amq_notification_declaration(channel, config: BackendConfig):
     channel.exchange_declare(
         exchange=config.MESSAGING_EXCHANGE_NOTIFICATION,
-        exchange_type='direct'
+        exchange_type='direct',
+        durable=True
     )
 
 
 def amq_worker_declaration(channel, config: BackendConfig):
     channel.exchange_declare(
         exchange=config.MESSAGING_EXCHANGE_WORKER,
-        exchange_type='direct'
+        exchange_type='direct',
+        durable=True
     )
     channel.queue_declare(
         queue=config.MESSAGING_QUEUE_WORKER,
@@ -48,7 +50,8 @@ def amq_producer_declaration(channel, config: BackendConfig):
 
     channel.exchange_declare(
         exchange=config.MESSAGING_EXCHANGE_JOBS,
-        exchange_type='direct'
+        exchange_type='direct',
+        durable=True
     )
     channel.queue_declare(
         queue=queue_name,
@@ -65,7 +68,8 @@ def amq_producer_declaration(channel, config: BackendConfig):
 def amq_orchestrator_declaration(channel, config: BackendConfig):
     channel.exchange_declare(
         exchange=config.MESSAGING_EXCHANGE_JOBS,
-        exchange_type='direct'
+        exchange_type='direct',
+        durable=True
     )
     channel.queue_declare(
         queue=config.MESSAGING_QUEUE_JOBS,
