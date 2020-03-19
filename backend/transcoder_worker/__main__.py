@@ -1,0 +1,29 @@
+import logging
+import os
+import sys
+
+import pymongo
+
+from common import log_util
+from common.database import Database
+from .config import transcoder_config
+from .worker import TranscoderWorker
+
+
+log_util.configure_logging(__package__, logging.DEBUG)
+_log = logging.getLogger('transcoder_worker')
+
+consumer_tag = os.environ.get('HARMONY_WORKER_ID')
+if consumer_tag is None:
+    _log.critical('Attempted anonymous worker startup (no consumer tag given)')
+    sys.exit(1)
+
+db_client = pymongo.MongoClient(transcoder_config.MONGO_URI,
+                                username=transcoder_config.MONGO_USERNAME,
+                                password=transcoder_config.MONGO_PASSWORD)
+
+worker = TranscoderWorker(
+    consumer_tag=consumer_tag,
+    db_interface=Database(db_client.get_database()))
+_log.info('Started worker "%s"', consumer_tag)
+worker.run()

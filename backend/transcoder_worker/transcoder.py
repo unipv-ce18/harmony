@@ -5,8 +5,8 @@ import hashlib
 
 import ffmpy
 
-from common.database import Database
 from storage import Storage, config_storage
+from .config import transcoder_config
 
 
 def _create_key(id):
@@ -18,21 +18,21 @@ def _create_key(id):
 
 _bitrate = [96, 160, 320]
 
-_tmp_folder = 'tmp'
+_tmp_folder = transcoder_config.WORK_DIR
 _tmp_subfolder = 'compressed_songs'
 
 
 class Transcoder:
-    def __init__(self, db_connection, minio_connection):
+    def __init__(self, db_interface, minio_connection):
         """Initialize Transcoder.
 
         Retrieve instances of database and storage connections. Create the
         temporary folders used during the transcode process.
 
-        :param pymongo.database.Database db_connection: database connection instance
+        :param common.database.Database db_interface: database handling interface
         :param minio.api.Minio minio_connection: storage connection instance
         """
-        self.db = Database(db_connection)
+        self.db = db_interface
         self.st = Storage(minio_connection)
 
         if not os.path.exists(_tmp_folder):
@@ -141,12 +141,11 @@ class Transcoder:
                                       segment_template={_tmp_folder}/{id}/{bitrate}_$Time$.webm,\
                                       drm_label=AUDIO'
 
-        packager_path = os.path.realpath(os.path.dirname(__file__))
         manifest_path = f'{_tmp_folder}/{id}'
         manifest_name = 'manifest.mpd'
 
         command = [
-            f'{packager_path}/packager-linux',
+            transcoder_config.PACKAGER_PATH,
             param(id, _bitrate[0]),
             param(id, _bitrate[1]),
             param(id, _bitrate[2]),
@@ -157,6 +156,7 @@ class Transcoder:
             '--mpd_output',
             f'{manifest_path}/{manifest_name}'
         ]
+
         subprocess.run(command)
 
         repr_data = {
@@ -166,14 +166,14 @@ class Transcoder:
         }
         self.db.put_song_representation_data(id, repr_data)
 
-    def download_song_from_storage_server(self, id):
+    def download_song_from_storage_server(self, song_id):
         """Download the song to transcode from storage server.
 
-        :param str id: id of the song to transcode
+        :param str song_id: id of the song to transcode
         :return: True if song is downloaded, False otherwise
         :rtype: bool
         """
-        return self.st.download_file('lossless-songs', f'{id}.flac', _tmp_folder)
+        return self.st.download_file('lossless-songs', f'{song_id}.flac', _tmp_folder)
 
     def upload_files_to_storage_server(self, id, extension):
         """Upload transcode process files to storage server.

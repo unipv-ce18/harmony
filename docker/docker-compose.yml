@@ -40,6 +40,20 @@ services:
     ports:
       - '80:80'
 
+  transcoder-director:
+    build:
+      context: ../backend
+      dockerfile: transcoder_director/Dockerfile
+    image: harmony/transcoder-director:dev
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/harmony
+      MESSAGING_HOST: rabbitmq
+    depends_on:
+      - mongodb
+      - rabbitmq
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   mongo-conf:
   mongo-data:

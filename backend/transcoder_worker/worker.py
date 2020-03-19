@@ -1,12 +1,10 @@
 import logging
-import uuid
 
 import pika
 
 from common.messaging.amq_util import amq_connect_blocking, amq_worker_declaration
-from .config import transcoder_config
+from transcoder_worker.config import transcoder_config
 from .transcoder import Transcoder
-from common.database import Database
 from storage import minio_client
 
 
@@ -14,16 +12,18 @@ log = logging.getLogger(__name__)
 
 
 class TranscoderWorker:
-    def __init__(self, db_connection, consumer_tag=None):
+    def __init__(self, consumer_tag, db_interface):
         """Initialize Transcoder Worker.
 
-        :param pymongo.database.Database db_connection: database connection instance
+        :param common.database.Database db_interface: database handling interface
         :param str consumer_tag: the consumer tag specific of the worker
         """
-        self.transcoder = Transcoder(db_connection, minio_client)
-        self.db = Database(db_connection)
+        if consumer_tag is None:
+            raise ValueError('Consumer tag expected')
+        self.consumer_tag = consumer_tag
 
-        self.consumer_tag = consumer_tag or uuid.uuid4().hex
+        self.transcoder = Transcoder(db_interface, minio_client)
+        self.db = db_interface
 
         self.connection = amq_connect_blocking(transcoder_config)
         self.channel = self.connection.channel()
@@ -32,7 +32,7 @@ class TranscoderWorker:
         # Create a jobs queue for this worker and bind it to the workers exchange
         amq_worker_declaration(self.channel, transcoder_config)
 
-    def consuming(self):
+    def run(self):
         """Wait for song to transcode in transcoder queue.
 
         prefetch_count is set to 1 so that no more than one message can be
@@ -50,7 +50,8 @@ class TranscoderWorker:
             self.channel.start_consuming()
         except:
             log.debug('Deleting consumer (%s)', self.consumer_tag)
-            self.db.remove_consumer_tag(self.consumer_tag)
+            # TODO do we want to delete it here or in orchestrator?
+            self.db.remove_worker(self.consumer_tag)
 
             log.debug('Closing connection')
             self.connection.close()

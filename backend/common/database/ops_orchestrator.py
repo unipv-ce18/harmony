@@ -27,12 +27,18 @@ class OrchestratorOpsMixin:
     def get_count_transcoder_collection(self):
         return self.transcoder.count_documents({})
 
-    def store_consumer_tag(self, consumer_tag):
+    def put_worker(self, consumer_tag, driver_data):
+        """Registers a worker in the database
+
+        :param str consumer_tag: worker identifier used for queue connection
+        :param dict driver_data: additional driver specific data to identify the worker (e.g. PID or container ID)
+        """
         self.consumers.insert_one({
-            'consumer_tag': consumer_tag
+            'consumer_tag': consumer_tag,
+            'driver_data': driver_data
         })
 
-    def remove_consumer_tag(self, consumer_tag):
+    def remove_worker(self, consumer_tag):
         self.consumers.delete_one({
             'consumer_tag': consumer_tag
         })

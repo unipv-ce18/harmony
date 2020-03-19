@@ -1,29 +1,10 @@
-import os
-
 import pymongo
 
 from apiserver.config import current_config
 from common.database import Database
+from common.database.codec import artist_from_document
 from storage import Storage, minio_client
 from tests.db_test_utils import read_json
-
-
-def rename_songs_with_id(artist_id):
-    a = db.get_artist_releases(artist_id)
-    b = []
-    for i in range(len(a)):
-        a[i] = a[i].to_dict()
-        b.append(db.get_release_songs(a[i]['id']))
-    c = {}
-    for i in range(len(b)):
-        for j in range(len(b[i])):
-            b[i][j] = b[i][j].to_dict()
-            c[b[i][j]['title']] = b[i][j]['id']
-    for f in os.listdir('lossless_songs'):
-        for k, v in c.items():
-            if k == f.replace('.flac', ''):
-                os.rename(f'lossless_songs/{f}', f'lossless_songs/{v}.flac')
-
 
 db_client = pymongo.MongoClient(current_config.MONGO_URI,
                                 username=current_config.MONGO_USERNAME,
@@ -41,9 +22,15 @@ db.users.drop()
 st.delete_all_files('lossless-songs')
 st.delete_all_files('compressed-songs')
 
-ids = db.add_artists(artists_list)
-db.add_users(users_list)
+full_artist = artist_from_document(artists_list[0])
+artist_id = db.put_artist(full_artist)
 
-rename_songs_with_id(ids[0])
-for file in os.listdir('lossless_songs'):
-    st.upload_file('lossless-songs', file, 'lossless_songs')
+for rel in full_artist.releases:
+    release_id = db.put_release(artist_id, rel)
+
+    for song in rel.songs:
+        song_id = db.put_song(release_id, song)
+        minio_client.fput_object('lossless-songs', f'{song_id}.flac', f'lossless_songs/{song.title}.flac')
+
+
+db.add_users(users_list)

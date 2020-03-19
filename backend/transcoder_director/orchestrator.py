@@ -1,26 +1,27 @@
 import logging
-from multiprocessing import Process
 import uuid
 
 import pika
+from pika.exceptions import ChannelClosedByBroker
 
-from common.database import Database
 from common.messaging.amq_util import amq_connect_blocking, amq_orchestrator_declaration
-from .transcoder_worker import TranscoderWorker
-from .config import transcoder_config
+from .config import director_config
 
 
 log = logging.getLogger(__name__)
 
 
 class Orchestrator:
-    def __init__(self, db_connection):
+    def __init__(self, db_interface, worker_driver):
         """Initialize Orchestrator.
 
-        :param pymongo.database.Database db_connection: database connection instance
+        :param common.database.Database db_interface: database handling interface
+        :param transcoder_director.worker.WorkerDriver worker_driver: driver used to manage workers
         """
-        self.db_connection = db_connection
-        self.db = Database(self.db_connection)
+        self.db = db_interface
+        self.worker_driver = worker_driver
+        worker_driver.set_db(self.db)
+
         self.connection = None
         self.channel = None
 
@@ -29,32 +30,37 @@ class Orchestrator:
         self.channel.basic_qos(prefetch_count=25)
 
         self.channel.basic_consume(
-            queue=transcoder_config.MESSAGING_QUEUE_JOBS,
+            queue=director_config.MESSAGING_QUEUE_JOBS,
             on_message_callback=self.callback
         )
+        log.info('Listening for messages on queue "%s"', director_config.MESSAGING_QUEUE_JOBS)
         self.channel.start_consuming()
 
     def run(self):
         """Making the Orchestrator run."""
+
         while True:
             try:
-                self.connection = amq_connect_blocking(transcoder_config)
+                self.connection = amq_connect_blocking(director_config)
                 self.channel = self.connection.channel()
                 log.debug('Connected to RabbitMQ')
 
                 # Create the incoming jobs queue and bind it to the global jobs exchange (where API servers publish)
-                amq_orchestrator_declaration(self.channel, transcoder_config)
-                log.debug('Orchestrator ready')
+                amq_orchestrator_declaration(self.channel, director_config)
 
                 self.consume()
             except KeyboardInterrupt:
-                log.debug('Closing connection')
-                self.connection.close()
+                log.info('Closing connection')
                 break
-            except:
-                log.debug('Closing connection')
-                self.connection.close()
+            except ChannelClosedByBroker:
+                log.info('Channel closed by broker, terminating')
+                break
+            except Exception as e:
+                log.error('Closing connection due to error %s(%s)', type(e).__name__, e)
                 continue
+            finally:
+                if self.connection is not None:
+                    self.connection.close()
 
     def callback(self, ch, method, properties, body):
         """Callback function.
@@ -89,7 +95,7 @@ class Orchestrator:
         :param str id: id of the song
         """
         self.channel.basic_publish(
-            exchange=transcoder_config.MESSAGING_EXCHANGE_WORKER,
+            exchange=director_config.MESSAGING_EXCHANGE_WORKER,
             routing_key='id',
             body=id,
             properties=pika.BasicProperties(
@@ -104,7 +110,7 @@ class Orchestrator:
         """
         log.debug('(%s) already transcoded', id)
         self.channel.basic_publish(
-            exchange=transcoder_config.MESSAGING_EXCHANGE_NOTIFICATION,
+            exchange=director_config.MESSAGING_EXCHANGE_NOTIFICATION,
             routing_key=id,
             body=id,
             properties=pika.BasicProperties(
@@ -139,14 +145,7 @@ class Orchestrator:
     def create_worker(self):
         """Create a new worker for transcoding."""
         consumer_tag = uuid.uuid4().hex
-        worker = TranscoderWorker(self.db_connection, consumer_tag)
-        self.store_consumer_tag(consumer_tag)
-        p = Process(target=worker.consuming)
-        p.start()
-
-    def store_consumer_tag(self, consumer_tag):
-        """Store the consumer tag inside database."""
-        self.db.store_consumer_tag(consumer_tag)
+        self.worker_driver.start_worker(consumer_tag)
 
     def get_number_of_consumers(self):
         """Get the number of alive consumers.
