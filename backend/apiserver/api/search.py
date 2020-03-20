@@ -40,4 +40,4 @@ class Search(Resource):
             if not all(v == [] for v in result.values()):
                 return result, 200
 
-        return 'Nothing found', 401
+        return [], 200
