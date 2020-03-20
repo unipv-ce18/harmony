@@ -30,18 +30,14 @@ class Search(Resource):
             'songs': db.search_song(query, start, count)
         }.get(type)
 
-        if isinstance(result, list):
-            if result:
-                return [res.to_dict() for res in result], 200
-            else:
-                return 'Nothing found', 401
+        if isinstance(result, list) and result:
+            return [res.to_dict() for res in result], 200
+
         if isinstance(result, dict):
             for k in result:
                 if result[k]:
                     result[k] = [res.to_dict() for res in result[k]]
             if not all(v == [] for v in result.values()):
                 return result, 200
-            else:
-                return 'Nothing found', 401
 
         return 'Nothing found', 401
