@@ -4,13 +4,13 @@ import os.path
 from .worker_driver import WorkerDriver
 from .drv_process import ProcessWorkerDriver
 from .drv_docker import DockerWorkerDriver
-
+from .. import director_config
 
 _log = logging.getLogger(__name__)
 
 
 def _detect_driver():
-    if os.path.exists('/var/run/docker.sock'):
+    if os.path.isfile('/.dockerenv') and os.path.exists(director_config.DOCKER_SOCKET_PATH):
         return 'docker'
 
     try:
