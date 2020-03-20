@@ -27,14 +27,18 @@ class BackendConfig:
     MESSAGING_QUEUE_WORKER = 'harmony.queue.worker'                     # Where worker gets message
 
     # Minio connection
-    ENDPOINT = '127.0.0.1:9000'
-    ACCESS_KEY = 'HVTH67YJMJ3BVSHPWJOM'
-    SECRET_KEY = 'kAeWXU3qV5vyofP3kTnyEmtp1BarIvE4CrQIF6wU'
-    TLS = False
+    STORAGE_ENDPOINT = os.environ.get('STORAGE_ENDPOINT', '127.0.0.1:9000')
+    STORAGE_ACCESS_KEY = os.environ.get('STORAGE_ACCESS_KEY', 'HVTH67YJMJ3BVSHPWJOM')
+    STORAGE_SECRET_KEY = os.environ.get('STORAGE_SECRET_KEY', 'kAeWXU3qV5vyofP3kTnyEmtp1BarIvE4CrQIF6wU')
+    STORAGE_BUCKET_REFERENCE = 'lossless-songs'
+    STORAGE_BUCKET_TRANSCODED = 'compressed-songs'
+
+    STORAGE_USE_TLS = True
 
 
 class BackendConfigDev(BackendConfig):
-    pass
+
+    STORAGE_USE_TLS = False
 
 
 class BackendConfigProd(BackendConfig):

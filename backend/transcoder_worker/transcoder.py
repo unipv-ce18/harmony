@@ -6,8 +6,7 @@ import hashlib
 
 import ffmpy
 
-from storage import Storage
-from .config import transcoder_config
+from . import transcoder_config
 
 
 log = logging.getLogger(__name__)
@@ -23,21 +22,25 @@ def _create_key(id):
 _bitrate = [96, 160, 320]
 
 _tmp_folder = transcoder_config.WORK_DIR
-_tmp_subfolder = 'compressed_songs'
+_tmp_subfolder = 'upload'
 
 
 class Transcoder:
-    def __init__(self, db_interface, minio_connection):
+    def __init__(self, db_interface, storage_interface):
         """Initialize Transcoder.
 
         Retrieve instances of database and storage connections. Create the
         temporary folders used during the transcode process.
 
         :param common.database.Database db_interface: database handling interface
-        :param minio.api.Minio minio_connection: storage connection instance
+        :param common.storage.Storage storage_interface: storage interface
         """
         self.db = db_interface
-        self.st = Storage(minio_connection)
+        self.st = storage_interface
+
+        for bucket in [transcoder_config.STORAGE_BUCKET_REFERENCE, transcoder_config.STORAGE_BUCKET_TRANSCODED]:
+            if not self.st.check_bucket_exist(bucket):
+                self.st.create_bucket(bucket)
 
         if not os.path.exists(_tmp_folder):
             os.makedirs(_tmp_folder)
@@ -47,28 +50,25 @@ class Transcoder:
     def transcoding_song(self, id, bitrate=160, sample_rate=44100, channels=2, extension='.webm', include_metadata=False):
         """Transcode a song from flac format to the format specified in extension.
 
-    	input file: downloaded from lossless-songs bucket inside storage server
+        input file: downloaded from lossless-songs bucket inside storage server
             and saved inside tmp folder.
             input-file-name = {id}.flac
-    	output file: saved inside tmp/compressed_songs folder.
+        output file: saved inside tmp/compressed_songs folder.
             output-file-name = {id}-{bitrate}{extension} (default: {id}-160.webm)
 
-    	:param str id: id of the song to be transcoded and name of the input file
-    	:param str bitrate: the bitrate of the output song. The default bitrate
-    		is 160 kbps
-    	:param int sample_rate: the sample rate of the output song. The default
-    		sample rate is 44100 Hz
-    	:param int channels: the number of channels of the ouput song. The default
-    		is 2, which stands for stereo; 1 is mono
-    	:param str extension: the extension of the ouput song. The default is .webm
+        :param str id: id of the song to be transcoded and name of the input file
+        :param str bitrate: the bitrate of the output song. The default bitrate
+                            is 160 kbps
+        :param int sample_rate: the sample rate of the output song. The default
+                                sample rate is 44100 Hz
+        :param int channels: the number of channels of the ouput song. The default
+                             is 2, which stands for stereo; 1 is mono
+        :param str extension: the extension of the ouput song. The default is .webm
         :param bool include_metadata: include metadata in the output song if True.
             The default value is False
-    	"""
-        file_name = f'{id}.flac'
-        output_file_name = f'{id}-{bitrate}{extension}'
-
-        input = f'{_tmp_folder}/{file_name}'
-        output = f'{_tmp_folder}/{_tmp_subfolder}/{output_file_name}'
+        """
+        in_file = f'{_tmp_folder}/{id}.flac'
+        out_file = f'{_tmp_folder}/{_tmp_subfolder}/{id}-{bitrate}{extension}'
 
         metadata = self.metadata(id) if include_metadata else ''
 
@@ -76,12 +76,13 @@ class Transcoder:
             channels = 2
 
         global_options = '-y'
-        output_options = f'-b:a {bitrate}k -ar {sample_rate} {metadata} -ac {channels} -acodec libvorbis -vn -map_metadata -1'
+        output_options = f'-b:a {bitrate}k -ar {sample_rate} {metadata} -ac {channels} ' \
+                         f'-acodec libvorbis -vn -map_metadata -1'
 
         ff = ffmpy.FFmpeg(
-        	global_options=global_options,
-        	inputs={input: None},
-        	outputs={output: output_options}
+            global_options=global_options,
+            inputs={in_file: None},
+            outputs={out_file: output_options}
         )
         ff.run()
 
@@ -163,10 +164,12 @@ class Transcoder:
 
         subprocess.run(command)
 
+        output_bucket_scheme = 'https' if transcoder_config.STORAGE_USE_TLS else 'http'
+        output_bucket_url = f'{transcoder_config.STORAGE_ENDPOINT}/{transcoder_config.STORAGE_BUCKET_TRANSCODED}'
         repr_data = {
             'key_id': key_id,
             'key': key,
-            'manifest': f'{transcoder_config.ENDPOINT}/compressed-songs/{id}/{manifest_name}'
+            'manifest': f'{output_bucket_scheme}://{output_bucket_url}/{id}/{manifest_name}'
         }
         self.db.put_song_representation_data(id, repr_data)
 
@@ -177,7 +180,7 @@ class Transcoder:
         :return: True if song is downloaded, False otherwise
         :rtype: bool
         """
-        return self.st.download_file('lossless-songs', f'{song_id}.flac', _tmp_folder)
+        return self.st.download_file(transcoder_config.STORAGE_BUCKET_REFERENCE, f'{song_id}.flac', _tmp_folder)
 
     def upload_files_to_storage_server(self, id, extension):
         """Upload transcode process files to storage server.

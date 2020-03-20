@@ -4,7 +4,8 @@ import sys
 
 from common import log_util
 from common.database import Database, connect_db
-from .config import transcoder_config
+from storage import Storage, connect_storage
+from . import transcoder_config
 from .worker import TranscoderWorker
 
 
@@ -18,6 +19,7 @@ if consumer_tag is None:
 
 worker = TranscoderWorker(
     consumer_tag=consumer_tag,
-    db_interface=Database(connect_db(transcoder_config).get_database()))
+    db_interface=Database(connect_db(transcoder_config).get_database()),
+    storage_interface=Storage(connect_storage(transcoder_config)))
 _log.info('Started worker "%s"', consumer_tag)
 worker.run()

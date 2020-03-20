@@ -26,9 +26,7 @@ class ProductionConfig(Config, BackendConfigProd):
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
-
-    'default': DevelopmentConfig
 }
 
 # TODO: Deprecated, use instance from flask app
-current_config = config[os.getenv('FLASK_CONFIG') or 'default']
+current_config = config[os.environ.get('FLASK_CONFIG', 'development')]

@@ -3,26 +3,26 @@ import logging
 import pika
 
 from common.messaging.amq_util import amq_connect_blocking, amq_worker_declaration
-from .config import transcoder_config
+from . import transcoder_config
 from .transcoder import Transcoder
-from storage import minio_client
 
 
 log = logging.getLogger(__name__)
 
 
 class TranscoderWorker:
-    def __init__(self, consumer_tag, db_interface):
+    def __init__(self, consumer_tag, db_interface, storage_interface):
         """Initialize Transcoder Worker.
 
-        :param common.database.Database db_interface: database handling interface
         :param str consumer_tag: the consumer tag specific of the worker
+        :param common.database.Database db_interface: database handling interface
+        :param common.storage.Storage storage_interface: storage interface
         """
         if consumer_tag is None:
             raise ValueError('Consumer tag expected')
         self.consumer_tag = consumer_tag
 
-        self.transcoder = Transcoder(db_interface, minio_client)
+        self.transcoder = Transcoder(db_interface, storage_interface)
         self.db = db_interface
 
         self.connection = amq_connect_blocking(transcoder_config)

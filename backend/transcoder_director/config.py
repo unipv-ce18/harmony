@@ -1,13 +1,26 @@
-from common.backend_config import BackendConfig
+import os
+
+from common.backend_config import BackendConfigDev, BackendConfigProd
 
 
-class Config(BackendConfig):
+class Config:
     """Transcoder microservice configuration"""
 
-    WORKER_DRIVER = None                # Auto-detect, can be 'process' or 'docker'
+    WORKER_DRIVER = os.environ.get('WORKER_DRIVER', None)                # Auto-detect, can be 'process' or 'docker'
 
-    TERMINATOR_IDLE_REMOVAL = 60       # On each run, remove workers that stayed idle for more than this (in seconds)
-    TERMINATOR_POLLING_CYCLE = 60      # Amount of time between idle worker termination runs (in seconds)
+    TERMINATOR_IDLE_REMOVAL = 300       # On each run, remove workers that stayed idle for more than this (in seconds)
+    TERMINATOR_POLLING_CYCLE = 300      # Amount of time between idle worker termination runs (in seconds)
 
 
-director_config = Config()
+class DevelopmentConfig(Config, BackendConfigDev):
+    pass
+
+
+class ProductionConfig(Config, BackendConfigProd):
+    pass
+
+
+config_envs = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+}

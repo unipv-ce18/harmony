@@ -2,22 +2,14 @@ import os
 
 from minio.error import ResponseError
 
-from .config import storage_config
-
 
 class Storage:
     def __init__(self, minio_connection):
         """Initialize Storage.
 
-        Connect to storage server and check if the buckets for lossless and
-        compressed songs exist and, if not, create them.
-
         :param minio.api.Minio minio_connection: minio connection instance
         """
         self.minio_client = minio_connection
-        for bucket in storage_config.BUCKETS:
-            if not self.check_bucket_exist(bucket):
-                self.create_bucket(bucket)
 
     def create_bucket(self, bucket):
         """Create a bucket inside server storage.

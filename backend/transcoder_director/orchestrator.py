@@ -5,7 +5,7 @@ import pika
 from pika.exceptions import ChannelClosedByBroker
 
 from common.messaging.amq_util import amq_connect_blocking, amq_orchestrator_declaration
-from .config import director_config
+from . import director_config
 
 
 log = logging.getLogger(__name__)

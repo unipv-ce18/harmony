@@ -3,7 +3,7 @@ import threading
 
 from common import log_util
 from common.database import Database, connect_db
-from .config import director_config
+from . import director_config
 from .driver import create_driver_from_env
 from .orchestrator import Orchestrator
 from .terminator import Terminator

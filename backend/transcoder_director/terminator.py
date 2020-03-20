@@ -1,7 +1,7 @@
 import logging
 import threading
 
-from .config import director_config
+from . import director_config
 
 
 log = logging.getLogger(__name__)
