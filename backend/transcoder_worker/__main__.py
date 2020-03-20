@@ -4,7 +4,7 @@ import sys
 
 from common import log_util
 from common.database import Database, connect_db
-from storage import Storage, connect_storage
+from common.storage import Storage, connect_storage
 from . import transcoder_config
 from .worker import TranscoderWorker
 

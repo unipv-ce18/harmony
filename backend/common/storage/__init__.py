@@ -1,4 +1,4 @@
-from common.backend_config import BackendConfig
+from ..backend_config import BackendConfig
 from .storage import Storage
 
 

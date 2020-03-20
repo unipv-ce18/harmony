@@ -1,7 +1,7 @@
 from apiserver.config import current_config
 from common.database import Database, connect_db
 from common.database.codec import artist_from_document
-from storage import Storage, connect_storage
+from common.storage import Storage, connect_storage
 from tests.db_test_utils import read_json
 
 
