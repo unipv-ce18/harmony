@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from bson import ObjectId
 
@@ -35,7 +35,8 @@ class OrchestratorOpsMixin:
         """
         self.consumers.insert_one({
             'consumer_tag': consumer_tag,
-            'driver_data': driver_data
+            'driver_data': driver_data,
+            'last_work': datetime.utcnow()
         })
 
     def remove_worker(self, consumer_tag):
@@ -55,5 +56,13 @@ class OrchestratorOpsMixin:
     def unbind_consumer_from_song(self, consumer_tag):
         self.consumers.update_one(
             {'consumer_tag': consumer_tag},
-            {'$unset': {'song_id': ''}}
+            {'$unset': {'song_id': ''},
+             '$set': {'last_work': datetime.utcnow()}}
         )
+
+    def get_consumers_to_remove(self):
+        result = self.consumers.find(
+            {'song_id': {'$exists': False}, 'last_work': {'$lt': (datetime.utcnow() - timedelta(minutes=5))}},
+            {'_id': 0, 'consumer_tag': '$consumer_tag', 'driver_data': '$driver_data'}
+        )
+        return [res for res in result]

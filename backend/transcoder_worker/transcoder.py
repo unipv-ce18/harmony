@@ -5,7 +5,7 @@ import hashlib
 
 import ffmpy
 
-from storage import Storage, config_storage
+from storage import Storage, storage_config
 from .config import transcoder_config
 
 

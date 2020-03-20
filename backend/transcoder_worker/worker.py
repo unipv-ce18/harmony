@@ -3,7 +3,7 @@ import logging
 import pika
 
 from common.messaging.amq_util import amq_connect_blocking, amq_worker_declaration
-from transcoder_worker.config import transcoder_config
+from .config import transcoder_config
 from .transcoder import Transcoder
 from storage import minio_client
 

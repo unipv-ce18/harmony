@@ -2,8 +2,7 @@ import os
 
 from minio.error import ResponseError
 
-
-_buckets = ['lossless-songs', 'compressed-songs']
+from .config import storage_config
 
 
 class Storage:
@@ -16,7 +15,7 @@ class Storage:
         :param minio.api.Minio minio_connection: minio connection instance
         """
         self.minio_client = minio_connection
-        for bucket in _buckets:
+        for bucket in storage_config.BUCKETS:
             if not self.check_bucket_exist(bucket):
                 self.create_bucket(bucket)
 

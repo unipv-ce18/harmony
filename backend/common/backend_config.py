@@ -26,6 +26,12 @@ class BackendConfig:
     MESSAGING_QUEUE_JOBS = 'harmony.queue.jobs'                         # Where orchestator gets messages
     MESSAGING_QUEUE_WORKER = 'harmony.queue.worker'                     # Where worker gets message
 
+    # Minio connection
+    ENDPOINT = '127.0.0.1:9000'
+    ACCESS_KEY = 'HVTH67YJMJ3BVSHPWJOM'
+    SECRET_KEY = 'kAeWXU3qV5vyofP3kTnyEmtp1BarIvE4CrQIF6wU'
+    TLS = False
+
 
 class BackendConfigDev(BackendConfig):
     pass

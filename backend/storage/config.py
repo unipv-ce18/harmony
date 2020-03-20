@@ -1,7 +1,10 @@
-from os.path import realpath, dirname
-import json
+from common.backend_config import BackendConfig
 
 
-cfg_storage_path = realpath(dirname(__file__) + '/resources/config_storage.json')
-with open(cfg_storage_path, 'r') as f:
-    config_storage = json.load(f)
+class Config(BackendConfig):
+    """Storage microservice configuration"""
+
+    BUCKETS = ['lossless-songs', 'compressed-songs']
+
+
+storage_config = Config()
