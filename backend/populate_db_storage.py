@@ -1,17 +1,11 @@
-import pymongo
-
 from apiserver.config import current_config
-from common.database import Database
+from common.database import Database, connect_db
 from common.database.codec import artist_from_document
 from storage import Storage, minio_client
 from tests.db_test_utils import read_json
 
-db_client = pymongo.MongoClient(current_config.MONGO_URI,
-                                username=current_config.MONGO_USERNAME,
-                                password=current_config.MONGO_PASSWORD)
-harmony = db_client.get_database()
 
-db = Database(harmony)
+db = Database(connect_db(current_config).get_database())
 st = Storage(minio_client)
 
 artists_list = read_json('tests/resources/test_artists.json')

@@ -48,7 +48,9 @@ class TranscoderWorker:
 
         try:
             self.channel.start_consuming()
-        except:
+        except Exception as e:
+            log.error('Exception in worker: %s', e)
+
             log.debug('Deleting consumer (%s)', self.consumer_tag)
             # TODO do we want to delete it here or in orchestrator?
             self.db.remove_worker(self.consumer_tag)

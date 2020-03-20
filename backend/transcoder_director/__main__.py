@@ -1,21 +1,27 @@
 import logging
-
-import pymongo
+import threading
 
 from common import log_util
-from common.database import Database
+from common.database import Database, connect_db
 from .config import director_config
-from .orchestrator import Orchestrator
 from .driver import create_driver_from_env
+from .orchestrator import Orchestrator
+from .terminator import Terminator
 
 
 log_util.configure_logging(__package__, logging.DEBUG)
+db_interface = Database(connect_db(director_config).get_database())  # Docs say PyMongo is thread-safe
+worker_driver = create_driver_from_env(director_config)
 
-db_client = pymongo.MongoClient(director_config.MONGO_URI,
-                                username=director_config.MONGO_USERNAME,
-                                password=director_config.MONGO_PASSWORD)
+orchestrator = Orchestrator(db_interface, worker_driver)
+terminator = Terminator(db_interface, worker_driver)
 
-orchestrator = Orchestrator(
-    db_interface=Database(db_client.get_database()),
-    worker_driver=create_driver_from_env(director_config))
+# Run terminator (worker garbage collection) on a separate thread
+thread_gc = threading.Thread(name='worker_gc', target=terminator.run)
+
+thread_gc.start()
 orchestrator.run()
+
+# When orchestrator stops in the main thread, wait for terminator to end too
+terminator.shutdown()
+thread_gc.join()

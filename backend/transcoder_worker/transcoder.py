@@ -1,3 +1,4 @@
+import logging
 import os
 import subprocess
 import shutil
@@ -5,8 +6,11 @@ import hashlib
 
 import ffmpy
 
-from storage import Storage, storage_config
+from storage import Storage
 from .config import transcoder_config
+
+
+log = logging.getLogger(__name__)
 
 
 def _create_key(id):
@@ -162,7 +166,7 @@ class Transcoder:
         repr_data = {
             'key_id': key_id,
             'key': key,
-            'manifest': f'{config_storage["Endpoint"]}/compressed-songs/{id}/{manifest_name}'
+            'manifest': f'{transcoder_config.ENDPOINT}/compressed-songs/{id}/{manifest_name}'
         }
         self.db.put_song_representation_data(id, repr_data)
 
@@ -213,17 +217,23 @@ class Transcoder:
         to the storage server. Delete all the local temporary files.
 
         :param str id: id of the song to be transcoded and name of the input file
-    	:param int sample_rate: the sample rate of the output song. The default
-    		sample rate is 44100 Hz
-    	:param int channels: the number of channels of the ouput song. The default
-    		is 2, which stands for stereo; 1 is mono
-    	:param str extension: the extension of the ouput song. The default is .webm
+        :param int sample_rate: the sample rate of the output song. The default
+                                sample rate is 44100 Hz
+        :param int channels: the number of channels of the ouput song. The default
+                             is 2, which stands for stereo; 1 is mono
+        :param str extension: the extension of the ouput song. The default is .webm
         :param bool include_metadata: include metadata in the output song if True.
             The default value is False
         """
+
+        log.info('Started new transcoding job for song (%s)', id)
+
+        # TODO consider using a try-catch and recover from errors
         if self.download_song_from_storage_server(id):
             self.transcoding(id, sample_rate, channels, extension, include_metadata)
             self.manifest_creation(id)
             self.upload_files_to_storage_server(id, extension)
             self.clear_transcoding_tmp_files(id, extension)
         self.remove_pending_song(id)
+
+        log.info('Finished transcoding job for song (%s)', id)

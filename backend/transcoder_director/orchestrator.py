@@ -145,7 +145,8 @@ class Orchestrator:
     def create_worker(self):
         """Create a new worker for transcoding."""
         consumer_tag = uuid.uuid4().hex
-        self.worker_driver.start_worker(consumer_tag)
+        driver_handle = self.worker_driver.start_worker(consumer_tag)
+        self.db.put_worker(consumer_tag, driver_handle)
 
     def get_number_of_consumers(self):
         """Get the number of alive consumers.

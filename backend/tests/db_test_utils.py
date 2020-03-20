@@ -3,18 +3,12 @@ import logging
 import unittest
 from os import path
 
-import pymongo
-
-from common.database import Database
+from common.database import Database, connect_db
 from apiserver.config import current_config
 
 
 def _connect_db():
-    return Database(pymongo.MongoClient(
-        current_config.MONGO_URI,
-        username=current_config.MONGO_USERNAME,
-        password=current_config.MONGO_PASSWORD
-    ).get_database())
+    return Database(connect_db(current_config).get_database())
 
 
 _test_resources_dir = path.join(path.dirname(path.realpath(__file__)), 'resources')

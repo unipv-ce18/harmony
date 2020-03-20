@@ -27,15 +27,15 @@ class OrchestratorOpsMixin:
     def get_count_transcoder_collection(self):
         return self.transcoder.count_documents({})
 
-    def put_worker(self, consumer_tag, driver_data):
+    def put_worker(self, consumer_tag, driver_handle):
         """Registers a worker in the database
 
         :param str consumer_tag: worker identifier used for queue connection
-        :param dict driver_data: additional driver specific data to identify the worker (e.g. PID or container ID)
+        :param dict driver_handle: additional driver specific data to identify the worker (e.g. PID or container ID)
         """
         self.consumers.insert_one({
             'consumer_tag': consumer_tag,
-            'driver_data': driver_data,
+            'driver_handle': driver_handle,
             'last_work': datetime.utcnow()
         })
 
@@ -60,9 +60,9 @@ class OrchestratorOpsMixin:
              '$set': {'last_work': datetime.utcnow()}}
         )
 
-    def get_consumers_to_remove(self):
-        result = self.consumers.find(
-            {'song_id': {'$exists': False}, 'last_work': {'$lt': (datetime.utcnow() - timedelta(minutes=5))}},
-            {'_id': 0, 'consumer_tag': '$consumer_tag', 'driver_data': '$driver_data'}
-        )
+    def get_consumers_to_remove(self, since):
+        result = self.consumers.find({
+            'song_id': {'$exists': False},
+            'last_work': {'$lt': (datetime.utcnow() - timedelta(seconds=since))}
+        }, {'_id': 0, 'consumer_tag': 1, 'driver_handle': 1})
         return [res for res in result]
