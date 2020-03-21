@@ -3,16 +3,16 @@ import signal
 import subprocess
 
 from .worker_driver import WorkerDriver
+from .. import director_config
 
 
 DRIVER_TYPE = 'process'
-PROCESS_COMMANDLINE = ['python', '-m', 'transcoder_worker']
 
 
 class ProcessWorkerDriver(WorkerDriver):
 
     def start_worker(self, worker_tag):
-        p = subprocess.Popen(PROCESS_COMMANDLINE, env={
+        p = subprocess.Popen(director_config.PROCESS_COMMANDLINE, env={
             **os.environ,
             'HARMONY_WORKER_ID': worker_tag
         })

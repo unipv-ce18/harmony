@@ -1,6 +1,10 @@
+import logging
 import os
 
 from minio.error import ResponseError
+
+
+log = logging.getLogger(__name__)
 
 
 class Storage:
@@ -93,10 +97,10 @@ class Storage:
         try:
             self.minio_client.fget_object(bucket, file_name, f'{file_path}/{file_name}')
             return True
-        except ResponseError as err:
-            print(err)
-        except Exception as e:
-            print(e)
+        except ResponseError:
+            log.exception('Response error from storage server')
+        except Exception:
+            log.exception('Generic exception in storage download')
         return False
 
     def delete_file(self, bucket, file_name):

@@ -110,11 +110,11 @@ class Transcoder:
         medium and high.
 
         :param str id: id of the song to be transcoded and name of the input file
-    	:param int sample_rate: the sample rate of the output song. The default
-    		sample rate is 44100 Hz
-    	:param int channels: the number of channels of the ouput song. The default
-    		is 2, which stands for stereo; 1 is mono
-    	:param str extension: the extension of the ouput song. The default is .webm
+        :param int sample_rate: the sample rate of the output song. The default
+                                sample rate is 44100 Hz
+        :param int channels: the number of channels of the ouput song. The default
+                             is 2, which stands for stereo; 1 is mono
+        :param str extension: the extension of the ouput song. The default is .webm
         :param bool include_metadata: include metadata in the output song if True.
             The default value is False
         """
@@ -212,14 +212,14 @@ class Transcoder:
         shutil.rmtree(f'{_tmp_folder}/{id}')
         os.remove(f'{_tmp_folder}/{id}.flac')
 
-    def complete_transcode(self, id, sample_rate=44100, channels=2, extension='.webm', include_metadata=False):
+    def complete_transcode(self, song_id, sample_rate=44100, channels=2, extension='.webm', include_metadata=False):
         """Perform a complete transcode process on a song.
 
         Retrieve the song from the storage server, transcode it in three different
         qualities, create the manifest and the segments. Upload all the output files
         to the storage server. Delete all the local temporary files.
 
-        :param str id: id of the song to be transcoded and name of the input file
+        :param str song_id: id of the song to be transcoded and name of the input file
         :param int sample_rate: the sample rate of the output song. The default
                                 sample rate is 44100 Hz
         :param int channels: the number of channels of the ouput song. The default
@@ -229,14 +229,16 @@ class Transcoder:
             The default value is False
         """
 
-        log.info('Started new transcoding job for song (%s)', id)
+        log.info('%s: Transcoding job started', song_id)
 
         # TODO consider using a try-catch and recover from errors
-        if self.download_song_from_storage_server(id):
-            self.transcoding(id, sample_rate, channels, extension, include_metadata)
-            self.manifest_creation(id)
-            self.upload_files_to_storage_server(id, extension)
-            self.clear_transcoding_tmp_files(id, extension)
-        self.remove_pending_song(id)
+        if self.download_song_from_storage_server(song_id):
+            self.transcoding(song_id, sample_rate, channels, extension, include_metadata)
+            self.manifest_creation(song_id)
+            self.upload_files_to_storage_server(song_id, extension)
+            self.clear_transcoding_tmp_files(song_id, extension)
+        else:
+            log.error('%s: Failed to download source from server', song_id)
+        self.remove_pending_song(song_id)
 
-        log.info('Finished transcoding job for song (%s)', id)
+        log.info('%s: Transcoding job finished', song_id)

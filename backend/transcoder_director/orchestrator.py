@@ -75,17 +75,20 @@ class Orchestrator:
         :param bytes body: the body of the message, i.e. the id of the song to
             transcode
         """
-        id = body.decode('utf-8')
-        log.info('Received (%s)', id)
+        song_id = body.decode('utf-8')
+        log.info('%s: Received transcode request', song_id)
 
-        if not self.song_is_already_transcoded(id):
-            if not self.song_is_transcoding(id):
-                self.push_song_in_queue(id)
-                self.store_pending_song(id)
+        if not self.song_is_already_transcoded(song_id):
+            if not self.song_is_transcoding(song_id):
+                self.push_song_in_queue(song_id)
+                self.store_pending_song(song_id)
                 if self.consumers_less_than_pending_song():
                     self.create_worker()
+            else:
+                log.debug('%s: Duplicate request, ignoring', song_id)
         else:
-            self.notify_api_server(id)
+            self.notify_api_server(song_id)
+            log.debug('%s: Already converted, notification sent', song_id)
 
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -145,6 +148,7 @@ class Orchestrator:
     def create_worker(self):
         """Create a new worker for transcoding."""
         consumer_tag = uuid.uuid4().hex
+        log.info('Spinning up new worker (tag: %s)', consumer_tag)
         driver_handle = self.worker_driver.start_worker(consumer_tag)
         self.db.put_worker(consumer_tag, driver_handle)
 
