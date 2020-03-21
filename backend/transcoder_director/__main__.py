@@ -1,4 +1,5 @@
 import logging
+import signal
 import threading
 
 from common import log_util
@@ -9,7 +10,14 @@ from .orchestrator import Orchestrator
 from .terminator import Terminator
 
 
+def _exit_gracefully(signum, frame):
+    orchestrator.shutdown()
+
+
 log_util.configure_logging(__package__, logging.DEBUG)
+signal.signal(signal.SIGINT, _exit_gracefully)
+signal.signal(signal.SIGTERM, _exit_gracefully)
+
 db_interface = Database(connect_db(director_config).get_database())  # Docs say PyMongo is thread-safe
 worker_driver = create_driver_from_env(director_config)
 

@@ -49,18 +49,23 @@ class Orchestrator:
                 amq_orchestrator_declaration(self.channel, director_config)
 
                 self.consume()
-            except KeyboardInterrupt:
-                log.info('Closing connection')
+
+                # No exceptions, assume exited gracefully, break loop
+                log.info('Shutting down')
                 break
+
             except ChannelClosedByBroker:
                 log.info('Channel closed by broker, terminating')
                 break
             except Exception as e:
-                log.error('Closing connection due to error %s(%s)', type(e).__name__, e)
+                log.exception('Closing connection due to error %s(%s)', type(e).__name__, e)
                 continue
             finally:
                 if self.connection is not None:
                     self.connection.close()
+
+    def shutdown(self):
+        self.channel.close()
 
     def callback(self, ch, method, properties, body):
         """Callback function.

@@ -1,5 +1,6 @@
 import logging
 import os
+import signal
 import sys
 
 from common import log_util
@@ -9,7 +10,14 @@ from . import transcoder_config
 from .worker import TranscoderWorker
 
 
+def _exit_gracefully(signum, frame):
+    worker.shutdown()
+
+
 log_util.configure_logging(__package__, logging.DEBUG)
+signal.signal(signal.SIGINT, _exit_gracefully)
+signal.signal(signal.SIGTERM, _exit_gracefully)
+
 _log = logging.getLogger('transcoder_worker')
 
 consumer_tag = os.environ.get('HARMONY_WORKER_ID')

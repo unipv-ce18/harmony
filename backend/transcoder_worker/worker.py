@@ -48,15 +48,23 @@ class TranscoderWorker:
 
         try:
             self.channel.start_consuming()
-        except Exception as e:
-            log.error('Exception in worker: %s', e)
 
+            # No exceptions, assume exited gracefully, break loop
+            log.info('Shutting down')
+
+        except Exception as e:
+            log.exception('Exception in worker: %s(%s)', type(e).__name__, e)
+
+        finally:
             log.debug('Deleting consumer (%s)', self.consumer_tag)
             # TODO do we want to delete it here or in orchestrator?
             self.db.remove_worker(self.consumer_tag)
 
-            log.debug('Closing connection')
-            self.connection.close()
+            if self.connection is not None:
+                self.connection.close()
+
+    def shutdown(self):
+        self.channel.close()
 
     def callback(self, ch, method, properties, body):
         """Callback function.
