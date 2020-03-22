@@ -4,7 +4,7 @@ import subprocess
 import shutil
 import hashlib
 
-import ffmpy
+from ffmpy import FFmpeg, FFExecutableNotFoundError, FFRuntimeError
 
 from . import transcoder_config
 
@@ -66,6 +66,8 @@ class Transcoder:
         :param str extension: the extension of the ouput song. The default is .webm
         :param bool include_metadata: include metadata in the output song if True.
             The default value is False
+        :raise: `FFRuntimeError` in case FFmpeg command exits with a non-zero code;
+                `FFExecutableNotFoundError` in case the executable path passed was not valid
         """
         in_file = f'{_tmp_folder}/{id}.flac'
         out_file = f'{_tmp_folder}/{_tmp_subfolder}/{id}-{bitrate}{extension}'
@@ -79,7 +81,7 @@ class Transcoder:
         output_options = f'-b:a {bitrate}k -ar {sample_rate} {metadata} -ac {channels} ' \
                          f'-acodec libvorbis -vn -map_metadata -1'
 
-        ff = ffmpy.FFmpeg(
+        ff = FFmpeg(
             global_options=global_options,
             inputs={in_file: None},
             outputs={out_file: output_options}
@@ -207,10 +209,10 @@ class Transcoder:
         :param str id: id of the transcoded song
         :param str extension: the extension of the transcoded song. The default is .webm
         """
+        os.remove(f'{_tmp_folder}/{id}.flac')
         for b in _bitrate:
             os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{id}-{b}{extension}')
         shutil.rmtree(f'{_tmp_folder}/{id}')
-        os.remove(f'{_tmp_folder}/{id}.flac')
 
     def complete_transcode(self, song_id, sample_rate=44100, channels=2, extension='.webm', include_metadata=False):
         """Perform a complete transcode process on a song.
@@ -231,14 +233,25 @@ class Transcoder:
 
         log.info('%s: Transcoding job started', song_id)
 
-        # TODO consider using a try-catch and recover from errors
         if self.download_song_from_storage_server(song_id):
-            self.transcoding(song_id, sample_rate, channels, extension, include_metadata)
-            self.manifest_creation(song_id)
-            self.upload_files_to_storage_server(song_id, extension)
-            self.clear_transcoding_tmp_files(song_id, extension)
+            try:
+                self.transcoding(song_id, sample_rate, channels, extension, include_metadata)
+                self.manifest_creation(song_id)
+                self.upload_files_to_storage_server(song_id, extension)
+
+                log.info('%s: Transcoding job finished', song_id)
+            except FFExecutableNotFoundError:
+                log.error('Executable path not valid')
+            except FFRuntimeError as e:
+                log.exception('FFRuntimeError: %s', e)
+            except Exception as e:
+                log.exception('%s(%s)', type(e).__name__, e)
+            finally:
+                try:
+                    self.clear_transcoding_tmp_files(song_id, extension)
+                except FileNotFoundError:
+                    pass
         else:
             log.error('%s: Failed to download source from server', song_id)
-        self.remove_pending_song(song_id)
 
-        log.info('%s: Transcoding job finished', song_id)
+        self.remove_pending_song(song_id)
