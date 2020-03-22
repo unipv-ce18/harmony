@@ -54,9 +54,7 @@ def create_container(image_name, environ=None, networks=None, container_name=Non
     if environ is not None:
         request_data['Env'] = environ
     if networks is not None:
-        nets_dict = {}
-        for net_name in networks:
-            nets_dict[net_name] = {}
+        nets_dict = {net_name: {} for net_name in networks}
         request_data['NetworkingConfig'] = {'EndpointsConfig': nets_dict}
     url_params = '' if container_name is None else f'?name={container_name}'
 
