@@ -53,9 +53,8 @@ def create_app(config_name=None):
     from .api import api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api/v1', db=db)
 
-    # Configure messaging (skip if Werkzeug still have to reload in development) and WebSocket
-    if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-        transcoder_client = TranscoderClient(current_config)
-        socketio.on_namespace(PlaybackNamespace(transcoder_client=transcoder_client))
+    # Configure messaging and WebSocket
+    transcoder_client = TranscoderClient(current_config)
+    socketio.on_namespace(PlaybackNamespace('/playback', transcoder_client))
 
     return app

@@ -14,6 +14,6 @@ worker_tmp_dir = '/dev/shm'
 # Ideally we should run a single worker per container and spin up multiple containers to use more cores,
 # this is to allow us to process multiple requests using a single worker and avoid problems with heartbeat failing
 # when we process slow requests
-workers = 2
-threads = 4
-worker_class = 'gthread'
+workers = 1
+threads = 1
+worker_class = 'eventlet'

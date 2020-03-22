@@ -1,15 +1,14 @@
 import unittest
 
-from apiserver import create_app
+from .api_test_utils import create_test_app
 
 
 class EndpointGenericTest(unittest.TestCase):
 
     # Executed before each test
     def setUp(self):
-        app = create_app()
-        app.config['TESTING'] = True
-        self.client = app.test_client()
+        app, client = create_test_app()
+        self.client = client
 
     # Executed after each test
     def tearDown(self):

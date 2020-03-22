@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM alpine:3.11
 
 # Common layers between Harmony python images
 
@@ -12,15 +12,16 @@ COPY common /app/common
 
 # Layers for the apiserver image
 
-COPY apiserver/requirements.txt /app/apiserver/
+ENV service_package apiserver
+COPY ${service_package}/requirements.txt /app/${service_package}/
 
 RUN set -ex \
   && apk add --no-cache --virtual .build-tools \
       gcc musl-dev python3-dev \
-  && python3 -m pip install --no-cache-dir -r /app/apiserver/requirements.txt gunicorn \
+  && python3 -m pip install --no-cache-dir -r /app/${service_package}/requirements.txt gunicorn \
   && apk del .build-tools
 
-COPY apiserver /app/apiserver
+COPY ${service_package} /app/${service_package}
 
 
 WORKDIR /app
