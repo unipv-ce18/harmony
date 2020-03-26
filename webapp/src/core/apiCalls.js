@@ -14,8 +14,8 @@ export class ApiError extends Error {
   }
 }
 
-export function execLogin(username, password) {
-  const data = {username, password};
+export function execLogin(identity, password) {
+  const data = {identity, password};
   return fetch(API_LOGIN_URL, {
     method: 'POST',
     headers: new Headers({'Content-Type': 'application/json'}),

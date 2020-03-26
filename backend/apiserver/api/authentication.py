@@ -13,13 +13,9 @@ _arg_parser_register = RequestParser()\
     .add_argument('username', help='This field cannot be blank', required=True)\
     .add_argument('email', help='This field cannot be blank', required=True)\
     .add_argument('password', help='This field cannot be blank', required=True)
-_arg_parser_login = _arg_parser_register.copy()\
-    .remove_argument('email')\
-    .replace_argument('username', dest='identity')
-
-#_arg_parser_login = RequestParser()\
-#    .add_argument('identity', help='Required, can be either username or email', required=True)\
-#    .add_argument('password', help='This field cannot be blank', required=True)
+_arg_parser_login = RequestParser()\
+    .add_argument('identity', help='Required, can be either username or email', required=True)\
+    .add_argument('password', help='This field cannot be blank', required=True)
 
 
 @api.resource('/register')
