@@ -11,7 +11,7 @@ _arg_parser_release = RequestParser().add_argument('songs')
 _arg_parser_artist = RequestParser().add_argument('releases')
 
 
-@api.resource('/release/<id>')
+@api.resource('/release/<release_id>')
 class GetRelease(Resource):
     def get(self, release_id):
         if not ObjectId.is_valid(release_id):
@@ -26,7 +26,7 @@ class GetRelease(Resource):
         return release.to_dict(), 200
 
 
-@api.resource('/artist/<id>')
+@api.resource('/artist/<artist_id>')
 class GetArtist(Resource):
     def get(self, artist_id):
         if not ObjectId.is_valid(artist_id):
