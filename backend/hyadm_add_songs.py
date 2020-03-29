@@ -11,6 +11,8 @@ from common.database import Database, connect_db
 from common.database.codec import artist_from_document, release_from_document, song_from_document
 from common.storage import Storage, connect_storage
 
+from common.storage import create_missing_buckets
+
 
 def _http_get_json(host, path, params):
     conn = HTTPConnection(host)
@@ -206,6 +208,8 @@ if lastfm_api_key is None:
 
 db = Database(connect_db(config).get_database())
 st = Storage(connect_storage(config))
+
+create_missing_buckets(config, st)
 
 if args.clean:
     db.artists.drop()

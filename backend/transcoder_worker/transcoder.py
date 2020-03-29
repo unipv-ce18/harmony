@@ -7,7 +7,7 @@ import hashlib
 from ffmpy import FFmpeg, FFExecutableNotFoundError, FFRuntimeError
 
 from . import transcoder_config
-
+from ..common.storage import create_missing_buckets
 
 log = logging.getLogger(__name__)
 
@@ -38,9 +38,7 @@ class Transcoder:
         self.db = db_interface
         self.st = storage_interface
 
-        for bucket in [transcoder_config.STORAGE_BUCKET_REFERENCE, transcoder_config.STORAGE_BUCKET_TRANSCODED]:
-            if not self.st.check_bucket_exist(bucket):
-                self.st.create_bucket(bucket)
+        create_missing_buckets(transcoder_config, self.st)
 
         if not os.path.exists(_tmp_folder):
             os.makedirs(_tmp_folder)
