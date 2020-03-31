@@ -35,7 +35,8 @@ class ApiExplorer(flasgger.Swagger):
 
     def manage_blueprint(self, api_blueprint):
         # Add am API blueprint to our configuration, spec will be generated from registration parameters
-        api_blueprint.record(self._on_blueprint_defer)
+        if self._on_blueprint_defer not in api_blueprint.deferred_functions:
+            api_blueprint.record(self._on_blueprint_defer)
 
     def get_apispecs(self, endpoint='api'):
         # Overridden to patch the spec before returning to the client
@@ -76,9 +77,10 @@ class ApiExplorer(flasgger.Swagger):
         # API Explorer UI
         blueprint.add_url_rule('/', 'apidocs', self._handle_explorer_route)
 
-        # Existing specs in config
+        # Existing specs in config, dynamically added specs have dots in their name and are excluded
         for spec in self.config['specs']:
-            self._add_spec_rule(blueprint, spec)
+            if '.' not in spec['endpoint']:
+                self._add_spec_rule(blueprint, spec)
 
         self.app.register_blueprint(blueprint)
 
