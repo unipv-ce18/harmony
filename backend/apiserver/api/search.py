@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
@@ -31,13 +33,13 @@ class Search(Resource):
         }.get(type)
 
         if isinstance(result, list) and result:
-            return [res.to_dict() for res in result], 200
+            return [res.to_dict() for res in result], HTTPStatus.OK
 
         if isinstance(result, dict):
             for k in result:
                 if result[k]:
                     result[k] = [res.to_dict() for res in result[k]]
             if not all(v == [] for v in result.values()):
-                return result, 200
+                return result, HTTPStatus.OK
 
-        return [], 200
+        return [], HTTPStatus.OK
