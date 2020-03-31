@@ -9,9 +9,7 @@ from http.client import HTTPConnection
 from apiserver.config import current_config as config
 from common.database import Database, connect_db
 from common.database.codec import artist_from_document, release_from_document, song_from_document
-from common.storage import Storage, connect_storage
-
-from common.storage import create_missing_buckets
+from common.storage import get_storage_interface
 
 
 def _http_get_json(host, path, params):
@@ -207,9 +205,7 @@ if lastfm_api_key is None:
           file=sys.stderr)
 
 db = Database(connect_db(config).get_database())
-st = Storage(connect_storage(config))
-
-create_missing_buckets(config, st)
+st = get_storage_interface(config)
 
 if args.clean:
     db.artists.drop()

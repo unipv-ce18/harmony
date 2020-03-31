@@ -9,7 +9,12 @@ def connect_storage(config: BackendConfig):
                        secret_key=config.STORAGE_SECRET_KEY,
                        secure=config.STORAGE_USE_TLS)
 
-def create_missing_buckets(config: BackendConfig, st: Storage):
+
+def get_storage_interface(config: BackendConfig):
+    st = Storage(connect_storage(config))
+
     for bucket in [config.STORAGE_BUCKET_REFERENCE, config.STORAGE_BUCKET_TRANSCODED]:
         if not st.check_bucket_exist(bucket):
             st.create_bucket(bucket)
+
+    return st
