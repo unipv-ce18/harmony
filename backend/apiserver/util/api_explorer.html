@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{{ site_name }}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="{{ swagger_ui_css }}"/>
+  <script src="{{ swagger_ui_bundle_js }}"></script>
+  <style>
+    html {
+      box-sizing: border-box;
+      overflow-y: scroll;
+    }
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+    body {
+      margin: 0;
+      background: #fafafa;
+    }
+    #swagger-ui .renderedMarkdown code {
+      padding: 3px 5px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script>
+      window.onload = function () {
+          let swag = SwaggerUIBundle({
+              deepLinking: true,
+              url: "{{ spec_url }}",
+              dom_id: "#swagger-ui",
+              presets: [ SwaggerUIBundle.presets.apis ],
+              plugins: [ SwaggerUIBundle.plugins.DownloadUrl ],
+              validatorUrl: null,
+              responseInterceptor: function (res) {
+                  if (!res.ok) return res;
+
+                  // REVERSE ENGINEERING REACT REDUX FTW!!!111
+                  if (res.url.endsWith('/auth/login')) {
+                      swag.authActions.authorize({
+                          accessToken: {value: res.obj.access_token, schema: {type: 'http'}},
+                          refreshToken: {value: res.obj.refresh_token, schema: {type: 'http'}}
+                      });
+                      console.log('Automatically logged in', res.obj)
+
+                  } else if (res.url.endsWith('/auth/refresh')) {
+                      swag.authActions.authorize({
+                          accessToken: {value: res.obj.access_token, schema: {type: 'http'}},
+                      });
+                      console.log('Automatically refreshed token', res.obj)
+
+                  } else if (res.url.endsWith('/auth/logout')) {
+                      swag.authActions.logout(['accessToken', 'refreshToken']);
+                      console.log('Automatically logged out', res.obj)
+                  }
+
+                  return res;
+              }
+          })
+      }
+  </script>
+</body>
+</html>
