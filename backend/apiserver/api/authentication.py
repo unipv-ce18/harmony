@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from flask import current_app
 from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
@@ -20,6 +22,7 @@ _arg_parser_login = RequestParser()\
 
 @api.resource('/register')
 class AuthRegister(Resource):
+
     def post(self):
         data = _arg_parser_register.parse_args()
         username = data['username']
@@ -28,13 +31,17 @@ class AuthRegister(Resource):
         if db.get_user_by_mail(email) is None:
             if db.get_user_by_name(username) is None:
                 data['password'] = security.hash_password(data['password'])
-                return 200 if db.add_user(data) else 401
-            return {'message': 'Username already exists'}, 401
-        return {'message': 'Email already exists'}, 401
+                if db.add_user(data):
+                    return {'message': 'User created'}, HTTPStatus.CREATED
+                else:
+                    return {'message': 'Failed to create new user'}, HTTPStatus.INTERNAL_SERVER_ERROR
+            return {'message': 'Username already exists'}, HTTPStatus.CONFLICT
+        return {'message': 'Email already exists'}, HTTPStatus.CONFLICT
 
 
 @api.resource('/login')
 class AuthLogin(Resource):
+
     def post(self):
         data = _arg_parser_login.parse_args()
 
@@ -51,7 +58,7 @@ class AuthLogin(Resource):
                 db.store_token(security.decode_token(access))
                 db.store_token(security.decode_token(refresh))
                 return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 900}
-        return {'message': 'Bad credentials'}, 401
+        return {'message': 'Bad credentials'}, HTTPStatus.UNAUTHORIZED
 
 
 @api.resource('/logout')
@@ -61,9 +68,10 @@ class AuthLogout(Resource):
     def post(self):
         _jwt = security.get_raw_jwt()
         if _jwt:
+            # TODO: It seems that the refresh token is not invalidated
             db.revoke_token(_jwt['jti'])
-            return 200
-        return 401
+            return {'message': 'Logged out'}
+        return {'message': 'Missing access token'}, HTTPStatus.UNAUTHORIZED
 
 
 @api.resource('/refresh')
@@ -76,5 +84,5 @@ class TokenRefresh(Resource):
         if _jwt:
             access_token = security.create_access_token(user)
             db.store_token(security.decode_token(access_token))
-            return {'access_token': access_token}, 200
-        return 401
+            return {'access_token': access_token, 'expires_in': 900}
+        return {'message': 'Missing refresh token'}, HTTPStatus.UNAUTHORIZED
