@@ -5,20 +5,23 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 
+
 api = Api(api_blueprint)
 
 _arg_parser_search = RequestParser()\
+    .add_argument('q', required=True)\
     .add_argument('t')\
     .add_argument('s', type=int)\
     .add_argument('c', type=int)
 
 
-@api.resource('/search/<query>')
+@api.resource('/search/')
 class Search(Resource):
-    def get(self, query):
+    def get(self):
         data = _arg_parser_search.parse_args()
+        query = data['q']
         type = data['t'] or 'any'
-        start = data['s'] or 0
+        start = abs(data['s'] or 0)
         count = data['c'] or 50
 
         result = {
