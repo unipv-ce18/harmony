@@ -15,14 +15,16 @@ _arg_parser_search = RequestParser()\
     .add_argument('c', type=int)
 
 
-@api.resource('/search/')
+@api.resource('/search')
 class Search(Resource):
     def get(self):
         data = _arg_parser_search.parse_args()
+        _check = lambda x : x is not None and x > 0
+
         query = data['q']
         type = data['t'] or 'any'
-        start = abs(data['s'] or 0)
-        count = data['c'] or 50
+        start = data['s'] if _check(data['s']) else 0
+        count = data['c'] if _check(data['c']) else 50
 
         result = {
             'any': {
