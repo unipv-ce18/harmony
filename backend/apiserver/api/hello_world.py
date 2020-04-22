@@ -9,4 +9,4 @@ api = Api(api_blueprint)
 @api.resource('/sayhello')
 class HelloWorld(Resource):
     def get(self):
-        return {'hello': 'world'}
+        return {'hello': 'Cipolla'}
