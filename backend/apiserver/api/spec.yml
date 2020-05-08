@@ -1,0 +1,50 @@
+# API information
+info:
+  title: Harmony API
+  version: 1.1
+  description: |
+    _Aloha!_ You just stumbled upon a _running instance_ of an Harmony API server. **Harmony** aims to be a modern and
+    libre media streaming platform, you can find more about the project on [GitHub](https://github.com/unipv-ce18/harmony).
+
+    This server also includes a WebSocket-based protocol for notification and playback control, which is
+    [documented here](https://github.com/unipv-ce18/harmony/wiki/API-Media-Delivery-WebSocket).
+  license:
+    name: GNU General Public License v3.0
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+
+externalDocs:
+  description: Project Wiki
+  url: https://github.com/unipv-ce18/harmony/wiki
+
+
+# Categories
+tags:
+  - name: auth
+    description: Authentication and token refresh
+  - name: user
+    description: User information, related content and preferences manipulation
+  - name: metadata
+    description: Data about `artists`, `releases` and `songs`
+  - name: misc
+    description: Server health check and statistics
+
+
+# Reusable components within the spec
+# https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#components-object
+components:
+  securitySchemes:
+    accessToken:
+      type: http
+      description: A JWT access token that can be obtained through `/auth/login` or `/auth/refresh`
+      scheme: bearer
+      bearerFormat: JWT
+    refreshToken:
+      type: http
+      description: A refresh token returned from `/auth/login`, used to generate new access tokens
+      scheme: bearer
+      bearerFormat: JWT
+
+
+# Default configuration for all endpoints
+security:
+  - accessToken: []

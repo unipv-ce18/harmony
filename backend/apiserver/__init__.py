@@ -10,6 +10,7 @@ from flask_socketio import SocketIO
 from common import log_util
 from common.database import Database
 from .config import config
+from .util.api_explorer import ApiExplorer
 from .ws.playback_namespace import PlaybackNamespace
 from .ws.transcoder_client import TranscoderClient
 
@@ -19,6 +20,7 @@ cors = CORS()
 jwt = JWTManager()
 pymongo = PyMongo()
 socketio = SocketIO(cors_allowed_origins='*')
+api_explorer = ApiExplorer()
 
 
 def create_app(config_name=None):
@@ -42,6 +44,7 @@ def create_app(config_name=None):
                      username=current_config.MONGO_USERNAME,
                      password=current_config.MONGO_PASSWORD)
     socketio.init_app(app)
+    api_explorer.init_app(app)
 
     db = Database(pymongo.db)
 
@@ -51,6 +54,7 @@ def create_app(config_name=None):
 
     # Register API routes
     from .api import api_blueprint
+    api_explorer.manage_blueprint(api_blueprint)
     app.register_blueprint(api_blueprint, url_prefix='/api/v1', db=db)
 
     # Configure messaging and WebSocket

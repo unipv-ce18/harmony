@@ -24,6 +24,38 @@ _arg_parser_login = RequestParser()\
 class AuthRegister(Resource):
 
     def post(self):
+        """Registers a new user
+        ---
+        tags: [auth]
+        security: []
+        requestBody:
+          description: User to add to the system
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username: {type: string, description: The desired nickname}
+                  email: {type: string, description: The user's email address}
+                  password: {type: string, format: password, description: The password}
+                required: [username, email, password]
+              examples:
+                0: {summary: 'New user', value: {'username': 'LordReason', 'email': 'lord@fuck.me', 'password': 'allshallperish'}}
+        responses:
+          201:
+            description: A new user is created
+            content:
+              application/json:
+                example: {'message': 'User created'}
+          409:
+            description: A matching user already exists
+            content:
+              application/json:
+                examples:
+                  0-name: {summary: 'Conflicting username', value: {'message': 'Username already exists'}}
+                  1-mail: {summary: 'Conflicting email address', value: {'message': 'Email already exists'}}
+        """
         data = _arg_parser_register.parse_args()
         username = data['username']
         email = data['email']
@@ -43,6 +75,35 @@ class AuthRegister(Resource):
 class AuthLogin(Resource):
 
     def post(self):
+        """Logs in to the system
+        ---
+        tags: [auth]
+        security: []
+        requestBody:
+          description: User credentials
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  identity: {type: string, description: The user's nickname or email address}
+                  password: {type: string, format: password, description: The password used for authentication}
+                required: [identity, password]
+              examples:
+                0: {summary: 'Logging in', value: {'identity': 'Boris', 'password': 'amerika'}}
+        responses:
+          200:
+            description: Successful login
+            content:
+              application/json:
+                example: {'access_token': 'ACCESS_TOKEN', 'refresh_token': 'REFRESH_TOKEN', 'token_type': 'bearer', 'expires_in': 900}
+          401:
+            description: Login has failed
+            content:
+              application/json:
+                example: {'message': 'Bad credentials'}
+        """
         data = _arg_parser_login.parse_args()
 
         # Bypass registration and login in testing environment
@@ -66,6 +127,22 @@ class AuthLogout(Resource):
     method_decorators = [security.jwt_required]
 
     def post(self):
+        """Logs out the user
+        ---
+        tags: [auth]
+        security: [accessToken: []]
+        responses:
+          200:
+            description: Successful logout
+            content:
+              application/json:
+                example: {'message': 'Logged out'}
+          401:
+            description: Missing token
+            content:
+              application/json:
+                example: {'message': 'Missing access token'}
+        """
         _jwt = security.get_raw_jwt()
         if _jwt:
             # TODO: It seems that the refresh token is not invalidated
@@ -79,6 +156,22 @@ class TokenRefresh(Resource):
     method_decorators = [security.jwt_refresh_token_required]
 
     def post(self):
+        """Requests a new access token
+        ---
+        tags: [auth]
+        security: [refreshToken: []]
+        responses:
+          200:
+            description: New access token
+            content:
+              application/json:
+                example: {'access_token': 'ACCESS_TOKEN', 'expires_in': 900}
+          401:
+            description: Missing token
+            content:
+              application/json:
+                example: {'message': 'Missing refresh token'}
+        """
         user = security.get_jwt_identity()
         _jwt = security.get_raw_jwt()
         if _jwt:
