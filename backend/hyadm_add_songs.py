@@ -3,7 +3,6 @@ import json
 import os
 import sys
 import urllib.parse
-from glob import glob
 from http.client import HTTPConnection
 
 from apiserver.config import current_config as config
@@ -37,7 +36,7 @@ def extract_tags_flac(file_path):
         for i in range(0, comment_list_len):
             field_len = int.from_bytes(raw[pos:pos + 4], byteorder='little', signed=True)
             field_kv = raw[pos + 4:pos + 4 + field_len].decode('utf-8').split('=', 1)
-            tags[field_kv[0]] = field_kv[1]
+            tags[field_kv[0].upper()] = field_kv[1]
             pos += 4 + field_len
         assert pos == len(raw), 'Vorbis comment block not completely processed'
         return tags
@@ -73,7 +72,7 @@ def extract_tags_flac(file_path):
 def lfm_get_artist_info(artist_name):
     info_json, code = _http_get_json('ws.audioscrobbler.com', '/2.0/', {
         'method': 'artist.getinfo',
-        'artist': urllib.parse.quote(artist_name),
+        'artist': artist_name,
         'api_key': lastfm_api_key,
         'format': 'json'
     })
