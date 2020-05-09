@@ -11,6 +11,20 @@ services:
     ports:
       - '27017:27017'   # Expose port so we can access it at localhost:27017 with external tools
 
+  mongoadmin:
+    image: mrvautin/adminmongo:latest
+    depends_on:
+      - mongodb
+    ports:
+      - '1234:1234'
+    environment:
+      CONN_NAME: Harmony
+      HOST: 0.0.0.0
+      DB_USERNAME: sauron
+      DB_PASSWORD: svarione
+      DB_HOST: mongodb
+      DB_PORT: 27017
+
   rabbitmq:
     ports:
       - '5672:5672'     # Expose port so we can access it locally
