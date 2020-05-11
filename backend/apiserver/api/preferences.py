@@ -10,7 +10,9 @@ from . import api_blueprint, db
 api = Api(api_blueprint)
 
 _arg_parser_prefs = RequestParser()\
-    .add_argument('id', required=True)
+    .add_argument('user_id', required=True)\
+    .add_argument('media_type', required=True)\
+    .add_argument('media_id', required=True)
 
 
 @api.resource('/preferences')
@@ -18,9 +20,18 @@ class Preferences(Resource):
     def post(self):
         data = _arg_parser_prefs.parse_args()
 
-        user_id = data['id']
+        user_id = data['user_id']
+        media_type = data['media_type']
+        media_id = data['media_id']
 
-        return [], HTTPStatus.OK
+        if not ObjectId.is_valid(user_id) or not ObjectId.is_valid(media_id):
+            return 'Id not valid', HTTPStatus.BAD_REQUEST
+
+        response = db.update_prefs_library(user_id, media_type, media_id)
+
+        if response:
+            return {'message': 'Updated preferences'}, HTTPStatus.OK
+        return {'message': 'No update'}, HTTPStatus.BAD_REQUEST
 
 
 @api.resource('/library/<user_id>')

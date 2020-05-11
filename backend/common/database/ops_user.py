@@ -37,3 +37,9 @@ class UserOpsMixin:
             {'_id': ObjectId(user_id)},
             {'_id': 0, 'prefs.library': 1})
         return result['prefs']['library'] if result else None
+
+    def update_prefs_library(self, user_id, media_type, media_id):
+        return bool(self.users.update_one(
+            {'_id': ObjectId(user_id)},
+            {'$addToSet': {f'prefs.library.{media_type}': media_id}}
+        ).matched_count)
