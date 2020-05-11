@@ -38,13 +38,19 @@ class UserOpsMixin:
             {'_id': 0, 'prefs.library': 1})
         return result['prefs']['library'] if result else None
 
-    def update_prefs_library(self, operation, user_id, media_type, media_id):
+    def add_media_to_library(self, user_id, media_type, media_id):
         return bool(self.users.update_one(
             {'_id': ObjectId(user_id)},
-            {operation: {f'prefs.library.{media_type}': media_id}}
+            {'$addToSet': {f'prefs.library.{media_type}': media_id}}
         ).matched_count)
 
-    def check_prefs(self, user_id, media_type, media_id):
+    def pull_media_from_library(self, user_id, media_type, media_id):
+        return bool(self.users.update_one(
+            {'_id': ObjectId(user_id)},
+            {'$pull': {f'prefs.library.{media_type}': media_id}}
+        ).matched_count)
+
+    def media_in_library(self, user_id, media_type, media_id):
         return bool(self.users.find_one({
             '_id': ObjectId(user_id),
             f'prefs.library.{media_type}': media_id

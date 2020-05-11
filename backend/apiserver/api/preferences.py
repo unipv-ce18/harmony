@@ -27,8 +27,10 @@ class Preferences(Resource):
         if not ObjectId.is_valid(user_id) or not ObjectId.is_valid(media_id):
             return 'Id not valid', HTTPStatus.BAD_REQUEST
 
-        operation = '$pull' if db.check_prefs(user_id, media_type, media_id) else '$addToSet'
-        response = db.update_prefs_library(operation, user_id, media_type, media_id)
+        if db.media_in_library(user_id, media_type, media_id):
+            response = db.pull_media_from_library(user_id, media_type, media_id)
+        else:
+            response = db.add_media_to_library(user_id, media_type, media_id)
 
         if response:
             return {'message': 'Updated preferences'}, HTTPStatus.OK
