@@ -31,3 +31,9 @@ class UserOpsMixin:
         query = {'_id': ObjectId(user_id)}
         result = self.users.find_one(query, {'_id': 0})
         return result
+
+    def get_library(self, user_id):
+        result = self.users.find_one(
+            {'_id': ObjectId(user_id)},
+            {'_id': 0, 'prefs.library': 1})
+        return result['prefs']['library'] if result else None
