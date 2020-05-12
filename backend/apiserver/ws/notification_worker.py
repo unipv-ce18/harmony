@@ -10,20 +10,20 @@ log = logging.getLogger(__name__)
 
 class NotificationWorker(threading.Thread):
 
-    def __init__(self, song_id, transcoder_client, socketio):
+    def __init__(self, song_id, transcoder_client, callback_fn):
         """Initialize Notification Worker.
 
         Each instance is a thread.
 
         :param str song_id: id of the song to be notified
         :param apiserver.ws.transcoder_client.TranscoderClient transcoder_client:
-                transcoder client to which this worker is bound
-        :param flask_socketio.SocketIO socketio: socketio instance
+               transcoder client to which this worker is bound
+        :param callback_fn: function to call when the notification is received
         """
         threading.Thread.__init__(self)
         self.song_id = song_id
         self.transcoder_client = transcoder_client
-        self.socketio = socketio
+        self.callback_fn = callback_fn
         self.consumer_tag = uuid.uuid4().hex
 
         self.connection = amq_connect_blocking(self.transcoder_client.config)
@@ -57,6 +57,7 @@ class NotificationWorker(threading.Thread):
         :param bytes body: the body of the message, i.e. the id of the transcoded
             song
         """
-        log.debug('Received notification: %s', body)
-        self.socketio.emit('client', f'{body}')
+        data = body.decode('utf-8')
+        log.debug('Received notification: %s', data)
+        self.callback_fn(data)
         ch.basic_cancel(consumer_tag=self.consumer_tag)
