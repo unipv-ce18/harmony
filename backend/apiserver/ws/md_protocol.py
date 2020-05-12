@@ -1,3 +1,6 @@
+from common.storage import get_transcoded_songs_bucket_url
+
+
 class MediaDeliveryProtocol:
     """Media Delivery protocol codec and transmission class"""
 
@@ -5,9 +8,10 @@ class MediaDeliveryProtocol:
     ERROR_NOT_FOUND = 2
     ERR_JOB_FAILURE = 3
 
-    def __init__(self, socketio, namespace):
+    def __init__(self, config, socketio, namespace):
         self.socketio = socketio
         self.namespace = namespace
+        self.transcoded_songs_bucket_url = get_transcoded_songs_bucket_url(config)
 
     # noinspection PyMethodMayBeStatic
     def recv_play_song(self, message):
@@ -18,12 +22,13 @@ class MediaDeliveryProtocol:
         """
         return message['id']
 
-    def send_manifest(self, song_id, manifest_url):
+    def send_manifest(self, song_id, repr_data):
         """Sends a "manifest" message in response to "play_song"
 
         :param str song_id: The ID of the song
-        :param str manifest_url: The song's manifest URL
+        :param str repr_data: The song's representation data
         """
+        manifest_url = f'{self.transcoded_songs_bucket_url}/{repr_data["manifest"]}'
         self.socketio.emit('manifest', {'id': song_id, 'manifest_url': manifest_url}, namespace=self.namespace)
 
     def send_error(self, song_id, error_code):

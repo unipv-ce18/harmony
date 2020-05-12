@@ -26,7 +26,7 @@ class PlaybackNamespace(Namespace):
         # JWT is sent as query parameter and not in headers, so we must check it manually
         try:
             security.verify_jwt_token(request.args.get('access_token'), token_type='access')
-            self.protocol = MediaDeliveryProtocol(self.socketio, self.namespace)
+            self.protocol = MediaDeliveryProtocol(self.transcoder_client.config, self.socketio, self.namespace)
             return True
         except Exception as e:
             log.warning('Blocked unauthorized access to playback socket from %s, error: %s', request.remote_addr, e)
@@ -52,7 +52,7 @@ class PlaybackNamespace(Namespace):
 
         if repr_data is not None:
             # Already transcoded, send back manifest URL
-            self.protocol.send_manifest(song_id, repr_data['manifest'])
+            self.protocol.send_manifest(song_id, repr_data)
             log.debug('Song (%s): Sent manifest', song_id)
             return
 
@@ -70,7 +70,7 @@ class PlaybackNamespace(Namespace):
         repr_data = self.db_interface.get_song_representation_data(song_id)
         if repr_data is not None:
             log.debug('Song (%s): transcode job complete, forwarding to client', song_id)
-            self.protocol.send_manifest(song_id, repr_data['manifest'])
+            self.protocol.send_manifest(song_id, repr_data)
 
         else:
             log.error('Song (%s): transcode complete but no repr data, signaling to client', song_id)
