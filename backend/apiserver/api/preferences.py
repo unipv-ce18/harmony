@@ -5,12 +5,12 @@ from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
+from ..util import security
 
 
 api = Api(api_blueprint)
 
 _arg_parser_prefs = RequestParser()\
-    .add_argument('user_id', required=True)\
     .add_argument('media_type', required=True)\
     .add_argument('media_id', required=True)
 
@@ -20,7 +20,7 @@ class Preferences(Resource):
     def post(self):
         data = _arg_parser_prefs.parse_args()
 
-        user_id = data['user_id']
+        user_id = security.get_jwt_identity()
         media_type = data['media_type']
         media_id = data['media_id']
 
@@ -49,13 +49,10 @@ class Library(Resource):
             return {'message': 'No library'}, HTTPStatus.NOT_FOUND
 
         if 'artists' in library:
-            artists = [db.get_artist(id).to_dict() for id in library['artists']]
-            library['artists'] = artists
+            library['artists'] = [db.get_artist(id).to_dict() for id in library['artists']]
         if 'releases' in library:
-            releases = [db.get_release(id).to_dict() for id in library['releases']]
-            library['releases'] = releases
+            library['releases'] = [db.get_release(id).to_dict() for id in library['releases']]
         if 'songs' in library:
-            songs = [db.get_song(id).to_dict() for id in library['songs']]
-            library['songs'] = songs
+            library['songs'] = [db.get_song(id).to_dict() for id in library['songs']]
 
         return library, HTTPStatus.OK

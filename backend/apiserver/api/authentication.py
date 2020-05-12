@@ -108,14 +108,15 @@ class AuthLogin(Resource):
 
         # Bypass registration and login in testing environment
         if current_app.config['TESTING'] and data['identity'] == 'test':
-            user = {'username': 'test', 'password': security.hash_password(data['password'])}
+            from bson import ObjectId
+            user = {'_id': ObjectId(), 'password': security.hash_password(data['password'])}
         else:
             user = db.get_user_by_name(data['identity']) or db.get_user_by_mail(data['identity'])
 
         if user is not None:
             if security.verify_password(user['password'], data['password']):
-                access = security.create_access_token(identity=user['username'])
-                refresh = security.create_refresh_token(identity=user['username'])
+                access = security.create_access_token(identity=str(user['_id']))
+                refresh = security.create_refresh_token(identity=str(user['_id']))
                 db.store_token(security.decode_token(access))
                 db.store_token(security.decode_token(refresh))
                 return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 900}
