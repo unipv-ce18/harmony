@@ -14,8 +14,11 @@ class TokenOpsMixin:
         }
         return self.blacklist.insert_one(_my_token)
 
-    def revoke_token(self, token_id):
-        self.blacklist.update_one({'jti': token_id}, {'$set': {'revoked': True}})
+    def revoke_token(self, user_identity):
+        self.blacklist.update_many(
+            {'user_identity': user_identity},
+            {'$set': {'revoked': True}}
+        )
 
     def is_token_revoked(self, token):
         _tok = self.blacklist.find_one({'jti': token['jti']})

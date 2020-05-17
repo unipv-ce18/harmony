@@ -146,8 +146,7 @@ class AuthLogout(Resource):
         """
         _jwt = security.get_raw_jwt()
         if _jwt:
-            # TODO: It seems that the refresh token is not invalidated
-            db.revoke_token(_jwt['jti'])
+            db.revoke_token(_jwt['identity'])
             return {'message': 'Logged out'}
         return {'message': 'Missing access token'}, HTTPStatus.UNAUTHORIZED
 
