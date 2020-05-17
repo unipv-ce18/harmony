@@ -92,11 +92,44 @@ class Library(Resource):
               application/json:
                 example: {
                   'artists': [
-                    {'id': '5dfd65de57475213eea241b3', 'name': 'Queens of the Stone Age'},
-                    {'id': '5eb57db6519f4f9bdbba7ee0', 'name': 'Jack Stauber'}
+                    {
+                      'id': '5dfd65de57475213eea241b3',
+                      'name': 'Queens of the Stone Age',
+                      'image': 'IMAGE URL'
+                    },
+                    {
+                      'id': '5eb57db6519f4f9bdbba7ee0',
+                      'name': 'Jack Stauber',
+                      'image': 'IMAGE URL'}
                   ],
-                  'releases': [{'id': '5eb57db6519f4f9bdbba7ee1', 'name': 'Pop Food'}],
-                  'songs': []
+                  'releases': [
+                    {
+                      'id': '5eb57db6519f4f9bdbba7ee1',
+                      'name': 'Pop Food',
+                      'artist': {
+                        'id': '5eb57db6519f4f9bdbba7ee0',
+                        'name': 'Jack Stauber'
+                      },
+                      'cover': 'IMAGE URL'
+                    }
+                  ],
+                  'songs': [
+                    {
+                      'id': '5eb57db6519f4f9bdbba7ee2',
+                      'title': 'Buttercup',
+                      'artist': {
+                        'id': '5eb57db6519f4f9bdbba7ee0',
+                        'name': 'Jack Stauber'
+                      },
+                      'release': {
+                        'id': '5eb57db6519f4f9bdbba7ee1',
+                        'name': 'Pop Food',
+                        'date': '2017',
+                        'type': 'album',
+                        'cover': 'IMAGE URL'
+                      },
+                    }
+                  ]
                 }
           400:
             description: User id not valid
@@ -117,11 +150,11 @@ class Library(Resource):
         if library is None:
             return {'message': 'No library'}, HTTPStatus.NOT_FOUND
 
-        library['artists'] = [db.get_artist(id).to_dict() for id in library['artists']] \
+        library['artists'] = [db.get_artist_for_library(id).to_dict() for id in library['artists']] \
             if 'artists' in library else []
-        library['releases'] = [db.get_release(id).to_dict() for id in library['releases']] \
+        library['releases'] = [db.get_release_for_library(id).to_dict() for id in library['releases']] \
             if 'releases' in library else []
-        library['songs'] = [db.get_song(id).to_dict() for id in library['songs']] \
+        library['songs'] = [db.get_song_for_library(id).to_dict() for id in library['songs']] \
             if 'songs' in library else []
 
         if not all(v == [] for v in library.values()):

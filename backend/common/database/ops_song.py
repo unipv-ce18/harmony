@@ -49,6 +49,16 @@ class SongOpsMixin:
         except StopIteration:
             return None
 
+    def get_song_for_library(self, song_id: str) -> Optional[Song]:
+        """Retrieves a song for the library by its ID or None if it does not exist"""
+        try:
+            return song_from_document(self.artists.aggregate(_song_pipeline(
+                {c.INDEX_SONG_ID: ObjectId(song_id)},
+                projection=song_projection_search_result())
+            ).next())
+        except StopIteration:
+            return None
+
     def get_release_songs(self, release_id: str) -> List[Song]:
         """Returns an array of the songs inside the given release"""
         result = self.artists.aggregate(_song_pipeline({c.INDEX_RELEASE_ID: ObjectId(release_id)}))

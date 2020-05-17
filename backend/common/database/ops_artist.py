@@ -33,6 +33,13 @@ class ArtistOpsMixin:
             artist_projection(include_releases))
         return artist_from_document(artist_doc) if artist_doc is not None else None
 
+    def get_artist_for_library(self, artist_id: str) -> Optional[Artist]:
+        """Retrieves an artist for the library by its ID or None if it does not exist"""
+        artist_doc = self.artists.find_one(
+            {c.ARTIST_ID: ObjectId(artist_id)},
+            artist_projection_search_result())
+        return artist_from_document(artist_doc) if artist_doc is not None else None
+
     def search_artist(self, artist_name: str, offset=0, limit=-1) -> List[Artist]:
         """Searches for artists by name and returns the results"""
         result = self.artists.find(

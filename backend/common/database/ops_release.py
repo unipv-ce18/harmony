@@ -48,6 +48,16 @@ class ReleaseOpsMixin:
         except StopIteration:
             return None
 
+    def get_release_for_library(self, release_id: str) -> List[Release]:
+        """Retrieves a release for the library  by its ID or None if it does not exist"""
+        try:
+            return release_from_document(self.artists.aggregate(_release_pipeline(
+                {c.INDEX_RELEASE_ID: ObjectId(release_id)},
+                projection=release_projection_search_result())
+            ).next())
+        except StopIteration:
+            return None
+
     def get_artist_releases(self, artist_id: str) -> List[Release]:
         """Returns an array of the releases for the given artist"""
         result = self.artists.aggregate(_release_pipeline({c.ARTIST_ID: ObjectId(artist_id)}))
