@@ -188,7 +188,7 @@ class Transcoder:
         :param str id: id of the transcoded song
         :param str extension: the extension of the transcoded song. The default is .webm
         """
-        self.st.upload_folder('compressed-songs', _tmp_folder, id)
+        self.st.upload_folder(transcoder_config.STORAGE_BUCKET_TRANSCODED, _tmp_folder, id)
 
     def remove_pending_song(self, id):
         """Remove the id of the pending song in RabbitMQ queue from database.
