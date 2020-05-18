@@ -1,2 +1,5 @@
+# Local configuration
+.env
+
 /node_modules
 /dist
