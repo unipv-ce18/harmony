@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2018",
     "module": "es6",
+    "lib": ["DOM", "ES2019"],
     "moduleResolution": "node",
     "jsx": "preserve",
     "preserveConstEnums": true,

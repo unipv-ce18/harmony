@@ -208,9 +208,7 @@ export class BufferManager {
 
     private getEndTime(): number | undefined {
         if (this._currentVariantIndex === undefined) return undefined;
-        const segSource = this.variants[this._currentVariantIndex].segments!;
-        const lastSeg = segSource[segSource.length - 1];
-        return lastSeg.t + lastSeg.d + this.timeOffset;
+        return this.variants[this._currentVariantIndex].getTimeLength()! + this.timeOffset;
     }
 
 }

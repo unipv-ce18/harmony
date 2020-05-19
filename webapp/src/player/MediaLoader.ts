@@ -86,7 +86,7 @@ export class MediaLoader {
 
         this.mediaProvider.fetchMediaInfo(mediaId)
             .then(mediaRes => {
-                this.mediaSource.duration = mediaRes.duration!;
+                this.mediaSource.duration = mediaRes.duration;
                 if (this.onMediaResourceCallback) this.onMediaResourceCallback({res: mediaRes, startTime: 0});
                 return awaitFirstVariant(mediaRes);
             })
@@ -122,7 +122,7 @@ export class MediaLoader {
         this.currentBufferManager = this.nextBufferManager;
         this.nextBufferManager = undefined;
 
-        this.mediaSource.duration = this.nextMediaData!.res.duration! + this.nextMediaData!.startTime;
+        this.mediaSource.duration = this.nextMediaData!.res.duration + this.nextMediaData!.startTime;
         if (this.onMediaResourceCallback) this.onMediaResourceCallback(this.nextMediaData!);
         this.nextMediaData = undefined;
     }
