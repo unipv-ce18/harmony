@@ -1,39 +1,32 @@
-import {MediaResource, MediaResourceStream, MediaResourceVariant} from './MediaResource';
+import {MediaResource} from './MediaResource';
+import {SocketConnection} from './SocketConnection';
+import {parseMediaManifest} from './manifestParser';
 
-function parseResource(jsonRes: any): MediaResource {
-  return new MediaResource(jsonRes.ent.id, jsonRes.ent.cat, jsonRes.duration, parseStreams(jsonRes.streams))
-}
+declare var PLAYER_SOCKET_URL: string
 
-function parseStreams(jsonStreams: any) {
-  return jsonStreams.map((s: any) => new MediaResourceStream(s.id, s.contentType, s.codec, parseVariants(s.variants)));
-}
-
-function parseVariants(jsonVariants: any) {
-  return jsonVariants.map((v: any) => {
-    switch (v.status) {
-      case 'ready':
-        return new MediaResourceVariant(v.bit_rate, v.sample_rate).complete(v.init, v.segments);
-      case 'pending':
-        return new MediaResourceVariant(v.bit_rate, v.sample_rate).updateProgress(v.progress);
-      case 'unavailable':
-        return new MediaResourceVariant(v.bit_rate, v.sample_rate);
-      default:
-        throw new Error(`Unknown variant status "${v.status}"`)
-    }
-  })
-}
 
 export class MediaProvider {
 
-  // (id, resource) map of items awaiting for response (v: Promise) or for transcoding completion (v: MediaResource)
-  pendingMedia = {};
+    private readonly socketConnection: SocketConnection
 
-  // (id, Promise) for pending keys
-  pendingKeys = {};
+    constructor(accessToken: string) {
+        this.socketConnection = new SocketConnection(PLAYER_SOCKET_URL, accessToken);
+    }
 
-  fetchMediaInfo(mediaId: string): Promise<MediaResource> {
-    return Promise.resolve(parseResource(require('./sampleManifest.json')));
-  }
+    fetchMediaInfo(mediaId: string): Promise<MediaResource> {
+        return this.socketConnection.fetchManifestUrl(mediaId)
+            .then(mpdUrl =>
+                fetch(mpdUrl)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Error while fetching "${mpdUrl}"`)
+                        return response.text();
+                    })
+                    .then(mpdText => {
+                        return new DOMParser().parseFromString(mpdText, 'text/xml');
+                    })
+                    .then(mpdXml => parseMediaManifest(mpdXml, mediaId, MediaProvider.getMediaFileBaseUrl(mpdUrl)))
+            )
+    }
 
   fetchEncryptionKey(mediaId: string, keyId: string, streamId = 0, variantBitrate = 0) {
     switch (keyId) {
@@ -49,5 +42,9 @@ export class MediaProvider {
         ]));
     }
   }
+
+    private static getMediaFileBaseUrl(manifestUrl: string) {
+        return manifestUrl.substr(0, manifestUrl.lastIndexOf('/') + 1)
+    }
 
 }

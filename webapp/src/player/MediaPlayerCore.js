@@ -10,8 +10,10 @@ class MediaPlayerCore extends EventTarget {
   #playlistIndex = 0;
   #playlist = [];
 
-  initialize(mediaTag) {
-    this.#playbackEngine = new PlaybackEngine(this, new MediaProvider(), mediaTag, () => {
+  initialize(mediaTag, sessionManager) {
+    sessionManager.addStatusListener(this.#onSessionStatusChange.bind(this))
+    const mediaProvider = new MediaProvider(sessionManager.getAccessToken());
+    this.#playbackEngine = new PlaybackEngine(this, mediaProvider, mediaTag, () => {
       console.log('Next media requested');
       const nextItem = this.#playlist[++this.#playlistIndex];
       return nextItem && nextItem.id; // same item for now
@@ -78,6 +80,10 @@ class MediaPlayerCore extends EventTarget {
 
   next() {
     alert('not implemented');
+  }
+
+  #onSessionStatusChange() {
+    // TODO: Update access token in media provider, change play state if needed when going offline
   }
 
 }

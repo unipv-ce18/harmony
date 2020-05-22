@@ -1,4 +1,6 @@
 import {Component, createRef} from 'preact';
+
+import {session} from "../../Harmony";
 import PlayStates from '../PlayStates';
 import PlayerEvents from '../PlayerEvents';
 
@@ -32,7 +34,7 @@ class MediaPlayerView extends Component {
 
   componentDidMount() {
     const player = this.props.player;
-    player.initialize(this.audioTagRef.current);
+    player.initialize(this.audioTagRef.current, session);
     player.addEventListener(PlayerEvents.STATE_CHANGE,
       e => this.setState({playState: e.detail.newState}));
     player.addEventListener(PlayerEvents.NEW_MEDIA, e =>

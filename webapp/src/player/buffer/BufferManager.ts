@@ -186,7 +186,7 @@ export class BufferManager {
     }
 
     private onMediaEvent(event: Event) {
-        const absTimestamp = ((event.target as HTMLMediaElement).currentTime * 1000000);
+        const absTimestamp = ((event.target as HTMLMediaElement).currentTime);
 
         const endTime = this.getEndTime();
         if (endTime !== undefined && this.endedCallback && absTimestamp >= endTime)

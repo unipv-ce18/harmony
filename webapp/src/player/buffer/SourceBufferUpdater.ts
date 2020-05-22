@@ -73,7 +73,7 @@ export class SourceBufferUpdater<SegmentType extends SegmentData> {
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => {
                 console.log(TAG, 'Appending', segmentData.u);
-                if (segmentData.t) this.sourceBuffer.timestampOffset = segmentData.t / 1000000;
+                if (segmentData.t) this.sourceBuffer.timestampOffset = segmentData.t;
                 this.sourceBuffer.appendBuffer(arrayBuffer);
             })
             .catch(error => this.errorCallback && this.errorCallback(error));

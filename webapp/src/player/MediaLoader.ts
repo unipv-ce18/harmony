@@ -106,7 +106,7 @@ export class MediaLoader {
 
             this.mediaProvider.fetchMediaInfo(nextMediaId)
                 .then(mediaRes => {
-                    this.nextMediaData = {res: mediaRes, startTime: endTimestamp / 1000000};
+                    this.nextMediaData = {res: mediaRes, startTime: endTimestamp};
                     return awaitFirstVariant(mediaRes);
                 })
                 .then(mediaVariant => this.nextBufferManager!.putVariant(0, mediaVariant))
