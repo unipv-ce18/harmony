@@ -8,20 +8,22 @@ from . import api_blueprint, db
 from ..util import security
 
 
-api = Api(api_blueprint)
+api = Api(api_blueprint, prefix='/user')
 
 _arg_parser_prefs = RequestParser()\
     .add_argument('media_type', required=True)\
     .add_argument('media_id', required=True)
 
 
-@api.resource('/preferences')
-class Preferences(Resource):
+@api.resource('/library')
+class UpdateLibrary(Resource):
+    method_decorators = [security.jwt_required]
+
     def post(self):
         """Update the user library
         ---
         tags: [user]
-        security: []
+        security: [accessToken: []]
         requestBody:
           description: Media to add/pull in/from the library
           required: true
@@ -74,7 +76,7 @@ class Preferences(Resource):
 
 
 @api.resource('/library/<user_id>')
-class Library(Resource):
+class GetLibrary(Resource):
     def get(self, user_id):
         """Retrieve the user library
         ---
