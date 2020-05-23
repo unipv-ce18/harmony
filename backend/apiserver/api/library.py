@@ -13,6 +13,7 @@ api = Api(api_blueprint, prefix='/user')
 _arg_parser_prefs = RequestParser()\
     .add_argument('media_type', required=True)\
     .add_argument('media_id', required=True)
+_arg_parser_library = RequestParser().add_argument('full')
 
 
 @api.resource('/library')
@@ -75,7 +76,7 @@ class UpdateLibrary(Resource):
         return {'message': 'User not found'}, HTTPStatus.FORBIDDEN
 
 
-@api.resource('/library/<user_id>')
+@api.resource('/<user_id>/library')
 class GetLibrary(Resource):
     def get(self, user_id):
         """Retrieve the user library
@@ -144,20 +145,29 @@ class GetLibrary(Resource):
               application/json:
                 example: {'message': 'No library'}
         """
+        _func = lambda type, id : {
+            'artists': db.get_artist_for_library(id),
+            'releases': db.get_release_for_library(id),
+            'songs': db.get_song_for_library(id)
+        }.get(type)
+        _action = lambda type : library[type] if not resolve_library \
+            else [_func(type, id).to_dict() for id in library[type]]
+        _resolve = lambda type : _action(type) if type in library else []
+
         if not ObjectId.is_valid(user_id):
             return {'message': 'Id not valid'}, HTTPStatus.BAD_REQUEST
+
+        args = _arg_parser_library.parse_args()
+        resolve_library = args['full'] == '1'
 
         library = db.get_library(user_id)
 
         if library is None:
             return {'message': 'No library'}, HTTPStatus.NOT_FOUND
 
-        library['artists'] = [db.get_artist_for_library(id).to_dict() for id in library['artists']] \
-            if 'artists' in library else []
-        library['releases'] = [db.get_release_for_library(id).to_dict() for id in library['releases']] \
-            if 'releases' in library else []
-        library['songs'] = [db.get_song_for_library(id).to_dict() for id in library['songs']] \
-            if 'songs' in library else []
+        library['artists'] = _resolve('artists')
+        library['releases'] = _resolve('releases')
+        library['songs'] = _resolve('songs')
 
         if not all(v == [] for v in library.values()):
             return library, HTTPStatus.OK
