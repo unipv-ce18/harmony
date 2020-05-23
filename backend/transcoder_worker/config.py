@@ -19,7 +19,7 @@ class Config:
     WORK_DIR = os.environ.get('WORK_DIR', 'tmp')
 
     # Output variants bitrate in Kbps, 160kbps Vorbis is roughly equivalent to 320kbps MP3
-    VARIANTS_BITRATE = [40, 96, 160]
+    VARIANTS_BITRATE = [96, 120, 160]
 
 
 class DevelopmentConfig(Config, BackendConfigDev):
