@@ -135,4 +135,9 @@ export class Session {
     return `Session(loggedIn: ${this.loggedIn}, valid: ${this.valid}, online: ${this.online})`;
   }
 
+  getAccessToken() {
+    // Consider building classes requiring a token inside session instead
+    return this.#store.token;
+  }
+
 }

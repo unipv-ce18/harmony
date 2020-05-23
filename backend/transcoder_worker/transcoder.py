@@ -161,12 +161,10 @@ class Transcoder:
 
         subprocess.run(command)
 
-        output_bucket_scheme = 'https' if transcoder_config.STORAGE_USE_TLS else 'http'
-        output_bucket_url = f'{transcoder_config.STORAGE_ENDPOINT}/{transcoder_config.STORAGE_BUCKET_TRANSCODED}'
         repr_data = {
             'key_id': key_id,
             'key': key,
-            'manifest': f'{output_bucket_scheme}://{output_bucket_url}/{id}/{manifest_name}'
+            'manifest': f'{id}/{manifest_name}'
         }
         self.db.put_song_representation_data(id, repr_data)
 

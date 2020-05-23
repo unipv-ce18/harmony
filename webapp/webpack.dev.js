@@ -1,8 +1,6 @@
 const merge = require('webpack-merge');
 const webpack = require('webpack');
 
-const HarmonyConf = require('./harmony-webapp.conf');
-
 module.exports = merge(require('./webpack.common'), {
 
   mode: 'development',
@@ -35,9 +33,6 @@ module.exports = merge(require('./webpack.common'), {
   },
 
   plugins: [
-    new webpack.DefinePlugin({
-      API_BASE_URL: JSON.stringify(HarmonyConf.API_BASE_URL)
-    }),
     new webpack.HotModuleReplacementPlugin()
   ]
 

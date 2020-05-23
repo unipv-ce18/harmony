@@ -3,6 +3,7 @@ const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const HtmlPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 
+require('dotenv').config()
 const HarmonyConf = require('./harmony-webapp.conf');
 
 module.exports = {
@@ -41,7 +42,9 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new webpack.DefinePlugin({
-      APP_NAME: JSON.stringify(HarmonyConf.APPLICATION_NAME)
+      APP_NAME: JSON.stringify(HarmonyConf.APPLICATION_NAME),
+      API_BASE_URL: JSON.stringify(HarmonyConf.API_BASE_URL),
+      PLAYER_SOCKET_URL: JSON.stringify(HarmonyConf.PLAYER_SOCKET_URL)
     }),
     new webpack.ProvidePlugin({
       __h: ['preact', 'h']

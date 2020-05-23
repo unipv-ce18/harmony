@@ -28,6 +28,7 @@ class BackendConfig:
 
     # Minio connection
     STORAGE_ENDPOINT = os.environ.get('STORAGE_ENDPOINT', '127.0.0.1:9000')
+    STORAGE_ENDPOINT_PUBLIC = os.environ.get('STORAGE_ENDPOINT_PUBLIC', 'localhost:9000')  # as seen by clients
     STORAGE_ACCESS_KEY = os.environ.get('STORAGE_ACCESS_KEY', 'HVTH67YJMJ3BVSHPWJOM')
     STORAGE_SECRET_KEY = os.environ.get('STORAGE_SECRET_KEY', 'kAeWXU3qV5vyofP3kTnyEmtp1BarIvE4CrQIF6wU')
     STORAGE_BUCKET_REFERENCE = 'lossless-songs'

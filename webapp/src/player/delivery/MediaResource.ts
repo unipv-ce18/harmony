@@ -3,8 +3,8 @@ export type MediaResourceSegment = { t: number, d: number, u: string };
 export class MediaResource {
 
     constructor(public readonly id: string,
-                public readonly category: string,
-                public readonly duration?: number,
+                public readonly duration: number,
+                public readonly keyId: string,
                 public readonly streams: Array<MediaResourceStream> = []) {
     }
 
@@ -45,6 +45,12 @@ export class MediaResourceVariant {
         this.initSegment = initSegment;
         this.segments = segments;
         return this;
+    }
+
+    getTimeLength() {
+        if (this.status !== MediaResourceVariant.STATUS_READY) return null;
+        const lastSeg = this.segments![this.segments!.length - 1];
+        return lastSeg.t + lastSeg.d;
     }
 
 }

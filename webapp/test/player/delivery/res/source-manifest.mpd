@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Generated with https://github.com/google/shaka-packager version v2.4.1-c731217-release-->
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 DASH-MPD.xsd" xmlns:cenc="urn:mpeg:cenc:2013" profiles="urn:mpeg:dash:profile:isoff-live:2011" minBufferTime="PT2S" type="dynamic" publishTime="2020-05-12T15:29:53Z" availabilityStartTime="2020-05-12T15:29:42Z" minimumUpdatePeriod="PT5S" timeShiftBufferDepth="PT1800S">
+  <Period id="0" start="PT0S">
+    <AdaptationSet id="0" contentType="audio">
+      <ContentProtection schemeIdUri="urn:uuid:1077efec-c0b2-4d02-ace3-3c1e52e2fb4b" cenc:default_KID="95edb80c-c9dd-73e7-0d81-e9a7743c132f">
+        <cenc:pssh>AAAANHBzc2gBAAAAEHfv7MCyTQKs4zweUuL7SwAAAAGV7bgMyd1z5w2B6ad0PBMvAAAAAA==</cenc:pssh>
+      </ContentProtection>
+      <Representation id="0" bandwidth="378865" codecs="vorbis" mimeType="audio/webm" audioSamplingRate="44100">
+        <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
+        <SegmentTemplate timescale="1000000" initialization="320_init.webm" media="320_$Time$.webm" startNumber="1">
+          <SegmentTimeline>
+            <S t="0" d="6013000"/>
+            <S t="6013000" d="5989000"/>
+            <S t="12002000" d="5999000"/>
+            <S t="18001000" d="6000000"/>
+            <S t="24001000" d="6015000"/>
+            <S t="30016000" d="5997000"/>
+            <S t="36013000" d="5999000"/>
+            <S t="42012000" d="5990000"/>
+            <S t="48002000" d="5999000" r="1"/>
+            <S t="60000000" d="6010000"/>
+            <S t="66010000" d="6005000"/>
+            <S t="72015000" d="5997000"/>
+            <S t="78012000" d="5989000"/>
+            <S t="84001000" d="6000000"/>
+            <S t="90001000" d="5999000"/>
+            <S t="96000000" d="6008000"/>
+            <S t="102008000" d="6004000"/>
+            <S t="108012000" d="5989000"/>
+            <S t="114001000" d="6001000" r="1"/>
+            <S t="126003000" d="5997000"/>
+            <S t="132000000" d="6001000"/>
+            <S t="138001000" d="6011000"/>
+            <S t="144012000" d="5989000"/>
+            <S t="150001000" d="5999000"/>
+            <S t="156000000" d="6000000"/>
+            <S t="162000000" d="6002000"/>
+            <S t="168002000" d="6000000"/>
+            <S t="174002000" d="5999000"/>
+            <S t="180001000" d="6021000"/>
+            <S t="186022000" d="5981000"/>
+            <S t="192003000" d="5997000"/>
+            <S t="198000000" d="6015000"/>
+            <S t="204015000" d="5997000"/>
+            <S t="210012000" d="5995000"/>
+            <S t="216007000" d="6006000"/>
+            <S t="222013000" d="6000000"/>
+            <S t="228013000" d="5989000"/>
+            <S t="234002000" d="6000000"/>
+            <S t="240002000" d="6018000"/>
+            <S t="246020000" d="47000"/>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+      <Representation id="1" bandwidth="175018" codecs="vorbis" mimeType="audio/webm" audioSamplingRate="44100">
+        <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
+        <SegmentTemplate timescale="1000000" initialization="160_init.webm" media="160_$Time$.webm" startNumber="1">
+          <SegmentTimeline>
+            <S t="0" d="6004000"/>
+            <S t="6004000" d="5998000"/>
+            <S t="12002000" d="5999000"/>
+            <S t="18001000" d="6000000"/>
+            <S t="24001000" d="6015000"/>
+            <S t="30016000" d="5991000"/>
+            <S t="36007000" d="6002000"/>
+            <S t="42009000" d="5993000"/>
+            <S t="48002000" d="5999000" r="1"/>
+            <S t="60000000" d="6010000"/>
+            <S t="66010000" d="5997000"/>
+            <S t="72007000" d="6005000"/>
+            <S t="78012000" d="5992000"/>
+            <S t="84004000" d="6007000"/>
+            <S t="90011000" d="5989000"/>
+            <S t="96000000" d="6000000"/>
+            <S t="102000000" d="6006000"/>
+            <S t="108006000" d="5995000"/>
+            <S t="114001000" d="6010000"/>
+            <S t="120011000" d="6008000"/>
+            <S t="126019000" d="5984000"/>
+            <S t="132003000" d="6009000"/>
+            <S t="138012000" d="6006000"/>
+            <S t="144018000" d="5983000"/>
+            <S t="150001000" d="5999000"/>
+            <S t="156000000" d="6000000"/>
+            <S t="162000000" d="6002000"/>
+            <S t="168002000" d="6010000"/>
+            <S t="174012000" d="5989000"/>
+            <S t="180001000" d="6019000"/>
+            <S t="186020000" d="5983000"/>
+            <S t="192003000" d="5999000"/>
+            <S t="198002000" d="6010000"/>
+            <S t="204012000" d="6000000"/>
+            <S t="210012000" d="5995000"/>
+            <S t="216007000" d="6006000"/>
+            <S t="222013000" d="6000000"/>
+            <S t="228013000" d="5993000"/>
+            <S t="234006000" d="5996000"/>
+            <S t="240002000" d="6009000"/>
+            <S t="246011000" d="47000"/>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+      <Representation id="2" bandwidth="106033" codecs="vorbis" mimeType="audio/webm" audioSamplingRate="44100">
+        <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
+        <SegmentTemplate timescale="1000000" initialization="96_init.webm" media="96_$Time$.webm" startNumber="1">
+          <SegmentTimeline>
+            <S t="0" d="6001000" r="1"/>
+            <S t="12002000" d="5999000"/>
+            <S t="18001000" d="6000000"/>
+            <S t="24001000" d="6015000"/>
+            <S t="30016000" d="5991000"/>
+            <S t="36007000" d="5999000"/>
+            <S t="42006000" d="5996000"/>
+            <S t="48002000" d="5999000" r="1"/>
+            <S t="60000000" d="6007000"/>
+            <S t="66007000" d="6000000"/>
+            <S t="72007000" d="6005000"/>
+            <S t="78012000" d="5992000"/>
+            <S t="84004000" d="6007000"/>
+            <S t="90011000" d="5989000"/>
+            <S t="96000000" d="6000000"/>
+            <S t="102000000" d="6006000"/>
+            <S t="108006000" d="6001000"/>
+            <S t="114007000" d="6004000"/>
+            <S t="120011000" d="6008000"/>
+            <S t="126019000" d="5984000"/>
+            <S t="132003000" d="6009000"/>
+            <S t="138012000" d="6003000"/>
+            <S t="144015000" d="5986000"/>
+            <S t="150001000" d="5999000"/>
+            <S t="156000000" d="6000000"/>
+            <S t="162000000" d="6002000"/>
+            <S t="168002000" d="6010000"/>
+            <S t="174012000" d="5989000"/>
+            <S t="180001000" d="6019000"/>
+            <S t="186020000" d="5983000"/>
+            <S t="192003000" d="5999000"/>
+            <S t="198002000" d="6010000"/>
+            <S t="204012000" d="6000000"/>
+            <S t="210012000" d="5992000"/>
+            <S t="216004000" d="6006000"/>
+            <S t="222010000" d="6003000"/>
+            <S t="228013000" d="5993000"/>
+            <S t="234006000" d="5996000"/>
+            <S t="240002000" d="6003000"/>
+            <S t="246005000" d="71000"/>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>

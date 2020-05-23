@@ -96,4 +96,4 @@ class SongOpsMixin:
             ]).next()
             return ret if ret else None     # Emptiness check
         except StopIteration:
-            return None
+            raise ValueError('The given song_id does not exist')

@@ -6,20 +6,40 @@ import PlayStates from './PlayStates';
 class MediaPlayerCore extends EventTarget {
 
   #playbackEngine;
+  #plugins = [];
 
   #playlistIndex = 0;
   #playlist = [];
 
-  initialize(mediaTag) {
-    this.#playbackEngine = new PlaybackEngine(this, new MediaProvider(), mediaTag, () => {
+  initialize(mediaTag, sessionManager) {
+    sessionManager.addStatusListener(this.#onSessionStatusChange.bind(this))
+    const mediaProvider = new MediaProvider(sessionManager.getAccessToken());
+    this.#playbackEngine = new PlaybackEngine(this, mediaProvider, mediaTag, () => {
       console.log('Next media requested');
       const nextItem = this.#playlist[++this.#playlistIndex];
       return nextItem && nextItem.id; // same item for now
     });
   }
 
+  addPlugin(plugin) {
+    const meta = plugin.bindPlayerPlugin(this)
+    this.#plugins.push({obj: plugin, ...meta});
+  }
+
+  removePlugin(plugin) {
+    const idx = this.#plugins.findIndex(p => p.obj === plugin);
+    if (idx !== -1) {
+      this.#plugins[idx].obj.unbindPlayerPlugin(this)
+      this.#plugins.splice(idx, 1);
+    }
+  }
+
   get playbackState() {
     return this.#playbackEngine.playbackState;
+  }
+
+  get currentMediaInfo() {
+    return this.#playlist[this.#playlistIndex]
   }
 
   play(items, startMode = PlayStartModes.APPEND_PLAYLIST_AND_PLAY) {
@@ -78,6 +98,10 @@ class MediaPlayerCore extends EventTarget {
 
   next() {
     alert('not implemented');
+  }
+
+  #onSessionStatusChange() {
+    // TODO: Update access token in media provider, change play state if needed when going offline
   }
 
 }

@@ -5,10 +5,19 @@ const EME_CONFIG = [{
   }]
 }];
 
-// Converts Uint8Array to base64url without no padding
-function toBase64(u8arr) {
+/**
+ * Converts Uint8Array to base64url without padding
+ */
+function toBase64u(u8arr) {
   return btoa(String.fromCharCode.apply(null, u8arr))
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=*$/, '');
+}
+
+/**
+ * Converts base64url to an Uint8Array
+ */
+function fromBase64u(b64) {
+  return new Uint8Array(atob(b64.replace(/-/g, '+').replace(/_/g, '/')).split('').map(c => c.charCodeAt(0)));
 }
 
 export class StreamDecrypter {
@@ -53,16 +62,17 @@ export class StreamDecrypter {
   }
 
   // TODO async await?
+  // TODO may want to see if the KID matches the manifest first
   #obtainLicense(emeMessage) {
     const request = JSON.parse(new TextDecoder().decode(emeMessage));
     console.log('EME request', request);
 
-    const fetchPromises = request.kids.map(kid => this.#mediaProvider.fetchEncryptionKey(this.currentItemId, kid));
+    const fetchPromises = request.kids.map(kid =>
+      this.#mediaProvider.fetchEncryptionKey(this.currentItemId, fromBase64u(kid)));
 
     return Promise.all(fetchPromises)
       .then(keys => keys.map((key, idx) => {
-        console.log(key, idx);
-        return {kty: 'oct', alg: 'A128W', kid: request.kids[idx], k: toBase64(key)};
+        return {kty: 'oct', alg: 'A128W', kid: request.kids[idx], k: toBase64u(key)};
       }))
       .then(keySpec => {
         const license = {keys: keySpec};
