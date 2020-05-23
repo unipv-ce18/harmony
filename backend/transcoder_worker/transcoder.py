@@ -18,7 +18,7 @@ def _create_key(id):
     return hash
 
 
-_bitrate = [96, 160, 320]
+_bitrate = transcoder_config.VARIANTS_BITRATE
 
 _tmp_folder = transcoder_config.WORK_DIR
 _tmp_subfolder = 'upload'
