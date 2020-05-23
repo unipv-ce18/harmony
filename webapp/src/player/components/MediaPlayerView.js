@@ -1,10 +1,11 @@
 import {Component, createRef} from 'preact';
 
-import {session} from "../../Harmony";
+import {session} from '../../Harmony';
 import PlayStates from '../PlayStates';
 import PlayerEvents from '../PlayerEvents';
 
 import styles from './MediaPlayerView.scss';
+import MediaSessionPlugin from '../plugins/MediaSessionPlugin';
 
 function getPlayStateMessage(playState) {
   switch (playState) {
@@ -35,6 +36,17 @@ class MediaPlayerView extends Component {
   componentDidMount() {
     const player = this.props.player;
     player.initialize(this.audioTagRef.current, session);
+    player.addPlugin(this)
+    player.addPlugin(new MediaSessionPlugin())
+    this.setState({playState: player.playbackState});
+    this.props.onLoaded();
+
+    const seek = this.audioSeek.current;
+    seek.addEventListener('mouseup', e => e.target.blur());
+    this.audioSeek.current.addEventListener('change', e => player.seek(seek.value));
+  }
+
+  bindPlayerPlugin(player) {
     player.addEventListener(PlayerEvents.STATE_CHANGE,
       e => this.setState({playState: e.detail.newState}));
     player.addEventListener(PlayerEvents.NEW_MEDIA, e =>
@@ -45,12 +57,11 @@ class MediaPlayerView extends Component {
         audioSeek.value = e.detail.cur;
       }
     });
-    this.setState({playState: player.playbackState});
-    this.props.onLoaded();
+    return { description: 'Preact Player UI' }
+  }
 
-    const seek = this.audioSeek.current;
-    seek.addEventListener('mouseup', e => e.target.blur());
-    this.audioSeek.current.addEventListener('change', e => player.seek(seek.value));
+  unbindPlayerPlugin(player) {
+    // TODO: Unregister player listeners
   }
 
   render({player}, {playState}) {

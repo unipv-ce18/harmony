@@ -6,6 +6,7 @@ import PlayStates from './PlayStates';
 class MediaPlayerCore extends EventTarget {
 
   #playbackEngine;
+  #plugins = [];
 
   #playlistIndex = 0;
   #playlist = [];
@@ -20,8 +21,25 @@ class MediaPlayerCore extends EventTarget {
     });
   }
 
+  addPlugin(plugin) {
+    const meta = plugin.bindPlayerPlugin(this)
+    this.#plugins.push({obj: plugin, ...meta});
+  }
+
+  removePlugin(plugin) {
+    const idx = this.#plugins.findIndex(p => p.obj === plugin);
+    if (idx !== -1) {
+      this.#plugins[idx].obj.unbindPlayerPlugin(this)
+      this.#plugins.splice(idx, 1);
+    }
+  }
+
   get playbackState() {
     return this.#playbackEngine.playbackState;
+  }
+
+  get currentMediaInfo() {
+    return this.#playlist[this.#playlistIndex]
   }
 
   play(items, startMode = PlayStartModes.APPEND_PLAYLIST_AND_PLAY) {
