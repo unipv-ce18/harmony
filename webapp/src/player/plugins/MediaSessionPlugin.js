@@ -19,7 +19,7 @@ class MediaSessionPlugin {
   }
 
   bindPlayerPlugin(player) {
-    if (!'mediaSession' in navigator)
+    if (!('mediaSession' in navigator))
       return {description: PLUGIN_DESCRIPTION + ' (no browser support)'}
 
     this.#player = player;
@@ -36,7 +36,7 @@ class MediaSessionPlugin {
   }
 
   unbindPlayerPlugin(player) {
-    if (!'mediaSession' in navigator) return;
+    if (!('mediaSession' in navigator)) return;
 
     player.removeEventListener(PlayerEvents.NEW_MEDIA, this.handleNewMedia)
   }
