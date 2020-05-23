@@ -1,7 +1,9 @@
-import {Session} from "./core/Session";
-import {MediaPlayer} from "./player/MediaPlayer";
+import {Session} from './core/Session';
+import {MediaCatalog} from './core/MediaCatalog';
+import {MediaPlayer, MediaItemInfo, PlayStartModes} from './player/MediaPlayer';
 
 export const session = new Session();
+export const catalog = new MediaCatalog(session);
 export const mediaPlayer = new MediaPlayer();
 
 
