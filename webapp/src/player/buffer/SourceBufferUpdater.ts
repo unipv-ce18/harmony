@@ -72,7 +72,7 @@ export class SourceBufferUpdater<SegmentType extends SegmentData> {
         fetch(segmentData.u)
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => {
-                console.log(TAG, 'Appending', segmentData.u);
+                console.log(TAG, 'Appending', segmentData.u, 'at', segmentData.t);
                 if (segmentData.t) this.sourceBuffer.timestampOffset = segmentData.t;
                 this.sourceBuffer.appendBuffer(arrayBuffer);
             })

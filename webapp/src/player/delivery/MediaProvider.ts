@@ -5,6 +5,20 @@ import {parseMediaManifest} from './manifestParser';
 declare var PLAYER_SOCKET_URL: string
 
 
+function toHexString(byteArray: Uint8Array): string {
+    return Array.from(byteArray,
+        byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)
+    ).join('')
+}
+
+function fromHexString(hexStr: string): Uint8Array {
+    return new Uint8Array(hexStr.match(/.{2}/g)!.map(b => parseInt(b, 16)))
+}
+
+function getMediaFileBaseUrl(manifestUrl: string) {
+    return manifestUrl.substr(0, manifestUrl.lastIndexOf('/') + 1)
+}
+
 export class MediaProvider {
 
     private readonly socketConnection: SocketConnection
@@ -24,27 +38,13 @@ export class MediaProvider {
                     .then(mpdText => {
                         return new DOMParser().parseFromString(mpdText, 'text/xml');
                     })
-                    .then(mpdXml => parseMediaManifest(mpdXml, mediaId, MediaProvider.getMediaFileBaseUrl(mpdUrl)))
+                    .then(mpdXml => parseMediaManifest(mpdXml, mediaId, getMediaFileBaseUrl(mpdUrl)))
             )
     }
 
-  fetchEncryptionKey(mediaId: string, keyId: string, streamId = 0, variantBitrate = 0) {
-    switch (keyId) {
-      case "RTmtOP51i9RctmhUhx10Jg":
-        return Promise.resolve(new Uint8Array([
-          0x36, 0xcc, 0xd6, 0xaf, 0xd0, 0x76, 0x71, 0xdd,
-          0xbf, 0x63, 0x58, 0x49, 0x90, 0x9e, 0x91, 0x4f
-        ]));
-      case "88XgNh5mVLKPgEnHeLI5Rg":
-        return Promise.resolve(new Uint8Array([
-          0xa4, 0x63, 0x1a, 0x15, 0x3a, 0x44, 0x3d, 0xf9,
-          0xee, 0xd0, 0x59, 0x30, 0x43, 0xdb, 0x75, 0x19
-        ]));
-    }
-  }
-
-    private static getMediaFileBaseUrl(manifestUrl: string) {
-        return manifestUrl.substr(0, manifestUrl.lastIndexOf('/') + 1)
+    fetchEncryptionKey(mediaId: string, keyId: Uint8Array): Promise<Uint8Array> {
+        return this.socketConnection.fetchMediaKey(mediaId, toHexString(keyId))
+            .then(key => fromHexString(key))
     }
 
 }

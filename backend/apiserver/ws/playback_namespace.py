@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from bson.errors import InvalidId
 from flask_socketio import Namespace
@@ -17,9 +18,9 @@ class PlaybackNamespace(Namespace):
 
     def __init__(self, namespace, transcoder_client, db_interface):
         super().__init__(namespace)
+        self.protocol: Optional[MediaDeliveryProtocol] = None
         self.transcoder_client = transcoder_client
         self.db_interface = db_interface
-        self.protocol = None
 
     # noinspection PyMethodMayBeStatic
     def on_connect(self):
@@ -40,29 +41,55 @@ class PlaybackNamespace(Namespace):
         song_id = self.protocol.recv_play_song(msg)
 
         try:
-            repr_data = self.db_interface.get_song_representation_data(song_id)
-        except InvalidId:
-            log.warning('Song (%s): invalid ID', song_id)
-            self.protocol.send_error(song_id, MediaDeliveryProtocol.ERROR_INVALID_ID)
-            return
-        except ValueError:
-            log.warning('Song (%s): not found', song_id)
-            self.protocol.send_error(song_id, MediaDeliveryProtocol.ERROR_NOT_FOUND)
+            repr_data = self._fetch_representation_data(song_id)
+        except RuntimeError as e:
+            self.protocol.send_error(song_id, e.args[0])
             return
 
         if repr_data is not None:
             # Already transcoded, send back manifest URL
-            self.protocol.send_manifest(song_id, repr_data)
+            self.protocol.send_manifest(song_id, repr_data['manifest'])
             log.debug('Song (%s): Sent manifest', song_id)
-            return
 
-        # Start async task to transcode and wait for notification
-        td = NotificationWorker(song_id, self.transcoder_client, self._transcode_complete_callback)
-        td.start()
+        else:
+            # Start async task to transcode and wait for notification
+            td = NotificationWorker(song_id, self.transcoder_client, self._transcode_complete_callback)
+            td.start()
 
-        # Send transcode request
-        self.transcoder_client.start_transcode_job(song_id)
-        log.debug('Song (%s): Enqueued for transcoding', song_id)
+            # Send transcode request
+            self.transcoder_client.start_transcode_job(song_id)
+            log.debug('Song (%s): Enqueued for transcoding', song_id)
+
+    def on_get_key(self, msg):
+        song_id, key_id = self.protocol.recv_get_key(msg)
+
+        try:
+            repr_data = self._fetch_representation_data(song_id)
+
+            # Send NOT_FOUND also if the song was not transcoded, or if the KID does not match
+            if repr_data is None:
+                log.warning('Song (%s): key requested but no repr_data available', song_id)
+                raise RuntimeError(MediaDeliveryProtocol.ERROR_NOT_FOUND)
+            if repr_data['key_id'] != key_id:
+                log.warning('Song (%s): provided KID "%s" does not match stored "%s"',
+                            song_id, key_id, repr_data['key_id'])
+                raise RuntimeError(MediaDeliveryProtocol.ERROR_NOT_FOUND)
+
+            self.protocol.send_media_key(song_id, repr_data['key'])
+            log.debug('Song (%s): Sent media key', song_id)
+
+        except RuntimeError as e:
+            self.protocol.send_error(song_id, e.args[0])
+
+    def _fetch_representation_data(self, song_id):
+        try:
+            return self.db_interface.get_song_representation_data(song_id)
+        except InvalidId:
+            log.warning('Song (%s): invalid ID', song_id)
+            raise RuntimeError(MediaDeliveryProtocol.ERROR_INVALID_ID)
+        except ValueError:
+            log.warning('Song (%s): not found', song_id)
+            raise RuntimeError(MediaDeliveryProtocol.ERROR_NOT_FOUND)
 
     def _transcode_complete_callback(self, notification_body):
         song_id = notification_body
@@ -70,8 +97,7 @@ class PlaybackNamespace(Namespace):
         repr_data = self.db_interface.get_song_representation_data(song_id)
         if repr_data is not None:
             log.debug('Song (%s): transcode job complete, forwarding to client', song_id)
-            self.protocol.send_manifest(song_id, repr_data)
-
+            self.protocol.send_manifest(song_id, repr_data['manifest'])
         else:
             log.error('Song (%s): transcode complete but no repr data, signaling to client', song_id)
             self.protocol.send_error(song_id, MediaDeliveryProtocol.ERR_JOB_FAILURE)
