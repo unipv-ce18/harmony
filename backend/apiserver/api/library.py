@@ -104,6 +104,12 @@ class GetLibrary(Resource):
             required: true
             description: The ID of the user or `me` for the currently logged in user
             example: me
+          - in: query
+            name: full
+            schema:
+              type: boolean
+            required: false
+            description: Whenever to resolve library
         responses:
           200:
             description: Successful library retrieve
@@ -174,7 +180,7 @@ class GetLibrary(Resource):
             return {'message': 'ID not valid'}, HTTPStatus.BAD_REQUEST
 
         args = _arg_parser_library.parse_args()
-        resolve_library = args['full'] == '1'
+        resolve_library = args['full'] in ['1', 'true', 'yes']
 
         library = db.get_library(user_id)
 
