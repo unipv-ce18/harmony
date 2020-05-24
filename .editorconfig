@@ -11,3 +11,9 @@ indent_size = 4
 [*.{html,json,js,css,scss}]
 indent_style = space
 indent_size = 2
+
+[*.js]
+ij_javascript_use_double_quotes = false
+
+[*.ts]
+ij_typescript_use_double_quotes = false
