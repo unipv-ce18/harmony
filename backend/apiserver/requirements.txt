@@ -1,10 +1,10 @@
 -r ../common/requirements.txt
-Flask==1.1.1
+Flask==1.1.2
 Flask-PyMongo==2.3.0
-Flask-RESTful==0.3.7
+Flask-RESTful==0.3.8
 Flask-JWT-Extended==3.24.1
 flask-cors==3.0.8
-flask-socketio==4.2.1
+flask-socketio==4.3.0
 flasgger==0.9.4
 nose2==0.9.1
 PyJWT==1.7.1
