@@ -5,7 +5,7 @@ from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
-
+from ..util import security
 
 api = Api(api_blueprint)
 
@@ -15,21 +15,32 @@ _arg_parser_artist = RequestParser().add_argument('releases')
 
 @api.resource('/release/<release_id>')
 class GetRelease(Resource):
+    method_decorators = [security.jwt_required]
+
     def get(self, release_id):
         """Retrieve a release
         ---
         tags: [metadata]
-        security: []
         parameters:
           - in: path
             name: release_id
-            type: string
+            schema:
+              $ref: '#components/schemas/ObjectId'
             required: true
+            description: ID of the release to fetch
+          - in: query
+            name: songs
+            schema:
+              type: boolean
+            required: false
+            description: Whenever to include song references inside the release
         responses:
           200:
             description: Successful release retrieve
             content:
               application/json:
+                schema:
+                  $ref: '#components/schemas/Release'
                 example: {
                   'id': 'RELEASE ID',
                   'name': 'RELEASE NAME',
@@ -43,45 +54,53 @@ class GetRelease(Resource):
                   'songs': ['RELEASE SONGS']
                 }
           400:
-            description: Release id not valid
-            content:
-              application/json:
-                example: {'message': 'Id not valid'}
+            $ref: '#components/responses/InvalidId'
           404:
             description: Release not found
             content:
               application/json:
-                example: {'message': 'No release'}
+                example: {'message': 'Release not found'}
         """
         if not ObjectId.is_valid(release_id):
-            return {'message': 'Id not valid'}, HTTPStatus.BAD_REQUEST
+            return {'message': 'ID not valid'}, HTTPStatus.BAD_REQUEST
 
         args = _arg_parser_release.parse_args()
-        include_songs = args['songs'] == '1'
+        include_songs = args['songs'] in ['1', 'true', 'yes']
         release = db.get_release(release_id, include_songs)
 
         if release is None:
-            return {'message': 'No release'}, HTTPStatus.NOT_FOUND
+            return {'message': 'Release not found'}, HTTPStatus.NOT_FOUND
         return release.to_dict(), HTTPStatus.OK
 
 
 @api.resource('/artist/<artist_id>')
 class GetArtist(Resource):
+    method_decorators = [security.jwt_required]
+
     def get(self, artist_id):
         """Retrieve an artist
         ---
         tags: [metadata]
-        security: []
         parameters:
           - in: path
             name: artist_id
-            type: string
+            schema:
+              $ref: '#components/schemas/ObjectId'
             required: true
+            description: ID of the artist to retrieve
+          - in: query
+            name: releases
+            schema:
+              type: boolean
+            required: false
+            description: Whenever to include release references in the returned artist
         responses:
           200:
             description: Successful artist retrieve
             content:
               application/json:
+                schema:
+                  $ref: '#components/schemas/Artist'
                 example: {
                   'id': 'ARTIST ID',
                   'name': 'ARTIST NAME',
@@ -104,10 +123,7 @@ class GetArtist(Resource):
                   'releases': ['ARTIST RELEASES']
                 }
           400:
-            description: Artist id not valid
-            content:
-              application/json:
-                example: {'message': 'Id not valid'}
+            $ref: '#components/responses/InvalidId'
           404:
             description: Artist not found
             content:
@@ -115,10 +131,10 @@ class GetArtist(Resource):
                 example: {'message': 'No artist'}
         """
         if not ObjectId.is_valid(artist_id):
-            return {'message': 'Id not valid'}, HTTPStatus.BAD_REQUEST
+            return {'message': 'ID not valid'}, HTTPStatus.BAD_REQUEST
 
         data = _arg_parser_artist.parse_args()
-        include_releases = data['releases'] == '1'
+        include_releases = data['releases'] in ['1', 'true', 'yes']
         artist = db.get_artist(artist_id, include_releases)
 
         if artist is None:

@@ -38,11 +38,189 @@ components:
       description: A JWT access token that can be obtained through `/auth/login` or `/auth/refresh`
       scheme: bearer
       bearerFormat: JWT
+
     refreshToken:
       type: http
       description: A refresh token returned from `/auth/login`, used to generate new access tokens
       scheme: bearer
       bearerFormat: JWT
+
+  requestBodies:
+    LibrarySelector:
+      description: Item to update inside the library
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              media_type: {type: string, enum: ['artists', 'releases', 'songs'], description: "One of `artists`, `releases` or `songs`"}
+              media_id: {type: string, description: The media id}
+            required: [media_type, media_id]
+          examples:
+            0: {summary: 'An artist', value: {'media_type': 'artists', 'media_id': '5eb57db6519f4f9bdbba7ee0'}}
+            1: {summary: 'A single album', value: {'media_type': 'releases', 'media_id': '5ec90a914199ec6dabaeb4fa'}}
+
+  responses:
+    InvalidId:
+      description: Invalid ID
+      content:
+        application/json:
+          example: {'message': 'ID not valid'}
+
+    LibraryUpdateNoUser:
+      description: The user does not exist
+      content:
+        application/json:
+          example: {'message': 'User not found'}
+
+  schemas:
+    ObjectId:
+      type: 'string'
+      minLength: 24
+      maxLength: 24
+      pattern: "^([a-fA-F0-9]{2})+$"
+
+    ReleaseType:
+        type: 'string'
+        enum: [album, single, ep, compilation, live, remix]
+        description: Type of the release
+
+    ArtistRef:
+      description: Reference to an artist
+      type: 'object'
+      properties:
+        id: {$ref: '#components/schemas/ObjectId'}
+        name: {type: 'string'}
+      required: [id, name]
+
+    ReleaseRef:
+      description: Reference to a release
+      type: 'object'
+      properties:
+        id: {$ref: '#components/schemas/ObjectId'}
+        name: {type: 'string'}
+        type: {$ref: '#components/schemas/ReleaseType'}
+        date:
+          oneOf:
+            - {type: 'integer'}
+            - {type: 'null'}
+        cover:
+          oneOf:
+            - {type: 'string'}
+            - {type: 'null'}
+      required: [id, name, type, date, cover]
+
+    SongRef:
+      description: Reference to a song
+      type: 'object'
+      properties:
+        id: {$ref: '#components/schemas/ObjectId'}
+        title: {type: 'string'}
+        length: {type: 'number'}
+      required: [id, title, length]
+
+    Artist:
+      description: Describes an artist in the Harmony database
+      type: 'object'
+      properties:
+        id:
+          $ref: '#components/schemas/ObjectId'
+        name:
+          type: 'string'
+          description: The name of the artist
+        sort_name:
+          type: 'string'
+          description: Name used for sorting (a list)
+        country:
+          type: 'string'
+          minLength: 2
+          maxLength: 2
+          description: ISO 3166 code of the country of origin e.g. `US` or `DE`
+        life_span:
+          type: 'object'
+          properties:
+            begin:
+              type: 'string'
+              description: 'The start of activity, in `YYYY` or `YYYY-MM-DD` format'
+            end:
+              oneOf:
+                - type: 'string'
+                - type: 'null'
+              description: 'When the group disbanded or `null` if still active'
+          required: [begin, end]
+        genres:
+          type: 'array'
+          items: {type: 'string'}
+          description: Array of genres for the artist, sorted by relevance
+        bio:
+          oneOf:
+            - type: 'string'
+            - type: 'null'
+          description: Biography or information about the artist
+        links:
+          type: 'object'
+          description: Map of links to artist website or social pages
+        # members[].name - Name of a group member
+        # members[].role - Comma-separated list of roles for the member
+        releases:
+          oneOf:
+            - type: 'array'
+              items: {$ref: '#components/schemas/ReleaseRef'}
+            - type: 'null'
+          description: Array of the artist's releases
+      required: [id, name, sort_name]
+
+    Release:
+      description: Completely describes a release for an artist
+      type: 'object'
+      properties:
+        id:
+          $ref: '#components/schemas/ObjectId'
+        name:
+          type: 'string'
+          description: The name of the release
+        date:
+          type: 'string'
+          description: The release date, can be in `YYYY` or `YYYY-MM-DD` format
+        artist:
+          oneOf:
+            - $ref: '#components/schemas/ArtistRef'
+            - type: 'null'
+          description: The album artist of this release
+        type:
+          oneOf:
+            - $ref: '#components/schemas/ReleaseType'
+            - type: 'null'
+        cover:
+          oneOf:
+            - type: 'string'
+            - type: 'null'
+          description: The location of the cover art for the album
+        # media[].title - The title for a disc, can be `null`
+        # media[].tracks[] - Array of tracks for the media (CD) [SongRef]
+      required: [id, name, artist, type]
+
+    Song:
+      description: Describes a song in its entirety, that is a track inside a release
+      type: 'object'
+      properties:
+        id:
+          $ref: '#components/schemas/ObjectId'
+        title:
+          type: 'string'
+          description: The name of the recording
+        length:
+          type: 'number'
+          description: The length of the track in seconds
+        artist:
+          oneOf:
+            - $ref: '#components/schemas/ArtistRef'
+            - type: 'null'
+        release:
+          oneOf:
+            - $ref: '#components/schemas/ReleaseRef'
+            - type: 'null'
 
 
 # Default configuration for all endpoints

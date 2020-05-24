@@ -20,41 +20,52 @@ _arg_parser_library = RequestParser().add_argument('full')
 class UpdateLibrary(Resource):
     method_decorators = [security.jwt_required]
 
-    def post(self):
-        """Update the user library
+    def put(self):
+        """Add an item to the user's library
         ---
         tags: [user]
-        security: [accessToken: []]
         requestBody:
-          description: Media to add/pull in/from the library
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  media_type: {type: string, description: The media type (artists - releases - songs)}
-                  media_id: {type: string, description: The media id}
-                required: [media_type, media_id]
-              examples:
-                0: {summary: 'Update library', value: {'media_type': 'artists', 'media_id': '5eb57db6519f4f9bdbba7ee0'}}
+          $ref: '#components/requestBodies/LibrarySelector'
         responses:
-          200:
-            description: Successful library update
+          204:  # No Content
+            description: Item inserted correctly
+            content: {}
+          409:  # Conflict
+            description: Item already present in the library
             content:
               application/json:
-                example: {'message': 'Updated preferences'}
-          400:
-            description: Id not valid
-            content:
-              application/json:
-                example: {'message': 'Id not valid'}
-          403:
-            description: User not found
-            content:
-              application/json:
-                example: {'message': 'User not found'}
+                example: {'message': 'Already present'}
+          400:  # Bad Request
+            $ref: '#components/responses/InvalidId'
+          404:  # Not Found
+            $ref: '#components/responses/LibraryUpdateNoUser'
         """
+        return self._update_op(db.add_media_to_library, False, 'Already present')
+
+    def delete(self):
+        """Remove an item to the user's library
+        ---
+        tags: [user]
+        requestBody:
+          $ref: '#components/requestBodies/LibrarySelector'
+        responses:
+          204:  # No Content
+            description: Item removed successfully
+            content: {}
+          409:  # Conflict
+            description: Item not present in the library
+            content:
+              application/json:
+                example: {'message': 'Not present'}
+          400:  # Bad Request
+            $ref: '#components/responses/InvalidId'
+          404:  # Not Found
+            $ref: '#components/responses/LibraryUpdateNoUser'
+        """
+        return self._update_op(db.pull_media_from_library, True, 'Not present')
+
+    @staticmethod
+    def _update_op(operation, media_present, fail_msg):
         data = _arg_parser_prefs.parse_args()
 
         user_id = security.get_jwt_identity()
@@ -62,32 +73,37 @@ class UpdateLibrary(Resource):
         media_id = data['media_id']
 
         if not ObjectId.is_valid(user_id):
-            return {'message': 'User id not valid'}, HTTPStatus.BAD_REQUEST
+            return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
         if not ObjectId.is_valid(media_id):
-            return {'message': 'Media id not valid'}, HTTPStatus.BAD_REQUEST
+            return {'message': 'Media ID not valid'}, HTTPStatus.BAD_REQUEST
 
-        if db.media_in_library(user_id, media_type, media_id):
-            response = db.pull_media_from_library(user_id, media_type, media_id)
-        else:
-            response = db.add_media_to_library(user_id, media_type, media_id)
+        if db.media_in_library(user_id, media_type, media_id) != media_present:
+            return {'message': fail_msg}, HTTPStatus.CONFLICT
+
+        # TODO: Should we check if the artist/release/song exists in the DB first?
+        response = operation(user_id, media_type, media_id)
 
         if response:
-            return {'message': 'Updated preferences'}, HTTPStatus.OK
-        return {'message': 'User not found'}, HTTPStatus.FORBIDDEN
+            return None, HTTPStatus.NO_CONTENT
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
 
 
 @api.resource('/<user_id>/library')
 class GetLibrary(Resource):
+    method_decorators = [security.jwt_required]
+
     def get(self, user_id):
-        """Retrieve the user library
+        """Retrieve an user's library
         ---
         tags: [user]
-        security: []
         parameters:
           - in: path
             name: user_id
-            type: string
+            schema:
+              type: string
             required: true
+            description: The ID of the user or `me` for the currently logged in user
+            example: me
         responses:
           200:
             description: Successful library retrieve
@@ -135,16 +151,16 @@ class GetLibrary(Resource):
                   ]
                 }
           400:
-            description: User id not valid
-            content:
-              application/json:
-                example: {'message': 'Id not valid'}
+            $ref: '#components/responses/InvalidId'
           404:
             description: Library not found
             content:
               application/json:
                 example: {'message': 'No library'}
         """
+        if user_id == 'me':
+            user_id = security.get_jwt_identity()
+
         _func = lambda type, id : {
             'artists': db.get_artist_for_library(id),
             'releases': db.get_release_for_library(id),
@@ -155,7 +171,7 @@ class GetLibrary(Resource):
         _resolve = lambda type : _action(type) if type in library else []
 
         if not ObjectId.is_valid(user_id):
-            return {'message': 'Id not valid'}, HTTPStatus.BAD_REQUEST
+            return {'message': 'ID not valid'}, HTTPStatus.BAD_REQUEST
 
         args = _arg_parser_library.parse_args()
         resolve_library = args['full'] == '1'
