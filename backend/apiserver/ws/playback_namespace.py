@@ -50,15 +50,10 @@ class PlaybackNamespace(Namespace):
             # Already transcoded, send back manifest URL
             self.protocol.send_manifest(song_id, repr_data['manifest'])
             log.debug('Song (%s): Sent manifest', song_id)
-
         else:
             # Start async task to transcode and wait for notification
             td = NotificationWorker(song_id, self.transcoder_client, self._transcode_complete_callback)
             td.start()
-
-            # Send transcode request
-            self.transcoder_client.start_transcode_job(song_id)
-            log.debug('Song (%s): Enqueued for transcoding', song_id)
 
     def on_get_key(self, msg):
         song_id, key_id = self.protocol.recv_get_key(msg)

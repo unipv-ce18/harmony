@@ -1,7 +1,5 @@
 import logging
 
-import pika
-
 from common.messaging.amq_util import amq_connect_blocking, amq_producer_declaration
 
 
@@ -21,21 +19,6 @@ class TranscoderClient:
         # Create a queue for this API server node, used to receive notifications
         self.queue_name = amq_producer_declaration(self.channel, config)
         log.debug('Notification queue "%s" created', self.queue_name)
-
-    def start_transcode_job(self, song_id):
-        """Publishes a new transcoding job to the orchestrator queue
-
-        :param str song_id: ID of the song to transcode
-        """
-        self.channel.basic_publish(
-            exchange=self.config.MESSAGING_EXCHANGE_JOBS,
-            routing_key='id',
-            body=song_id,
-            properties=pika.BasicProperties(
-                delivery_mode=2,
-            )
-        )
-        log.info('Sent job for song (%s)', song_id)
 
     def get_local_queue(self):
         """Gets the local notification queue for this API server node

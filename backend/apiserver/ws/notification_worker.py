@@ -2,6 +2,8 @@ import logging
 import threading
 import uuid
 
+import pika
+
 from common.messaging.amq_util import amq_connect_blocking
 
 
@@ -37,6 +39,25 @@ class NotificationWorker(threading.Thread):
             routing_key=self.song_id
         )
         log.debug('Started notification worker for song (%s)', song_id)
+
+        # Send transcode request
+        self.start_transcode_job(song_id)
+        log.debug('Song (%s): Enqueued for transcoding', song_id)
+
+    def start_transcode_job(self, song_id):
+        """Publishes a new transcoding job to the orchestrator queue
+
+        :param str song_id: ID of the song to transcode
+        """
+        self.channel.basic_publish(
+            exchange=self.transcoder_client.config.MESSAGING_EXCHANGE_JOBS,
+            routing_key='id',
+            body=song_id,
+            properties=pika.BasicProperties(
+                delivery_mode=2,
+            )
+        )
+        log.info('Sent job for song (%s)', song_id)
 
     def run(self):
         """Wait for the notification."""
