@@ -4,7 +4,7 @@ from bson import ObjectId
 
 from common.model import Artist
 from .contracts import artist_contract as c
-from .codec import artist_from_document, artist_to_document
+from .codecs import artist_from_document, artist_to_document
 from .projections import artist_projection, artist_projection_search_result
 
 

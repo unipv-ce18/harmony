@@ -1,57 +1,62 @@
-from bson.objectid import ObjectId
+from typing import List, Optional
+
+from bson import ObjectId
+
+from common.model import User
+from .contracts import user_contract as c
+from .codecs import user_from_document, user_to_document
 
 
 class UserOpsMixin:
 
     def __init__(self, db_connection):
         super().__init__(db_connection)
-        self.users = db_connection['users']
+        self.users = db_connection[c.COLLECTION_NAME]
+
+    def put_user(self, user: User) -> str:
+        """Inserts a user into the database and returns its new ID"""
+        user_data = user_to_document(user, strip_unsafe=True)
+        return str(self.users.insert_one(user_data).inserted_id)
+
+    def put_users(self, users: List[User]) -> List[str]:
+        """Inserts more users at once"""
+        return [self.put_user(users[i]) for i in range(len(users))]
+
+    def get_user(self, user_id):
+        result = self.users.find_one(
+            {c.USER_ID: ObjectId(user_id)})
+        return user_from_document(user_doc) if user_doc is not None else None
 
     def get_user_by_name(self, username):
-        query = {'username': username}
-        result = self.users.find_one(query)
-        return result
+        user_doc = self.users.find_one(
+            {c.USER_USERNAME: username})
+        return user_from_document(user_doc) if user_doc is not None else None
 
     def get_user_by_mail(self, email):
-        query = {'email': email}
-        result = self.users.find_one(query)
-        return result
-
-    def add_user(self, u):
-        return self.users.insert_one(u).acknowledged
-
-    def add_users(self, u):
-        if self.users.count() != 0:
-            for i in range(len(u)):
-                self.add_user(u[i])
-        else:
-            self.users.insert_many(u)
-
-    def search_user(self, user_id):
-        query = {'_id': ObjectId(user_id)}
-        result = self.users.find_one(query, {'_id': 0})
-        return result
+        user_doc = self.users.find_one(
+            {c.USER_EMAIL: email})
+        return user_from_document(user_doc) if user_doc is not None else None
 
     def get_library(self, user_id):
         result = self.users.find_one(
-            {'_id': ObjectId(user_id)},
-            {'_id': 0, 'prefs.library': 1})
-        return result['prefs']['library'] if result else None
+            {c.USER_ID: ObjectId(user_id)},
+            {c.USER_ID: 0, f'{c.USER_PREFS}.library': 1})
+        return result[c.USER_PREFS]['library'] if result else None
 
     def add_media_to_library(self, user_id, media_type, media_id):
         return bool(self.users.update_one(
-            {'_id': ObjectId(user_id)},
-            {'$addToSet': {f'prefs.library.{media_type}': media_id}}
+            {c.USER_ID: ObjectId(user_id)},
+            {'$addToSet': {f'{c.USER_PREFS}.library.{media_type}': media_id}}
         ).matched_count)
 
     def pull_media_from_library(self, user_id, media_type, media_id):
         return bool(self.users.update_one(
-            {'_id': ObjectId(user_id)},
-            {'$pull': {f'prefs.library.{media_type}': media_id}}
+            {c.USER_ID: ObjectId(user_id)},
+            {'$pull': {f'{c.USER_PREFS}.library.{media_type}': media_id}}
         ).matched_count)
 
     def media_in_library(self, user_id, media_type, media_id):
         return bool(self.users.find_one({
-            '_id': ObjectId(user_id),
-            f'prefs.library.{media_type}': media_id
+            c.USER_ID: ObjectId(user_id),
+            f'{c.USER_PREFS}.library.{media_type}': media_id
         }))

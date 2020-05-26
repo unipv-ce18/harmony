@@ -1,7 +1,8 @@
 from bson import ObjectId
 
 from common.model import Artist, Release, Song
-from .contracts import artist_contract as c
+from ..contracts import artist_contract as c
+
 
 _ARTIST_DOCUMENT_BINDINGS = {
     'id': c.ARTIST_ID,

@@ -4,7 +4,7 @@ from bson import ObjectId
 
 from common.model import Song
 from .contracts import artist_contract as c
-from .codec import song_from_document, song_to_document
+from .codecs import song_from_document, song_to_document
 from .pipeline import make_pipeline
 from .projections import song_projection, song_projection_search_result
 

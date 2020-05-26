@@ -6,6 +6,7 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
+from common.database.codecs import user_from_document
 
 
 api = Api(api_blueprint, prefix='/auth')
@@ -63,7 +64,7 @@ class AuthRegister(Resource):
         if db.get_user_by_mail(email) is None:
             if db.get_user_by_name(username) is None:
                 data['password'] = security.hash_password(data['password'])
-                if db.add_user(data):
+                if db.put_user(user_from_document(data)):
                     return {'message': 'User created'}, HTTPStatus.CREATED
                 else:
                     return {'message': 'Failed to create new user'}, HTTPStatus.INTERNAL_SERVER_ERROR
@@ -111,12 +112,12 @@ class AuthLogin(Resource):
             from bson import ObjectId
             user = {'_id': ObjectId(), 'password': security.hash_password(data['password'])}
         else:
-            user = db.get_user_by_name(data['identity']) or db.get_user_by_mail(data['identity'])
+            user = db.get_user_by_name(data['identity']).to_dict() or db.get_user_by_mail(data['identity']).to_dict()
 
         if user is not None:
             if security.verify_password(user['password'], data['password']):
-                access = security.create_access_token(identity=str(user['_id']))
-                refresh = security.create_refresh_token(identity=str(user['_id']))
+                access = security.create_access_token(identity=str(user['id']))
+                refresh = security.create_refresh_token(identity=str(user['id']))
                 db.store_token(security.decode_token(access))
                 db.store_token(security.decode_token(refresh))
                 return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 900}

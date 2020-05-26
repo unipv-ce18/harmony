@@ -4,7 +4,7 @@ from bson import ObjectId
 
 from common.model import Release
 from .contracts import artist_contract as c
-from .codec import release_to_document, release_from_document
+from .codecs import release_to_document, release_from_document
 from .pipeline import make_pipeline
 from .projections import release_projection, release_projection_search_result
 
