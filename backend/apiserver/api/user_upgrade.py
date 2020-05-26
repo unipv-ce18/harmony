@@ -2,7 +2,6 @@ from http import HTTPStatus
 
 from bson import ObjectId
 from flask_restful import Resource, Api
-from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security

@@ -5,8 +5,6 @@ _user_tuple = namedtuple('User', [
     'id',
     'type',
     'tier',
-    'first_name',
-    'last_name',
     'username',
     'email',
     'password',
