@@ -110,7 +110,7 @@ class AuthLogin(Resource):
         # Bypass registration and login in testing environment
         if current_app.config['TESTING'] and data['identity'] == 'test':
             from bson import ObjectId
-            user = {'_id': ObjectId(), 'password': security.hash_password(data['password'])}
+            user = {'id': ObjectId(), 'password': security.hash_password(data['password'])}
         else:
             user = db.get_user_by_name(data['identity']).to_dict() or db.get_user_by_mail(data['identity']).to_dict()
 
