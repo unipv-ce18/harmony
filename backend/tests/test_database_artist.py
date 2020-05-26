@@ -1,6 +1,6 @@
 from bson import ObjectId
 
-from common.database.codec import artist_from_document
+from common.database.codecs import artist_from_document
 from tests.db_test_utils import DatabaseTest, test_artist_data
 
 
