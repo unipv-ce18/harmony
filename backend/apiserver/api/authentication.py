@@ -64,6 +64,8 @@ class AuthRegister(Resource):
         if db.get_user_by_mail(email) is None:
             if db.get_user_by_name(username) is None:
                 data['password'] = security.hash_password(data['password'])
+                data['type'] = 'basic'
+                data['tier'] = 'free'
                 if db.put_user(user_from_document(data)):
                     return {'message': 'User created'}, HTTPStatus.CREATED
                 else:

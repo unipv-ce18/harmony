@@ -60,3 +60,27 @@ class UserOpsMixin:
             c.USER_ID: ObjectId(user_id),
             f'{c.USER_PREFS}.library.{media_type}': media_id
         }))
+
+    def get_user_type(self, user_id):
+        result = self.users.find_one(
+            {c.USER_ID: ObjectId(user_id)},
+            {c.USER_ID: 0, c.USER_TYPE: 1})
+        return result[c.USER_TYPE]
+
+    def get_user_tier(self, user_id):
+        result = self.users.find_one(
+            {c.USER_ID: ObjectId(user_id)},
+            {c.USER_ID: 0, c.USER_TIER: 1})
+        return result[c.USER_TIER]
+
+    def upgrade_creator(self, user_id):
+        return self.users.update_one(
+            {c.USER_ID: ObjectId(user_id)},
+            {'$set': {c.USER_TYPE: 'creator'}}
+        ).matched_count
+
+    def upgrade_pro(self, user_id):
+        return self.users.update_one(
+            {c.USER_ID: ObjectId(user_id)},
+            {'$set': {c.USER_TIER: 'pro'}}
+        ).matched_count
