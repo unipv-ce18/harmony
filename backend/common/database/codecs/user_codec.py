@@ -8,8 +8,6 @@ _USER_DOCUMENT_BINDINGS = {
     'id' : c.USER_ID,
     'type': c.USER_TYPE,
     'tier': c.USER_TIER,
-    'first_name': c.USER_FIRST_NAME,
-    'last_name': c.USER_LAST_NAME,
     'username': c.USER_USERNAME,
     'email': c.USER_EMAIL,
     'password': c.USER_PASSWORD,
