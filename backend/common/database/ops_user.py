@@ -23,8 +23,9 @@ class UserOpsMixin:
         return [self.put_user(users[i]) for i in range(len(users))]
 
     def get_user(self, user_id):
-        result = self.users.find_one(
-            {c.USER_ID: ObjectId(user_id)})
+        user_doc = self.users.find_one(
+            {c.USER_ID: ObjectId(user_id)},
+            {c.USER_PASSWORD: 0, c.USER_PREFS: 0})
         return user_from_document(user_doc) if user_doc is not None else None
 
     def get_user_by_name(self, username):
