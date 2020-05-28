@@ -1,5 +1,6 @@
 const path = require('path');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const SpritePlugin = require('svg-sprite-loader/plugin');
 const HtmlPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 
@@ -13,11 +14,18 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(ttf|otf|eot|svg|woff(2)?|png|jpg|mp4)$/,
+        test: /\.(ttf|otf|eot|woff(2)?|png|jpg|mp4)$/,
         loader: 'file-loader',
         options: {
           name: 'assets/[hash].[ext]'
         }
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          {loader: 'svg-sprite-loader', options: {extract: true}},
+          'svgo-loader'
+        ]
       },
       {
         test: /\.ts(x?)$/,
@@ -49,6 +57,7 @@ module.exports = {
     new webpack.ProvidePlugin({
       __h: ['preact', 'h']
     }),
+    new SpritePlugin(),
     new HtmlPlugin({
       title: HarmonyConf.APPLICATION_NAME,
       template: "./src/index.html",
