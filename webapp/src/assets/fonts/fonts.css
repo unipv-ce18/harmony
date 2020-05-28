@@ -1,0 +1,17 @@
+/* Raleway 600 */
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Raleway SemiBold'), local('Raleway-SemiBold'), url(./Raleway-SemiBold.woff2) format('woff2');
+}
+
+/* Raleway 700 */
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Raleway Bold'), local('Raleway-Bold'), url(./Raleway-Bold.woff2) format('woff2');
+}
