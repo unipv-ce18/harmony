@@ -1,0 +1,68 @@
+@import './player_styledefs';
+
+$nav-height: 26px;
+$nav-margin: 6px;
+$nav-icon-size: 16px;
+$nav-font: 600 11px 'Raleway', sans-serif;
+
+$nav-text-color: $text-color-light;
+$nav-text-color-inactive: $text-color-light-inactive;
+
+// The main carousel viewport
+.carousel {
+  background-color: dodgerblue;
+}
+
+// The navigation bar
+ul.carouselNav {
+  list-style-type: none;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+
+  background-color: rgba(0, 0, 0, .2);
+  height: $nav-height;
+  margin: $nav-margin;
+  border-radius: $nav-height / 2;
+  transition: margin-bottom $player-transition-len;
+
+  font: $nav-font;
+
+  &.hidden {
+    margin-bottom: -($nav-margin + $nav-height);
+  }
+}
+
+// An item inside the navigation bar
+li.navItem {
+  letter-spacing: .6px;
+  margin: 0 12px 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+
+  min-width: $nav-icon-size;
+  max-width: $nav-icon-size;  // Overridden by JS when expanded (CSS cannot transition to auto)
+
+  transition-property: max-width, color, fill;
+  transition-duration: $player-transition-len;
+
+  color: $nav-text-color-inactive;
+  fill: $nav-text-color-inactive;
+
+  cursor: pointer;
+
+  &:hover, &.selected {
+    color: $nav-text-color;
+    fill: $nav-text-color;
+  }
+
+  span {
+    display: inline-block;
+    overflow: hidden;
+  }
+
+  svg {
+    height: $nav-icon-size;
+    margin-right: 2px;
+  }
+}
