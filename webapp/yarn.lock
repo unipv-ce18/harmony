@@ -6423,6 +6423,10 @@ preact-router@^3.1.0:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/preact-router/-/preact-router-3.2.1.tgz#c7d12d8fc7a60bfbe5cadf23a234551bec783468"
 
+preact-transition-group@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/preact-transition-group/-/preact-transition-group-2.0.0.tgz#3d6e1d8ad962c0cbe9252f235cb11da8799d7ef9"
+
 preact@^10.0.1:
   version "10.3.4"
   resolved "https://registry.yarnpkg.com/preact/-/preact-10.3.4.tgz#e1542a4d3eba3e7a37f312a2c331231b97052024"

@@ -38,6 +38,7 @@ module.exports = {
       {
         test: /\.m?js$/,
         //exclude: /(node_modules|bower_components)/,
+        type: 'javascript/auto',
         use: 'babel-loader'
       }
     ]

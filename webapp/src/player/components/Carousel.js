@@ -1,103 +1,68 @@
-import {Component, createRef} from 'preact';
+import {cloneElement, Component, createRef} from 'preact';
+import TransitionGroup from 'preact-transition-group';
 import PropTypes from 'prop-types'
-
-import {classList} from '../../core/utils';
 
 import style from './Carousel.scss';
 
 /**
- * TODO: Document
+ * A stateless multi-page carousel, selection is made over the key iof its children
  */
 class Carousel extends Component {
 
-  render(props, state, context) {
+  static propTypes = {
+    /** List of pages that can be shown, selection is based on their `key` attribute */
+    children: PropTypes.arrayOf(PropTypes.node),
+    /** The currently selected node key */
+    selected: PropTypes.string
+  }
+
+  render({children, selected}) {
+    const currentPage = children.find(c => c.key === selected);
     return (
-      <div class={style.carousel}/>
+      <TransitionGroup class={style.carousel}>
+        <Carousel.Page key={currentPage.key}>{currentPage}</Carousel.Page>
+      </TransitionGroup>
     )
   }
 
 }
 
+/**
+ * A page in the carousel, primarily handles visual transitions between pages
+ */
 Carousel.Page = class extends Component {
-  // TODO: Implement
-}
-
-/**
- * Navigator for a {@link Carousel}
- *
- * Displays buttons to be able to navigate between the passed in carousel pages.
- */
-Carousel.Nav = class extends Component {
 
   static propTypes = {
-    /** The {@link Carousel} to control. */
-    carousel: PropTypes.func,
-    /** Whenever the "hidden" CSS class should be applied */
-    visible: PropTypes.bool
+    /** The page's content */
+    children: PropTypes.node
   }
 
-  state = {
-    selected: 0
+  itemRef = createRef();
+
+  constructor(props, context) {
+    super(props, context);
+    props.children.ref = this.itemRef;
   }
 
-  pages = [];
-
-  componentDidMount() {
-    this.pages = this.props.carousel.current.props.children.map(c => c.props);
-  }
-
-  render({visible}, {selected}, context) {
-    return (
-      <ul class={classList(style.carouselNav, !visible && style.hidden)}>
-        {this.pages.map((props, i) =>
-          <NavElement {...props} enabled={i === selected} onClick={this.#onItemSelect.bind(this, i)}/>
-        )}
-      </ul>
-    );
-  }
-
-  #onItemSelect(i) {
-    this.setState({selected: i})
-    // TODO: Notify linked carousel
-  }
-
-}
-
-/**
- * Carousel navigator item
- */
-class NavElement extends Component {
-
-  static propTypes = {
-    /** The name of the item to display */
-    name: PropTypes.string,
-    /** The icon element to display */
-    icon: PropTypes.func,
-    /** Click event handler */
-    onClick: PropTypes.func,
-    /** Whenever the item should display as enabled */
-    enabled: PropTypes.bool
-  }
-
-  ref = createRef();
-  innerWidth = null;
-
-  componentDidMount() {
-    // CSS doesn't support transitions to 'auto' values, so we calculate the full item width by ourselves
-    this.ref.current.style.maxWidth = 'unset';
-    this.innerWidth = this.ref.current.getBoundingClientRect().width;
-    this.ref.current.style.maxWidth = null;
-    this.forceUpdate();
-  }
-
-  render({name, icon: Icon, onClick, enabled}, state, context) {
-    return (
-      <li ref={this.ref} onClick={onClick} title={name}
-          style={{maxWidth: enabled ? this.innerWidth : null}}
-          class={classList(style.navItem, enabled && style.selected)}>
-        <Icon/><span>{name}</span>
-      </li>
+  componentWillEnter(done) {
+    
+    const anim = this.itemRef.current.base.animate(
+      [{transform: 'translateX(-10px)', opacity: '0'}, {}],
+      { duration: 400, easing: 'ease-out', fill: 'both' }
     )
+    anim.onfinish = done;
+  }
+
+  componentWillLeave(done) {
+    const anim = this.itemRef.current.base.animate(
+      [{}, {transform: 'translateX(10px)', opacity: '0'}],
+      { duration: 400, easing: 'ease-in', fill: 'both' }
+    )
+    anim.onfinish = done;
+  }
+
+  render(props, state, context) {
+    return cloneElement(props.children);
   }
 
 }
