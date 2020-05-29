@@ -59,7 +59,7 @@ class SizeControls extends Component {
     const padding = enabled ? `${PAD_SIZE}px 0 0 ${PAD_SIZE}px` : '';
     return (
       <div ref={e => this.#wrapperRef = e}
-           style={{padding, cursor: getDirectionCursor(sizeDirection)}}
+           style={{padding, cursor: enabled ? getDirectionCursor(sizeDirection) : 'unset'}}
            onMouseMove={this.detectDirection}
            onMouseDown={this.onDragStart}>
         {children}
