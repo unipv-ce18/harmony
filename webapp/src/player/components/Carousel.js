@@ -1,6 +1,7 @@
 import {cloneElement, Component, createRef} from 'preact';
 import TransitionGroup from 'preact-transition-group';
 import PropTypes from 'prop-types'
+import * as animations from './animations';
 
 import style from './Carousel.scss';
 
@@ -16,11 +17,21 @@ class Carousel extends Component {
     selected: PropTypes.string
   }
 
+  // Index delta between previous and current selection: used to determine animation direction
+  transitionDirection = 0;
+  currentIndex = 0;
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    const nextIndex = nextProps.children.findIndex(c => c.key === nextProps.selected);
+    this.transitionDirection = nextIndex - this.currentIndex;
+    this.currentIndex = nextIndex;
+  }
+
   render({children, selected}) {
-    const currentPage = children.find(c => c.key === selected);
+    const currentPage = children[this.currentIndex];
     return (
       <TransitionGroup class={style.carousel}>
-        <Carousel.Page key={currentPage.key}>{currentPage}</Carousel.Page>
+        <Carousel.Page carousel={this} key={currentPage.key}>{currentPage}</Carousel.Page>
       </TransitionGroup>
     )
   }
@@ -34,7 +45,9 @@ Carousel.Page = class extends Component {
 
   static propTypes = {
     /** The page's content */
-    children: PropTypes.node
+    children: PropTypes.node,
+    /** The parent carousel */
+    carousel: PropTypes.instanceOf(Carousel)
   }
 
   itemRef = createRef();
@@ -45,19 +58,14 @@ Carousel.Page = class extends Component {
   }
 
   componentWillEnter(done) {
-    
-    const anim = this.itemRef.current.base.animate(
-      [{transform: 'translateX(-10px)', opacity: '0'}, {}],
-      { duration: 400, easing: 'ease-out', fill: 'both' }
-    )
+    const anim = animations.fadeIn(this.itemRef.current.base,
+      [Math.sign(this.props.carousel.transitionDirection) * 20, 0]);
     anim.onfinish = done;
   }
 
   componentWillLeave(done) {
-    const anim = this.itemRef.current.base.animate(
-      [{}, {transform: 'translateX(10px)', opacity: '0'}],
-      { duration: 400, easing: 'ease-in', fill: 'both' }
-    )
+    const anim = animations.fadeOut(this.itemRef.current.base,
+      [Math.sign(this.props.carousel.transitionDirection) * -20, 0]);
     anim.onfinish = done;
   }
 
