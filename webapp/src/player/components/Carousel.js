@@ -58,13 +58,19 @@ Carousel.Page = class extends Component {
   }
 
   componentWillEnter(done) {
-    const anim = animations.fadeIn(this.itemRef.current.base,
+    const child = this.itemRef.current;
+    if (child.componentWillEnter != null && child.componentWillEnter(done) === true) return;
+
+    const anim = animations.fadeIn(child.base,
       [Math.sign(this.props.carousel.transitionDirection) * 20, 0]);
     anim.onfinish = done;
   }
 
   componentWillLeave(done) {
-    const anim = animations.fadeOut(this.itemRef.current.base,
+    const child = this.itemRef.current;
+    if (child.componentWillLeave != null && child.componentWillLeave(done) === true) return;
+
+    const anim = animations.fadeOut(child.base,
       [Math.sign(this.props.carousel.transitionDirection) * -20, 0]);
     anim.onfinish = done;
   }
