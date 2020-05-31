@@ -19,7 +19,7 @@ ul.carouselNav {
   height: $nav-height;
   margin: $nav-margin;
   border-radius: $nav-height / 2;
-  transition: margin-bottom $player-transition-len;
+  transition: margin-bottom $player-transition-len-ms;
 
   font: $nav-font;
 
@@ -39,7 +39,7 @@ li.navItem {
   max-width: $nav-icon-size;  // Overridden by JS when expanded (CSS cannot transition to auto)
 
   transition-property: max-width, color, fill;
-  transition-duration: $player-transition-len;
+  transition-duration: $player-transition-len-ms;
 
   color: $nav-text-color-inactive;
   fill: $nav-text-color-inactive;

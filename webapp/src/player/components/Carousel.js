@@ -5,6 +5,8 @@ import * as animations from './animations';
 
 import style from './Carousel.scss';
 
+const TRANSITION_LEN = parseInt(style.playerTransitionLen);
+
 /**
  * A stateless multi-page carousel, selection is made over the key iof its children
  */
@@ -62,7 +64,7 @@ Carousel.Page = class extends Component {
     if (child.componentWillEnter != null && child.componentWillEnter(done) === true) return;
 
     const anim = animations.fadeIn(child.base,
-      [Math.sign(this.props.carousel.transitionDirection) * 20, 0]);
+      [Math.sign(this.props.carousel.transitionDirection) * 20, 0], TRANSITION_LEN);
     anim.onfinish = done;
   }
 
@@ -71,7 +73,7 @@ Carousel.Page = class extends Component {
     if (child.componentWillLeave != null && child.componentWillLeave(done) === true) return;
 
     const anim = animations.fadeOut(child.base,
-      [Math.sign(this.props.carousel.transitionDirection) * -20, 0]);
+      [Math.sign(this.props.carousel.transitionDirection) * -20, 0], TRANSITION_LEN);
     anim.onfinish = done;
   }
 
