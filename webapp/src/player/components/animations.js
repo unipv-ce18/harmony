@@ -4,13 +4,13 @@ import {Component, createRef} from 'preact';
  * Performs a fade-out animation altering CSS opacity and translation of the given element
  *
  * @param {Element} element The DOM element to animate
- * @param {Array} vector - Final translation coordinates
+ * @param {Array} vector - Final translation coordinates or `null`
  * @param {number} duration - Animation duration in milliseconds
  * @return {Animation} The resulting animation instance
  */
 export function fadeOut(element, vector, duration) {
   return element.animate(
-    [{}, {transform: `translate(${vector[0]}px, ${vector[1]}px)`, opacity: '0'}],
+    [{}, {opacity: '0', ...(vector && {transform: `translate(${vector[0]}px, ${vector[1]}px)`})}],
     {duration, easing: 'ease-in', fill: 'both'}
   );
 }
@@ -19,13 +19,13 @@ export function fadeOut(element, vector, duration) {
  * Performs a fade-in animation altering CSS opacity and translation of the given element
  *
  * @param {Element} element The DOM element to animate
- * @param {Array} vector - Initial translation coordinates
+ * @param {Array} vector - Initial translation coordinates or `null`
  * @param {number} duration - Animation duration in milliseconds
  * @return {Animation} The resulting animation instance
  */
 export function fadeIn(element, vector, duration) {
   return element.animate(
-    [{transform: `translate(${vector[0]}px, ${vector[1]}px)`, opacity: '0'}, {}],
+    [{opacity: '0', ...(vector && {transform: `translate(${vector[0]}px, ${vector[1]}px)`})}, {}],
     {duration, easing: 'ease-out', fill: 'both'}
   );
 }
