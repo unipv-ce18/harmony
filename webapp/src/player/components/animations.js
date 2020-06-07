@@ -6,12 +6,13 @@ import {Component, createRef} from 'preact';
  * @param {Element} element The DOM element to animate
  * @param {Array} vector - Final translation coordinates or `null`
  * @param {number} duration - Animation duration in milliseconds
+ * @param {number} delay - Optional transition delay
  * @return {Animation} The resulting animation instance
  */
-export function fadeOut(element, vector, duration) {
+export function fadeOut(element, vector, duration, delay = 0) {
   return element.animate(
     [{}, {opacity: '0', ...(vector && {transform: `translate(${vector[0]}px, ${vector[1]}px)`})}],
-    {duration, easing: 'ease-in', fill: 'both'}
+    {duration, delay, easing: 'ease-in', fill: 'both'}
   );
 }
 
@@ -21,12 +22,13 @@ export function fadeOut(element, vector, duration) {
  * @param {Element} element The DOM element to animate
  * @param {Array} vector - Initial translation coordinates or `null`
  * @param {number} duration - Animation duration in milliseconds
+ * @param {number} delay - Optional transition delay
  * @return {Animation} The resulting animation instance
  */
-export function fadeIn(element, vector, duration) {
+export function fadeIn(element, vector, duration, delay = 0) {
   return element.animate(
     [{opacity: '0', ...(vector && {transform: `translate(${vector[0]}px, ${vector[1]}px)`})}, {}],
-    {duration, easing: 'ease-out', fill: 'both'}
+    {duration, delay, easing: 'ease-out', fill: 'both'}
   );
 }
 

@@ -6,6 +6,12 @@ import {fadeIn, fadeOut} from './animations';
 
 import style from './IconButton.scss';
 
+
+const BUTTON_ANIMATION_TIME_MS = 100;
+
+/**
+ * A fancy button with an icon inside!
+ */
 class IconButton extends Component {
 
   static propTypes = {
@@ -21,7 +27,7 @@ class IconButton extends Component {
 
   render({name, size = 24, icon: Icon, onClick}) {
     return (
-      <TransitionGroup class={style.iconButton} title={name}  style={{width: size, height: size}} onClick={onClick}>
+      <TransitionGroup class={style.iconButton} title={name} style={{width: size, height: size}} onClick={onClick}>
         <AnimSwitcher key={Icon.name}><Icon/></AnimSwitcher>
       </TransitionGroup>
     );
@@ -29,21 +35,24 @@ class IconButton extends Component {
 
 }
 
+/**
+ *  Captures {@link TransitionGroup} events to animate between button icons
+ */
 class AnimSwitcher extends Component {
 
   childRef = createRef();
 
   componentWillEnter(done) {
-    fadeIn(this.childRef.current.base, null, 100).onfinish = done;
+    fadeIn(this.childRef.current.base, null, BUTTON_ANIMATION_TIME_MS).onfinish = done;
   }
 
   componentWillLeave(done) {
-    fadeOut(this.childRef.current.base, null, 100).onfinish = done;
+    fadeOut(this.childRef.current.base, null, BUTTON_ANIMATION_TIME_MS).onfinish = done;
   }
 
   render({children}) {
     children.ref = this.childRef;
-    return children
+    return children;
   }
 
 }

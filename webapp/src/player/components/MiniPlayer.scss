@@ -1,0 +1,41 @@
+@import './player_styledefs';
+
+.miniPlayer {
+  height: $player-height-minimized;
+  font: $mp-font;
+
+  //background-color: rgba(black, 0.1);
+
+  // Child views
+  > div {
+    height: 100%;
+  }
+}
+
+.defaultView {
+  display: flex;
+  align-items: center;
+
+  padding: 0 6px;
+
+  // Button
+  > :nth-child(1) {
+    margin-right: 6px;
+  }
+
+  // Song title
+  > :nth-child(2) {
+    font: $mp-font-title;
+  }
+
+  .separator {
+    margin: 0 6px;
+    &:before {
+      content: '•';
+    }
+  }
+}
+
+.altView {
+
+}
