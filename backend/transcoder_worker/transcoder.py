@@ -189,9 +189,9 @@ class Transcoder:
             '-o',
             f'{waveform_path}/{waveform_name}',
             '-z',
-			'512',   # samples per pixel
+            '512',  # samples per pixel
             '-b',
-			'8'      # bit
+            '8'     # bit
         ]
 
         subprocess.run(command)
