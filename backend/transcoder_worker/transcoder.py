@@ -135,6 +135,8 @@ class Transcoder:
             - template: saved as {bitrate}_$Time$.webm
 
         :param str id: id of the transcoded song
+        :return: manifest data of the transcoded song
+        :rtype: dict
         """
         key_id = _create_key(id)
         key = _create_key(id)
@@ -161,11 +163,52 @@ class Transcoder:
 
         subprocess.run(command)
 
-        repr_data = {
+        manifest_data = {
             'key_id': key_id,
             'key': key,
             'manifest': f'{id}/{manifest_name}'
         }
+        return manifest_data
+
+    def waveform_creation(self, id):
+        """Create the waveform file of a transcoded song.
+
+        Requires audiowaveform.
+
+        :param str id: id of the transcoded song
+        :return: waveform data of the transcoded song
+        :rtype: dict
+        """
+        waveform_path = f'{_tmp_folder}/{id}'
+        waveform_name = 'waveform.dat'
+
+        command = [
+            'audiowaveform',
+            '-i',
+            f'{_tmp_folder}/{id}.flac',
+            '-o',
+            f'{waveform_path}/{waveform_name}',
+            '-z',
+			'512',   # samples per pixel
+            '-b',
+			'8'      # bit
+        ]
+
+        subprocess.run(command)
+
+        waveform_data = {
+            'waveform': f'{id}/{waveform_name}'
+        }
+        return waveform_data
+
+    def upload_song_repr_data(self, id, manifest_data, waveform_data):
+        """Upload representation data of the song in the database.
+
+        :param str id: id of the transcoded song
+        :param dict manifest_data: manifest data of the transcoded song
+        :param dict waveform_data: waveform data of the transcoded song
+        """
+        repr_data = {**manifest_data, **waveform_data}
         self.db.put_song_representation_data(id, repr_data)
 
     def download_song_from_storage_server(self, song_id):
@@ -211,8 +254,8 @@ class Transcoder:
         """Perform a complete transcode process on a song.
 
         Retrieve the song from the storage server, transcode it in three different
-        qualities, create the manifest and the segments. Upload all the output files
-        to the storage server. Delete all the local temporary files.
+        qualities, create the manifest, the segments and the waveform. Upload all the
+        output files to the storage server. Delete all the local temporary files.
 
         :param str song_id: id of the song to be transcoded and name of the input file
         :param int sample_rate: the sample rate of the output song. The default
@@ -229,7 +272,9 @@ class Transcoder:
         if self.download_song_from_storage_server(song_id):
             try:
                 self.transcoding(song_id, sample_rate, channels, extension, include_metadata)
-                self.manifest_creation(song_id)
+                manifest_data = self.manifest_creation(song_id)
+                waveform_data = self.waveform_creation(song_id)
+                self.upload_song_repr_data(song_id, manifest_data, waveform_data)
                 self.upload_files_to_storage_server(song_id, extension)
 
                 log.info('%s: Transcoding job finished', song_id)
