@@ -15,7 +15,7 @@ class LeftBar extends Component {
   }
 
   clickLibrary(event) {
-    route('/library/');
+    route('/library/me');
     event.preventDefault();
   }
 

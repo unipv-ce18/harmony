@@ -123,7 +123,7 @@ class AuthLogin(Resource):
                 refresh = security.create_refresh_token(identity=str(user['id']))
                 db.store_token(security.decode_token(access))
                 db.store_token(security.decode_token(refresh))
-                return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 900}
+                return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'access_expires_in': 900, 'refresh_expires_in': 2592000}
         return {'message': 'Bad credentials'}, HTTPStatus.UNAUTHORIZED
 
 

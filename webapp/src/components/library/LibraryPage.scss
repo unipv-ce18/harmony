@@ -21,20 +21,12 @@
   padding: 20px 0;
 }
 
-.inputs {
-  width: 90%;
-  margin-left: 5%;
-  input{
-    width: 200px;
-  }
-}
-
-.playlists {
-  padding-top: 50px;
-
+.libraryCommon {
+  margin: 50px auto;
   span {
     display: inline-block;
     margin: 20px 8%;
+    text-align: left;
 
     img {
       width: 150px;
@@ -43,6 +35,78 @@
 
     p {
       margin: 0;
+
+      a {
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: white;
+      }
     }
+  }
+}
+
+.libraryArtists {
+  margin: 50px auto;
+  span {
+    display: inline-block;
+    margin: 20px 8%;
+    text-align: center;
+
+    img {
+      width: 150px;
+      height: 150px;
+      border-radius: 20px 0 20px 0;
+    }
+
+    p {
+      margin: 0;
+
+      a {
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: white;
+      }
+    }
+  }
+}
+
+.librarySongs table {
+  margin: 50px auto;
+  text-align: left;
+  border-collapse: collapse;
+
+  td, th { padding: 10px 30px }
+  td:first-child { border-radius: 15px 0 0 15px }
+  td:last-child { border-radius: 0 15px 15px 0 }
+  tr:not(:first-child):hover td { background: black }
+
+  th {
+    text-align: center;
+    padding-bottom: 30px;
+
+    button {
+      padding: 0;
+      margin: 0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: white;
+      text-decoration: underline;
+    }
+  }
+}
+
+
+.inputs {
+  width: 90%;
+  margin-left: 5%;
+  button{
+    width: 200px;
   }
 }

@@ -35,7 +35,7 @@ class App extends Component {
         <SearchPage path="/search/:type/:query"/>
         <ArtistPage path="/artist/:id"/>
         <ReleasePage path="/release/:id"/>
-        <LibraryPage path="/library/"/>
+        <LibraryPage path="/library/:id"/>
         <Redirect default to="/"/>
       </Router>
     ) : (

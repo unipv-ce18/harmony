@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 
-import {session} from '../../Harmony';
+import {session, catalog} from '../../Harmony';
 
 import style from './formsCommon.scss';
 import styleLogin from './LoginForm.scss';

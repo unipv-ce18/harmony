@@ -1,4 +1,5 @@
 @import "../../styledefs";
+@import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
 
 .releasePage {
   width: 100%;
@@ -72,6 +73,17 @@
           margin: 0 -20px
         }
 
+        button {
+          cursor: pointer;
+          width: 0;
+          height: 0;
+          background: none;
+          border: none;
+          margin-right: 30px;
+          -webkit-text-fill-color: transparent;
+          -webkit-text-stroke: 1px white;
+        }
+
         span {
           padding: 10px 0;
           display: table-cell;
@@ -80,6 +92,7 @@
 
         span:nth-of-type(2) {
           width: 100%;
+          text-align: right;
         }
       }
       hr {
@@ -93,6 +106,18 @@
           rgba(255,255,255, 0)
         );
       }
+    }
+  }
+
+  .likeReleaseButton {
+    cursor: pointer;
+    border-radius: 100%;
+    background: transparent;
+    padding: 3px 5px;
+
+    i {
+      -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: 1px white;
     }
   }
 

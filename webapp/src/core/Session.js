@@ -1,16 +1,19 @@
-import {execLogin} from './apiCalls';
+import {execLogin, execRefresh} from './apiCalls';
 import {execLogout} from './apiCalls';
 import {getCurrentTime} from './utils'
 
+import {catalog} from '../Harmony';
+
 const SESSION_STORE_KEY = 'session';
+const REFRESH_STORE_KEY = 'refresh';
 
 export class Session {
 
-  #validHint = false;
   #listeners = [];
   #notifyListeners = e => this.#listeners.forEach(l => l(e));
 
   #storeCache = undefined;
+  #refreshCache = undefined;
 
   get #store() {
     if (this.#storeCache === undefined)
@@ -20,13 +23,28 @@ export class Session {
 
   set #store(value) {
     this.#storeCache = value;
-    if (value == null)
+    if (value == null) {
       window.localStorage.removeItem(SESSION_STORE_KEY);
+    }
     else {
       window.localStorage.setItem(SESSION_STORE_KEY, JSON.stringify(value));
-      this.#validHint = true;
     }
     this.#notifyListeners();
+  }
+
+  get #refresh() {
+    if (this.#refreshCache === undefined)
+      this.#refreshCache = JSON.parse(window.localStorage.getItem(REFRESH_STORE_KEY));
+    return this.#refreshCache;
+  }
+
+  set #refresh(value) {
+    this.#refreshCache = value;
+    if (value == null)
+      window.localStorage.removeItem(REFRESH_STORE_KEY);
+    else {
+      window.localStorage.setItem(REFRESH_STORE_KEY, JSON.stringify(value));
+    }
   }
 
   constructor() {
@@ -55,11 +73,26 @@ export class Session {
   /**
    * Tells if the token associated to this session is still valid to access the API
    *
-   * @returns {boolean} True if this session is still valid
    */
   get valid() {
-    if (this.#validHint === false) return false;
-    return this.#store !== null && this.#store.expiration > getCurrentTime();
+    if (this.#store !== null && this.#store.expiration > getCurrentTime()) {
+      return true;
+    }
+    if (this.#refresh !== null && this.#refresh.expiration > getCurrentTime()) {
+      return execRefresh(this.#refresh.token)
+        .then(data => {
+          const token = data['access_token'];
+          const expiration = getCurrentTime() + parseInt(data['expires_in']);
+          if (token == null || isNaN(expiration))
+            throw Error('Invalid server response');
+          this.#store = {token, expiration};
+          return true;
+        })
+        .catch(e => {
+          return false;
+        })
+    }
+    return false;
   }
 
   /**
@@ -90,35 +123,29 @@ export class Session {
 
     return execLogin(username, password)
       .then(data => {
-        const token = data['access_token'];
-        const expiration = getCurrentTime() + parseInt(data['expires_in']);
-        if (data['token_type'] !== 'bearer' || token == null || isNaN(expiration))
+        const accessToken = data['access_token'];
+        const refreshToken = data['refresh_token'];
+        const accessExpiration = getCurrentTime() + parseInt(data['access_expires_in']);
+        const refreshExpiration = getCurrentTime() + parseInt(data['refresh_expires_in']);
+        if (data['token_type'] !== 'bearer' || accessToken == null || isNaN(accessExpiration) || refreshToken == null || isNaN(refreshExpiration))
           throw Error('Invalid server response');
-        this.#store = {token, expiration};
+        this.#store = {token:accessToken, expiration:accessExpiration};
+        this.#refresh = {token:refreshToken, expiration:refreshExpiration};
+        catalog.setCachedLibrary();
       });
   }
 
   /**
    * Performs a logout and erases the saved session storage
    */
-
-  /*
   doLogout() {
     if (!this.loggedIn) return;
 
     if (this.valid) {
-      // TODO: actually log out on the server
+      execLogout(this.#store.token);
     }
     this.#store = null;
-  }
-   */
-  doLogout() {
-    if (!this.loggedIn) return;
-
-    if (this.valid) {
-      execLogout();
-    }
-    this.#store = null;
+    this.#refresh = null;
   }
 
   /**
@@ -127,7 +154,6 @@ export class Session {
    * This method should be usually called after failed API calls due to HTTP 401 Unauthorized responses.
    */
   notifyInvalid() {
-    this.#validHint = false;
     this.#notifyListeners();
   }
 
@@ -137,7 +163,9 @@ export class Session {
 
   getAccessToken() {
     // Consider building classes requiring a token inside session instead
-    return this.#store.token;
+    if(this.valid) {
+      return this.#store.token;
+    }
   }
 
 }
