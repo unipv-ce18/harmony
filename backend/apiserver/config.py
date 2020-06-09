@@ -10,8 +10,8 @@ class Config:
     DEBUG = False
     SECRET_KEY = os.environ.get('SECRET_KEY', 'vivalacarbonara')
 
-    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=15)
-    JWT_REFRESH_TOKEN_EXPIRES = datetime.timedelta(days=30)
+    JWT_ACCESS_TOKEN_EXPIRES = int(datetime.timedelta(minutes=15).total_seconds())
+    JWT_REFRESH_TOKEN_EXPIRES = int(datetime.timedelta(days=30).total_seconds())
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'aiutoamici')
     JWT_BLACKLIST_ENABLED = True,
     JWT_BLACKLIST_TOKEN_CHECK = ['access', 'refresh']
