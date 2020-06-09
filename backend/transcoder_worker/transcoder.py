@@ -183,13 +183,13 @@ class Transcoder:
         waveform_name = 'waveform.dat'
 
         command = [
-            'audiowaveform',
+            transcoder_config.AUDIOWAVEFORM_PATH,
             '-i',
             f'{_tmp_folder}/{id}.flac',
             '-o',
             f'{waveform_path}/{waveform_name}',
             '-z',
-            '512',  # samples per pixel
+            str(transcoder_config.WAVEFORM_ZOOM),  # samples per pixel
             '-b',
             '8'     # bit
         ]
