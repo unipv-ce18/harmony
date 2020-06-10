@@ -191,6 +191,4 @@ class GetLibrary(Resource):
         library['releases'] = _resolve('releases')
         library['songs'] = _resolve('songs')
 
-        #if not all(v == [] for v in library.values()):
         return library, HTTPStatus.OK
-        #return {'message': 'No library'}, HTTPStatus.NOT_FOUND
