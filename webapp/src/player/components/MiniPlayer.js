@@ -36,7 +36,7 @@ class MiniPlayer extends Component {
     const MiniView = MODE_COMPONENTS[mode];
     return (
       <TransitionGroup class={style.miniPlayer}>
-        {MiniView && <MiniView refs={this.refs} flipCtx={flipCtx}/>}
+        {MiniView && <MiniView key={mode} refs={this.refs} flipCtx={flipCtx}/>}
       </TransitionGroup>
     );
   }

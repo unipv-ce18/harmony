@@ -11,10 +11,10 @@ class MiniViewAlternate extends Component {
     return (
       <div class={style.altView}>
         <Flip.Node ref={refs.trackTitle} group="mini-player" tag="track-title">
-          <div style={{marginLeft: 50}}>Best Song</div>
+          <div>Best Song</div>
         </Flip.Node>
         <Flip.Node ref={refs.trackArtist} group="mini-player" tag="track-artist">
-          <div style={{marginLeft: 50}}>A Fancy Artist</div>
+          <div>A Fancy Artist</div>
         </Flip.Node>
       </div> // TODO
     );

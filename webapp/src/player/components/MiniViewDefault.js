@@ -29,14 +29,14 @@ class MiniViewDefault extends Component {
     // Fade out the icon, instantly hide the rest (media labels will flip-animate to their target view)
     const [icon, ...rest] = this.viewRef.current.children;
     rest.forEach(e => e.style.visibility = 'hidden');
-    fadeOut(icon, null, ANIMATION_LENGTH_SHORT).onfinish = done;
+    fadeOut(icon, null, ANIMATION_LENGTH_SHORT, 0, 'none').onfinish = done;
   }
 
   componentWillEnter(done) {
     // Fade in the icon, don't touch media labels (they flip in by themselves); fade in separator at the end
     const els = this.viewRef.current.children;
-    fadeIn(els[0], null, ANIMATION_LENGTH_SHORT).onfinish = done;  // Icon
-    fadeIn(els[2], null, ANIMATION_LENGTH, ANIMATION_LENGTH_SHORT);  // Separator
+    fadeIn(els[0], null, ANIMATION_LENGTH_SHORT, 0, 'none').onfinish = done;  // Icon
+    fadeIn(els[2], null, ANIMATION_LENGTH, ANIMATION_LENGTH);  // Separator
   }
 
   render({refs, flipCtx: Flip}, {DUMMYplaying}) {
