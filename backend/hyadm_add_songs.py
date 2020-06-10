@@ -7,7 +7,7 @@ from http.client import HTTPConnection
 
 from apiserver.config import current_config as config
 from common.database import Database, connect_db
-from common.database.codec import artist_from_document, release_from_document, song_from_document
+from common.database.codecs import artist_from_document, release_from_document, song_from_document
 from common.storage import get_storage_interface
 
 
