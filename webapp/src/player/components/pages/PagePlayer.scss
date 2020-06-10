@@ -23,39 +23,53 @@
 .songData {
   flex-grow: 1;
   height: 100%;
+  font-family: $player-font;
 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
 
+  > * {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  > :nth-child(1), > :nth-child(2), > :nth-child(3) {
+    letter-spacing: .8px;
+  }
+
   // Track title
   > :nth-child(1) {
-    font: 600 140% 'Raleway', sans-serif;
+    font-weight: $player-font-weight-title;
+    height: 20%;
   }
 
   // Album
   > :nth-child(2) {
-    font: 700 70% 'Raleway', sans-serif;
+    font-weight: $player-font-weight-album;
     text-transform: uppercase;
-    letter-spacing: .8px;
+    height: 10%;
   }
 
   // Artist
   > :nth-child(3) {
-    font: 600 100% 'Raleway', sans-serif;
+    font-weight: $player-font-weight-artist;
+    height: 15%;
   }
 }
 
 // Seekbar frame
 .seekbar {
-  display: flex;
-  align-items: center;
-  width: 100%;
+  height: 25%;
 
   // Time labels
   > span {
-    font: 700 60% 'Raleway', sans-serif;
+    font-weight: 700;
+    font-size: 60%;
   }
 
   // The seekbar itself
@@ -67,8 +81,8 @@
 // Here Be Buttons
 .controls {
   display: flex;
-  width: 100%;
-  align-items: end;
+  align-items: flex-end;
+  height: 25%;
 
   > :first-child, > :last-child {
     flex-grow: 1;

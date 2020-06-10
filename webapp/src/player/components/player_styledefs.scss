@@ -16,10 +16,20 @@ $player-transition-len-short: 200;
 
 
 // --- Fonts ---
-$mp-font: 600 13px 'Raleway', sans-serif;  // Mini player default font
-$mp-font-title: 700 13px 'Raleway', sans-serif;   // Mini player track title
+$player-font: 'Raleway', sans-serif;
 
-$nav-font: 600 11px 'Raleway', sans-serif;  // Navigation tab font
+$player-font-weight-title: 600;
+$player-font-weight-title-mini: 700;
+
+$player-font-weight-album: 700;
+
+$player-font-weight-artist: 600;
+$player-font-weight-artist-mini: 600;
+
+$mp-font: $player-font-weight-artist-mini 13px $player-font;  // Mini player default font
+$mp-font-title: $player-font-weight-title-mini 13px $player-font;   // Mini player track title
+
+$nav-font: 600 11px $player-font;  // Navigation tab font
 
 // From Material Design guidelines
 $text-color-dark: rgba(0, 0, 0, 0.54);
