@@ -37,19 +37,19 @@ export class MediaCatalog {
    *
    */
   setCachedLibrary() {
-    let token = this.session.getAccessToken();
-    return getLibrary('me', token, false)
-      .then(data => {
-        this.#store = data;
-      });
+    return this.session.getAccessToken()
+      .then (token => {
+        return getLibrary('me', token, false)
+          .catch(e => console.log(e));
+      })
   }
 
   getFullLibrary(user_id) {
-    let token = this.session.getAccessToken();
-    console.log("getFullLibrary")
-    console.log(token)
-    return getLibrary(user_id, token, true)
-      .catch(e => console.log(e));
+    return this.session.getAccessToken()
+      .then (token => {
+        return getLibrary(user_id, token, true)
+          .catch(e => console.log(e));
+      })
   }
 
   inLibrary(media_type, element_id) {
@@ -77,8 +77,12 @@ export class MediaCatalog {
     }
     if (bool) {
       this.#store = this.#libraryCache;
-      setLike(function_type, session.getAccessToken(), media_type, element_id)
-        .catch(e => console.log(e));
+
+      session.getAccessToken()
+      .then (token => {
+          setLike(function_type, token, media_type, element_id)
+            .catch(e => console.log(e));
+      })
     }
   }
 }

@@ -1,8 +1,8 @@
-import {execLogin, execRefresh} from './apiCalls';
+import {execLogin, execRefresh, setLike} from './apiCalls';
 import {execLogout} from './apiCalls';
 import {getCurrentTime} from './utils'
 
-import {catalog} from '../Harmony';
+import {catalog, session} from '../Harmony';
 
 const SESSION_STORE_KEY = 'session';
 const REFRESH_STORE_KEY = 'refresh';
@@ -75,8 +75,12 @@ export class Session {
    *
    */
   get valid() {
-    if (this.#store !== null && this.#store.expiration > getCurrentTime()) {
-      return true;
+    return (this.#store !== null && this.#store.expiration > getCurrentTime())
+  }
+
+  getAccessToken() {
+    if(this.#store !== null && this.#store.expiration > getCurrentTime()) {
+      return Promise.resolve(this.#store.token);
     }
     if (this.#refresh !== null && this.#refresh.expiration > getCurrentTime()) {
       return execRefresh(this.#refresh.token)
@@ -84,15 +88,14 @@ export class Session {
           const token = data['access_token'];
           const expiration = getCurrentTime() + parseInt(data['expires_in']);
           if (token == null || isNaN(expiration))
-            throw Error('Invalid server response');
+            console.log(Error('Invalid server response'));
           this.#store = {token, expiration};
-          return true;
+          return token;
         })
         .catch(e => {
-          return false;
+          console.log(e)
         })
     }
-    return false;
   }
 
   /**
@@ -140,10 +143,10 @@ export class Session {
    */
   doLogout() {
     if (!this.loggedIn) return;
-
-    if (this.valid) {
-      execLogout(this.#store.token);
-    }
+    this.getAccessToken()
+      .then (token => {
+          execLogout(token);
+      })
     this.#store = null;
     this.#refresh = null;
   }
@@ -160,12 +163,4 @@ export class Session {
   toString() {
     return `Session(loggedIn: ${this.loggedIn}, valid: ${this.valid}, online: ${this.online})`;
   }
-
-  getAccessToken() {
-    // Consider building classes requiring a token inside session instead
-    if(this.valid) {
-      return this.#store.token;
-    }
-  }
-
 }
