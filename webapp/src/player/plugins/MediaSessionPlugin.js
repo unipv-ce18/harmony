@@ -38,7 +38,7 @@ class MediaSessionPlugin {
   unbindPlayerPlugin(player) {
     if (!('mediaSession' in navigator)) return;
 
-    player.removeEventListener(PlayerEvents.NEW_MEDIA, this.handleNewMedia)
+    player.removeEventListener(PlayerEvents.NEW_MEDIA, this.handleNewMedia);
   }
 
   handleNewMedia(id) {
@@ -47,8 +47,10 @@ class MediaSessionPlugin {
       title: mediaTags?.get('title') || (APP_NAME + ' player'),
       artist: mediaTags?.get('artist') || 'Unknown Artist',
       album: mediaTags?.get('album') || undefined,
-      // artwork : ...
-    })
+      artwork: [
+        {src: require('../../assets/albumart_default.jpg'), sizes: '400x400', type: 'image/jpeg'}
+      ]
+    });
   }
 
 }

@@ -1,6 +1,7 @@
 import {cloneElement, Component, createRef} from 'preact';
 import TransitionGroup from 'preact-transition-group';
 import PropTypes from 'prop-types'
+import {classList} from '../../core/utils';
 import * as animations from './animations';
 
 import style from './Carousel.scss';
@@ -16,7 +17,9 @@ class Carousel extends Component {
     /** List of pages that can be shown, selection is based on their `key` attribute */
     children: PropTypes.arrayOf(PropTypes.node),
     /** The currently selected node key */
-    selected: PropTypes.string
+    selected: PropTypes.string,
+    /** Whether to apply the expanded style */
+    expanded: PropTypes.bool
   }
 
   // Index delta between previous and current selection: used to determine animation direction
@@ -29,13 +32,13 @@ class Carousel extends Component {
     this.currentIndex = nextIndex;
   }
 
-  render({children, selected}) {
+  render({children, selected, expanded}) {
     const currentPage = children[this.currentIndex];
     return (
-      <TransitionGroup class={style.carousel}>
+      <TransitionGroup class={classList(style.carousel, expanded && style.expanded)}>
         <Carousel.Page carousel={this} key={currentPage.key}>{currentPage}</Carousel.Page>
       </TransitionGroup>
-    )
+    );
   }
 
 }
@@ -64,7 +67,7 @@ Carousel.Page = class extends Component {
     if (child.componentWillEnter != null && child.componentWillEnter(done) === true) return;
 
     const anim = animations.fadeIn(child.base,
-      [Math.sign(this.props.carousel.transitionDirection) * 20, 0], TRANSITION_LEN);
+      [Math.sign(this.props.carousel.transitionDirection) * 40, 0], TRANSITION_LEN);
     anim.onfinish = done;
   }
 
@@ -73,12 +76,12 @@ Carousel.Page = class extends Component {
     if (child.componentWillLeave != null && child.componentWillLeave(done) === true) return;
 
     const anim = animations.fadeOut(child.base,
-      [Math.sign(this.props.carousel.transitionDirection) * -20, 0], TRANSITION_LEN);
+      [Math.sign(this.props.carousel.transitionDirection) * -40, 0], TRANSITION_LEN);
     anim.onfinish = done;
   }
 
-  render(props, state, context) {
-    return cloneElement(props.children);
+  render({children}) {
+    return cloneElement(children);
   }
 
 }

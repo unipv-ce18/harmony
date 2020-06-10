@@ -45,11 +45,11 @@ class MiniViewDefault extends Component {
       <div ref={this.viewRef} class={style.defaultView}>
         <IconButton name={DUMMYplaying ? "Pause" : "Play"} icon={DUMMYplaying ? IconPlay : IconPause}
                     size={28} onClick={this.onPlayClickHandler}/>
-        <Flip.Node ref={refs.trackTitle} group="mini-player" tag="track-title">
+        <Flip.Node ref={refs.trackTitle} group="mini-player" tag="track-title" scale>
           <div>Best Song</div>
         </Flip.Node>
         <span class={style.separator}/>
-        <Flip.Node ref={refs.trackArtist} group="mini-player" tag="track-artist">
+        <Flip.Node ref={refs.trackArtist} group="mini-player" tag="track-artist" scale>
           <div>A Fancy Artist</div>
         </Flip.Node>
       </div>

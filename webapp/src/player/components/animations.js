@@ -80,6 +80,8 @@ export function flipAnim(dstObj, srcRect, animOpts, scale = false) {
  * - `group`: unique identifier of a source and/or destination, that can be `search/result` or `artist-page`;
  * - `tag`: identifies the element to match between source and destination, e.g. `album-art` or `track-title`.
  *
+ * If `scale` is given, elements size will also be considered for the animation.
+ *
  * @example Creating an instance
  * flipContext = new FlipContext({
  *   'target-group': {
@@ -93,8 +95,8 @@ export function flipAnim(dstObj, srcRect, animOpts, scale = false) {
  *   // otherwise P(React) does not trigger a DOM change (we could handle this but can get complex).
  *   return (
  *     <div>
- *       {mode === 1 && <Flip.Node key="a" group="source-group" id="test"><div>Test</div></Flip.Node>}
- *       {mode === 2 && <Flip.Node key="b" group="target-group" id="test"><div>Test</div></Flip.Node>}
+ *       {mode === 1 && <Flip.Node key="a" group="source-group" id="test" scale><div>Test</div></Flip.Node>}
+ *       {mode === 2 && <Flip.Node key="b" group="target-group" id="test" scale><div>Test</div></Flip.Node>}
  *     </div>
  *   );
  * }
@@ -119,7 +121,7 @@ export function FlipContext(rules) {
 
       const transitionProps = rules[this.props.group][srcData.group]
       if (transitionProps)
-        flipAnim(this.ref.current, srcData.rect, transitionProps);
+        flipAnim(this.ref.current, srcData.rect, transitionProps, this.props.scale);
       else
         console.warn('Cannot animate: group "%s" has no rule matching "%s', this.props.group, srcData.group);
     }

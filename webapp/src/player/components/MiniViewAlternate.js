@@ -10,10 +10,10 @@ class MiniViewAlternate extends Component {
   render({refs, flipCtx: Flip}) {
     return (
       <div class={style.altView}>
-        <Flip.Node ref={refs.trackTitle} group="mini-player" tag="track-title">
+        <Flip.Node ref={refs.trackTitle} group="mini-player" tag="track-title" scale>
           <div>Best Song</div>
         </Flip.Node>
-        <Flip.Node ref={refs.trackArtist} group="mini-player" tag="track-artist">
+        <Flip.Node ref={refs.trackArtist} group="mini-player" tag="track-artist" scale>
           <div>A Fancy Artist</div>
         </Flip.Node>
       </div> // TODO

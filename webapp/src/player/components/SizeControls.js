@@ -55,7 +55,7 @@ class SizeControls extends Component {
     }
   }
 
-  render({enabled, children}, {sizeDirection}, context) {
+  render({enabled, children}, {sizeDirection}) {
     const padding = enabled ? `${PAD_SIZE}px 0 0 ${PAD_SIZE}px` : '';
     return (
       <div ref={e => this.#wrapperRef = e}
