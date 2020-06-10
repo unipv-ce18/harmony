@@ -1,10 +1,8 @@
 import {Component} from 'preact';
 
-import library from './testLibrary';
 import styles from './LibraryPage.scss';
 
 import {catalog} from '../../Harmony';
-import ReleasePageComposed from '../release/ReleasePageComposed';
 import SongsPage from './SongsPage';
 import PlaylistsPage from './PlaylistsPage';
 import ArtistsPage from './ArtistsPage';

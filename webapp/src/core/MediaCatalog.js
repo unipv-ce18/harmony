@@ -1,7 +1,5 @@
-import {execLogin, execRefresh, getLibrary, setLike} from "./apiCalls";
+import {getLibrary, setLike} from "./apiCalls";
 import library from '../components/library/testLibrary';
-import {session} from '../Harmony';
-
 
 const LIBRARY_STORE_KEY = 'library';
 
@@ -39,7 +37,8 @@ export class MediaCatalog {
   setCachedLibrary() {
     return this.session.getAccessToken()
       .then (token => {
-        return getLibrary('me', token, false)
+        getLibrary('me', token, false)
+          .then (library => this.#store = library)
           .catch(e => console.log(e));
       })
   }
@@ -55,9 +54,7 @@ export class MediaCatalog {
   inLibrary(media_type, element_id) {
     if (media_type === 'songs') return this.#store.songs.includes(element_id);
     if (media_type === 'artists') return this.#store.artists.includes(element_id);
-    if (media_type === 'releases') {
-      return this.#store.releases.includes(element_id);
-    }
+    if (media_type === 'releases') return this.#store.releases.includes(element_id);
     return false;
   }
 
@@ -78,7 +75,7 @@ export class MediaCatalog {
     if (bool) {
       this.#store = this.#libraryCache;
 
-      session.getAccessToken()
+      this.session.getAccessToken()
       .then (token => {
           setLike(function_type, token, media_type, element_id)
             .catch(e => console.log(e));

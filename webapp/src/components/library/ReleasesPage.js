@@ -11,16 +11,16 @@ class ReleasesPage extends Component {
       clicked : true,
       releases: [...this.props.releases]
     };
-
-    this.clickArtist = this.clickArtist.bind(this);
-    this.clickRelease = this.clickRelease.bind(this);
   }
 
-  clickArtist(id) {
+  clickArtist(id, e) {
+    e.preventDefault();
+    route('/artist/'+id);
   }
 
-  clickRelease(id) {
-    route('/release/' + id);
+  clickRelease(id, e) {
+    e.preventDefault();
+    route('/release/'+id);
   }
 
   render() {
@@ -29,8 +29,8 @@ class ReleasesPage extends Component {
           {this.state.clicked && this.state.releases.map(item =>
               <span>
                 <img src={image} alt={""}/>
-                <p><a href='' onClick={()=>this.clickRelease(item.id)}>{item.name}</a></p>
-                <p>By <a href='' onClick={()=>this.clickArtist(item.artist.id)}>{item.artist.name}</a></p>
+                <p><a href='#' onClick={this.clickRelease.bind(this, item.id)}>{item.name}</a></p>
+                <p>By <a href='#' onClick={this.clickArtist.bind(this, item.artist.id)}>{item.artist.name}</a></p>
               </span>)}
       </div>
     );

@@ -1,6 +1,3 @@
-import {getCurrentTime} from './utils'
-import {API_BASE_URL} from '../../harmony-webapp.conf';
-
 const API_LOGIN_URL = API_BASE_URL + '/auth/login';
 const API_REGISTRATION_URL = API_BASE_URL + '/auth/register';
 const API_LOGOUT_URL = API_BASE_URL + '/auth/logout';

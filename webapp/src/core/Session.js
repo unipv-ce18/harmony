@@ -128,7 +128,7 @@ export class Session {
       .then(data => {
         const accessToken = data['access_token'];
         const refreshToken = data['refresh_token'];
-        const accessExpiration = getCurrentTime() + parseInt(data['access_expires_in']);
+        const accessExpiration = getCurrentTime() + parseInt(data['expires_in']);
         const refreshExpiration = getCurrentTime() + parseInt(data['refresh_expires_in']);
         if (data['token_type'] !== 'bearer' || accessToken == null || isNaN(accessExpiration) || refreshToken == null || isNaN(refreshExpiration))
           throw Error('Invalid server response');

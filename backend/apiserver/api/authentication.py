@@ -101,7 +101,7 @@ class AuthLogin(Resource):
             description: Successful login
             content:
               application/json:
-                example: {'access_token': 'ACCESS_TOKEN', 'refresh_token': 'REFRESH_TOKEN', 'token_type': 'bearer', 'access_expires_in': 900, 'refresh_expires_in': ‭2592000‬}
+                example: {'access_token': 'ACCESS_TOKEN', 'refresh_token': 'REFRESH_TOKEN', 'token_type': 'bearer', 'expires_in': 900, 'refresh_expires_in': ‭2592000‬}
           401:
             description: Login has failed
             content:
@@ -127,7 +127,7 @@ class AuthLogin(Resource):
                     'access_token': access,
                     'refresh_token': refresh,
                     'token_type': 'bearer',
-                    'access_expires_in': current_app.config['JWT_ACCESS_TOKEN_EXPIRES'],
+                    'expires_in': current_app.config['JWT_ACCESS_TOKEN_EXPIRES'],
                     'refresh_expires_in': current_app.config['JWT_REFRESH_TOKEN_EXPIRES']
                 }
         return {'message': 'Bad credentials'}, HTTPStatus.UNAUTHORIZED
