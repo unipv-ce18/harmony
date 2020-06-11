@@ -101,6 +101,7 @@ def song_projection_search_result():
     return {
         '_id': f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}.{c.SONG_ID}',
         'title': f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}.{c.SONG_TITLE}',
+        'length': f'${c.ARTIST_RELEASES}.{c.RELEASE_SONGS}.{c.SONG_LENGTH}',
         'artist': _ARTIST_REF_PROJECTION,
         'release': _RELEASE_REF_PROJECTION
     }
