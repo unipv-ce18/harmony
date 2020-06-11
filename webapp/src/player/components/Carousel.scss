@@ -4,17 +4,11 @@
 .carousel {
   // also solves overflow when minimized
   position: relative;
-  overflow: hidden;
 
   > * {
     position: absolute;
     top: 0;
     width: 100%;
     height: 100%;
-  }
-
-  &.expanded {
-    // To allow the player page to fill the mini player area
-    overflow: visible;
   }
 }

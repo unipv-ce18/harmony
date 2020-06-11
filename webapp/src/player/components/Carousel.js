@@ -1,7 +1,6 @@
 import {cloneElement, Component, createRef} from 'preact';
 import TransitionGroup from 'preact-transition-group';
 import PropTypes from 'prop-types'
-import {classList} from '../../core/utils';
 import * as animations from './animations';
 
 import style from './Carousel.scss';
@@ -18,8 +17,8 @@ class Carousel extends Component {
     children: PropTypes.arrayOf(PropTypes.node),
     /** The currently selected node key */
     selected: PropTypes.string,
-    /** Whether to apply the expanded style */
-    expanded: PropTypes.bool
+    /** Whether to allow content overflow */
+    overflow: PropTypes.bool
   }
 
   // Index delta between previous and current selection: used to determine animation direction
@@ -32,10 +31,10 @@ class Carousel extends Component {
     this.currentIndex = nextIndex;
   }
 
-  render({children, selected, expanded}) {
+  render({children, selected, overflow}) {
     const currentPage = children[this.currentIndex];
     return (
-      <TransitionGroup class={classList(style.carousel, expanded && style.expanded)}>
+      <TransitionGroup class={style.carousel} style={{overflow: overflow ? 'visible' : 'hidden'}}>
         <Carousel.Page carousel={this} key={currentPage.key}>{currentPage}</Carousel.Page>
       </TransitionGroup>
     );
