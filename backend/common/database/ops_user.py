@@ -85,3 +85,9 @@ class UserOpsMixin:
             {c.USER_ID: ObjectId(user_id)},
             {'$set': {c.USER_TIER: 'pro'}}
         ).matched_count
+
+    def get_user_for_library(self, user_id):
+        user_doc = self.users.find_one(
+            {c.USER_ID: ObjectId(user_id)},
+            {c.USER_USERNAME: 1})
+        return user_from_document(user_doc) if user_doc is not None else None
