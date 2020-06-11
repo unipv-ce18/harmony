@@ -96,3 +96,35 @@
     float: right;
   }
 }
+
+
+// Fade in-out animations
+.pagePlayer {
+  img, .songData > :nth-child(2), .seekbar, .controls {
+    opacity: 0;
+    transition: opacity $player-transition-len-ms, transform $player-transition-len-ms;
+  }
+
+  img {
+    transform: scale(0.8);
+  }
+
+  &.visible {
+    img, .songData > :nth-child(2), .seekbar, .controls {
+      opacity: 1;
+    }
+
+    img, .seekbar {
+      transition-delay: $player-transition-len-short-ms;
+    }
+    .controls {
+      transition-delay: $player-transition-len-short-ms + 100ms;
+    }
+    .songData > :nth-child(2) {
+      transition-delay: $player-transition-len-ms;
+    }
+    img {
+      transform: none;
+    }
+  }
+}

@@ -10,6 +10,7 @@ $player-transition-len-ms: $player-transition-len + 0ms;
 
 // Short timing (for icon buttons fading in/out)
 $player-transition-len-short: 200;
+$player-transition-len-short-ms: $player-transition-len-short + 0ms;
 
 // Long timing (still unused)
 //$player-transition-len-long: 600;
