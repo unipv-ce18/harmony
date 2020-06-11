@@ -85,6 +85,7 @@ class SongDatabaseTest(DatabaseTest):
         expected_result = song_from_document({
             '_id': self.song_ids[1][1],
             'title': self.artist_in.releases[1].songs[1].title,
+            'length': self.artist_in.releases[1].songs[1].length,
             'artist': make_artist_ref(self.artist_id, self.artist_in),
             'release': make_release_ref(self.release_ids[1], self.artist_in.releases[1])
         })
