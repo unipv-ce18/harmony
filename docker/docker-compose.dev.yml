@@ -35,6 +35,9 @@ services:
       # To be consistent with application development config
       MINIO_ACCESS_KEY: HVTH67YJMJ3BVSHPWJOM
       MINIO_SECRET_KEY: kAeWXU3qV5vyofP3kTnyEmtp1BarIvE4CrQIF6wU
+      MINIO_NOTIFY_WEBHOOK_ENABLE: 'on'
+      MINIO_NOTIFY_WEBHOOK_ENDPOINT: http://apiserver/_webhooks/s3/events
+      MINIO_NOTIFY_WEBHOOK_AUTH_TOKEN: ivitelloniinbouvette
     ports:
       - '9000:9000'
 

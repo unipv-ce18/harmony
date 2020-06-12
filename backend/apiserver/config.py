@@ -16,6 +16,8 @@ class Config:
     JWT_BLACKLIST_ENABLED = True,
     JWT_BLACKLIST_TOKEN_CHECK = ['access', 'refresh']
 
+    S3_WEBHOOK_SECRET = os.environ.get('S3_WEBHOOK_SECRET', 'ivitelloniinbouvette')
+
 
 class DevelopmentConfig(Config, BackendConfigDev):
     DEBUG = True

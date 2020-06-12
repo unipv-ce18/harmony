@@ -52,10 +52,12 @@ def create_app(config_name=None):
     def check_token_revoked(decrypted_token):
         return db.is_token_revoked(decrypted_token)
 
-    # Register API routes
+    # Register routes
     from .api import api_blueprint
+    from .hooks import webhook_blueprint
     api_explorer.manage_blueprint(api_blueprint)
     app.register_blueprint(api_blueprint, url_prefix='/api/v1', db=db)
+    app.register_blueprint(webhook_blueprint, url_prefix='/_webhooks', db=db)
 
     # Configure messaging and WebSocket
     transcoder_client = TranscoderClient(current_config)

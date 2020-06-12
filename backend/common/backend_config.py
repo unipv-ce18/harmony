@@ -35,11 +35,14 @@ class BackendConfig:
     STORAGE_BUCKET_TRANSCODED = 'compressed-songs'
     STORAGE_BUCKET_IMAGES = 'images'
 
+    STORAGE_AUTO_CONFIGURE = False
     STORAGE_USE_TLS = True
+    STORAGE_NOTIFICATION_ARN = 'arn:minio:sqs::_:webhook'  # Minio with webhooks enabled gives us this ARN
 
 
 class BackendConfigDev(BackendConfig):
 
+    STORAGE_AUTO_CONFIGURE = True
     STORAGE_USE_TLS = False
 
 
