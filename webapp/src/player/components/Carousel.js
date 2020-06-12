@@ -31,10 +31,10 @@ class Carousel extends Component {
     this.currentIndex = nextIndex;
   }
 
-  render({children, selected, overflow}) {
+  render({children, selected, overflow, class: clazz}) {
     const currentPage = children[this.currentIndex];
     return (
-      <TransitionGroup class={style.carousel} style={{overflow: overflow ? 'visible' : 'hidden'}}>
+      <TransitionGroup class={`${style.carousel} ${clazz}`} style={{overflow: overflow ? 'visible' : 'hidden'}}>
         <Carousel.Page carousel={this} key={currentPage.key}>{currentPage}</Carousel.Page>
       </TransitionGroup>
     );
