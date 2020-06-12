@@ -1,0 +1,48 @@
+@import './player_styledefs';
+
+ul.buttons {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+
+  z-index: 100;
+
+  position: absolute;
+  top: 6px;
+  right: 6px;
+
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+
+  transition: right $player-transition-len-ms;
+
+  li {
+    transition: fill $player-transition-len-short-ms, opacity $player-transition-len-ms;
+  }
+
+  // Close button
+  > li:nth-child(1):hover {
+    fill: #b00;
+  }
+
+  span {
+    background-color: transparent;
+    display: block; // To have proper <li> height
+  }
+
+  &.hideClose {
+    right: -14px;
+    > li:nth-child(1) {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  &.hidePin {
+    > li:nth-child(2) {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}

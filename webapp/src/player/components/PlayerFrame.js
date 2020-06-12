@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import {classList} from '../../core/utils';
 import {IconEqualizer, IconMusic, IconPlaylist} from '../../assets/icons/icons'
+import PlayerFrameButtons from './PlayerFrameButtons';
 import Carousel from './Carousel';
 import SelectorMenu from './SelectorMenu';
 import MiniPlayer from './MiniPlayer';
@@ -42,6 +43,9 @@ class PlayerFrame extends Component {
   render({expanded}, {resizing, currentPage}) {
     return (
       <div class={classList(style.player, resizing && style.sizing)} style={expanded && this.expandedSize}>
+        {/* Close and pin buttons */}
+        <PlayerFrameButtons/>
+
         {/* Carousel (page switcher) - overflow allows PagePlayer to fill the mini player area */}
         <Carousel class={style.pageView} selected={currentPage} overflow={currentPage === Pages.PLAYER.id}>
           {PageData.map(({id, Content}) => <Content key={id} expanded={expanded}/>)}

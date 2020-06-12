@@ -18,3 +18,8 @@ export const IconTrackNext = (props) => <Icon mod={require('./fast_forward-24px.
 export const IconTrackPrev = (props) => <Icon mod={require('./fast_rewind-24px.svg')} {...props}/>;
 export const IconTrackRepeat = (props) => <Icon mod={require('./repeat-24px.svg')} {...props}/>;
 export const IconTrackShuffle = (props) => <Icon mod={require('./shuffle-24px.svg')} {...props}/>;
+
+// Player frame
+export const IconRadioOff = (props) => <Icon mod={require('./radio_button_unchecked-24px.svg')} {...props}/>;
+export const IconRadioOn = (props) => <Icon mod={require('./radio_button_checked-24px.svg')} {...props}/>;
+export const IconClose = (props) => <Icon mod={require('./close-24px.svg')} {...props}/>;
