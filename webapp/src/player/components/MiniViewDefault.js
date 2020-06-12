@@ -2,9 +2,10 @@ import {Component, createRef} from 'preact';
 
 import IconButton from './IconButton';
 import {IconPause, IconPlay} from '../../assets/icons/icons';
+import {fadeIn, fadeOut} from './animations';
+import {PlayerViewContextConsumer, FlipTags, FLIP_GROUP_MINI_PLAYER} from './PlayerViewContext';
 
 import style from './MiniPlayer.scss';
-import {fadeIn, fadeOut} from './animations';
 
 const ANIMATION_LENGTH = parseInt(style.playerTransitionLen);
 const ANIMATION_LENGTH_SHORT = parseInt(style.playerTransitionLenShort);
@@ -39,17 +40,17 @@ class MiniViewDefault extends Component {
     fadeIn(els[2], null, ANIMATION_LENGTH, ANIMATION_LENGTH);  // Separator
   }
 
-  render({refs, flipCtx: Flip}, {DUMMYplaying}) {
+  render({refs}, {DUMMYplaying}, {flipContext: Flip}) {
     // TODO: Get media labels content from player context
     return (
       <div ref={this.viewRef} class={style.defaultView}>
         <IconButton name={DUMMYplaying ? "Pause" : "Play"} icon={DUMMYplaying ? IconPlay : IconPause}
                     size={28} onClick={this.onPlayClickHandler}/>
-        <Flip.Node ref={refs.trackTitle} group="mini-player" tag="track-title" scale>
+        <Flip.Node ref={refs.trackTitle} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_TITLE} scale>
           <div>Best Song</div>
         </Flip.Node>
         <span class={style.separator}/>
-        <Flip.Node ref={refs.trackArtist} group="mini-player" tag="track-artist" scale>
+        <Flip.Node ref={refs.trackArtist} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_ARTIST} scale>
           <div>A Fancy Artist</div>
         </Flip.Node>
       </div>
@@ -60,6 +61,8 @@ class MiniViewDefault extends Component {
     e.stopPropagation();
     this.setState({DUMMYplaying: !this.state.DUMMYplaying})
   }
+
+  static contextType = PlayerViewContextConsumer.contextType;
 
 }
 

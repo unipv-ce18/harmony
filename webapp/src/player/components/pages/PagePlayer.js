@@ -2,11 +2,12 @@ import {Component, createRef} from 'preact';
 
 import {classList} from '../../../core/utils';
 import {IconPlay, IconTrackNext, IconTrackPrev, IconTrackRepeat, IconTrackShuffle} from '../../../assets/icons/icons';
+import {PlayerViewContextConsumer, FlipTags, FLIP_GROUP_PAGE_PLAYER} from '../PlayerViewContext';
 import IconButton from '../IconButton';
 import Seekbar from '../Seekbar';
-import {getBoxFontSize, predictArtistFontSize, predictSongDataDomSize, predictTitleFontSize} from './playerPageMetrics';
 import {getExpandedSize} from '../playerUiPrefs';
 
+import * as metrics from './playerPageMetrics';
 import style from './PagePlayer.scss';
 
 const TRANSITION_LEN = parseInt(style.playerTransitionLen);
@@ -21,7 +22,7 @@ class PagePlayer extends Component {
 
   #resizeObserver = new ResizeObserver(els => els.forEach(e => {
     // e.contentBoxSize only implemented by Firefox
-    const size = getBoxFontSize(e.contentRect);
+    const size = metrics.getBoxFontSize(e.contentRect);
     e.target.style.fontSize = size + 'px';
   }));
 
@@ -74,11 +75,14 @@ class PagePlayer extends Component {
     return true;
   }
 
-  render({expanded, flipCtx: Flip}, {visible}) {
+  render({expanded}, {visible}, {flipContext: Flip}) {
     if (expanded && this.#initialFontSize == null) {
       // Recalculate initial font sizes if needed
-      const sdSize = predictSongDataDomSize(getExpandedSize());
-      this.#initialFontSize = {title: predictTitleFontSize(sdSize), artist: predictArtistFontSize(sdSize)};
+      const sdSize = metrics.predictSongDataDomSize(getExpandedSize());
+      this.#initialFontSize = {
+        title: metrics.predictTitleFontSize(sdSize),
+        artist: metrics.predictArtistFontSize(sdSize)
+      };
     }
 
     return (
@@ -92,7 +96,7 @@ class PagePlayer extends Component {
           {/* Song title */}
           <div style={this.#initialFontSize && {fontSize: this.#initialFontSize.title}}>
             {visible &&
-            <Flip.Node ref={this.#refs.titleLabel} group="page-player" tag="track-title" scale>
+            <Flip.Node ref={this.#refs.titleLabel} group={FLIP_GROUP_PAGE_PLAYER} tag={FlipTags.TRACK_TITLE} scale>
               <div>Best Song</div>
             </Flip.Node>
             }
@@ -106,7 +110,7 @@ class PagePlayer extends Component {
           {/* Artist  */}
           <div style={this.#initialFontSize && {fontSize: this.#initialFontSize.artist}}>
             {visible &&
-            <Flip.Node ref={this.#refs.artistLabel} group="page-player" tag="track-artist" scale>
+            <Flip.Node ref={this.#refs.artistLabel} group={FLIP_GROUP_PAGE_PLAYER} tag={FlipTags.TRACK_ARTIST} scale>
               <div>A Fancy Artist</div>
             </Flip.Node>
             }
@@ -146,6 +150,8 @@ class PagePlayer extends Component {
 
     this.setState({visible});
   }
+
+  static contextType = PlayerViewContextConsumer.contextType;
 
 }
 
