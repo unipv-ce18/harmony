@@ -4,7 +4,7 @@ from bson import ObjectId
 
 from common.model import User
 from .contracts import user_contract as c
-from .codecs import user_from_document, user_to_document
+from .codecs import user_from_document, user_to_document, library_from_document, library_to_document
 
 
 class UserOpsMixin:
@@ -25,7 +25,7 @@ class UserOpsMixin:
     def get_user(self, user_id):
         user_doc = self.users.find_one(
             {c.USER_ID: ObjectId(user_id)},
-            {c.USER_PASSWORD: 0, c.USER_PREFS: 0})
+            {c.USER_PASSWORD: 0, c.USER_LIBRARY: 0})
         return user_from_document(user_doc) if user_doc is not None else None
 
     def get_user_by_name(self, username):
@@ -39,28 +39,34 @@ class UserOpsMixin:
         return user_from_document(user_doc) if user_doc is not None else None
 
     def get_library(self, user_id):
-        result = self.users.find_one(
+        library_doc = self.users.find_one(
             {c.USER_ID: ObjectId(user_id)},
-            {c.USER_ID: 0, f'{c.USER_PREFS}.library': 1})
-        return result[c.USER_PREFS]['library'] if result else None
+            {c.USER_ID: 0, f'{c.USER_LIBRARY}': 1})
+        return library_from_document(library_doc[c.USER_LIBRARY]) if library_doc else None
 
     def add_media_to_library(self, user_id, media_type, media_id):
-        return bool(self.users.update_one(
-            {c.USER_ID: ObjectId(user_id)},
-            {'$addToSet': {f'{c.USER_PREFS}.library.{media_type}': media_id}}
-        ).matched_count)
+        if media_type in [c.LIBRARY_PLAYLISTS, c.LIBRARY_ARTISTS, c.LIBRARY_RELEASES, c.LIBRARY_SONGS]:
+            return bool(self.users.update_one(
+                {c.USER_ID: ObjectId(user_id)},
+                {'$addToSet': {f'{c.USER_LIBRARY}.{media_type}': media_id}}
+            ).matched_count)
+        return False
 
     def pull_media_from_library(self, user_id, media_type, media_id):
-        return bool(self.users.update_one(
-            {c.USER_ID: ObjectId(user_id)},
-            {'$pull': {f'{c.USER_PREFS}.library.{media_type}': media_id}}
-        ).matched_count)
+        if media_type in [c.LIBRARY_PLAYLISTS, c.LIBRARY_ARTISTS, c.LIBRARY_RELEASES, c.LIBRARY_SONGS]:
+            return bool(self.users.update_one(
+                {c.USER_ID: ObjectId(user_id)},
+                {'$pull': {f'{c.USER_LIBRARY}.{media_type}': media_id}}
+            ).matched_count)
+        return False
 
     def media_in_library(self, user_id, media_type, media_id):
-        return bool(self.users.find_one({
-            c.USER_ID: ObjectId(user_id),
-            f'{c.USER_PREFS}.library.{media_type}': media_id
-        }))
+        if media_type in [c.LIBRARY_PLAYLISTS, c.LIBRARY_ARTISTS, c.LIBRARY_RELEASES, c.LIBRARY_SONGS]:
+            return bool(self.users.find_one({
+                c.USER_ID: ObjectId(user_id),
+                f'{c.USER_LIBRARY}.{media_type}': media_id
+            }))
+        return False
 
     def get_user_type(self, user_id):
         result = self.users.find_one(
@@ -77,13 +83,13 @@ class UserOpsMixin:
     def upgrade_creator(self, user_id):
         return self.users.update_one(
             {c.USER_ID: ObjectId(user_id)},
-            {'$set': {c.USER_TYPE: 'creator'}}
+            {'$set': {c.USER_TYPE: c.USER_TYPE_CREATOR}}
         ).matched_count
 
     def upgrade_pro(self, user_id):
         return self.users.update_one(
             {c.USER_ID: ObjectId(user_id)},
-            {'$set': {c.USER_TIER: 'pro'}}
+            {'$set': {c.USER_TIER: c.USER_TIER_PRO}}
         ).matched_count
 
     def get_user_for_library(self, user_id):

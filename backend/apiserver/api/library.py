@@ -171,7 +171,7 @@ class GetLibrary(Resource):
         }.get(type)
 
         def _resolve(type):
-            if type not in library:
+            if library[type] is None:
                 return []
             if not resolve_library:
                 return library[type]
@@ -192,7 +192,7 @@ class GetLibrary(Resource):
         args = _arg_parser_library.parse_args()
         resolve_library = args['full'] in ['1', 'true', 'yes']
 
-        library = db.get_library(user_id)
+        library = db.get_library(user_id).to_dict()
 
         if library is None:
             return {'message': 'No library'}, HTTPStatus.NOT_FOUND

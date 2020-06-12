@@ -12,7 +12,8 @@ _user_tuple = namedtuple('User', [
     'location',
     'avatar_url',
     'stats',
-    'prefs'
+    'prefs',
+    'library'
 ])
 
 

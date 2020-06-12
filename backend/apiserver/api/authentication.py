@@ -66,7 +66,7 @@ class AuthRegister(Resource):
                 data['password'] = security.hash_password(data['password'])
                 data['type'] = 'basic'
                 data['tier'] = 'free'
-                data['prefs'] = {}
+                data['library'] = {}
                 if db.put_user(user_from_document(data)):
                     return {'message': 'User created'}, HTTPStatus.CREATED
                 else:
