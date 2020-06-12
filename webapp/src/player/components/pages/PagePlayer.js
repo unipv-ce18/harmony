@@ -38,7 +38,7 @@ class PagePlayer extends Component {
 
     // Detect expand/collapse and set visible accordingly
     if (nextProps.expanded !== this.props.expanded)
-      this.setState({visible: nextProps.expanded});
+      this.#setVisibleState(nextProps.expanded);
   }
 
   componentDidUpdate(previousProps, previousState, snapshot) {
@@ -60,7 +60,7 @@ class PagePlayer extends Component {
 
   componentWillEnter(done) {
     // Override default carousel animation
-    this.setState({visible: true});
+    this.#setVisibleState(true);
 
     done();
     return true;
@@ -68,9 +68,7 @@ class PagePlayer extends Component {
 
   componentWillLeave(done) {
     // Save these before leaving for smooth transition to other pages
-    this.#refs.titleLabel.current.saveCurrentLocation();
-    this.#refs.artistLabel.current.saveCurrentLocation();
-    this.setState({visible: false});
+    this.#setVisibleState(false);
 
     setTimeout(done, TRANSITION_LEN);
     return true;
@@ -137,6 +135,16 @@ class PagePlayer extends Component {
         </div>
       </div>
     );
+  }
+
+  #setVisibleState(visible) {
+    if (visible === false) {
+      // Save label metrics if we are leaving (does not work if we do in componentWillUpdate)
+      this.#refs.titleLabel.current.saveCurrentPosition();
+      this.#refs.artistLabel.current.saveCurrentPosition();
+    }
+
+    this.setState({visible});
   }
 
 }
