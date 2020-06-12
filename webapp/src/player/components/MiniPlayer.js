@@ -27,8 +27,8 @@ class MiniPlayer extends Component {
     // Save location for FLIP early if we are switching between DEFAULT and ALTERNATE
     // otherwise the expand/collapse animation will mess up client rect calculations
     if (this.props.mode !== MiniPlayer.Mode.HIDDEN && this.props.mode !== nextProps.mode) {
-      this.refs.trackTitle.current.saveCurrentLocation();
-      this.refs.trackArtist.current.saveCurrentLocation();
+      this.refs.trackTitle.current.saveCurrentMetrics();
+      this.refs.trackArtist.current.saveCurrentMetrics();
     }
   }
 

@@ -111,7 +111,7 @@ export function FlipContext(rules) {
   this.Node = class extends Component {
 
     ref = createRef();
-    locationSaved = false;
+    metricsSaved = false;
 
     componentDidMount() {
       // console.log('mount', this.props.group, this.props.tag)
@@ -128,11 +128,11 @@ export function FlipContext(rules) {
 
     componentWillUnmount() {
       // console.log('unmount', this.props.group, this.props.tag)
-      if (!this.locationSaved) this.saveCurrentLocation();
+      if (!this.metricsSaved) this.saveCurrentMetrics();
     }
 
     /**
-     * Triggers a {@link DOMRect} save before the wrapped component is unmounted, the location won't be saved
+     * Triggers a {@link DOMRect} save before the wrapped component is unmounted, location and size won't be saved
      * again on unmount.
      *
      * This can be used on the source element, for example, in the following cases:
@@ -140,10 +140,10 @@ export function FlipContext(rules) {
      *   `TransitionGroup` `componentWillLeave` callback triggered by the same state change that will mount the target);
      * - When other animations playing at unmount time cause an alteration of the source location.
      */
-    saveCurrentLocation() {
+    saveCurrentMetrics() {
       const rect = this.ref.current.getBoundingClientRect();
       _r[this.props.tag] = {group: this.props.group, rect: rect};
-      this.locationSaved = true;
+      this.metricsSaved = true;
     }
 
     render({children}) {

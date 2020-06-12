@@ -140,8 +140,8 @@ class PagePlayer extends Component {
   #setVisibleState(visible) {
     if (visible === false) {
       // Save label metrics if we are leaving (does not work if we do in componentWillUpdate)
-      this.#refs.titleLabel.current.saveCurrentPosition();
-      this.#refs.artistLabel.current.saveCurrentPosition();
+      this.#refs.titleLabel.current.saveCurrentMetrics();
+      this.#refs.artistLabel.current.saveCurrentMetrics();
     }
 
     this.setState({visible});
