@@ -56,6 +56,41 @@ http://localhost/api/v1/spec in your REST client of choice.
 You need to run your own instances of MinIO, RabbitMQ and MongoDB. Look at `docker/rabbitmq/definitions.json` and
 `docker/mongo.init.d/` for definitions and scripts to kickstart your environment.
 
+##### MinIO guide.
+
+Get MinIO:
+```console
+$ wget https://dl.min.io/server/minio/release/linux-amd64/minio
+$ chmod +x minio
+```
+
+Get mc:
+```console
+$ wget https://dl.min.io/client/mc/release/linux-amd64/mc
+$ chmod +x mc
+```
+
+Configure client:
+```console
+$ ./mc config host add minio http://127.0.0.1 HVTH67YJMJ3BVSHPWJOM kAeWXU3qV5vyofP3kTnyEmtp1BarIvE4CrQIF6wU --api S3v4
+$ ./mc config host add local http://localhost HVTH67YJMJ3BVSHPWJOM kAeWXU3qV5vyofP3kTnyEmtp1BarIvE4CrQIF6wU --api S3v4
+```
+
+Run MinIO server:
+```console
+$ sudo ./minio server /data
+```
+
+Enable webhooks notification:
+```console
+$ ./mc admin config set local/ notify_webhook:_ endpoint="http://localhost/_webhooks/s3/events" auth_token="ivitelloniinbouvette"
+$ ./mc admin service restart local/
+$ ./mc event add local/lossless-songs arn:minio:sqs::_:webhook --event put --suffix .flac
+$ ./mc event list local/lossless-songs
+$ ./mc event add local/images arn:minio:sqs::_:webhook --event put
+$ ./mc event list local/images
+```
+
 Install the requirements for the components you need:
 
 ```console
