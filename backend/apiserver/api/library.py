@@ -165,24 +165,22 @@ class GetLibrary(Resource):
                 example: {'message': 'No library'}
         """
         _func = lambda type : {
+            'playlists': db.get_playlist_for_library,
             'artists': db.get_artist_for_library,
             'releases': db.get_release_for_library,
             'songs': db.get_song_for_library
         }.get(type)
+        _action = lambda type : library[type] if not resolve_library \
+            else [_func(type)(id).to_dict() for id in library[type]]
+        _resolve = lambda type : _action(type) if type in library else []
 
-        def _resolve(type):
-            if library[type] is None:
-                return []
-            if not resolve_library:
-                return library[type]
-            if type == 'playlists':
-                for playlist in library[type]:
+        def _check_playlists():
+            if resolve_library:
+                for playlist in library['playlists']:
                     for k, v in playlist.items():
                         if k != 'id' and k != 'name':
                             playlist[k] = db.get_user_for_library(v).to_dict() if not isinstance(v, list) \
                                 else [db.get_song_for_library(song_id).to_dict() for song_id in v]
-                return library[type]
-            return [_func(type)(id).to_dict() for id in library[type]]
 
         if user_id == 'me':
             user_id = security.get_jwt_identity()
@@ -198,6 +196,7 @@ class GetLibrary(Resource):
             return {'message': 'No library'}, HTTPStatus.NOT_FOUND
 
         library['playlists'] = _resolve('playlists')
+        _check_playlists()
         library['artists'] = _resolve('artists')
         library['releases'] = _resolve('releases')
         library['songs'] = _resolve('songs')
