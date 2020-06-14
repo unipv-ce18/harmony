@@ -4,6 +4,7 @@ import IconButton from './IconButton';
 import {IconPause, IconPlay} from '../../assets/icons/icons';
 import {fadeIn, fadeOut} from './animations';
 import {PlayerViewContextConsumer, FlipTags, FLIP_GROUP_MINI_PLAYER} from './PlayerViewContext';
+import PlayStates from '../PlayStates';
 
 import style from './MiniPlayer.scss';
 
@@ -16,10 +17,6 @@ const ANIMATION_LENGTH_SHORT = parseInt(style.playerTransitionLenShort);
 class MiniViewDefault extends Component {
 
   viewRef = createRef();
-
-  state = {
-    DUMMYplaying: false  // TODO: Replace with playback info from context when implemented
-  }
 
   constructor() {
     super();
@@ -40,18 +37,18 @@ class MiniViewDefault extends Component {
     fadeIn(els[2], null, ANIMATION_LENGTH, ANIMATION_LENGTH);  // Separator
   }
 
-  render({refs}, {DUMMYplaying}, {flipContext: Flip}) {
-    // TODO: Get media labels content from player context
+  render({refs}, state, {playState, currentMedia, flipContext: Flip}) {
+    const playing = playState === PlayStates.PLAYING;
     return (
       <div ref={this.viewRef} class={style.defaultView}>
-        <IconButton name={DUMMYplaying ? "Pause" : "Play"} icon={DUMMYplaying ? IconPlay : IconPause}
+        <IconButton name={playing ? "Pause" : "Play"} icon={playing ? IconPause : IconPlay}
                     size={28} onClick={this.onPlayClickHandler}/>
         <Flip.Node ref={refs.trackTitle} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_TITLE} scale>
-          <div>Best Song</div>
+          <div>{currentMedia && currentMedia.mediaInfo.title}</div>
         </Flip.Node>
         <span class={style.separator}/>
         <Flip.Node ref={refs.trackArtist} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_ARTIST} scale>
-          <div>A Fancy Artist</div>
+          <div>{currentMedia && currentMedia.mediaInfo.artist}</div>
         </Flip.Node>
       </div>
     );
@@ -59,7 +56,15 @@ class MiniViewDefault extends Component {
 
   onPlayClickHandler(e) {
     e.stopPropagation();
-    this.setState({DUMMYplaying: !this.state.DUMMYplaying})
+    const player = this.context.player;
+    if (this.context.playState === PlayStates.PLAYING) {
+      console.log('pausing');
+      player.pause();
+    } else {
+      console.log('staritng');
+      player.play();
+    }
+    //this.context.playState === PlayStates.PLAYING && player.pause() || player.play();
   }
 
   static contextType = PlayerViewContextConsumer.contextType;

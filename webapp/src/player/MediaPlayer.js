@@ -24,6 +24,16 @@ export const PlayStartModes = Object.freeze({
  * Represents a playable media item
  */
 export class MediaItemInfo {
+
+  // Tags, see the Vorbis comment specification <https://wiki.xiph.org/VorbisComment> for recommended names
+  static TAG_TITLE = 'TITLE';
+  static TAG_RELEASE = 'ALBUM';
+  static TAG_TRACK_NR = 'TRACKNUMBER';
+  static TAG_ARTIST = 'ARTIST';
+
+  // Nonstandard tags
+  static TAB_ALBUMART_URL = 'ALBUMART_URL';
+
   id;
   tags;
 
@@ -31,13 +41,26 @@ export class MediaItemInfo {
    * Creates a new {@link MediaItemInfo} instance
    *
    * @param {String} id The Harmony recording ID
-   * @param {Object} tags Map of tags following the Vorbis comment field specification <https://wiki.xiph.org/VorbisComment>
+   * @param {Object} tags Map of track tags
    * @param {String} type The type of media to play
    */
   constructor(id, tags, type = 'audio') {
     this.id = id;
     this.tags = tags;
   }
+
+  get title() {
+    return this.tags[MediaItemInfo.TAG_TITLE] || `Song {${this.id}}`;
+  }
+
+  get release() {
+    return this.tags[MediaItemInfo.TAG_RELEASE] || '';
+  }
+
+  get artist() {
+    return this.tags[MediaItemInfo.TAG_ARTIST] || 'Unknown artist';
+  }
+
 }
 
 /**

@@ -35,7 +35,7 @@ class MiniPlayer extends Component {
   render({mode}) {
     const MiniView = MODE_COMPONENTS[mode];
     return (
-      <TransitionGroup class={style.miniPlayer}>
+      <TransitionGroup class={style.miniPlayer} style={mode === MiniPlayer.Mode.HIDDEN && {pointerEvents: 'none'}}>
         {MiniView && <MiniView key={mode} refs={this.refs}/>}
       </TransitionGroup>
     );

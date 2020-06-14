@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import style from './player_styledefs.scss';
 import {FlipContext} from './animations';
+import PlayerEvents from '../PlayerEvents';
 
 const PlayerViewContext = createContext();
 
@@ -42,12 +43,48 @@ export class PlayerViewContextProvider extends Component {
 
   flipContext = new FlipContext(FLIP_RULES);
 
-  render({player, view, children}) {
+  state = {
+    playState: null,
+    currentMedia: null
+  }
+
+  constructor() {
+    super();
+    this.onPlayerStateChange = this.onPlayerStateChange.bind(this);
+    this.onPlayerTrackChange = this.onPlayerTrackChange.bind(this);
+  }
+
+  componentDidMount() {
+    const player = this.props.player;
+    player.addEventListener(PlayerEvents.STATE_CHANGE, this.onPlayerStateChange);
+    player.addEventListener(PlayerEvents.NEW_MEDIA, this.onPlayerTrackChange);
+  }
+
+  componentWillUnmount() {
+    const player = this.props.player;
+    player.removeEventListener(PlayerEvents.STATE_CHANGE, this.onPlayerStateChange);
+    player.removeEventListener(PlayerEvents.NEW_MEDIA, this.onPlayerTrackChange);
+  }
+
+  render({player, view: playerView, children}, {playState, currentMedia}) {
     return (
-      <PlayerViewContext.Provider value={{player, playerView: view, flipContext: this.flipContext}}>
+      <PlayerViewContext.Provider value={{player, playerView, playState, currentMedia, flipContext: this.flipContext}}>
         {children}
       </PlayerViewContext.Provider>
     )
+  }
+
+  onPlayerStateChange(e) {
+    this.setState({playState: e.detail.newState});
+  }
+
+  onPlayerTrackChange(e) {
+    this.setState({
+      currentMedia: {
+        mediaInfo: this.props.player.currentMediaInfo,
+        length: e.detail.res.duration
+      }
+    });
   }
 
 }

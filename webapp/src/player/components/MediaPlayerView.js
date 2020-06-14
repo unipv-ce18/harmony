@@ -1,82 +1,71 @@
 import {Component, createRef} from 'preact';
 
 import {session} from '../../Harmony';
-import PlayStates from '../PlayStates';
-import PlayerEvents from '../PlayerEvents';
 
-import styles from './MediaPlayerView.scss';
 import MediaSessionPlugin from '../plugins/MediaSessionPlugin';
+import SizeControls from './SizeControls';
+import PlayerFrame from './PlayerFrame';
+import {PlayerViewContextProvider} from './PlayerViewContext';
+import {fadeIn} from './animations';
 
-function getPlayStateMessage(playState) {
-  switch (playState) {
-    case PlayStates.STOPPED:
-      return 'Stopped';
-    case PlayStates.PAUSED:
-      return 'Paused';
-    case PlayStates.BUFFERING:
-      return 'Buffering';
-    case PlayStates.PLAYING:
-      return 'Playing';
-    case PlayStates.ERRORED:
-      return 'Error';
-    default:
-      return `Unk. state #${playState}`;
-  }
-}
+import style from './PlayerFrame.scss';
+
+const TRANSITION_TIME = parseInt(style.playerTransitionLenShort);
 
 class MediaPlayerView extends Component {
 
   audioTagRef = createRef();
-  audioSeek = createRef();
 
-  constructor(props) {
-    super(props);
+  state = {
+    expanded: false,
+    pinned: false
   }
 
   componentDidMount() {
     const player = this.props.player;
     player.initialize(this.audioTagRef.current, session);
-    player.addPlugin(this)
     player.addPlugin(new MediaSessionPlugin())
     this.setState({playState: player.playbackState});
     this.props.onLoaded();
 
-    const seek = this.audioSeek.current;
-    seek.addEventListener('mouseup', e => e.target.blur());
-    this.audioSeek.current.addEventListener('change', e => player.seek(seek.value));
+    fadeIn(this.base, [0, 10], TRANSITION_TIME, 0, 'none');
   }
 
-  bindPlayerPlugin(player) {
-    player.addEventListener(PlayerEvents.STATE_CHANGE,
-      e => this.setState({playState: e.detail.newState}));
-    player.addEventListener(PlayerEvents.NEW_MEDIA, e =>
-      this.audioSeek.current.max = e.detail.res.duration);
-    player.addEventListener(PlayerEvents.TIME_UPDATE, e => {
-      const audioSeek = this.audioSeek.current;
-      if (document.activeElement !== audioSeek) {
-        audioSeek.value = e.detail.cur;
-      }
-    });
-    return { description: 'Preact Player UI' }
-  }
-
-  unbindPlayerPlugin(player) {
-    // TODO: Unregister player listeners
-  }
-
-  render({player}, {playState}) {
+  render({player}, {expanded, playState}) {
     return (
-      <div class={styles.player}>
-        <span>{getPlayStateMessage(playState)}</span>
-        <input type="button" value="Play" onClick={() => player.play()}/>
-        <input type="button" value="Pause" onClick={() => player.pause()}/>
-        <input type="button" value="Stop" onClick={() => player.stop()}/>
-        <input type="button" value="Prev" onClick={() => player.previous()}/>
-        <input type="button" value="Next" onClick={() => player.next()}/>
-        <input type="range" ref={this.audioSeek}/>
+      <div class={style.playerContainer} tabIndex={0}
+           onClick={() => this.#expanded = true} onBlur={() => this.#expanded = false}>
+        <PlayerViewContextProvider player={player} view={this}>
+          <SizeControls enabled={expanded}>
+            <PlayerFrame expanded={expanded}/>
+          </SizeControls>
+        </PlayerViewContextProvider>
         <audio ref={this.audioTagRef}/>
       </div>
     );
+  }
+
+  set pinned(pinned) {
+    if (this.state.pinned !== pinned)
+      this.setState({pinned});
+  }
+
+  get pinned() {
+    return this.state.pinned;
+  }
+
+  set #expanded(expanded) {
+    if (this.state.pinned && expanded === false) {
+      // Do not collapse if pinned
+      return;
+    }
+
+    if (this.state.expanded !== expanded)
+      this.setState({expanded});
+  }
+
+  get expanded() {
+    return this.state.expanded;
   }
 
 }

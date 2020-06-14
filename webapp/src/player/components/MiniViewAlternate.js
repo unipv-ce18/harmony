@@ -8,14 +8,14 @@ import style from './MiniPlayer.scss';
  */
 class MiniViewAlternate extends Component {
 
-  render({refs}, state, {flipContext: Flip}) {
+  render({refs}, state, {currentMedia, flipContext: Flip}) {
     return (
       <div class={style.altView}>
         <Flip.Node ref={refs.trackTitle} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_TITLE} scale>
-          <div>Best Song</div>
+          <div>{currentMedia && currentMedia.mediaInfo.title}</div>
         </Flip.Node>
         <Flip.Node ref={refs.trackArtist} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_ARTIST} scale>
-          <div>A Fancy Artist</div>
+          <div>{currentMedia && currentMedia.mediaInfo.artist}</div>
         </Flip.Node>
       </div> // TODO
     );
