@@ -4,6 +4,7 @@ from .ops_artist import ArtistOpsMixin
 from .ops_release import ReleaseOpsMixin
 from .ops_song import SongOpsMixin
 from .ops_orchestrator import OrchestratorOpsMixin
+from .ops_playlist import PlaylistOpsMixin
 
 
 # This is because Python...
@@ -19,6 +20,7 @@ class Database(
         ReleaseOpsMixin,
         SongOpsMixin,
         OrchestratorOpsMixin,
+        PlaylistOpsMixin,
         _DbBase):
 
     def __init__(self, db_connection):

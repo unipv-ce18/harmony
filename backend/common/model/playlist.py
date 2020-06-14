@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 
-_playlists_tuple = namedtuple('Playlists', [
+_playlist_tuple = namedtuple('Playlist', [
     'id',
     'name',
     'creator',
@@ -9,19 +9,19 @@ _playlists_tuple = namedtuple('Playlists', [
 ])
 
 
-class Playlists(_playlists_tuple):
+class Playlist(_playlist_tuple):
 
     def __repr__(self):
-        playlists = ''
+        playlist = ''
         for k, v in self._asdict().items():
-            playlists += f'\n\t{k}: {v}\n'
-        return playlists
+            playlist += f'\n\t{k}: {v}\n'
+        return playlist
 
     def __str__(self):
-        playlists = ''
+        playlist = ''
         for k, v in self._asdict().items():
-            playlists += f'{k}: {v}\n'
-        return playlists
+            playlist += f'{k}: {v}\n'
+        return playlist
 
     def to_dict(self):
         return dict(self._asdict())

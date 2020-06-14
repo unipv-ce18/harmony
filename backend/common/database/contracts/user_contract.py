@@ -20,12 +20,6 @@ LIBRARY_ARTISTS = 'artists'
 LIBRARY_RELEASES = 'releases'
 LIBRARY_SONGS = 'songs'
 
-# Playlists document fields
-PLAYLISTS_ID = 'id'
-PLAYLISTS_NAME = 'name'
-PLAYLISTS_CREATOR = 'creator'
-PLAYLISTS_SONGS = 'songs'
-
 # User reference fields
 USER_REF_ID = 'id'
 USER_REF_USERNAME = 'username'

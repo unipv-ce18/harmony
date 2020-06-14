@@ -4,7 +4,7 @@ from bson import ObjectId
 
 from common.model import User
 from .contracts import user_contract as c
-from .codecs import user_from_document, user_to_document, library_from_document, library_to_document
+from .codecs import user_from_document, user_to_document, library_from_document
 
 
 class UserOpsMixin:

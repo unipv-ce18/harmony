@@ -24,9 +24,4 @@ class Library(_library_tuple):
         return library
 
     def to_dict(self):
-        library_dict = dict(self._asdict())
-        if self.playlists is not None:
-            playlists_dict = [p.to_dict() for p in self.playlists] \
-                if isinstance(self.playlists, list) else self.playlists.to_dict()
-            library_dict['playlists'] = playlists_dict
-        return library_dict
+        return dict(self._asdict())
