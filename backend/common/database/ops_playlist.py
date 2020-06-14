@@ -34,8 +34,14 @@ class PlaylistOpsMixin:
         playlist_doc = self.playlists.find_one(
             {c.PLAYLIST_ID: ObjectId(playlist_id)},
             {c.PLAYLIST_ID: 0, c.PLAYLIST_CREATOR: 1})
-        return playlist_from_document(playlist_doc[c.PLAYLIST_CREATOR]) if playlist_doc else None
+        return playlist_doc[c.PLAYLIST_CREATOR] if playlist_doc else None
 
     def get_playlist_for_library(self, playlist_id):
         playlist_doc = self.playlists.find_one({c.PLAYLIST_ID: ObjectId(playlist_id)})
         return playlist_from_document(playlist_doc) if playlist_doc is not None else None
+
+    def song_in_playlist(self, playlist_id, song_id):
+        return bool(self.playlists.find_one({
+            c.PLAYLIST_ID: ObjectId(playlist_id),
+            c.PLAYLIST_SONGS: song_id
+        }))

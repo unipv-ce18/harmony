@@ -27,7 +27,7 @@ class CreatePlaylist(Resource):
         ---
         tags: [user]
         requestBody:
-          description: Playlist to add to the system
+          description: Playlist to create
           required: true
           content:
             application/json:
@@ -67,3 +67,110 @@ class CreatePlaylist(Resource):
             return {'message': 'Playlist created'}, HTTPStatus.CREATED
         else:
             return {'message': 'Failed to create new playlist'}, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@api.resource('/update')
+class UpdatePlaylist(Resource):
+    method_decorators = [security.jwt_required]
+
+    def put(self):
+        """Add a song to a playlist
+        ---
+        tags: [user]
+        requestBody:
+          description: Song to add to the playlist
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  playlist_id: {type: string, description: The playlist id}
+                  song_id: {type: string, description: The song id}
+                required: [playlist_id, song_id]
+              examples:
+                0: {summary: 'Add song', value: {'playlist_id': 'PLAYLIST ID', 'song_id': 'SONG ID'}}
+        responses:
+          204:  # No Content
+            description: Item inserted correctly
+            content: {}
+          409:  # Conflict
+            description: Item already present in the library
+            content:
+              application/json:
+                example: {'message': 'Already present'}
+          400:  # Bad Request
+            $ref: '#components/responses/InvalidId'
+          401:
+            description: User is different from the creator
+            content:
+              application/json:
+                example: {'message': 'You are not authorized to modify this playlist'}
+          404:  # Not Found
+            $ref: '#components/responses/LibraryUpdateNoUser'
+        """
+        return self._update_op(db.add_song_to_playlist, False, 'Already present')
+
+    def delete(self):
+        """Remove a song from a playlist
+        ---
+        tags: [user]
+        requestBody:
+          description: Song to remove from the playlist
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  playlist_id: {type: string, description: The playlist id}
+                  song_id: {type: string, description: The song id}
+                required: [playlist_id, song_id]
+              examples:
+                0: {summary: 'Remove song', value: {'playlist_id': 'PLAYLIST ID', 'song_id': 'SONG ID'}}
+        responses:
+          204:  # No Content
+            description: Item removed successfully
+            content: {}
+          409:  # Conflict
+            description: Item not present in the library
+            content:
+              application/json:
+                example: {'message': 'Not present'}
+          400:  # Bad Request
+            $ref: '#components/responses/InvalidId'
+          401:
+            description: User is different from the creator
+            content:
+              application/json:
+                example: {'message': 'You are not authorized to modify this playlist'}
+          404:  # Not Found
+            $ref: '#components/responses/LibraryUpdateNoUser'
+        """
+        return self._update_op(db.pull_song_from_playlist, True, 'Not present')
+
+    @staticmethod
+    def _update_op(operation, song_present, fail_msg):
+        data = _arg_parser_update_playlist.parse_args()
+
+        user_id = security.get_jwt_identity()
+        playlist_id = data['playlist_id']
+        song_id = data['song_id']
+
+        if not ObjectId.is_valid(user_id):
+            return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
+        if not ObjectId.is_valid(playlist_id):
+            return {'message': 'Playlist ID not valid'}, HTTPStatus.BAD_REQUEST
+        if not ObjectId.is_valid(song_id):
+            return {'message': 'Song ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        if db.song_in_playlist(playlist_id, song_id) != song_present:
+            return {'message': fail_msg}, HTTPStatus.CONFLICT
+
+        if user_id == db.get_playlist_creator(playlist_id):
+            response = operation(playlist_id, song_id)
+
+            if response:
+                return None, HTTPStatus.NO_CONTENT
+            return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+        return {'message': 'You are not authorized to modify this playlist'}, HTTPStatus.UNAUTHORIZED
