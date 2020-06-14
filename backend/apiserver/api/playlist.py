@@ -58,6 +58,7 @@ class CreatePlaylist(Resource):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
 
         data['creator'] = user_id
+        data['policy'] = 'public'
         data['songs'] = []
 
         playlist_id = db.put_playlist(playlist_from_document(data))
@@ -172,5 +173,5 @@ class UpdatePlaylist(Resource):
 
             if response:
                 return None, HTTPStatus.NO_CONTENT
-            return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+            return {'message': 'Playlist not found'}, HTTPStatus.NOT_FOUND
         return {'message': 'You are not authorized to modify this playlist'}, HTTPStatus.UNAUTHORIZED

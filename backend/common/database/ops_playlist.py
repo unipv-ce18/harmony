@@ -45,3 +45,19 @@ class PlaylistOpsMixin:
             c.PLAYLIST_ID: ObjectId(playlist_id),
             c.PLAYLIST_SONGS: song_id
         }))
+
+    def search_playlist(self, playlist_name: str, offset=0, limit=-1) -> List[Playlist]:
+        """Searches for playlists by name and returns the results"""
+        result = self.playlists.find({
+            c.PLAYLIST_NAME: {'$regex': f'{playlist_name}', '$options': '-i'},
+            c.PLAYLIST_POLICY: c.PLAYLIST_POLICY_PUBLIC
+        }).skip(offset)
+        if limit >= 0:
+            result.limit(limit)
+        return [playlist_from_document(res) for res in result]
+
+    def set_policy_private(self, playlist_id):
+        self.playlists.update_one(
+            {c.PLAYLIST_ID: ObjectId(playlist_id)},
+            {'$set': {c.PLAYLIST_POLICY: c.PLAYLIST_POLICY_PRIVATE}}
+        )

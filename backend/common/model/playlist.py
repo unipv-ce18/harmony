@@ -5,6 +5,7 @@ _playlist_tuple = namedtuple('Playlist', [
     'id',
     'name',
     'creator',
+    'policy',
     'songs'
 ])
 
