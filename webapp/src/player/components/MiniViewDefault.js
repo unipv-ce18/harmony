@@ -1,5 +1,6 @@
-import {Component, createRef} from 'preact';
+import {Component} from 'preact';
 
+import OverflowWrapper from './OverflowWrapper';
 import IconButton from './IconButton';
 import {IconPause, IconPlay} from '../../assets/icons/icons';
 import {fadeIn, fadeOut} from './animations';
@@ -16,8 +17,6 @@ const ANIMATION_LENGTH_SHORT = parseInt(style.playerTransitionLenShort);
  */
 class MiniViewDefault extends Component {
 
-  viewRef = createRef();
-
   constructor() {
     super();
     this.onPlayClickHandler = this.onPlayClickHandler.bind(this);
@@ -25,31 +24,34 @@ class MiniViewDefault extends Component {
 
   componentWillLeave(done) {
     // Fade out the icon, instantly hide the rest (media labels will flip-animate to their target view)
-    const [icon, ...rest] = this.viewRef.current.children;
+    const [icon, ...rest] = this.base.children;
     rest.forEach(e => e.style.visibility = 'hidden');
     fadeOut(icon, null, ANIMATION_LENGTH_SHORT, 0, 'none').onfinish = done;
   }
 
   componentWillEnter(done) {
     // Fade in the icon, don't touch media labels (they flip in by themselves); fade in separator at the end
-    const els = this.viewRef.current.children;
-    fadeIn(els[0], null, ANIMATION_LENGTH_SHORT, 0, 'none').onfinish = done;  // Icon
-    fadeIn(els[2], null, ANIMATION_LENGTH, ANIMATION_LENGTH);  // Separator
+    const els = this.base.children;
+    fadeIn(els[0], null, ANIMATION_LENGTH_SHORT, 0, 'none');  // Icon
+    fadeIn(els[1].getElementsByClassName(style.separator)[0], null, ANIMATION_LENGTH, ANIMATION_LENGTH);  // Separator
+    setTimeout(done, ANIMATION_LENGTH);
   }
 
   render({refs}, state, {playState, currentMedia, flipContext: Flip}) {
     const playing = playState === PlayStates.PLAYING;
     return (
-      <div ref={this.viewRef} class={style.defaultView}>
+      <div class={style.defaultView}>
         <IconButton name={playing ? "Pause" : "Play"} icon={playing ? IconPause : IconPlay}
                     size={28} onClick={this.onPlayClickHandler}/>
-        <Flip.Node ref={refs.trackTitle} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_TITLE} scale>
-          <div>{currentMedia && currentMedia.mediaInfo.title}</div>
-        </Flip.Node>
-        <span class={style.separator}/>
-        <Flip.Node ref={refs.trackArtist} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_ARTIST} scale>
-          <div>{currentMedia && currentMedia.mediaInfo.artist}</div>
-        </Flip.Node>
+        <OverflowWrapper viewportClass={style.labelsVp}>
+          <Flip.Node ref={refs.trackTitle} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_TITLE} scale>
+            <div>{currentMedia && currentMedia.mediaInfo.title}</div>
+          </Flip.Node>
+          <span class={style.separator}/>
+          <Flip.Node ref={refs.trackArtist} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_ARTIST} scale>
+            <div>{currentMedia && currentMedia.mediaInfo.artist}</div>
+          </Flip.Node>
+        </OverflowWrapper>
       </div>
     );
   }

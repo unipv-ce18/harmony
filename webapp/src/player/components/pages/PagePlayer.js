@@ -10,6 +10,7 @@ import PlayStates from '../../PlayStates';
 
 import * as metrics from './playerPageMetrics';
 import style from './PagePlayer.scss';
+import OverflowWrapper from '../OverflowWrapper';
 
 const TRANSITION_LEN = parseInt(style.playerTransitionLen);
 
@@ -102,27 +103,27 @@ class PagePlayer extends Component {
         <div ref={this.#refs.songData} class={style.songData}>
 
           {/* Song title */}
-          <div style={this.#initialFontSize && {fontSize: this.#initialFontSize.title}}>
+          <OverflowWrapper style={this.#initialFontSize && {fontSize: this.#initialFontSize.title}}>
             {visible &&
             <Flip.Node ref={this.#refs.titleLabel} group={FLIP_GROUP_PAGE_PLAYER} tag={FlipTags.TRACK_TITLE} scale>
               <div>{currentMedia && currentMedia.mediaInfo.title}</div>
             </Flip.Node>
             }
-          </div>
+          </OverflowWrapper>
 
           {/* Release */}
-          <div>
+          <OverflowWrapper>
             <div>{currentMedia && currentMedia.mediaInfo.release}</div>
-          </div>
+          </OverflowWrapper>
 
           {/* Artist  */}
-          <div style={this.#initialFontSize && {fontSize: this.#initialFontSize.artist}}>
+          <OverflowWrapper style={this.#initialFontSize && {fontSize: this.#initialFontSize.artist}}>
             {visible &&
             <Flip.Node ref={this.#refs.artistLabel} group={FLIP_GROUP_PAGE_PLAYER} tag={FlipTags.TRACK_ARTIST} scale>
               <div>{currentMedia && currentMedia.mediaInfo.artist}</div>
             </Flip.Node>
             }
-          </div>
+          </OverflowWrapper>
 
           {/* Seekbar */}
           <div class={style.seekbar}>

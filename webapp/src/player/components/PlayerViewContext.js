@@ -7,7 +7,7 @@ import PlayerEvents from '../PlayerEvents';
 
 const PlayerViewContext = createContext();
 
-const FLIP_ANIMATION_OPTIONS_DEFAULT = {duration: parseInt(style.playerTransitionLen), easing: 'ease', fill: 'both'};
+const FLIP_ANIMATION_OPTIONS_DEFAULT = {duration: parseInt(style.playerTransitionLen), easing: 'ease', fill: 'none'};
 
 export const FLIP_GROUP_MINI_PLAYER = 'mini-player';
 export const FLIP_GROUP_PAGE_PLAYER = 'page-player';

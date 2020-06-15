@@ -42,6 +42,11 @@
     letter-spacing: .8px;
   }
 
+  // When label overflow effect is applied, align on the left
+  > div:global(.overflow) {
+    justify-content: start;
+  }
+
   // Track title
   > :nth-child(1) {
     font-weight: $player-font-weight-title;
