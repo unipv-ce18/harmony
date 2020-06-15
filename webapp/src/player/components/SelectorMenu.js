@@ -14,11 +14,11 @@ class SelectorMenu extends Component {
 
   static propTypes = {
     /** Array of items to display */
-    items: PropTypes.shape({
+    items: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string,
-      name: PropTypes.stringicon,
+      name: PropTypes.string,
       icon: PropTypes.elementType
-    }),
+    })).isRequired,
     /** Function to be called when an item is selected, with its ID as a parameter */
     onSelection: PropTypes.func,
     /** Whenever the "hidden" CSS class should be applied */

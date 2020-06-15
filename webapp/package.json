@@ -52,6 +52,7 @@
     "postcss-loader": "^3.0.0",
     "postcss-preset-env": "^6.7.0",
     "preact": "^10.4.4",
+    "preact-compat": "^3.19.0",
     "preact-router": "^3.1.0",
     "preact-transition-group": "^2.0.0",
     "prop-types": "^15.7.2",

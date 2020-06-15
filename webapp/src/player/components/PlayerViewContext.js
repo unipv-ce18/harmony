@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import style from './player_styledefs.scss';
 import {FlipContext} from './animations';
 import PlayerEvents from '../PlayerEvents';
+import MediaPlayerCore from '../MediaPlayerCore';
 
 const PlayerViewContext = createContext();
 
@@ -34,11 +35,14 @@ export class PlayerViewContextProvider extends Component {
 
   static propTypes = {
     /** {@link MediaPlayerCore} instance */
-    player: PropTypes.func,
+    player: PropTypes.instanceOf(MediaPlayerCore).isRequired,
     /** {@link MediaPlayerView} UI component */
-    view: PropTypes.func,
+    view: PropTypes.object,
     /** Children elements using this context */
-    children: PropTypes.arrayOf(PropTypes.node)
+    children: PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.node),
+      PropTypes.node
+    ])
   }
 
   flipContext = new FlipContext(FLIP_RULES);

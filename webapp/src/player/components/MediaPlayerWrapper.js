@@ -24,9 +24,7 @@ class MediaPlayerWrapper extends Component {
     return loadPromise;
   }
 
-  render({playerLoader}, {playerView}) {
-    // noinspection UnnecessaryLocalVariableJS
-    const PlayerView = playerView; // need to be Pascal case to be interpreted as JSX component
+  render({playerLoader}, {playerView: PlayerView}) {
     if (PlayerView !== null)
       return (<PlayerView player={playerLoader.instance} onLoaded={this.loadPromiseResolver}/>);
     else
