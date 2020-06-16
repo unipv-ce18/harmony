@@ -80,7 +80,16 @@ class UpdateLibrary(Resource):
         if db.media_in_library(user_id, media_type, media_id) != media_present:
             return {'message': fail_msg}, HTTPStatus.CONFLICT
 
-        # TODO: Should we check if the artist/release/song exists in the DB first?
+        result = {
+            'playlists': db.get_playlist_for_library(media_id),
+            'artists': db.get_artist_for_library(media_id),
+            'releases': db.get_release_for_library(media_id),
+            'songs': db.get_song_for_library(media_id)
+        }.get(media_type)
+
+        if result is None:
+            return {'message': 'Media ID not found'}, HTTPStatus.BAD_REQUEST
+
         response = operation(user_id, media_type, media_id)
 
         if response:
