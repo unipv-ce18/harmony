@@ -178,7 +178,7 @@ class GetLibrary(Resource):
             if resolve_library:
                 for playlist in library['playlists']:
                     for k, v in playlist.items():
-                        if k != 'id' and k != 'name':
+                        if k != 'id' and k != 'name' and k != 'policy':
                             playlist[k] = db.get_user_for_library(v).to_dict() if not isinstance(v, list) \
                                 else [db.get_song_for_library(song_id).to_dict() for song_id in v]
 

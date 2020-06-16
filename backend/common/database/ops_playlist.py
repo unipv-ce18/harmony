@@ -61,3 +61,9 @@ class PlaylistOpsMixin:
             {c.PLAYLIST_ID: ObjectId(playlist_id)},
             {'$set': {c.PLAYLIST_POLICY: c.PLAYLIST_POLICY_PRIVATE}}
         )
+
+    def get_creator_playlists(self, creator):
+        playlist_doc = self.playlists.find_one(
+            {c.PLAYLIST_CREATOR: creator},
+            {c.PLAYLIST_SONGS: 0})
+        return playlist_from_document(playlist_doc) if playlist_doc else None
