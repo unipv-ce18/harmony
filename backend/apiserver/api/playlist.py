@@ -18,6 +18,40 @@ _arg_parser_update_playlist = RequestParser()\
     .add_argument('song_id', required=True)
 
 
+@api.resource('')
+class CreatorPlaylist(Resource):
+    method_decorators = [security.jwt_required]
+
+    def get(self):
+        """Retrieve personal playlists
+        ---
+        tags: [user]
+        responses:
+          200:
+            description: Successful playlists retrieve
+            content:
+              application/json:
+                example: {
+
+                }
+          400:
+            description: User ID not valid
+            content:
+              application/json:
+                example: {'message': 'User ID not valid'}
+        """
+        user_id = security.get_jwt_identity()
+
+        if not ObjectId.is_valid(user_id):
+            return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        playlists = db.get_creator_playlists(user_id)
+
+        if playlists:
+            return [playlist.to_dict() for playlist in playlists], HTTPStatus.OK
+        return [], HTTPStatus.OK
+
+
 @api.resource('/create')
 class CreatePlaylist(Resource):
     method_decorators = [security.jwt_required]

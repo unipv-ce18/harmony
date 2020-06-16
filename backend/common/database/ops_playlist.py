@@ -63,7 +63,8 @@ class PlaylistOpsMixin:
         )
 
     def get_creator_playlists(self, creator):
-        playlist_doc = self.playlists.find_one(
+        result = self.playlists.find(
             {c.PLAYLIST_CREATOR: creator},
-            {c.PLAYLIST_SONGS: 0})
-        return playlist_from_document(playlist_doc) if playlist_doc else None
+            {c.PLAYLIST_SONGS: 0}
+        )
+        return [playlist_from_document(res) for res in result]
