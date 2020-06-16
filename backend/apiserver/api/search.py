@@ -67,18 +67,14 @@ class Search(Resource):
         start = data['s'] if _check(data['s']) else 0
         count = data['c'] if _check(data['c']) else 50
 
-        result = {
-            'any': {
-                'artists': db.search_artist(query, start, count),
-                'releases': db.search_release(query, start, count),
-                'songs': db.search_song(query, start, count),
-                'playlists': db.search_playlist(query, start, count)
-            },
+        switch = {
             'artists': db.search_artist(query, start, count),
             'releases': db.search_release(query, start, count),
             'songs': db.search_song(query, start, count),
             'playlists': db.search_playlist(query, start, count)
-        }.get(type)
+        }
+
+        result = {**{'any': switch}, **switch}.get(type)
 
         if isinstance(result, list) and result:
             return [res.to_dict() for res in result], HTTPStatus.OK
