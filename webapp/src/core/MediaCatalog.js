@@ -1,4 +1,4 @@
-import {getLibrary, setLike} from "./apiCalls";
+import {addSongToPlaylist, createPlaylist, getLibrary, setLike} from "./apiCalls";
 import library from '../components/library/testLibrary';
 
 const LIBRARY_STORE_KEY = 'library';
@@ -81,5 +81,24 @@ export class MediaCatalog {
             .catch(e => console.log(e));
       })
     }
+  }
+
+  createPlaylist(playlist_name) {
+    return this.session.getAccessToken()
+      .then (token => {
+          return createPlaylist(playlist_name, token)
+            .then (data => {
+              return data['playlist_id'];
+            })
+            .catch(e => console.log(e));
+      })
+  }
+
+  addSongToPlaylist(playlist_id, song_id) {
+    this.session.getAccessToken()
+      .then (token => {
+          addSongToPlaylist(playlist_id, song_id, token)
+            .catch(e => console.log(e));
+      })
   }
 }

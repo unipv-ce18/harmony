@@ -65,7 +65,7 @@ class CreatePlaylist(Resource):
 
         if playlist_id:
             db.add_media_to_library(user_id, 'playlists', playlist_id)
-            return {'message': 'Playlist created'}, HTTPStatus.CREATED
+            return {'playlist_id': playlist_id}, HTTPStatus.CREATED
         else:
             return {'message': 'Failed to create new playlist'}, HTTPStatus.INTERNAL_SERVER_ERROR
 

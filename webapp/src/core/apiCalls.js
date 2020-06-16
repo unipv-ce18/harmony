@@ -4,7 +4,7 @@ const API_LOGOUT_URL = API_BASE_URL + '/auth/logout';
 const API_REFRESH_URL = API_BASE_URL + '/auth/refresh';
 const API_RELEASE_URL = API_BASE_URL + '/release';
 const API_ARTIST_URL = API_BASE_URL + '/artist';
-const API_LIBRARY_URL = API_BASE_URL + '/user/';
+const API_USER_URL = API_BASE_URL + '/user/';
 
 export class ApiError extends Error {
   constructor(response) {
@@ -83,7 +83,7 @@ export function getArtist(id, with_releases) {
 }
 
 export function getLibrary(user_id, token, full) {
-  let query = API_LIBRARY_URL + user_id + '/library'
+  let query = API_USER_URL + user_id + '/library'
   if (full) query += '?full=1';
   return fetch(query, {
     method: 'GET',
@@ -96,7 +96,7 @@ export function getLibrary(user_id, token, full) {
 
 export function setLike(function_type, token, media_type, media_id) {
   const data = {media_type, media_id};
-  return fetch(API_LIBRARY_URL + 'library', {
+  return fetch(API_USER_URL + 'library', {
     method: function_type,
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
     body: JSON.stringify(data)
@@ -104,3 +104,27 @@ export function setLike(function_type, token, media_type, media_id) {
     if (!response.ok) throw new ApiError(response);
   });
 }
+
+export function createPlaylist(name, token) {
+  const data = {name};
+  return fetch(API_USER_URL + 'playlist/create', {
+    method: 'POST',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return response.json();
+  });
+}
+
+export function addSongToPlaylist(playlist_id, song_id, token) {
+  const data = {playlist_id, song_id};
+  return fetch(API_USER_URL + 'playlist/update', {
+    method: 'PUT',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+  });
+}
+

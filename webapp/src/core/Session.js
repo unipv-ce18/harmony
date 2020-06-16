@@ -61,6 +61,19 @@ export class Session {
     return this.#store !== null && this.#store.token !== null;
   }
 
+  set error(bool) {
+      if(bool) {
+        window.localStorage.setItem('error', JSON.stringify(true));
+        this.#notifyListeners();
+      }
+      else {
+        window.localStorage.removeItem('error');
+      }
+  }
+  get error() {
+    return window.localStorage.getItem('error') !== null
+  }
+
   /**
    * Reports about the current network status of the web application
    *

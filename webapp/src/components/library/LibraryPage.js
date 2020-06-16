@@ -47,7 +47,7 @@ class LibraryPage extends Component {
                   <button onClick={()=>this.showMenu("songs")}>SONGS </button>
                 </span>
               </div>
-                {this.state.valid && this.state.show === "playlists" && <PlaylistsPage playlists={this.state.library.releases}/>}
+                {this.state.valid && this.state.show === "playlists" && <PlaylistsPage playlists={this.state.library.playlists}/>}
                 {this.state.valid && this.state.show === "artists" && <ArtistsPage artists={this.state.library.artists}/>}
                 {this.state.valid && this.state.show === "releases" && <ReleasesPage releases={this.state.library.releases}/>}
                 {this.state.valid && this.state.show === "songs" && <SongsPage songs={this.state.library.songs}/>}

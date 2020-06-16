@@ -5,120 +5,234 @@
   width: 100%;
   padding: 16px;
   box-sizing: border-box;
+
+  > div {
+    width: 100%;
+    border-radius: 16px;
+    min-height: calc(100vh - 32px - #{$navbar-height});
+
+    background-color: $panel-color-test;
+    //background: radial-gradient(circle, #5B1A27 20%,#2A0C12 75%);
+
+    color: $panel-text-color-test;
+    overflow: hidden;
+    display: inline-block;
+    text-align: center;
+    padding: 20px 0;
+
+    > div:first-of-type {
+      display: inline-block;
+      height: 200px;
+      margin: 100px 0 0;
+
+      img {
+        width: 200px;
+        height: 200px;
+        border-radius: 15px 0;
+      }
+
+      > div:first-of-type {
+        display: inline-block;
+
+        p:nth-of-type(1) {
+          font-size: 14px;
+          margin: 10px;
+        }
+
+        p:nth-of-type(2) {
+          font-size: 30px;
+          margin: 40px 50px 10px;
+        }
+
+        p:nth-of-type(3) {
+          font-size: 18px;
+          margin: 10px 0 40px;
+        }
+
+        p:nth-of-type(4) {
+          font-size: 13px;
+          margin: 10px;
+        }
+      }
+      > div:last-of-type {
+        >button {
+          cursor: pointer;
+          border-radius: 100%;
+          background: transparent;
+          padding: 3px 5px;
+          i {
+            -webkit-text-fill-color: transparent;
+            -webkit-text-stroke: 1px $panel-text-color-test;
+          }
+        }
+      }
+
+    }
+
+    > div:last-of-type {
+      width: 50%;
+      margin: 100px 25%;
+      text-align: justify;
+
+      > div {
+         > div:first-of-type {
+          display: table;
+           &:hover {
+            background-color: $panel-text-color-test;
+            color: $application-background;
+            border-radius: 20px;
+            padding: 0 20px;
+            margin: 0 -37px 0 -20px;
+            button:last-of-type {
+              display: block;
+            }
+          }
+
+          >button:first-of-type {
+            cursor: pointer;
+            width: 0;
+            height: 0;
+            background: none;
+            border: none;
+            margin-right: 30px;
+            -webkit-text-fill-color: transparent;
+            -webkit-text-stroke: 1px $panel-text-color-test;
+            &:hover {
+              -webkit-text-fill-color: $panel-text-color-test;
+            }
+          }
+
+          span {
+            padding: 10px 0;
+            display: table-cell;
+            white-space: nowrap;
+          }
+
+          span:nth-of-type(2) {
+            width: 100%;
+            text-align: right;
+          }
+
+          >button:last-of-type {
+            position: relative;
+            display: none;
+            cursor: pointer;
+            width: 0;
+            height: 0;
+            background: none;
+            border: none;
+            bottom: 15px;
+          }
+
+           >div {
+             position: absolute;
+             border: solid 1px $panel-text-color-test;
+             color: $panel-text-color-test;
+             background-color: $application-background;
+             font-size: 14px;
+
+             >div {
+               margin: 5px 0;
+               padding: 2px 5px;
+
+               &:hover {
+                 color: $application-background;
+                 background-color: $panel-text-color-test;
+               }
+
+               i {
+                 padding-left: 10px;
+               }
+
+               >div {
+                 position: absolute;
+                 left: 70px;
+                 border: solid 1px $panel-text-color-test;
+                 background-color: $application-background;
+                 font-size: 14px;
+                 div {
+                   button {
+                     border: none;
+                     margin: 5px 0;
+                     padding: 2px 5px;
+                     text-align: left;
+                     white-space: nowrap;
+                     color: $panel-text-color-test;
+                     background-color: $application-background;
+                     width: 100%;
+                     cursor: pointer;
+
+                     &:hover {
+                       color: $application-background;
+                       background-color: $panel-text-color-test;
+                     }
+                   }
+                 }
+               }
+             }
+           }
+
+
+        }
+        hr {
+          width: 95%;
+          margin: 0;
+          height: 1px;
+          border-color: transparent;
+          background: linear-gradient(to right,
+            rgba(255,255,255, 0),
+            white,
+            rgba(255,255,255, 0)
+          );
+        }
+      }
+    }
+  }
 }
 
-.releasePageContent {
+.modalBox {
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
   width: 100%;
-  border-radius: 16px;
-  min-height: calc(100vh - 32px - #{$navbar-height});
+  height: 100%;
+  overflow: auto;
 
-  background-color: $panel-color-test;
-  //background: radial-gradient(circle, #5B1A27 20%,#2A0C12 75%);
+  div {
+    background-color: $panel-text-color-test;
+    margin: auto;
+    padding: 2px;
+    border: 1px solid #888;
+    width: 250px;
+    color: $application-background;
+    text-align: center;
 
-  color: $panel-text-color-test;
-  overflow: hidden;
-  display: inline-block;
-  text-align: center;
-  padding: 20px 0;
-
-  > div:first-of-type {
-    display: inline-block;
-    height: 200px;
-    margin: 100px 0 0;
-
-    img {
-      width: 200px;
-      height: 200px;
-      border-radius: 15px 0;
+    button {
+      background-color: $application-background;
+      border: none;
+      color: $panel-text-color-test;
+      float: right;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 0 5px;
+      cursor: pointer;
     }
 
-    div {
-      display: inline-block;
-
-      p:nth-of-type(1) {
-        font-size: 14px;
-        margin: 10px;
+    input {
+      margin-bottom: 10px;
+      &:first-of-type {
+        width: 80%;
+        text-align: center;
       }
-
-      p:nth-of-type(2) {
-        font-size: 30px;
-        margin: 40px 50px 10px;
-      }
-
-      p:nth-of-type(3) {
-        font-size: 18px;
-        margin: 10px 0 40px;
-      }
-
-      p:nth-of-type(4) {
-        font-size: 13px;
-        margin: 10px;
+      &:last-of-type {
+        border-radius: 0;
+        padding: 3px 10px;
+        background-color: $application-background;
+        color: $panel-text-color-test;
+        cursor: pointer;
       }
     }
   }
-
-  > div:last-of-type {
-    width: 50%;
-    margin: 100px 25%;
-    text-align: justify;
-
-    div {
-      div {
-        display: table;
-        &:hover {
-          background-color: $panel-text-color-test;
-          color: $application-background;
-          border-radius: 20px;
-          padding: 0 20px;
-          margin: 0 -20px
-        }
-
-        button {
-          cursor: pointer;
-          width: 0;
-          height: 0;
-          background: none;
-          border: none;
-          margin-right: 30px;
-          -webkit-text-fill-color: transparent;
-          -webkit-text-stroke: 1px white;
-        }
-
-        span {
-          padding: 10px 0;
-          display: table-cell;
-          white-space: nowrap;
-        }
-
-        span:nth-of-type(2) {
-          width: 100%;
-          text-align: right;
-        }
-      }
-      hr {
-        width: 95%;
-        margin: 0;
-        height: 1px;
-        border-color: transparent;
-        background: linear-gradient(to right,
-          rgba(255,255,255, 0),
-          white,
-          rgba(255,255,255, 0)
-        );
-      }
-    }
-  }
-
-  .likeReleaseButton {
-    cursor: pointer;
-    border-radius: 100%;
-    background: transparent;
-    padding: 3px 5px;
-
-    i {
-      -webkit-text-fill-color: transparent;
-      -webkit-text-stroke: 1px white;
-    }
-  }
-
 }

@@ -9,6 +9,7 @@ import SearchPage from "./components/search/SearchPage";
 import ArtistPage from "./components/artist/ArtistPage";
 import ReleasePage from "./components/release/ReleasePage";
 import LibraryPage from "./components/library/LibraryPage";
+import ErrorPage from "./components/error/ErrorPage";
 import MediaPlayerWrapper from './player/components/MediaPlayerWrapper';
 
 import {session, mediaPlayer} from './Harmony';
@@ -22,6 +23,10 @@ class App extends Component {
     super(props);
     session.addStatusListener(() => {
       console.log('Event logged in:', session.loggedIn);
+      this.forceUpdate()
+    });
+    session.addStatusListener(() => {
+      console.log('Error occured:', session.error);
       this.forceUpdate()
     });
   }
@@ -48,7 +53,9 @@ class App extends Component {
     return (
       <Fragment>
         <HeaderBar page={currentPath}/>
-        <div class={styles.content}>{router}</div>
+        <div class={styles.content}>{
+          session.error ? <ErrorPage/> : router
+        }</div>
         {session.loggedIn && <MediaPlayerWrapper playerLoader={mediaPlayer}/>}
       </Fragment>
     );

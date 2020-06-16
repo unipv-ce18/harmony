@@ -172,7 +172,7 @@ class GetLibrary(Resource):
         }.get(type)
         _action = lambda type : library[type] if not resolve_library \
             else [_func(type)(id).to_dict() for id in library[type]]
-        _resolve = lambda type : _action(type) if type in library else []
+        _resolve = lambda type : _action(type) if library[type] is not None else []
 
         def _check_playlists():
             if resolve_library:
