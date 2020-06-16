@@ -140,3 +140,54 @@ class GetArtist(Resource):
         if artist is None:
             return {'message': 'No artist'}, HTTPStatus.NOT_FOUND
         return artist.to_dict(), HTTPStatus.OK
+
+
+@api.resource('/playlist/<playlist_id>')
+class GetPlaylist(Resource):
+    method_decorators = [security.jwt_required]
+
+    def get(self, playlist_id):
+        """Retrieve a playlist
+        ---
+        tags: [metadata]
+        parameters:
+          - in: path
+            name: playlist_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the playlist to fetch
+        responses:
+          200:
+            description: Successful playlist retrieve
+            content:
+              application/json:
+                example: {
+                  'id': 'PLAYLIST ID',
+                  'name': 'PLAYLIST NAME',
+                  'creator': {
+                    'id': 'PLAYLIST_CREATOR_ID',
+                    'username': 'PLAYLIST_CREATOR_USERNAME'
+                  },
+                  'songs': ['PLAYLIST SONGS']
+                }
+          400:
+            $ref: '#components/responses/InvalidId'
+          404:
+            description: Playlist not found
+            content:
+              application/json:
+                example: {'message': 'Playlist not found'}
+        """
+        if not ObjectId.is_valid(playlist_id):
+            return {'message': 'ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        playlist = db.get_playlist(playlist_id)
+
+        if playlist is None:
+            return {'message': 'Playlist not found'}, HTTPStatus.NOT_FOUND
+
+        playlist = playlist.to_dict()
+        playlist['songs'] = [db.get_song_for_library(song_id).to_dict() for song_id in playlist['songs']]
+
+        return playlist, HTTPStatus.OK

@@ -34,10 +34,17 @@ class PlaylistOpsMixin:
         playlist_doc = self.playlists.find_one(
             {c.PLAYLIST_ID: ObjectId(playlist_id)},
             {c.PLAYLIST_ID: 0, c.PLAYLIST_CREATOR: 1})
-        return playlist_doc[c.PLAYLIST_CREATOR] if playlist_doc else None
+        return playlist_doc[c.PLAYLIST_CREATOR][c.PLAYLIST_CREATOR_ID] if playlist_doc else None
+
+    def get_playlist(self, playlist_id):
+        playlist_doc = self.playlists.find_one({c.PLAYLIST_ID: ObjectId(playlist_id)})
+        return playlist_from_document(playlist_doc) if playlist_doc is not None else None
 
     def get_playlist_for_library(self, playlist_id):
-        playlist_doc = self.playlists.find_one({c.PLAYLIST_ID: ObjectId(playlist_id)})
+        playlist_doc = self.playlists.find_one(
+            {c.PLAYLIST_ID: ObjectId(playlist_id)},
+            {c.PLAYLIST_SONGS: 0}
+        )
         return playlist_from_document(playlist_doc) if playlist_doc is not None else None
 
     def song_in_playlist(self, playlist_id, song_id):
@@ -51,7 +58,7 @@ class PlaylistOpsMixin:
         result = self.playlists.find({
             c.PLAYLIST_NAME: {'$regex': f'{playlist_name}', '$options': '-i'},
             c.PLAYLIST_POLICY: c.PLAYLIST_POLICY_PUBLIC
-        }).skip(offset)
+        }, {c.PLAYLIST_SONGS: 0}).skip(offset)
         if limit >= 0:
             result.limit(limit)
         return [playlist_from_document(res) for res in result]
@@ -64,7 +71,7 @@ class PlaylistOpsMixin:
 
     def get_creator_playlists(self, creator):
         result = self.playlists.find(
-            {c.PLAYLIST_CREATOR: creator},
+            {f'{c.PLAYLIST_CREATOR}.{c.PLAYLIST_CREATOR_ID}': creator},
             {c.PLAYLIST_SONGS: 0}
         )
         return [playlist_from_document(res) for res in result]

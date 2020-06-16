@@ -91,7 +91,10 @@ class CreatePlaylist(Resource):
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
 
-        data['creator'] = user_id
+        data['creator'] = {
+            'id': user_id,
+            'username': db.get_user_username(user_id)
+        }
         data['policy'] = 'public'
         data['songs'] = []
 
@@ -202,6 +205,12 @@ class UpdatePlaylist(Resource):
             return {'message': fail_msg}, HTTPStatus.CONFLICT
 
         if user_id == db.get_playlist_creator(playlist_id):
+
+            result = db.get_song_for_library(song_id)
+
+            if result is None:
+                return {'message': 'Song ID not found'}, HTTPStatus.BAD_REQUEST
+
             response = operation(playlist_id, song_id)
 
             if response:

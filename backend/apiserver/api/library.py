@@ -183,14 +183,6 @@ class GetLibrary(Resource):
             else [_func(type)(id).to_dict() for id in library[type]]
         _resolve = lambda type : _action(type) if library[type] is not None else []
 
-        def _check_playlists():
-            if resolve_library:
-                for playlist in library['playlists']:
-                    for k, v in playlist.items():
-                        if k == 'creator' or k == 'songs':
-                            playlist[k] = db.get_user_for_library(v).to_dict() if not isinstance(v, list) \
-                                else [db.get_song_for_library(song_id).to_dict() for song_id in v]
-
         if user_id == 'me':
             user_id = security.get_jwt_identity()
         if not ObjectId.is_valid(user_id):
@@ -205,7 +197,6 @@ class GetLibrary(Resource):
             return {'message': 'No library'}, HTTPStatus.NOT_FOUND
 
         library['playlists'] = _resolve('playlists')
-        _check_playlists()
         library['artists'] = _resolve('artists')
         library['releases'] = _resolve('releases')
         library['songs'] = _resolve('songs')
