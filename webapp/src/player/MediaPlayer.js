@@ -1,23 +1,23 @@
 export const PlayStartModes = Object.freeze({
   /**
-   * Wipes out the current playlist and add the provided item(s) to it
+   * Wipes out the queue and add the provided item(s) to it
    */
-  TRUNCATE_PLAYLIST: {trunc: true, play: false},
+  TRUNCATE_QUEUE: {trunc: true, play: false},
 
   /**
-   * Same as {@link PlayStartModes.TRUNCATE_PLAYLIST} but also starts playback
+   * Same as {@link PlayStartModes.TRUNCATE_QUEUE} but also starts playback
    */
-  TRUNCATE_PLAYLIST_AND_PLAY: {trunc: true, play: true},
+  TRUNCATE_QUEUE_AND_PLAY: {trunc: true, play: true},
 
   /**
-   * Appends the provided item(s) to the end of the playlist
+   * Appends the provided item(s) to the end of the queue
    */
-  APPEND_PLAYLIST: {trunc: false, play: false},
+  APPEND_QUEUE: {trunc: false, play: false},
 
   /**
-   * Same as {@link PlayStartModes.APPEND_PLAYLIST} but also starts playback of the new items
+   * Same as {@link PlayStartModes.APPEND_QUEUE} but also starts playback of the new items
    */
-  APPEND_PLAYLIST_AND_PLAY: {trunc: false, play: true}
+  APPEND_QUEUE_AND_PLAY: {trunc: false, play: true}
 });
 
 /**
@@ -46,7 +46,7 @@ export class MediaItemInfo {
    */
   constructor(id, tags, type = 'audio') {
     this.id = id;
-    this.tags = tags;
+    this.tags = tags || {};
   }
 
   get title() {

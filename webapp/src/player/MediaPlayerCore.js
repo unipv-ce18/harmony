@@ -8,15 +8,15 @@ class MediaPlayerCore extends EventTarget {
   #playbackEngine;
   #plugins = [];
 
-  #playlistIndex = 0;
-  #playlist = [];
+  #queueIndex = 0;
+  #queue = [];
 
   initialize(mediaTag, sessionManager) {
     sessionManager.addStatusListener(this.#onSessionStatusChange.bind(this))
     const mediaProvider = new MediaProvider(sessionManager.getAccessToken());
     this.#playbackEngine = new PlaybackEngine(this, mediaProvider, mediaTag, () => {
       console.log('Next media requested');
-      const nextItem = this.#playlist[++this.#playlistIndex];
+      const nextItem = this.#queue[++this.#queueIndex];
       return nextItem && nextItem.id; // same item for now
     });
   }
@@ -39,14 +39,14 @@ class MediaPlayerCore extends EventTarget {
   }
 
   get currentMediaInfo() {
-    return this.#playlist[this.#playlistIndex]
+    return this.#queue[this.#queueIndex]
   }
 
-  play(items, startMode = PlayStartModes.APPEND_PLAYLIST_AND_PLAY) {
+  play(items, startMode = PlayStartModes.APPEND_QUEUE_AND_PLAY) {
     if (!this.#playbackEngine)
         throw Error('PlaybackEngine not initialized');
 
-    // If we add new items for playback let's alter the playlist first
+    // If we add new items for playback let's alter the queue first
     if (items) {
       if (!(items instanceof Array)) items = [items];
       if (items.length === 0) return;
@@ -56,21 +56,21 @@ class MediaPlayerCore extends EventTarget {
           throw Error('Items to be played must be instance of MediaItemInfo');
       }
 
-      if (startMode.trunc) {  // Truncate playlist
-        this.#playlistIndex = 0;
-        this.#playlist = items;
-      } else {  // Append to current playlist
-        this.#playlistIndex = this.#playlist.length;
-        this.#playlist = this.#playlist.concat(items);
+      if (startMode.trunc) {  // Truncate queue
+        this.#queueIndex = 0;
+        this.#queue = items;
+      } else {  // Append to current queue
+        this.#queueIndex = this.#queue.length;
+        this.#queue = this.#queue.concat(items);
       }
     }
 
     if (startMode.play) {
-      console.log('Media playback start', this.#playlist, this.#playlistIndex);
+      console.log('Media playback start', this.#queue, this.#queueIndex);
 
       // If we have items switch to the new track
       if (items) {
-        this.#playbackEngine.play(this.#playlist[this.#playlistIndex].id, 0);
+        this.#playbackEngine.play(this.#queue[this.#queueIndex].id, 0);
         return;
       }
 
