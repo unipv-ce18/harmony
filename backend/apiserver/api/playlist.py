@@ -6,6 +6,8 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
+from common.database.contracts import user_contract as uc
+from common.database.contracts import playlist_contract as c
 from common.database.codecs import playlist_from_document
 
 
@@ -91,17 +93,17 @@ class CreatePlaylist(Resource):
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
 
-        data['creator'] = {
-            'id': user_id,
-            'username': db.get_user_username(user_id)
+        data[c.PLAYLIST_CREATOR] = {
+            c.PLAYLIST_CREATOR_ID: user_id,
+            c.PLAYLIST_CREATOR_USERNAME: db.get_user_username(user_id)
         }
-        data['policy'] = 'public'
-        data['songs'] = []
+        data[c.PLAYLIST_POLICY] = c.PLAYLIST_POLICY_PUBLIC
+        data[c.PLAYLIST_SONGS] = []
 
         playlist_id = db.put_playlist(playlist_from_document(data))
 
         if playlist_id:
-            db.add_media_to_library(user_id, 'playlists', playlist_id)
+            db.add_media_to_library(user_id, uc.LIBRARY_PLAYLISTS, playlist_id)
             return {'playlist_id': playlist_id}, HTTPStatus.CREATED
         return {'message': 'Failed to create new playlist'}, HTTPStatus.INTERNAL_SERVER_ERROR
 

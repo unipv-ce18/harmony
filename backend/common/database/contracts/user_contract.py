@@ -25,5 +25,8 @@ USER_REF_ID = 'id'
 USER_REF_USERNAME = 'username'
 USER_REF_EMAIL = 'email'
 
+
+USER_TYPE_BASIC = 'basic'
+USER_TIER_FREE = 'free'
 USER_TYPE_CREATOR = 'creator'
 USER_TIER_PRO = 'pro'

@@ -81,4 +81,4 @@ class PlaylistOpsMixin:
             {f'{c.PLAYLIST_CREATOR}.{c.PLAYLIST_CREATOR_ID}': creator},
             {c.PLAYLIST_ID: 1}
         )
-        return [str(res['_id']) for res in result]
+        return [str(res[c.PLAYLIST_ID]) for res in result]

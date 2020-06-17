@@ -6,6 +6,7 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
+from common.database.contracts import user_contract as c
 from common.database.codecs import user_from_document
 
 
@@ -64,9 +65,9 @@ class AuthRegister(Resource):
         if db.get_user_by_mail(email) is None:
             if db.get_user_by_name(username) is None:
                 data['password'] = security.hash_password(data['password'])
-                data['type'] = 'basic'
-                data['tier'] = 'free'
-                data['library'] = {}
+                data[c.USER_TYPE] = c.USER_TYPE_BASIC
+                data[c.USER_TIER] = c.USER_TIER_FREE
+                data[c.USER_LIBRARY] = {}
                 if db.put_user(user_from_document(data)):
                     return {'message': 'User created'}, HTTPStatus.CREATED
                 else:

@@ -6,6 +6,8 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
+from common.database.contracts import playlist_contract as c
+
 
 api = Api(api_blueprint)
 
@@ -188,6 +190,6 @@ class GetPlaylist(Resource):
             return {'message': 'Playlist not found'}, HTTPStatus.NOT_FOUND
 
         playlist = playlist.to_dict()
-        playlist['songs'] = [db.get_song_for_library(song_id).to_dict() for song_id in playlist['songs']]
+        playlist[c.PLAYLIST_SONGS] = [db.get_song_for_library(song_id).to_dict() for song_id in playlist[c.PLAYLIST_SONGS]]
 
         return playlist, HTTPStatus.OK

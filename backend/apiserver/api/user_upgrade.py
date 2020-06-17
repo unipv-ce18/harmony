@@ -5,6 +5,7 @@ from flask_restful import Resource, Api
 
 from . import api_blueprint, db
 from ..util import security
+from common.database.contracts import user_contract as c
 
 
 api = Api(api_blueprint, prefix='/user')
@@ -40,7 +41,7 @@ class UpgradeType(Resource):
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
 
-        if db.get_user_type(user_id) != 'basic':
+        if db.get_user_type(user_id) == c.USER_TYPE_CREATOR:
             return {'message': 'You are already a creator'}, HTTPStatus.CONFLICT
 
         response = db.upgrade_creator(user_id)
@@ -80,7 +81,7 @@ class UpgradeTier(Resource):
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
 
-        if db.get_user_tier(user_id) != 'free':
+        if db.get_user_tier(user_id) == c.USER_TIER_PRO:
             return {'message': 'You are already pro'}, HTTPStatus.CONFLICT
 
         response = db.upgrade_pro(user_id)

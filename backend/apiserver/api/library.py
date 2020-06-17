@@ -6,6 +6,7 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
+from common.database.contracts import user_contract as c
 
 
 api = Api(api_blueprint, prefix='/user')
@@ -81,10 +82,10 @@ class UpdateLibrary(Resource):
             return {'message': fail_msg}, HTTPStatus.CONFLICT
 
         result = {
-            'playlists': db.get_playlist_for_library(media_id),
-            'artists': db.get_artist_for_library(media_id),
-            'releases': db.get_release_for_library(media_id),
-            'songs': db.get_song_for_library(media_id)
+            c.LIBRARY_PLAYLISTS: db.get_playlist_for_library(media_id),
+            c.LIBRARY_ARTISTS: db.get_artist_for_library(media_id),
+            c.LIBRARY_RELEASES: db.get_release_for_library(media_id),
+            c.LIBRARY_SONGS: db.get_song_for_library(media_id)
         }.get(media_type)
 
         if result is None:
@@ -174,10 +175,10 @@ class GetLibrary(Resource):
                 example: {'message': 'No library'}
         """
         _func = lambda type : {
-            'playlists': db.get_playlist_for_library,
-            'artists': db.get_artist_for_library,
-            'releases': db.get_release_for_library,
-            'songs': db.get_song_for_library
+            c.LIBRARY_PLAYLISTS: db.get_playlist_for_library,
+            c.LIBRARY_ARTISTS: db.get_artist_for_library,
+            c.LIBRARY_RELEASES: db.get_release_for_library,
+            c.LIBRARY_SONGS: db.get_song_for_library
         }.get(type)
         _action = lambda type : library[type] if not resolve_library \
             else [_func(type)(id).to_dict() for id in library[type]]
@@ -198,22 +199,22 @@ class GetLibrary(Resource):
             return {'message': 'No library'}, HTTPStatus.NOT_FOUND
 
         # get personal playlist id inside library user
-        personal = list(set(personal) & set(library['playlists'])) \
-            if library['playlists'] is not None else library['playlists']
+        personal = list(set(personal) & set(library[c.LIBRARY_PLAYLISTS])) \
+            if library[c.LIBRARY_PLAYLISTS] is not None else library[c.LIBRARY_PLAYLISTS]
 
         # get others playlist id inside library user
-        others = list(set(library['playlists']) - set(personal)) \
-            if library['playlists'] is not None else library['playlists']
+        others = list(set(library[c.LIBRARY_PLAYLISTS]) - set(personal)) \
+            if library[c.LIBRARY_PLAYLISTS] is not None else library[c.LIBRARY_PLAYLISTS]
 
-        library['playlists'] = personal
-        personal_playlists = _resolve('playlists')
+        library[c.LIBRARY_PLAYLISTS] = personal
+        personal_playlists = _resolve(c.LIBRARY_PLAYLISTS)
 
-        library['playlists'] = others
-        others_playlists = _resolve('playlists')
+        library[c.LIBRARY_PLAYLISTS] = others
+        others_playlists = _resolve(c.LIBRARY_PLAYLISTS)
 
-        library['playlists'] = {'personal': personal_playlists, 'others': others_playlists}
-        library['artists'] = _resolve('artists')
-        library['releases'] = _resolve('releases')
-        library['songs'] = _resolve('songs')
+        library[c.LIBRARY_PLAYLISTS] = {'personal': personal_playlists, 'others': others_playlists}
+        library[c.LIBRARY_ARTISTS] = _resolve(c.LIBRARY_ARTISTS)
+        library[c.LIBRARY_RELEASES] = _resolve(c.LIBRARY_RELEASES)
+        library[c.LIBRARY_SONGS] = _resolve(c.LIBRARY_SONGS)
 
         return library, HTTPStatus.OK
