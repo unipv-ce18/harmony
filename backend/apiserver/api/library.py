@@ -192,11 +192,26 @@ class GetLibrary(Resource):
         resolve_library = args['full'] in ['1', 'true', 'yes']
 
         library = db.get_library(user_id).to_dict()
+        personal = db.get_creator_playlists_id(security.get_jwt_identity())
 
         if library is None:
             return {'message': 'No library'}, HTTPStatus.NOT_FOUND
 
-        library['playlists'] = _resolve('playlists')
+        # get personal playlist id inside library user
+        personal = list(set(personal) & set(library['playlists'])) \
+            if library['playlists'] is not None else library['playlists']
+
+        # get others playlist id inside library user
+        others = list(set(library['playlists']) - set(personal)) \
+            if library['playlists'] is not None else library['playlists']
+
+        library['playlists'] = personal
+        personal_playlists = _resolve('playlists')
+
+        library['playlists'] = others
+        others_playlists = _resolve('playlists')
+
+        library['playlists'] = {'personal': personal_playlists, 'others': others_playlists}
         library['artists'] = _resolve('artists')
         library['releases'] = _resolve('releases')
         library['songs'] = _resolve('songs')

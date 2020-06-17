@@ -75,3 +75,10 @@ class PlaylistOpsMixin:
             {c.PLAYLIST_SONGS: 0}
         )
         return [playlist_from_document(res) for res in result]
+
+    def get_creator_playlists_id(self, creator):
+        result = self.playlists.find(
+            {f'{c.PLAYLIST_CREATOR}.{c.PLAYLIST_CREATOR_ID}': creator},
+            {c.PLAYLIST_ID: 1}
+        )
+        return [str(res['_id']) for res in result]
