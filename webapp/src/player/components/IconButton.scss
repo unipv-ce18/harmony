@@ -26,3 +26,8 @@
     height: 80%;
   }
 }
+
+@mixin button-color($col) {
+  background-color: rgba($col, .2);
+  fill: rgba($col, 1);  // Use RGBA to avoid weird sass error
+}

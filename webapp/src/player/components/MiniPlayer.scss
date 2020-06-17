@@ -1,4 +1,5 @@
 @import './player_styledefs';
+@import './IconButton';
 
 .miniPlayer {
   height: $player-height-minimized;
@@ -28,6 +29,8 @@
   > :nth-child(1) {
     margin-right: 6px;
     flex-shrink: 0;
+
+    @include button-color(var(--text-color, $player-default-fg));
   }
 
   // Scrolling text wrapper

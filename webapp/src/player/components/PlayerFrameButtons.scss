@@ -1,4 +1,5 @@
 @import './player_styledefs';
+@import './IconButton';
 
 ul.buttons {
   margin: 0;
@@ -18,15 +19,20 @@ ul.buttons {
   transition: right $player-transition-len-ms;
 
   li {
-    transition: fill $player-transition-len-short-ms, opacity $player-transition-len-ms;
+    transition: opacity $player-transition-len-ms;
   }
 
   // Close button
-  > li:nth-child(1):hover {
-    fill: #b00;
+  > li:nth-child(1) span {
+    transition: fill $player-transition-len-short-ms;
+    &:hover {
+      fill: #b00;
+    }
   }
 
   span {
+    @include button-color(var(--text-color, $player-default-fg));
+
     background-color: transparent;
     display: block; // To have proper <li> height
   }

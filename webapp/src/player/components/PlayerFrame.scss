@@ -11,14 +11,14 @@
 }
 
 .player {
-  color: black; // TODO temp
+  // Use RGBA to avoid weird sass error
+  color: rgba(var(--text-color, $player-default-fg), 1);
 
   // Minimized
   height: $player-height-minimized;
   width: 300px;
 
   position: relative; // To allow absolute positioning in children
-  background-color: $player-default-bg;
   border-radius: $player-height-minimized / 2;
   overflow: hidden;
 

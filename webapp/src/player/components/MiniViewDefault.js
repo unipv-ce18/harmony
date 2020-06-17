@@ -43,15 +43,17 @@ class MiniViewDefault extends Component {
       <div class={style.defaultView}>
         <IconButton name={playing ? "Pause" : "Play"} icon={playing ? IconPause : IconPlay}
                     size={28} onClick={this.onPlayClickHandler}/>
+        {currentMedia &&
         <OverflowWrapper viewportClass={style.labelsVp}>
           <Flip.Node ref={refs.trackTitle} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_TITLE} scale>
-            <div>{currentMedia && currentMedia.mediaInfo.title}</div>
+            <div>{currentMedia.mediaInfo.title}</div>
           </Flip.Node>
           <span class={style.separator}/>
           <Flip.Node ref={refs.trackArtist} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_ARTIST} scale>
-            <div>{currentMedia && currentMedia.mediaInfo.artist}</div>
+            <div>{currentMedia.mediaInfo.artist}</div>
           </Flip.Node>
         </OverflowWrapper>
+        }
       </div>
     );
   }

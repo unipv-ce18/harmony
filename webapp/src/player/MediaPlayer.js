@@ -32,7 +32,7 @@ export class MediaItemInfo {
   static TAG_ARTIST = 'ARTIST';
 
   // Nonstandard tags
-  static TAB_ALBUMART_URL = 'ALBUMART_URL';
+  static TAG_ALBUMART_URL = 'ALBUMART_URL';
 
   id;
   tags;

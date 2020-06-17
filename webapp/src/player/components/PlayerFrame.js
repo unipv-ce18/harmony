@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 
 import {classList} from '../../core/utils';
 import {IconEqualizer, IconMusic, IconPlaylist} from '../../assets/icons/icons'
+import {COLOR_TEXT} from './colorPalette';
+import PlayerBackground from './PlayerBackground';
 import PlayerFrameButtons from './PlayerFrameButtons';
 import Carousel from './Carousel';
 import SelectorMenu from './SelectorMenu';
@@ -30,7 +32,8 @@ class PlayerFrame extends Component {
 
   state = {
     resizing: false,
-    currentPage: Pages.PLAYER.id
+    currentPage: Pages.PLAYER.id,
+    palette: null
   }
 
   expandedSize = getExpandedSize();
@@ -38,11 +41,16 @@ class PlayerFrame extends Component {
   constructor() {
     super();
     this.onPageChange = this.onPageChange.bind(this);
+    this.onColorPalette = this.onColorPalette.bind(this);
   }
 
-  render({expanded}, {resizing, currentPage}) {
+  render({expanded}, {resizing, currentPage, palette}) {
     return (
-      <div class={classList(style.player, resizing && style.sizing)} style={expanded && this.expandedSize}>
+      <div class={classList(style.player, resizing && style.sizing)}
+           style={{...(expanded && this.expandedSize), ...(palette && {'--text-color': palette[COLOR_TEXT]})}}>
+        {/* Background image */}
+        <PlayerBackground onColorPalette={this.onColorPalette}/>
+
         {/* Close and pin buttons */}
         <PlayerFrameButtons/>
 
@@ -68,6 +76,10 @@ class PlayerFrame extends Component {
 
   onPageChange(currentPage) {
     this.setState({currentPage});
+  }
+
+  onColorPalette(palette) {
+    this.setState({palette});
   }
 
 }
