@@ -12,7 +12,10 @@ import {Component, createRef} from 'preact';
  */
 export function fadeOut(element, vector, duration, delay = 0, fill = 'both') {
   return element.animate(
-    [{}, {opacity: '0', ...(vector && {transform: `translate(${vector[0]}px, ${vector[1]}px)`})}],
+    [
+      {opacity: '1', ...(vector && {transform: 'none'})},  // Chrome does not support partial keyframes
+      {opacity: '0', ...(vector && {transform: `translate(${vector[0]}px, ${vector[1]}px)`})}
+    ],
     {duration, delay, easing: 'ease-in', fill}
   );
 }
@@ -29,7 +32,10 @@ export function fadeOut(element, vector, duration, delay = 0, fill = 'both') {
  */
 export function fadeIn(element, vector, duration, delay = 0, fill = 'both') {
   return element.animate(
-    [{opacity: '0', ...(vector && {transform: `translate(${vector[0]}px, ${vector[1]}px)`})}, {}],
+    [
+      {opacity: '0', ...(vector && {transform: `translate(${vector[0]}px, ${vector[1]}px)`})},
+      {opacity: '1', ...(vector && {transform: 'none'})}    // Chrome does not support partial keyframes
+    ],
     {duration, delay, easing: 'ease-out', fill}
   );
 }

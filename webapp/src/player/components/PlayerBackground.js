@@ -59,7 +59,7 @@ class BackgroundImage extends Component {
 
   render({src}) {
     return (
-      <img src={src} alt="" className={style.background}/>
+      <img src={src} alt="" crossOrigin="anonymous" className={style.background}/>
     );
   }
 
