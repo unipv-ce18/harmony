@@ -64,10 +64,11 @@ class OverflowWrapper extends Component {
     const viewport = wrapper.children[0];
 
     const delta = viewport.clientWidth - wrapper.clientWidth;
+    const animTime = delta / ANIM_PIXELS_PER_SECOND;
 
-    if (delta > 0) {
+    if (animTime > 0.5) {
       // Content overflows, enable animation style
-      this.setState({anim: {d: `-${delta}px`, t: `${delta / ANIM_PIXELS_PER_SECOND}s`}});
+      this.setState({anim: {d: `-${delta}px`, t: `${animTime}s`}});
     } else {
       this.setState({anim: null});
     }
