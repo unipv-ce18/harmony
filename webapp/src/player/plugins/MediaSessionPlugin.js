@@ -2,6 +2,8 @@ import PlayerEvents from '../PlayerEvents';
 
 const PLUGIN_DESCRIPTION = 'Browser Media Session API plugin';
 
+const DEFAULT_ALBUMART_URL = require('../../assets/albumart_default.jpg');
+
 /**
  * Adds Media Session API support to the Harmony player.
  *
@@ -44,11 +46,15 @@ class MediaSessionPlugin {
   handleNewMedia(id) {
     const mediaTags = this.#player.currentMediaInfo.tags;
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: mediaTags?.get('title') || (APP_NAME + ' player'),
-      artist: mediaTags?.get('artist') || 'Unknown Artist',
-      album: mediaTags?.get('album') || undefined,
+      title: mediaTags[MediaItemInfo.TAG_TITLE] || (APP_NAME + ' player'),
+      artist: mediaTags[MediaItemInfo.TAG_ARTIST] || 'Unknown Artist',
+      album: mediaTags[MediaItemInfo.TAG_RELEASE] || undefined,
       artwork: [
-        {src: require('../../assets/albumart_default.jpg'), sizes: '400x400', type: 'image/jpeg'}
+        {
+          src: mediaTags[MediaItemInfo.TAG_ALBUMART_URL] || DEFAULT_ALBUMART_URL,
+          sizes: '400x400',
+          type: 'image/jpeg'
+        }
       ]
     });
   }

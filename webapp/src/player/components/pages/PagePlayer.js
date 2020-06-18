@@ -14,6 +14,8 @@ import OverflowWrapper from '../OverflowWrapper';
 
 const TRANSITION_LEN = parseInt(style.playerTransitionLen);
 
+const DEFAULT_ALBUMART_URL = require('../../../assets/albumart_default.jpg');
+
 class PagePlayer extends Component {
 
   #refs = {
@@ -98,7 +100,8 @@ class PagePlayer extends Component {
       <div class={classList(style.pagePlayer, visible && style.visible)}>
 
         {/* Album art */}
-        <img src={require('../../../assets/albumart_default.jpg')} alt=""/>
+        <img src={currentMedia && currentMedia.mediaInfo.tags[MediaItemInfo.TAG_ALBUMART_URL] || DEFAULT_ALBUMART_URL}
+             alt=""/>
 
         <div ref={this.#refs.songData} class={style.songData}>
 
@@ -165,14 +168,7 @@ class PagePlayer extends Component {
   onPlayClickHandler(e) {
     e.stopPropagation();
     const player = this.context.player;
-    if (this.context.playState === PlayStates.PLAYING) {
-      console.log('pausing');
-      player.pause();
-    } else {
-      console.log('staritng');
-      player.play();
-    }
-    //this.context.playState === PlayStates.PLAYING && player.pause() || player.play();
+    this.context.playState === PlayStates.PLAYING ? player.pause() : player.play();
   }
 
   static contextType = PlayerViewContextConsumer.contextType;

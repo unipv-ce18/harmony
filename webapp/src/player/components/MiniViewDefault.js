@@ -61,14 +61,7 @@ class MiniViewDefault extends Component {
   onPlayClickHandler(e) {
     e.stopPropagation();
     const player = this.context.player;
-    if (this.context.playState === PlayStates.PLAYING) {
-      console.log('pausing');
-      player.pause();
-    } else {
-      console.log('staritng');
-      player.play();
-    }
-    //this.context.playState === PlayStates.PLAYING && player.pause() || player.play();
+    this.context.playState === PlayStates.PLAYING ? player.pause() : player.play();
   }
 
   static contextType = PlayerViewContextConsumer.contextType;
