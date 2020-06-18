@@ -90,11 +90,21 @@
 // Here Be Buttons
 .controls {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   height: 25%;
+
+  background-color: rgba(var(--bg-color, $player-default-bg), .3);
+  box-shadow: 0 0 5px 4px rgba(var(--bg-color, $player-default-bg), .3);
+  border-radius: 10px;
 
   > :first-child, > :last-child {
     flex-grow: 1;
+    align-self: flex-end;
+    height: 50%;
+
+    > * {
+      height: 100%;
+    }
   }
 
   > :first-child > * {
@@ -103,6 +113,15 @@
 
   > :last-child > * {
     float: right;
+  }
+
+  > :nth-child(2), > :nth-child(4) {
+    height: 80%;
+  }
+
+  > :nth-child(3) {
+    height: 100%;
+    margin: 0 5%;
   }
 
   // The actual buttons

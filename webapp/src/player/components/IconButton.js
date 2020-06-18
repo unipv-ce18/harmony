@@ -25,9 +25,9 @@ class IconButton extends Component {
     onClick: PropTypes.func
   }
 
-  render({name, size = 24, icon: Icon, onClick}) {
+  render({name, size, icon: Icon, onClick}) {
     return (
-      <TransitionGroup class={style.iconButton} title={name} style={{width: size, height: size}} onClick={onClick}>
+      <TransitionGroup class={style.iconButton} title={name} style={size && {width: size, height: size}} onClick={onClick}>
         <AnimSwitcher key={Icon.name}><Icon/></AnimSwitcher>
       </TransitionGroup>
     );

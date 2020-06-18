@@ -5,12 +5,12 @@ import {IconPlay, IconPause, IconTrackNext, IconTrackPrev, IconTrackRepeat, Icon
 import {PlayerViewContextConsumer, FlipTags, FLIP_GROUP_PAGE_PLAYER} from '../PlayerViewContext';
 import IconButton from '../IconButton';
 import Seekbar from '../Seekbar';
+import OverflowWrapper from '../OverflowWrapper';
 import {getExpandedSize} from '../playerUiPrefs';
 import PlayStates from '../../PlayStates';
 
 import * as metrics from './playerPageMetrics';
 import style from './PagePlayer.scss';
-import OverflowWrapper from '../OverflowWrapper';
 
 const TRANSITION_LEN = parseInt(style.playerTransitionLen);
 
@@ -35,11 +35,6 @@ class PagePlayer extends Component {
 
   state = {
     visible: false
-  }
-
-  constructor() {
-    super();
-    this.onPlayClickHandler = this.onPlayClickHandler.bind(this);
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -84,7 +79,7 @@ class PagePlayer extends Component {
     return true;
   }
 
-  render({expanded}, {visible}, {player, playState, currentMedia, flipContext: Flip}) {
+  render({expanded}, {visible}, {currentMedia, flipContext: Flip}) {
     if (expanded && this.#initialFontSize == null) {
       // Recalculate initial font sizes if needed
       const sdSize = metrics.predictSongDataDomSize(getExpandedSize());
@@ -93,8 +88,6 @@ class PagePlayer extends Component {
         artist: metrics.predictArtistFontSize(sdSize)
       };
     }
-
-    const playing = playState === PlayStates.PLAYING;
 
     return (
       <div class={classList(style.pagePlayer, visible && style.visible)}>
@@ -136,19 +129,7 @@ class PagePlayer extends Component {
           </div>
 
           {/* Player controls */}
-          <div class={style.controls}>
-            <div>
-              <IconButton name="Repeat" size={16} icon={IconTrackRepeat} onClick={() => alert('Not implemented')}/>
-            </div>
-            <IconButton name="Previous" size={32} icon={IconTrackPrev} onClick={() => player.previous()}/>
-            <IconButton name={playing ? "Pause" : "Play"} icon={playing ? IconPause : IconPlay}
-                        size={32} onClick={this.onPlayClickHandler}/>
-            <IconButton name="Next" size={32} icon={IconTrackNext} onClick={() => player.next()}/>
-            <div>
-              <IconButton name="Shuffle" size={16} icon={IconTrackShuffle} onClick={() => alert('Not implemented')}/>
-            </div>
-          </div>
-
+          <PagePlayerControls/>
         </div>
       </div>
     );
@@ -162,6 +143,48 @@ class PagePlayer extends Component {
     }
 
     this.setState({visible});
+  }
+
+  static contextType = PlayerViewContextConsumer.contextType;
+
+}
+
+class PagePlayerControls extends Component {
+
+  #resizeObserver = new ResizeObserver(els => els.forEach(e => {
+    e.target.style.width = e.contentRect.height + 'px';
+  }));
+
+  constructor() {
+    super();
+    this.onPlayClickHandler = this.onPlayClickHandler.bind(this);
+  }
+
+  componentDidMount() {
+    this.base.querySelectorAll('span').forEach(e => this.#resizeObserver.observe(e));
+  }
+
+  componentWillUnmount() {
+    this.base.querySelectorAll('span').forEach(e => this.#resizeObserver.unobserve(e));
+  }
+
+  render(props, state, {player, playState}) {
+    const playing = playState === PlayStates.PLAYING;
+
+    return (
+      <div className={style.controls}>
+        <div>
+          <IconButton name="Repeat" icon={IconTrackRepeat} onClick={() => alert('Not implemented')}/>
+        </div>
+        <IconButton name="Previous" icon={IconTrackPrev} onClick={() => player.previous()}/>
+        <IconButton name={playing ? "Pause" : "Play"} icon={playing ? IconPause : IconPlay}
+                    onClick={this.onPlayClickHandler}/>
+        <IconButton name="Next" icon={IconTrackNext} onClick={() => player.next()}/>
+        <div>
+          <IconButton name="Shuffle" icon={IconTrackShuffle} onClick={() => alert('Not implemented')}/>
+        </div>
+    </div>
+    );
   }
 
   // TODO: Copypasta from MiniViewDefault
