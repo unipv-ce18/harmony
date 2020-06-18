@@ -27,14 +27,24 @@
   display: flex;
   flex-flow: column;
 
-  // The topmost item in flexbox fills all remaining space
+  box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+  text-shadow: 0 0 16px rgba(var(--bg-color, $player-default-bg), 1);  // For better visibility
+
+  transition: box-shadow $player-transition-len-short-ms;
+
+  &:hover {
+    box-shadow: 0 0 20px rgba(0, 0, 0, .5);
+  }
+
+  // Size transition only when not resizing manually
+  &:not(.sizing) {
+    transition: width $player-transition-len-ms,
+    height $player-transition-len-ms;
+  }
+
+  // The main page view in flexbox fills all remaining space
   > .pageView {
     flex-grow: 1;
   }
-}
-
-.player:not(.sizing) {
-  transition: width $player-transition-len-ms,
-              height $player-transition-len-ms;
 }
 

@@ -31,7 +31,7 @@ class PlayerBackground extends Component {
     if (!image) return;  // No current image
 
     createPalette(image.base).then(palette => {
-      this.setState({bgColor: palette[COLOR_BACKGROUND]})
+      this.setState({bgColor: `rgb(${palette[COLOR_BACKGROUND]})`})
       this.props.onColorPalette && this.props.onColorPalette(palette);
     });
 

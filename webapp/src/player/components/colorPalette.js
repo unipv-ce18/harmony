@@ -5,7 +5,7 @@ export const COLOR_TEXT = 'text';
 
 const colorThief = new ColorThief();
 
-const cssColor = (r, g, b) => `rgb(${r}, ${g}, ${b})`;
+const TEXT_COLOR_THRESHOLD = 127;
 
 export function createPalette(image) {
   return new Promise(resolve => {
@@ -16,11 +16,10 @@ export function createPalette(image) {
   }).then(([r, g, b]) => {
     // Grayscale conversion: https://en.wikipedia.org/wiki/Grayscale
     const Y = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    console.log(Y)
 
     return {
-      [COLOR_BACKGROUND]: cssColor(r, g, b),
-      [COLOR_TEXT]: Y > 127 ? '0,0,0' : '240,240,240'
+      [COLOR_BACKGROUND]: `${r},${g},${b}`,
+      [COLOR_TEXT]: Y > TEXT_COLOR_THRESHOLD ? '0,0,0' : '240,240,240'
     }
   });
 }

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import {classList} from '../../core/utils';
 import {IconEqualizer, IconMusic, IconPlaylist} from '../../assets/icons/icons'
-import {COLOR_TEXT} from './colorPalette';
+import {COLOR_BACKGROUND, COLOR_TEXT} from './colorPalette';
 import PlayerBackground from './PlayerBackground';
 import PlayerFrameButtons from './PlayerFrameButtons';
 import Carousel from './Carousel';
@@ -45,9 +45,13 @@ class PlayerFrame extends Component {
   }
 
   render({expanded}, {resizing, currentPage, palette}) {
+    const frameStyle = {
+      ...(expanded && this.expandedSize),
+      ...(palette && {'--text-color': palette[COLOR_TEXT], '--bg-color': palette[COLOR_BACKGROUND]})
+    }
+
     return (
-      <div class={classList(style.player, resizing && style.sizing)}
-           style={{...(expanded && this.expandedSize), ...(palette && {'--text-color': palette[COLOR_TEXT]})}}>
+      <div class={classList(style.player, resizing && style.sizing)} style={frameStyle}>
         {/* Background image */}
         <PlayerBackground onColorPalette={this.onColorPalette}/>
 
