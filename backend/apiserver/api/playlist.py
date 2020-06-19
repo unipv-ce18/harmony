@@ -48,9 +48,11 @@ class CreatorPlaylist(Resource):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
 
         playlists = db.get_creator_playlists(user_id)
+        library = db.get_library(user_id).to_dict()
 
         if playlists:
-            return [playlist.to_dict() for playlist in playlists], HTTPStatus.OK
+            playlists = [playlist.to_dict() for playlist in playlists]
+            return [playlist for playlist in playlists if playlist[c.PLAYLIST_REF_ID] in library[uc.LIBRARY_PLAYLISTS]], HTTPStatus.OK
         return [], HTTPStatus.OK
 
 
