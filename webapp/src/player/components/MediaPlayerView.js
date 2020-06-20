@@ -11,6 +11,7 @@ import {fadeIn} from './animations';
 import style from './PlayerFrame.scss';
 
 const TRANSITION_TIME = parseInt(style.playerTransitionLenShort);
+const COLLAPSE_TIMEOUT_MS = 500;
 
 class MediaPlayerView extends Component {
 
@@ -19,6 +20,14 @@ class MediaPlayerView extends Component {
   state = {
     expanded: false,
     pinned: false
+  }
+
+  #collapseTimeout = null;
+
+  constructor() {
+    super();
+    this.onMouseEnter = this.onMouseEnter.bind(this);
+    this.onMouseLeave = this.onMouseLeave.bind(this);
   }
 
   componentDidMount() {
@@ -33,8 +42,8 @@ class MediaPlayerView extends Component {
 
   render({player}, {expanded, playState}) {
     return (
-      <div class={style.playerContainer} tabIndex={0}
-           onClick={() => this.#expanded = true} onBlur={() => this.#expanded = false}>
+      <div class={style.playerContainer} tabIndex={0} onClick={() => expanded || this.setState({expanded: true})}
+           onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
         <PlayerViewContextProvider player={player} view={this}>
           <SizeControls enabled={expanded}>
             <PlayerFrame expanded={expanded}/>
@@ -45,6 +54,26 @@ class MediaPlayerView extends Component {
     );
   }
 
+  onMouseEnter(e) {
+    if (!this.state.expanded) return;  // Do nothing if player collapsed (expand on click)
+
+    if (this.#collapseTimeout != null) {
+      clearTimeout(this.#collapseTimeout);
+      this.#collapseTimeout = null;
+    } else {
+      this.setState({expanded: true});
+    }
+  }
+
+  onMouseLeave(e) {
+    if (this.state.pinned) return;  // Do not collapse if pinned
+
+    this.#collapseTimeout = setTimeout(() => {
+      this.#collapseTimeout = null;
+      this.setState({expanded: false});
+    }, COLLAPSE_TIMEOUT_MS);
+  }
+
   set pinned(pinned) {
     if (this.state.pinned !== pinned)
       this.setState({pinned});
@@ -52,16 +81,6 @@ class MediaPlayerView extends Component {
 
   get pinned() {
     return this.state.pinned;
-  }
-
-  set #expanded(expanded) {
-    if (this.state.pinned && expanded === false) {
-      // Do not collapse if pinned
-      return;
-    }
-
-    if (this.state.expanded !== expanded)
-      this.setState({expanded});
   }
 
   get expanded() {
