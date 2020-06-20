@@ -5,7 +5,7 @@ import RegistrationForm from './RegistrationForm';
 import LoginFooter from './LoginFooter'
 
 import styles from './LoginPage.scss';
-import logoImage from "../../assets/logo.svg";
+import logoImage from "!file-loader!../../assets/logo.svg";
 
 class LoginPage extends Component {
 

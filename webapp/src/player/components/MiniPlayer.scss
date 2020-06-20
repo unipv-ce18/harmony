@@ -1,0 +1,65 @@
+@import './player_styledefs';
+@import './IconButton';
+
+.miniPlayer {
+  height: $player-height-minimized;
+  font: $mp-font;
+
+  position: relative; // To allow 'absolute' in child
+
+  //background-color: rgba(black, 0.1);
+
+  // Child views
+  > div {
+    // To make them stack over each other during transitions
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+  }
+}
+
+.defaultView {
+  display: flex;
+  align-items: center;
+
+  padding: 0 32px 0 6px;  // Larger pad on the right to account for close button
+
+  // Button
+  > :nth-child(1) {
+    margin-right: 6px;
+    flex-shrink: 0;
+
+    @include button-color(var(--text-color, $player-default-fg));
+  }
+
+  // Scrolling text wrapper
+  > :nth-child(2) {
+    flex-grow: 1;
+  }
+
+  // Scrolling text viewport
+  .labelsVp {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+
+    // Song title
+    :nth-child(1) {
+      font: $mp-font-title;
+    }
+  }
+
+  .separator {
+    margin: 0 6px;
+    &:before {
+      content: '•';
+    }
+  }
+}
+
+.altView {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,33 @@
+@import './player_styledefs';
+
+.iconButton {
+  display: inline-block;
+  cursor: pointer;
+
+  position: relative;  // To allow icon absolute positioning
+
+  border-radius: 50%;
+
+  background-color: rgba(0, 0, 0, .2);
+
+  opacity: 0.7;
+  transition: opacity $player-transition-len-ms;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  > svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    height: 80%;
+  }
+}
+
+@mixin button-color($col) {
+  background-color: rgba($col, .2);
+  fill: rgba($col, 1);  // Use RGBA to avoid weird sass error
+}

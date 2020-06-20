@@ -65,7 +65,7 @@ export function parseMediaManifest(manifest: Document, mediaId: string, baseUrl:
 
     const variants = reprNodes.map(rn => parseVariant(rn, baseUrl));
 
-    return new MediaResource(mediaId, calcDuration(variants), keyId, [
+    return new MediaResource(mediaId, calcDuration(variants), keyId, baseUrl, [
         new MediaResourceStream(0, mimeType, codec, variants)
     ])
 }

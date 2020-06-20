@@ -5,6 +5,7 @@ export class MediaResource {
     constructor(public readonly id: string,
                 public readonly duration: number,
                 public readonly keyId: string,
+                public readonly baseDataUrl: string,
                 public readonly streams: Array<MediaResourceStream> = []) {
     }
 

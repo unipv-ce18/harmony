@@ -1,4 +1,5 @@
 import io from 'socket.io-client'
+import {Session} from '../../core/Session';
 
 type ErrorResponse = { id: string, error_code: number };
 type ManifestResponse = { id: string, manifest_url: string };
@@ -29,16 +30,13 @@ function createSocket(socketUrl: string, accessToken: string) {
 
 export class SocketConnection {
 
-    private readonly socket: SocketIOClient.Socket;
+    private socket?: SocketIOClient.Socket;
 
     // Use same collection ignoring the message type, for now
     private readonly pendingRequests = new Map<string, { resolve: Function, reject: Function }>();
 
-    constructor(socketUrl: string, accessToken: string) {
-        this.socket = createSocket(socketUrl, accessToken);
-        this.socket.on('manifest', this.handleManifestResponse.bind(this));
-        this.socket.on('media_key', this.handleMediaKeyResponse.bind(this));
-        this.socket.on('md_error', this.handleErrorResponse.bind(this));
+    constructor(private readonly socketUrl: string,
+                private readonly sessionManager: Session) {
     }
 
     fetchManifestUrl(songId: string): Promise<string> {
@@ -49,12 +47,26 @@ export class SocketConnection {
         return this.sendRequest('get_key', {id: songId, kid: keyId});
     }
 
+    private getSocket(): Promise<SocketIOClient.Socket> {
+        if (this.socket) {
+            return Promise.resolve(this.socket);
+        } else {
+            return this.sessionManager.getAccessToken().then(token => {
+                this.socket = createSocket(this.socketUrl, token);
+                this.socket.on('manifest', this.handleManifestResponse.bind(this));
+                this.socket.on('media_key', this.handleMediaKeyResponse.bind(this));
+                this.socket.on('md_error', this.handleErrorResponse.bind(this));
+                return this.socket;
+            });
+        }
+    }
+
     private sendRequest<B extends { id: string }, T>(type: string, body: B): Promise<T> {
         return new Promise((resolve, reject) => {
             this.pendingRequests.get(body.id)?.reject();  // Cancel already running pending requests
 
             this.pendingRequests.set(body.id, {resolve, reject})
-            this.socket.emit(type, body)
+            this.getSocket().then(socket => socket.emit(type, body));
         })
     }
 

@@ -78,7 +78,11 @@ export class PlaybackEngine {
 
     // If a track was specified let's switch to the new one
     if (mediaItemId !== null) {
-      this.#mediaLoader = new MediaLoader(this.#mediaProvider, this.#mediaTag, mediaItemId, this.#nextMediaIdSource)
+      this.#mediaLoader = new MediaLoader(this.#mediaProvider, this.#mediaTag, mediaItemId, () => {
+        const nextId = this.#nextMediaIdSource();
+        this.#emeDecrypter.currentItemId = nextId;
+        return nextId;
+      })
         .onMediaResource(this.#onMediaChange.bind(this))
         .onError(err => {
           console.error('Error during segment fetch', err);

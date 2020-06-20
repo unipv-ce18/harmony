@@ -1,0 +1,152 @@
+@import '../player_styledefs';
+@import '../IconButton';
+
+.pagePlayer {
+  // Overflow inside MiniPlayer area
+  height: calc(100% + #{$player-height-minimized});
+
+  display: flex;
+  align-items: center;
+
+  padding: 4% 4% 2%;
+  box-sizing: border-box;
+
+  img {
+    width: auto;
+    height: auto;
+    max-width: 40%;
+    max-height: 100%;
+    margin-right: 4%;
+
+    border-radius: 2%;
+    box-shadow: 0 0 10px rgba(0,0,0,.2);
+  }
+}
+
+// Everything that is not the cover
+.songData {
+  flex-grow: 1;
+  height: 100%;
+  font-family: $player-font;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+
+  > * {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  > :nth-child(1), > :nth-child(2), > :nth-child(3) {
+    letter-spacing: .8px;
+  }
+
+  // When label overflow effect is applied, align on the left
+  > div:global(.overflow) {
+    justify-content: start;
+  }
+
+  // Track title
+  > :nth-child(1) {
+    font-weight: $player-font-weight-title;
+    height: 20%;
+  }
+
+  // Album
+  > :nth-child(2) {
+    font-weight: $player-font-weight-album;
+    text-transform: uppercase;
+    height: 10%;
+  }
+
+  // Artist
+  > :nth-child(3) {
+    font-weight: $player-font-weight-artist;
+    height: 15%;
+  }
+}
+
+// Seekbar frame
+.seekbar {
+  height: 25%;
+}
+
+// Here Be Buttons
+.controls {
+  display: flex;
+  align-items: center;
+  height: 25%;
+
+  background-color: rgba(var(--bg-color, $player-default-bg), .3);
+  box-shadow: 0 0 5px 4px rgba(var(--bg-color, $player-default-bg), .3);
+  border-radius: 10px;
+
+  > :first-child, > :last-child {
+    flex-grow: 1;
+    align-self: flex-end;
+    height: 50%;
+
+    > * {
+      height: 100%;
+    }
+  }
+
+  > :first-child > * {
+    float: left;
+  }
+
+  > :last-child > * {
+    float: right;
+  }
+
+  > :nth-child(2), > :nth-child(4) {
+    height: 80%;
+  }
+
+  > :nth-child(3) {
+    height: 100%;
+    margin: 0 5%;
+  }
+
+  // The actual buttons
+  span {
+    @include button-color(var(--text-color, $player-default-fg));
+  }
+}
+
+
+// Fade in-out animations
+.pagePlayer {
+  img, .songData > :nth-child(2), .seekbar, .controls {
+    opacity: 0;
+    transition: opacity $player-transition-len-ms, transform $player-transition-len-ms;
+  }
+
+  img {
+    transform: scale(0.8);
+  }
+
+  &.visible {
+    img, .songData > :nth-child(2), .seekbar, .controls {
+      opacity: 1;
+    }
+
+    img, .seekbar {
+      transition-delay: $player-transition-len-short-ms;
+    }
+    .controls {
+      transition-delay: $player-transition-len-short-ms + 100ms;
+    }
+    .songData > :nth-child(2) {
+      transition-delay: $player-transition-len-ms;
+    }
+    img {
+      transform: none;
+    }
+  }
+}

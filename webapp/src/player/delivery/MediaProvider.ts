@@ -1,3 +1,4 @@
+import {Session} from '../../core/Session';
 import {MediaResource} from './MediaResource';
 import {SocketConnection} from './SocketConnection';
 import {parseMediaManifest} from './manifestParser';
@@ -23,8 +24,8 @@ export class MediaProvider {
 
     private readonly socketConnection: SocketConnection
 
-    constructor(accessToken: string) {
-        this.socketConnection = new SocketConnection(PLAYER_SOCKET_URL, accessToken);
+    constructor(sessionManager: Session) {
+        this.socketConnection = new SocketConnection(PLAYER_SOCKET_URL, sessionManager);
     }
 
     fetchMediaInfo(mediaId: string): Promise<MediaResource> {

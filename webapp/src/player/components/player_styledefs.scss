@@ -1,0 +1,46 @@
+$player-height-minimized: 36px;
+$player-default-bg: #ddd;
+$player-default-fg: 0,0,0;
+
+
+// --- Transition properties ---
+
+// Standard timing
+$player-transition-len: 400;
+$player-transition-len-ms: $player-transition-len + 0ms;
+
+// Short timing (for icon buttons fading in/out)
+$player-transition-len-short: 200;
+$player-transition-len-short-ms: $player-transition-len-short + 0ms;
+
+// Long timing (still unused)
+//$player-transition-len-long: 600;
+
+
+// --- Fonts ---
+$player-font: 'Raleway', sans-serif;
+
+$player-font-weight-title: 600;
+$player-font-weight-title-mini: 700;
+
+$player-font-weight-album: 700;
+
+$player-font-weight-artist: 600;
+$player-font-weight-artist-mini: 600;
+
+$mp-font: $player-font-weight-artist-mini 13px $player-font;  // Mini player default font
+$mp-font-title: $player-font-weight-title-mini 13px $player-font;   // Mini player track title
+
+$nav-font: 600 11px $player-font;  // Navigation tab font
+
+// From Material Design guidelines
+$text-color-dark: rgba(0, 0, 0, 0.54);
+$text-color-dark-inactive: rgba(0, 0, 0, 0.26);
+$text-color-light: rgba(255, 255, 255, 1);
+$text-color-light-inactive: rgba(255, 255, 255, 0.3);
+
+
+:export {
+  playerTransitionLen: $player-transition-len;
+  playerTransitionLenShort: $player-transition-len-short;
+}

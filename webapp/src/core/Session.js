@@ -92,7 +92,7 @@ export class Session {
   }
 
   getAccessToken() {
-    if(this.#store !== null && this.#store.expiration > getCurrentTime()) {
+    if (this.#store !== null && this.#store.expiration > getCurrentTime()) {
       return Promise.resolve(this.#store.token);
     }
     if (this.#refresh !== null && this.#refresh.expiration > getCurrentTime()) {

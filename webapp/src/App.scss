@@ -1,8 +1,15 @@
 @import './styledefs';
+@import './assets/fonts/fonts.css';
 
 :global {
+  :root {
+    height: 100%;
+  }
+
   body {
     margin: 0;
+    min-height: 100%;
+
     font-family: $font-stack-sans;
     background-color: $application-background;
 
@@ -22,5 +29,5 @@
 }
 
 .content {
-  margin-top: $navbar-height;
+  padding-top: $navbar-height;
 }

@@ -1,0 +1,50 @@
+@import './player_styledefs';
+
+// Holds actual PlayerFrame wrapped inside SizeControls
+.playerContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 70px;
+
+  // Hide focus outline
+  outline: none;
+}
+
+.player {
+  // Use RGBA to avoid weird sass error
+  color: rgba(var(--text-color, $player-default-fg), 1);
+
+  // Minimized
+  height: $player-height-minimized;
+  width: 300px;
+
+  position: relative; // To allow absolute positioning in children
+  border-radius: $player-height-minimized / 2;
+  overflow: hidden;
+
+  user-select: none;
+
+  display: flex;
+  flex-flow: column;
+
+  box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+  text-shadow: 0 0 16px rgba(var(--bg-color, $player-default-bg), 1);  // For better visibility
+
+  transition: box-shadow $player-transition-len-short-ms;
+
+  &:hover {
+    box-shadow: 0 0 20px rgba(0, 0, 0, .5);
+  }
+
+  // Size transition only when not resizing manually
+  &:not(.sizing) {
+    transition: width $player-transition-len-ms,
+    height $player-transition-len-ms;
+  }
+
+  // The main page view in flexbox fills all remaining space
+  > .pageView {
+    flex-grow: 1;
+  }
+}
+
