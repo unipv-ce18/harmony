@@ -1,9 +1,10 @@
-import {Component, createRef, Fragment} from 'preact';
+import {Component, createRef} from 'preact';
 import PropTypes from 'prop-types';
 
 import PlayerEvents from '../PlayerEvents';
 import {WAVEFORM_READY_EVENT} from '../plugins/WaveformLoaderPlugin';
 import {PlayerViewContextConsumer} from './PlayerViewContext';
+import {classList} from '../../core/utils';
 
 import style from './Seekbar.scss';
 
@@ -21,7 +22,9 @@ class Seekbar extends Component {
 
   static propTypes = {
     /** Whether to show current and end time labels */
-    showTime: PropTypes.bool
+    showTime: PropTypes.bool,
+    /** Custom class to apply to the seekbar container */
+    class: PropTypes.string
   }
 
   state = {
@@ -51,12 +54,15 @@ class Seekbar extends Component {
   }
 
   componentDidMount() {
-    this.#resizeObserver.observe(this.#canvasRef.current);
+    this.#renderContext = this.#canvasRef.current.getContext('2d');
+
     this.context.player.addEventListener(PlayerEvents.TIME_UPDATE, this.onPlayerTimeUpdate);
     this.context.player.addEventListener(WAVEFORM_READY_EVENT, this.onWaveformReady);
-
-    this.#renderContext = this.#canvasRef.current.getContext('2d');
     this.#setupCanvas();
+
+    if (this.context.player.currentWaveform) {
+      this.onWaveformReady(null);
+    }
   }
 
   componentWillUnmount() {
@@ -82,22 +88,18 @@ class Seekbar extends Component {
     }
   }
 
-  render({showTime}, {curTimeLabel, endTimeLabel}) {
-    const seekbar = (
-      <div class={style.seekbar}>
-        <canvas ref={this.#canvasRef}>No Canvas No Party</canvas>
-        <input ref={this.#inputRef} type="range" onChange={this.onSeekChange}/>
+  render({showTime, class: containerClass}, {curTimeLabel, endTimeLabel}) {
+    return (
+      <div class={classList(style.seekbarFrame, containerClass)}>
+        {showTime && <span>{curTimeLabel}</span>}
+        <div className={style.seekbar}>
+          <canvas ref={this.#canvasRef}>No Canvas No Party</canvas>
+          <input ref={this.#inputRef} type="range" onChange={this.onSeekChange}/>
+        </div>
+        {showTime && <span>{endTimeLabel}</span>}
       </div>
     );
-
-    return showTime ? (
-      <Fragment>
-        <span>{curTimeLabel}</span>
-        {seekbar}
-        <span>{endTimeLabel}</span>
-      </Fragment>
-    ) : seekbar;
-  }c
+  }
 
   onSeekChange(e) {
     this.context.player.seek(e.target.value);
@@ -118,6 +120,13 @@ class Seekbar extends Component {
     const {length, min, max} = this.context.player.currentWaveform;
     this.#waveData = {length, min: resample(min, BAR_COUNT, true), max: resample(max, BAR_COUNT, true)};
     this.#renderCanvas();
+  }
+
+  enableResizeCheck(enable) {
+    if (enable)
+      this.#resizeObserver.observe(this.#canvasRef.current);
+    else
+      this.#resizeObserver.unobserve(this.#canvasRef.current);
   }
 
   #setupCanvas() {

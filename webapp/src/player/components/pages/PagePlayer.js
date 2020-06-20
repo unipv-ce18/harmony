@@ -13,6 +13,7 @@ import * as metrics from './playerPageMetrics';
 import style from './PagePlayer.scss';
 
 const TRANSITION_LEN = parseInt(style.playerTransitionLen);
+const TRANSITION_LEN_SHORT = parseInt(style.playerTransitionLenShort);
 
 const DEFAULT_ALBUMART_URL = require('../../../assets/albumart_default.jpg');
 
@@ -21,7 +22,8 @@ class PagePlayer extends Component {
   #refs = {
     songData: createRef(),  // to bind its children to ResizeObserver
     titleLabel: createRef(),  // to calculate their FLIP size before leaving
-    artistLabel: createRef()
+    artistLabel: createRef(),
+    seekbar: createRef()  // performance: to enable/disable own resize observer
   }
 
   #resizeObserver = new ResizeObserver(els => els.forEach(e => {
@@ -56,9 +58,12 @@ class PagePlayer extends Component {
           Array.from(songData.children).slice(0, 3)
             .forEach(e => this.#resizeObserver.observe(e));
         }, TRANSITION_LEN);
+        setTimeout(() => this.#refs.seekbar.current.enableResizeCheck(true), TRANSITION_LEN_SHORT);
+
       } else {
         Array.from(songData.children).slice(0, 3)
           .forEach(e => this.#resizeObserver.unobserve(e));
+        this.#refs.seekbar.current.enableResizeCheck(false);
       }
     }
   }
@@ -122,9 +127,7 @@ class PagePlayer extends Component {
           </OverflowWrapper>
 
           {/* Seekbar */}
-          <div class={style.seekbar}>
-            <Seekbar showTime={true}/>
-          </div>
+          <Seekbar ref={this.#refs.seekbar} class={style.seekbar} showTime={true}/>
 
           {/* Player controls */}
           <PagePlayerControls/>

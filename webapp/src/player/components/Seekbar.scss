@@ -1,3 +1,18 @@
+.seekbarFrame {
+  // Time labels
+  > span {
+    font-weight: 700;
+    font-size: 60%;
+    width: 12%;
+    overflow: hidden;
+  }
+
+  // The seekbar itself
+  > :nth-child(2) {
+    flex-grow: 1;
+  }
+}
+
 .seekbar {
   position: relative;
   width: 100%;

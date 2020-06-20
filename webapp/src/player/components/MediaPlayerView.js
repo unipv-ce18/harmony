@@ -68,7 +68,7 @@ class MediaPlayerView extends Component {
   }
 
   onMouseLeave(e) {
-    if (this.state.pinned) return;  // Do not collapse if pinned
+    if (!this.state.expanded || this.state.pinned) return;  // Do not collapse if pinned
 
     this.#collapseTimeout = setTimeout(() => {
       this.#collapseTimeout = null;

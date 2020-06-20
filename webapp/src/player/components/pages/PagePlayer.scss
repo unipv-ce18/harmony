@@ -74,17 +74,6 @@
 // Seekbar frame
 .seekbar {
   height: 25%;
-
-  // Time labels
-  > span {
-    font-weight: 700;
-    font-size: 60%;
-  }
-
-  // The seekbar itself
-  > :nth-child(2) {
-    flex-grow: 1;
-  }
 }
 
 // Here Be Buttons
