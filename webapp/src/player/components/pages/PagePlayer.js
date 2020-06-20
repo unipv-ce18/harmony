@@ -123,9 +123,7 @@ class PagePlayer extends Component {
 
           {/* Seekbar */}
           <div class={style.seekbar}>
-            <span>0.00</span>
-            <Seekbar enabled={visible}/>
-            <span>4.05</span>
+            <Seekbar showTime={true}/>
           </div>
 
           {/* Player controls */}

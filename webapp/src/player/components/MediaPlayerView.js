@@ -3,6 +3,7 @@ import {Component, createRef} from 'preact';
 import {session} from '../../Harmony';
 
 import MediaSessionPlugin from '../plugins/MediaSessionPlugin';
+import WaveformLoaderPlugin from '../plugins/WaveformLoaderPlugin';
 import SizeControls from './SizeControls';
 import PlayerFrame from './PlayerFrame';
 import {PlayerViewContextProvider} from './PlayerViewContext';
@@ -34,6 +35,7 @@ class MediaPlayerView extends Component {
     const player = this.props.player;
     player.initialize(this.audioTagRef.current, session);
     player.addPlugin(new MediaSessionPlugin())
+    player.addPlugin(new WaveformLoaderPlugin())
     this.setState({playState: player.playbackState});
     this.props.onLoaded();
 
