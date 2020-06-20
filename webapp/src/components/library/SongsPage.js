@@ -32,11 +32,11 @@ class SongsPage extends Component {
       <div className={styles.librarySongs}>
         <table>
           <tr>
-            <th></th>
-            <th><button onClick={() => this.reorderList('title')}>Title</button></th>
-            <th><button onClick={() => this.reorderList('artist')}>Artist</button></th>
-            <th><button onClick={() => this.reorderList('release')}>Release</button></th>
-            <th><button onClick={() => this.reorderList('artist')}>Time</button></th>
+            <th/>
+            <th><button onClick={this.reorderList.bind(this, 'title')}>Title</button></th>
+            <th><button onClick={this.reorderList.bind(this, 'artist')}>Artist</button></th>
+            <th><button onClick={this.reorderList.bind(this, 'release')}>Release</button></th>
+            <th><button onClick={this.reorderList.bind(this, 'artist')}>Time</button></th>
           </tr>
           {this.state.clicked && this.state.songs.map(item =>
             <tr>

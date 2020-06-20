@@ -7,7 +7,7 @@ import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
 import SearchPage from "./components/search/SearchPage";
 import ArtistPage from "./components/artist/ArtistPage";
-import ReleasePage from "./components/release/ReleasePage";
+import CollectionPage from "./components/collection/CollectionPage";
 import LibraryPage from "./components/library/LibraryPage";
 import ErrorPage from "./components/error/ErrorPage";
 import MediaPlayerWrapper from './player/components/MediaPlayerWrapper';
@@ -39,7 +39,8 @@ class App extends Component {
         <HomePage path="/"/>
         <SearchPage path="/search/:type/:query"/>
         <ArtistPage path="/artist/:id"/>
-        <ReleasePage path="/release/:id"/>
+        <CollectionPage path="/release/:id"/>
+        <CollectionPage path="/playlist/:id"/>
         <LibraryPage path="/library/:id"/>
         <Redirect default to="/"/>
       </Router>

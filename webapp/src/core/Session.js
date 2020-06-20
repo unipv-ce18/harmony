@@ -148,6 +148,7 @@ export class Session {
         this.#store = {token:accessToken, expiration:accessExpiration};
         this.#refresh = {token:refreshToken, expiration:refreshExpiration};
         catalog.setCachedLibrary();
+        //catalog.setCachedPlaylists();
       });
   }
 

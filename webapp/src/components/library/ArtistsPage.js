@@ -5,7 +5,7 @@ import styles from './LibraryPage.scss';
 
 import {catalog} from '../../Harmony';
 import {route} from 'preact-router';
-import image from '../release/image.jpg';
+import image from '../collection/image.jpg';
 
 class ArtistsPage extends Component {
   constructor(props) {

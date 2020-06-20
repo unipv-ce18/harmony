@@ -11,13 +11,13 @@ export class MediaCatalog {
     this.session = session;
   }
 
-  get #store() {
+  get #storeLibrary() {
     if (this.#libraryCache === undefined)
       this.#libraryCache = JSON.parse(window.localStorage.getItem(LIBRARY_STORE_KEY));
     return this.#libraryCache;
   }
 
-  set #store(value) {
+  set #storeLibrary(value) {
     this.#libraryCache = value;
     if (value == null) {
       window.localStorage.removeItem(LIBRARY_STORE_KEY);
@@ -38,7 +38,7 @@ export class MediaCatalog {
     return this.session.getAccessToken()
       .then (token => {
         getLibrary('me', token, false)
-          .then (library => this.#store = library)
+          .then (library => this.#storeLibrary = library)
           .catch(e => console.log(e));
       })
   }
@@ -52,9 +52,15 @@ export class MediaCatalog {
   }
 
   inLibrary(media_type, element_id) {
-    if (media_type === 'songs') return this.#store.songs.includes(element_id);
-    if (media_type === 'artists') return this.#store.artists.includes(element_id);
-    if (media_type === 'releases') return this.#store.releases.includes(element_id);
+    if (media_type === 'songs') return this.#storeLibrary.songs.includes(element_id);
+    if (media_type === 'artists') return this.#storeLibrary.artists.includes(element_id);
+    if (media_type === 'releases') return this.#storeLibrary.releases.includes(element_id);
+    if (media_type === 'playlists') {
+      return this.#storeLibrary.playlists['others'].includes(element_id);
+    }
+    if (media_type === 'personal_playlists') {
+      return this.#storeLibrary.playlists['personal'].includes(element_id);
+    }
     return false;
   }
 
@@ -63,6 +69,8 @@ export class MediaCatalog {
     if (media_type === 'songs') elem = this.#libraryCache.songs;
     if (media_type === 'artists') elem = this.#libraryCache.artists;
     if (media_type === 'releases') elem = this.#libraryCache.releases;
+    if (media_type === 'playlists') elem = this.#libraryCache.playlists['others'];
+    if (media_type === 'personal_playlists') elem = this.#libraryCache.playlists['personal'];
     if (function_type === 'PUT' && !this.inLibrary(media_type, element_id)) {
       elem.push(element_id);
       bool = true;
@@ -73,11 +81,12 @@ export class MediaCatalog {
       bool = true;
     }
     if (bool) {
-      this.#store = this.#libraryCache;
-
-      this.session.getAccessToken()
+      this.#storeLibrary = this.#libraryCache;
+      if (media_type === 'personal_playlists') media_type = 'playlists';
+      return this.session.getAccessToken()
       .then (token => {
-          setLike(function_type, token, media_type, element_id)
+          return setLike(function_type, token, media_type, element_id)
+            .then ((bool) => {return bool})
             .catch(e => console.log(e));
       })
     }
@@ -88,7 +97,10 @@ export class MediaCatalog {
       .then (token => {
           return createPlaylist(playlist_name, token)
             .then (data => {
-              return data['playlist_id'];
+              const playlist_id = data['playlist_id'];
+              this.#libraryCache.playlists['personal'].push(playlist_id);
+              this.#storeLibrary = this.#libraryCache;
+              return playlist_id;
             })
             .catch(e => console.log(e));
       })

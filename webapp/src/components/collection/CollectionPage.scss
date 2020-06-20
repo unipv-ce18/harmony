@@ -69,7 +69,7 @@
 
     }
 
-    > div:last-of-type {
+    > div:nth-of-type(2) {
       width: 50%;
       margin: 100px 25%;
       text-align: justify;
@@ -122,6 +122,9 @@
             background: none;
             border: none;
             bottom: 15px;
+            i {
+              margin-top: 5px;
+            }
           }
 
            >div {
@@ -187,6 +190,15 @@
         }
       }
     }
+    button {
+      border-radius: 0;
+      padding: 3px 10px;
+
+      &:hover {
+        cursor: pointer;
+        background-color: $panel-text-color-test;
+      }
+    }
   }
 }
 
@@ -209,7 +221,7 @@
     color: $application-background;
     text-align: center;
 
-    button {
+    > button:first-of-type {
       background-color: $application-background;
       border: none;
       color: $panel-text-color-test;
@@ -218,6 +230,19 @@
       font-weight: bold;
       padding: 0 5px;
       cursor: pointer;
+    }
+
+    > button:nth-of-type(2) {
+      border-radius: 0;
+      color: $application-background;
+    }
+
+    > button:nth-of-type(3) {
+      background-color: $application-background;
+      color: $panel-text-color-test;
+      &:hover {
+        background-color: #4a0c12;
+      }
     }
 
     input {

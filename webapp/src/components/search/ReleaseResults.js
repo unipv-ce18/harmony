@@ -1,7 +1,7 @@
 import {Component} from "preact";
 import {route} from "preact-router";
 import styles from './SearchPage.scss';
-import release from "../release/testRelease";
+import release from "../collection/testRelease";
 
 class ReleaseResults extends Component {
   constructor(props) {
