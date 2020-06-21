@@ -135,6 +135,7 @@ const var96 = new MediaResourceVariant(106033, 44100).complete('https://media.hy
   {t: 246.005, d: 0.071, u: 'https://media.hy.net/test/96_246005000.webm'}
 ])
 
-export default new MediaResource('TEST_MEDIA_ID', 246.058, '95edb80cc9dd73e70d81e9a7743c132f', [
+export default new MediaResource(
+  'TEST_MEDIA_ID', 246.058, '95edb80cc9dd73e70d81e9a7743c132f', 'https://media.hy.net/test/', [
   new MediaResourceStream(0, 'audio/webm', 'vorbis', [ var320, var160, var96])
 ]);
