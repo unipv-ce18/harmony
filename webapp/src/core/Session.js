@@ -1,11 +1,10 @@
-import {execLogin, execRefresh, setLike} from './apiCalls';
+import {execLogin, execRefresh} from './apiCalls';
 import {execLogout} from './apiCalls';
 import {getCurrentTime} from './utils'
 
 import {catalog, session} from '../Harmony';
 
 const SESSION_STORE_KEY = 'session';
-const REFRESH_STORE_KEY = 'refresh';
 
 export class Session {
 
@@ -13,14 +12,23 @@ export class Session {
   #notifyListeners = e => this.#listeners.forEach(l => l(e));
 
   #storeCache = undefined;
-  #refreshCache = undefined;
 
+  /**
+   * @return {
+   *   {token: string, expiration: number, refreshToken: string, refreshExpiration: number} | null
+   * } The current session store
+   */
   get #store() {
     if (this.#storeCache === undefined)
       this.#storeCache = JSON.parse(window.localStorage.getItem(SESSION_STORE_KEY));
     return this.#storeCache;
   }
 
+  /**
+   * @param {
+   *   {token: string, expiration: number, refreshToken: string, refreshExpiration: number} | null
+   * } value - The new session store or `null` to unset
+   */
   set #store(value) {
     this.#storeCache = value;
     if (value == null) {
@@ -30,21 +38,6 @@ export class Session {
       window.localStorage.setItem(SESSION_STORE_KEY, JSON.stringify(value));
     }
     this.#notifyListeners();
-  }
-
-  get #refresh() {
-    if (this.#refreshCache === undefined)
-      this.#refreshCache = JSON.parse(window.localStorage.getItem(REFRESH_STORE_KEY));
-    return this.#refreshCache;
-  }
-
-  set #refresh(value) {
-    this.#refreshCache = value;
-    if (value == null)
-      window.localStorage.removeItem(REFRESH_STORE_KEY);
-    else {
-      window.localStorage.setItem(REFRESH_STORE_KEY, JSON.stringify(value));
-    }
   }
 
   constructor() {
@@ -95,19 +88,19 @@ export class Session {
     if (this.#store !== null && this.#store.expiration > getCurrentTime()) {
       return Promise.resolve(this.#store.token);
     }
-    if (this.#refresh !== null && this.#refresh.expiration > getCurrentTime()) {
-      return execRefresh(this.#refresh.token)
+    if (this.#store !== null && this.#store.refreshExpiration > getCurrentTime()) {
+      return execRefresh(this.#store.refreshToken)
         .then(data => {
           const token = data['access_token'];
           const expiration = getCurrentTime() + parseInt(data['expires_in']);
           if (token == null || isNaN(expiration))
-            console.log(Error('Invalid server response'));
-          this.#store = {token, expiration};
+            throw new Error('Invalid server response');
+          this.#store = {...this.#store, token, expiration};
           return token;
         })
         .catch(e => {
-          console.log(e)
-        })
+          console.error(e);
+        });
     }
   }
 
@@ -145,8 +138,7 @@ export class Session {
         const refreshExpiration = getCurrentTime() + parseInt(data['refresh_expires_in']);
         if (data['token_type'] !== 'bearer' || accessToken == null || isNaN(accessExpiration) || refreshToken == null || isNaN(refreshExpiration))
           throw Error('Invalid server response');
-        this.#store = {token:accessToken, expiration:accessExpiration};
-        this.#refresh = {token:refreshToken, expiration:refreshExpiration};
+        this.#store = {token: accessToken, expiration: accessExpiration, refreshToken, refreshExpiration};
         catalog.setCachedLibrary();
         //catalog.setCachedPlaylists();
       });
@@ -158,11 +150,8 @@ export class Session {
   doLogout() {
     if (!this.loggedIn) return;
     this.getAccessToken()
-      .then (token => {
-          execLogout(token);
-      })
+      .then(token => execLogout(token));
     this.#store = null;
-    this.#refresh = null;
   }
 
   /**
