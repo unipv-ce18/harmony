@@ -52,7 +52,8 @@ class CreatorPlaylist(Resource):
 
         if playlists:
             playlists = [playlist.to_dict() for playlist in playlists]
-            return [playlist for playlist in playlists if playlist[c.PLAYLIST_REF_ID] in library[uc.LIBRARY_PLAYLISTS]], HTTPStatus.OK
+            if library[uc.LIBRARY_PLAYLISTS] is not None:
+                return [playlist for playlist in playlists if playlist[c.PLAYLIST_REF_ID] in library[uc.LIBRARY_PLAYLISTS]], HTTPStatus.OK
         return [], HTTPStatus.OK
 
 
