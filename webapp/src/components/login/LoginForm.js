@@ -1,41 +1,33 @@
 import {Component} from 'preact';
+import PropTypes from 'prop-types';
 
-import {session, catalog} from '../../Harmony';
+import {session} from '../../Harmony';
+import {FieldType, validateEmail, validatePassword, validateUsername, ValidationError} from './validation';
 
-import style from './formsCommon.scss';
-import styleLogin from './LoginForm.scss';
-import {route} from "preact-router";
+import style from './LoginForm.scss';
+import {ApiError, execRegistration} from '../../core/apiCalls';
 
 class LoginForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      lname: "",
-      lpsw: "",
-      bgColor: "",
-      error: {type: "", value: ""}
-    };
 
+  static propTypes = {
+    /** Whether to display a registration form */
+    registration: PropTypes.bool
+  }
+
+  state = {
+    fieldEmail: "",
+    fieldUsername: "",
+    fieldPassword1: "",
+    fieldPassword2: "",
+    error: null
+  };
+
+  constructor() {
+    super();
     this.handleChange = this.handleChange.bind(this);
     this.handleFocus = this.handleFocus.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  unameValidation() {
-    if (this.state.lname === "") {
-      this.setState({error: {type: "usernameE", value: "This field cannot be empty."}});
-      this.setState({bgColor: "red"});
-      return false;
-    }
-    return true;
-  }
-
-  passwordValidation() {
-    if (this.state.lpsw === "") {
-      this.setState({error: {type: "passE", value: "This field cannot be empty."}});
-      return false;
-    }
-    return true;
+    this.handleSubmitLogin = this.handleSubmitLogin.bind(this);
+    this.handleSubmitRegister = this.handleSubmitRegister.bind(this);
   }
 
   handleChange(e) {
@@ -43,48 +35,112 @@ class LoginForm extends Component {
   }
 
   handleFocus() {
-    this.setState({error: {type: "", value: ""}})
+    this.setState({error: null})
   }
 
-
-  handleSubmit(e) {
+  handleSubmitLogin(e) {
     e.preventDefault();
-    if (!this.unameValidation() || !this.passwordValidation())
-      return false;
+    try {
+      const {fieldUsername, fieldPassword1} = this.state;
+      validateUsername(fieldUsername);
+      validatePassword(fieldPassword1);
 
-    session.doLogin(this.state.lname, this.state.lpsw)
-      .catch(e => alert('Login failed'));
+      session.doLogin(fieldUsername, fieldPassword1)
+        .catch(e => alert('Login failed'));
+
+    } catch (e) {
+      this.setState({error: e});
+    }
   }
 
-  render(props) {
-    const errorStyle = `border: 1px solid #bf0000`;
+  handleSubmitRegister(e) {
+    e.preventDefault();
+    try {
+      const {fieldEmail, fieldUsername, fieldPassword1, fieldPassword2} = this.state;
+      validateEmail(fieldEmail);
+      validateUsername(fieldUsername);
+      validatePassword(fieldPassword1, fieldPassword2);
+
+      execRegistration(fieldEmail, fieldUsername, fieldPassword1)
+        .then(_ => session.doLogin(fieldUsername, fieldPassword1))
+        .catch(e => {
+          if (e instanceof ApiError)
+            e.response.json().then(d => this.#processServerError(d));
+          else
+            this.#processServerError({message: `Generic server error: ${e.message}`});
+        });
+
+    } catch (e) {
+      this.setState({error: e});
+    }
+  }
+
+  render({registration}) {
+    const FormField = this.FormField;
+
+    const vars = registration ? {
+      formClass: style.registrationForm,
+      submitHandler: this.handleSubmitRegister,
+      submitLabel: 'Sign Up',
+      switchHint: (<p className={style.regLink}>Are you already registered? <a href="/login">Login</a> now</p>)
+    } : {
+      formClass: style.loginForm,
+      submitHandler: this.handleSubmitLogin,
+      submitLabel: 'Login',
+      switchHint: (<p className={style.regLink}>Not yet registered? <a href="/signup">Sign Up</a> now</p>)
+    };
+
     return (
-      <div class={style.formWrapper}>
-        <form class={`${style.form} ${styleLogin.loginForm}`} onSubmit={this.handleSubmit}>
+      <div className={style.formWrapper}>
+        <form className={`${style.form} ${vars.formClass}`} onSubmit={vars.submitHandler}>
           <div>
-            <div>
-              <input type="text" placeholder="Username" name="lname" onChange={this.handleChange}
-                     onFocus={this.handleFocus}
-                     style={this.state.error.type === "usernameE" && errorStyle} autoFocus />
-              {this.state.error.type === "usernameE" && (
-                <div class={style.errorField}><span/>{this.state.error.value}</div>)}
-            </div>
-            <input type="password" placeholder="Password" name="lpsw" onChange={this.handleChange}
-                   onFocus={this.handleFocus}
-                   style={this.state.error.type === "passE" && errorStyle}/>
-            {this.state.error.type === "passE" && (
-              <div class={style.errorField}><span/>{this.state.error.value}</div>)}
+            {registration && <FormField fieldType={FieldType.EMAIL} name="fieldEmail" placeholder="Email"/>}
+            <FormField fieldType={FieldType.USERNAME} name="fieldUsername" placeholder="Username"/>
+            <FormField fieldType={FieldType.PASSWORD_1} name="fieldPassword1" placeholder="Password"/>
+            {registration && <FormField fieldType={FieldType.PASSWORD_2} name="fieldPassword2" placeholder="Repeat Password"/>}
           </div>
           <div>
-            <input type="checkbox"/>
-            <label>Remember me</label>
-            <input type="submit" value="Login"/>
+            {!registration && [<input type="checkbox"/>, <label>Remember me</label>]}
+            <input type="submit" value={vars.submitLabel}/>
           </div>
         </form>
-        <p class={style.regLink}>Not yet registered? <a href="#" onClick={props.switchPage}>Sign Up</a> now</p>
+        {vars.switchHint}
       </div>
     );
   }
+
+  #processServerError({message}) {
+    switch (message) {
+      case 'Username already exists':
+        this.setState({error: new ValidationError(FieldType.USERNAME, message)});
+        break;
+      case 'Email already exists':
+        this.setState({error: new ValidationError(FieldType.EMAIL, message)});
+        break;
+      default:
+        // We may want to display this in a better way
+        alert(message)
+    }
+  }
+
+  FormField = ({fieldType, placeholder, name, ...props}) => {
+    const ERROR_STYLE = `border: 1px solid #bf0000`;
+
+    const errorType = this.state.error && this.state.error.type;
+    const isPassword = fieldType === FieldType.PASSWORD_1 || fieldType === FieldType.PASSWORD_2;
+
+    return (
+      <span>
+        <input type={isPassword ? "password" : "text"} placeholder={placeholder} name={name}
+               onChange={this.handleChange} onFocus={this.handleFocus} {...props}
+               style={errorType === fieldType && ERROR_STYLE}/>
+        {errorType === fieldType && (
+          <div class={style.errorField}><span/>{this.state.error.message}</div>
+        )}
+    </span>
+    )
+  }
+
 }
 
 export default LoginForm;

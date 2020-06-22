@@ -1,5 +1,6 @@
 import {mount} from 'enzyme';
 
+import {FieldType} from '../../../src/components/login/validation';
 import LoginForm from '../../../src/components/login/LoginForm';
 
 import {mockSessionDoLogin} from './sessionMock';
@@ -14,10 +15,10 @@ describe('LoginForm', () => {
 
   it('should attempt login using Session', () => {
     const userData = {name: 'VirginioContrade', pass: '123456'};
-    const wrapper = mount(<LoginForm/>);
+    const wrapper = mount(<LoginForm registration={false}/>);
 
-    fillField(wrapper.find('input[name="lname"]'), userData.name);
-    fillField(wrapper.find('input[name="lpsw"]'), userData.pass);
+    fillField(wrapper.find('input[name="fieldUsername"]'), userData.name);
+    fillField(wrapper.find('input[name="fieldPassword1"]'), userData.pass);
     wrapper.find('.loginForm').simulate('submit');
 
     expect(mockSessionDoLogin).toHaveBeenCalledTimes(1);
@@ -25,20 +26,20 @@ describe('LoginForm', () => {
   });
 
   it('should show an alert when username is missing', () => {
-    const wrapper = mount(<LoginForm/>);
-    fillField(wrapper.find('input[name="lpsw"]'), 'bleigh!');
+    const wrapper = mount(<LoginForm registration={false}/>);
+    fillField(wrapper.find('input[name="fieldPassword1"]'), 'bleigh!');
     wrapper.find('.loginForm').simulate('submit');
 
     expect(mockSessionDoLogin).not.toHaveBeenCalled();
-    expect(wrapper.state()).toMatchObject({error: {type: 'usernameE'}});
+    expect(wrapper.state()).toMatchObject({error: {type: FieldType.USERNAME}});
   });
 
   it('should show an alert when password is missing', () => {
-    const wrapper = mount(<LoginForm/>);
-    fillField(wrapper.find('input[name="lname"]'), 'BrianJohnsonIsLame');
+    const wrapper = mount(<LoginForm registration={false}/>);
+    fillField(wrapper.find('input[name="fieldUsername"]'), 'BrianJohnsonIsLame');
     wrapper.find('.loginForm').simulate('submit');
 
     expect(mockSessionDoLogin).not.toHaveBeenCalled();
-    expect(wrapper.state()).toMatchObject({error: {type: 'passE'}});
+    expect(wrapper.state()).toMatchObject({error: {type: FieldType.PASSWORD_1}});
   });
 });
