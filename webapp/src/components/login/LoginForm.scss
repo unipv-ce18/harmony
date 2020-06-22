@@ -1,3 +1,13 @@
+$form-transition-len: 400;
+$form-transition-len-ms: $form-transition-len + 0ms;
+
+$field-margin-registration: 5;
+
+:export {
+  formTransitionLen: $form-transition-len;
+  fieldMarginRegistration: $field-margin-registration;
+}
+
 .formWrapper {
   position: fixed;
   top: 55%;
@@ -16,6 +26,8 @@
     width: 100%;
     overflow: hidden; /* clear fix */
     box-sizing: border-box;
+
+    transition: padding $form-transition-len-ms;
   }
 
   > div:first-of-type {
@@ -32,10 +44,12 @@
     text-align: center;
     padding: 10px;
     border: none;
+    outline: none;
 
     background-color: rgba(0, 0, 0, .1);
     color: #ddd;
-    transition: background-color .25s;
+
+    transition: background-color .25s, margin $form-transition-len-ms;
 
     &::placeholder {
       color: #bbb;
@@ -54,10 +68,15 @@
     background-color: rgba(92, 92, 92, 0.7);
     color: white;
     cursor: pointer;
+    border-radius: 2px;
 
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 700;
+    letter-spacing: 1px;
     text-transform: uppercase;
+
+    transition-duration: $form-transition-len-ms;
+    transition-property: padding, margin-right, transform;
 
     &:hover {
       opacity: 0.8;
@@ -65,10 +84,20 @@
   }
 }
 
+.rememberMe {
+  float: left;
+  font-size: 13px;
+
+  text-align: start;
+  overflow: hidden;
+  white-space: nowrap;
+
+  transition: max-width $form-transition-len-ms, opacity $form-transition-len-ms;
+}
+
 .regLink {
   margin: 10px 0 0 0;
   font-size: 14px;
-  background-color: #2a0c12;
 }
 
 .errorField {
@@ -91,6 +120,11 @@
   }
 }
 
+// FormField's class
+.fieldWrapper {
+  overflow: hidden;  // For resize proper animation
+}
+
 
 .loginForm {
   // Contains form fields
@@ -103,14 +137,14 @@
     padding: 25px 16px 16px;
   }
 
-  input[type="checkbox"], label {
-    float: left;
-    font-size: 13px;
-  }
-
   input[type="submit"] {
     padding: 5px 30px;
     float: right;
+  }
+
+  .rememberMe {
+    max-width: 50%;
+    opacity: 1;
   }
 }
 
@@ -118,15 +152,24 @@
 .registrationForm {
   // Contains form fields
   > div:first-of-type input {
-    margin: 0 0 5px;
+    margin: 0 0 ($field-margin-registration + 0px);
   }
 
   // Contains buttons
   > div:last-of-type {
-    padding: 10px 16px 16px;
+    padding: 15px 16px 16px;
   }
 
   input[type="submit"] {
     padding: 5px 50px;
+    float: right;
+
+    margin-right: 50%;
+    transform: translateX(50%);
+  }
+
+  .rememberMe {
+    max-width: 0;
+    opacity: 0;
   }
 }
