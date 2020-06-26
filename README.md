@@ -98,7 +98,7 @@ $ cd backend
 $ python -m venv venv
 $ . venv/bin/activate
 $ pip install -r apiserver/requirements.txt
-$ pip install -r transcoder_director/requirements.txt
+$ pip install -r director/requirements.txt
 $ pip install -r transcoder_worker/requirements.txt
 ```
 
@@ -106,7 +106,7 @@ Then run the microservices:
 
 ```console
 $ python -m apiserver &
-$ python -m transcoder_director &
+$ python -m director &
 ```
 
 The director will start any worker as needed.

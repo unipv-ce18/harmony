@@ -49,7 +49,7 @@ services:
       # Mount our local files inside the container
       - ../backend:/app:ro
 
-  transcoder-director:
+  director:
     volumes:
       # Mount our local files inside the container
       - ../backend:/app:ro

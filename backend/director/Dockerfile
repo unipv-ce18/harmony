@@ -10,9 +10,9 @@ RUN set -ex \
 
 COPY common /app/common
 
-# Layers for the transcoder-director image
+# Layers for the director image
 
-ENV service_package transcoder_director
+ENV service_package director
 COPY ${service_package}/requirements.txt /app/${service_package}/
 
 RUN set -ex \
@@ -23,4 +23,4 @@ COPY ${service_package} /app/${service_package}
 
 WORKDIR /app
 
-CMD ["python3", "-m", "transcoder_director"]
+CMD ["python3", "-m", "director"]
