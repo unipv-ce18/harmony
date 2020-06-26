@@ -1,54 +1,47 @@
-# Need Debian because packager depends on glibc
-FROM debian:buster-slim
+FROM alpine:3.11
 
 # Common layers between Harmony python images
 
 COPY common/requirements.txt /app/common/
 
 RUN set -ex \
-  && apt-get update \
-  && apt-get install --no-install-recommends --no-install-suggests -y python3-pip \
-  && python3 -m pip install --no-cache-dir -r /app/common/requirements.txt \
-  && apt-get remove --purge --auto-remove -y && rm -rf /var/lib/apt/lists/*
+  && apk add --no-cache python3 \
+  && python3 -m pip install --no-cache-dir -r /app/common/requirements.txt
 
 COPY common /app/common
 
 # Layers for the transcoder-worker image
 
-ENV PACKAGER_VERSION=2.4.1
+ENV PACKAGER_VERSION=2.4.2
 ENV AUDIOWAVEFORM_VERSION=1.4.2
 
 ENV service_package transcoder_worker
 COPY ${service_package}/requirements.txt /app/${service_package}/
 
 RUN set -ex \
-  && apt-get update \
-  && apt-get install --no-install-recommends --no-install-suggests -y \
-       ffmpeg \
-  # Snapshot installed packages so we can remove build deps later
-  && savedAptMark=$(apt-mark showmanual) \
-  # Add install time package dependencies
-  && apt-get install --no-install-recommends --no-install-suggests -y \
-       python3-setuptools curl \
-       git make cmake gcc g++ libmad0-dev libid3tag0-dev libsndfile1-dev libgd-dev \
-       libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev \
-  # Compile audiowaveform
-  && build_dir=$(mktemp -d) && cd ${build_dir} \
-  && git clone --branch ${AUDIOWAVEFORM_VERSION} --depth 1 https://github.com/bbc/audiowaveform.git \
-  && mkdir audiowaveform/build && cd audiowaveform/build \
-  && cmake -D ENABLE_TESTS=0 -D BUILD_STATIC=1 .. \
-  && make \
-  # Add worker requirements
-  && python3 -m pip install --no-cache-dir -r /app/${service_package}/requirements.txt \
-  && curl -fsSL -o /app/${service_package}/packager-linux \
-       https://github.com/google/shaka-packager/releases/download/v${PACKAGER_VERSION}/packager-linux \
-  && chmod 0755 /app/${service_package}/packager-linux \
-  && mv ${build_dir}/audiowaveform/build/audiowaveform /app/${service_package}/audiowaveform \
+  # Fetch Worker binaries
+  && apk add --no-cache libgcc libstdc++ ffmpeg \
+  && apk add --no-cache --virtual .fetch-deps curl gnupg \
+  && curl -fL --remote-name-all \
+       https://luca.zanus.si/unipv/se/harmony-musl-binaries/packager-v${PACKAGER_VERSION}{,.sig} \
+       https://luca.zanus.si/unipv/se/harmony-musl-binaries/audiowaveform-v${AUDIOWAVEFORM_VERSION}{,.sig} \
+  && packager_bin=./packager-v${PACKAGER_VERSION} \
+  && audiowaveform_bin=./audiowaveform-v${AUDIOWAVEFORM_VERSION} \
+  # Verify GPG signatures
+  && gpg --auto-key-locate nodefault,wkd --locate-keys $(printf bHVjYUB6YW51cy5zaQ== | base64 -d) \
+  && gpg --output ./binaries.keyring --export 0x003B046D91142A70B830CA2967406F8F40BAFCAB \
+  && gpgv --keyring ./binaries.keyring ${packager_bin}.sig ${packager_bin} \
+  && gpgv --keyring ./binaries.keyring ${audiowaveform_bin}.sig ${audiowaveform_bin} \
+  # Move inside application dir
+  && install -m 0755 ${packager_bin} /app/${service_package}/packager-linux \
+  && install -m 0755 ${audiowaveform_bin} /app/${service_package}/audiowaveform \
   # Cleanup
-  && apt-mark showmanual | xargs apt-mark auto > /dev/null \
-  && { [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark; } \
-  && apt-get remove --purge --auto-remove -y \
-  && rm -rf /var/lib/apt/lists/* ${build_dir}
+  && apk del .fetch-deps \
+  && rm -rf /root/.gnupg ./binaries.keyring ./packager-v* ./audiowaveform-v*
+
+RUN set -ex \
+  # Add worker requirements
+  && python3 -m pip install --no-cache-dir -r /app/${service_package}/requirements.txt
 
 COPY ${service_package} /app/${service_package}
 
