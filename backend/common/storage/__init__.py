@@ -78,3 +78,13 @@ def get_storage_interface(config: BackendConfig):
 def get_transcoded_songs_bucket_url(config: BackendConfig):
     scheme = 'https' if config.STORAGE_USE_TLS else 'http'
     return f'{scheme}://{config.STORAGE_ENDPOINT_PUBLIC}/{config.STORAGE_BUCKET_TRANSCODED}'
+
+
+def get_reference_songs_bucket_url(config: BackendConfig):
+    scheme = 'https' if config.STORAGE_USE_TLS else 'http'
+    return f'{scheme}://{config.STORAGE_ENDPOINT_PUBLIC}/{config.STORAGE_BUCKET_REFERENCE}'
+
+
+def get_images_bucket_url(config: BackendConfig):
+    scheme = 'https' if config.STORAGE_USE_TLS else 'http'
+    return f'{scheme}://{config.STORAGE_ENDPOINT_PUBLIC}/{config.STORAGE_BUCKET_IMAGES}'
