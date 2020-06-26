@@ -14,7 +14,8 @@ from common.storage import get_reference_songs_bucket_url, get_images_bucket_url
 api = Api(api_blueprint)
 
 _arg_parser_content = RequestParser()\
-    .add_argument('content_type', required=True)
+    .add_argument('content_type', required=True)\
+    .add_argument('content_format', required=True)
 
 
 @api.resource('/uploadContent')
@@ -37,7 +38,7 @@ class UploadContent(Resource):
                 required: [content_type]
               examples:
                 0: {summary: 'Image type', value: {'content_type': 'image'}}
-                1: {summary: 'Song type', value: {'content_type': 'song'}}
+                1: {summary: 'Audio type', value: {'content_type': 'audio'}}
         responses:
           200:
             description: URL to upload and ID of the content
@@ -55,6 +56,7 @@ class UploadContent(Resource):
 
         user_id = security.get_jwt_identity()
         content_type = data['content_type']
+        content_format = data['content_format']
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
@@ -63,12 +65,12 @@ class UploadContent(Resource):
             'image': {
                 'url': get_images_bucket_url(conf)
             },
-            'song': {
+            'audio': {
                 'url': get_reference_songs_bucket_url(conf)
             }
         }.get(content_type)
 
         if result is not None:
-            result['id'] = db.put_content(content_type)
+            result['id'] = db.put_content(content_type, content_format)
             return result, HTTPStatus.OK
         return {'message': 'Content type not valid'}, HTTPStatus.BAD_REQUEST

@@ -4,6 +4,7 @@ import threading
 
 from common import log_util
 from common.database import Database, connect_db
+from common.storage import get_storage_interface
 from . import director_config
 from .driver import create_driver_from_env
 from .orchestrator import Orchestrator
@@ -22,7 +23,7 @@ db_interface = Database(connect_db(director_config).get_database())  # Docs say 
 worker_driver = create_driver_from_env(director_config)
 
 orchestrator = Orchestrator(db_interface, worker_driver)
-terminator = Terminator(db_interface, worker_driver)
+terminator = Terminator(db_interface, worker_driver, get_storage_interface(director_config))
 
 # Run terminator (worker garbage collection) on a separate thread
 thread_gc = threading.Thread(name='worker_gc', target=terminator.run)
