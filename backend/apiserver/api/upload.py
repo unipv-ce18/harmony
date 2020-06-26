@@ -37,8 +37,8 @@ class UploadContent(Resource):
                   name: {type: string, description: The desired name}
                 required: [content_type]
               examples:
-                0: {summary: 'Image type', value: {'content_type': 'image'}}
-                1: {summary: 'Audio type', value: {'content_type': 'audio'}}
+                0: {summary: 'Image type', value: {'content_type': 'image', 'content_format': 'png'}}
+                1: {summary: 'Audio type', value: {'content_type': 'audio', 'content_format': 'flac'}}
         responses:
           200:
             description: URL to upload and ID of the content

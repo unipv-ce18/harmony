@@ -8,7 +8,6 @@ from .ops_playlist import PlaylistOpsMixin
 from .ops_upload import UploadOpsMixin
 
 
-# This is because Python...
 class _DbBase(object):
     def __init__(self, *args, **kwargs):
         pass
