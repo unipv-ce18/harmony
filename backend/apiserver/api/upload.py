@@ -14,8 +14,10 @@ from common.storage import get_reference_songs_bucket_url, get_images_bucket_url
 api = Api(api_blueprint)
 
 _arg_parser_content = RequestParser()\
-    .add_argument('content_type', required=True)\
-    .add_argument('content_format', required=True)
+    .add_argument('category', required=True)\
+    .add_argument('category_id', required=True)\
+    .add_argument('mimetype', required=True)\
+    .add_argument('size', type=int, required=True)
 
 
 @api.resource('/uploadContent')
@@ -37,8 +39,8 @@ class UploadContent(Resource):
                   name: {type: string, description: The desired name}
                 required: [content_type]
               examples:
-                0: {summary: 'Image type', value: {'content_type': 'image', 'content_format': 'png'}}
-                1: {summary: 'Audio type', value: {'content_type': 'audio', 'content_format': 'flac'}}
+                0: {summary: 'Image type', value: {'category': 'user', 'category_id': 'me', mimetype: 'image/png', 'size': 1024}}
+                1: {summary: 'Audio type', value: {'category': 'song', 'category_id': 'RELEASE_ID', mimetype: 'audio/flac', 'size': 1024}}
         responses:
           200:
             description: URL to upload and ID of the content
@@ -55,22 +57,49 @@ class UploadContent(Resource):
         data = _arg_parser_content.parse_args()
 
         user_id = security.get_jwt_identity()
-        content_type = data['content_type']
-        content_format = data['content_format']
+        category = data['category']
+        category_id = data['category_id']
+        mimetype = data['mimetype']
+        content_type = mimetype.split('/')[0]
+        size = data['size']
+
+        if category_id == 'me':
+            category_id = user_id
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
 
+        if not ObjectId.is_valid(category_id):
+            return {'message': 'Category ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        result = {
+            'user': db.get_user(category_id),
+            'artist': db.get_artist(category_id),
+            'release': db.get_release(category_id),
+            'song': db.get_song(category_id)
+        }.get(category)
+
+        if result is None:
+            return {'message': 'Category ID not found'}, HTTPStatus.BAD_REQUEST
+
+        if category == 'song' and mimetype != 'audio/flac':
+            return {'message': 'A song must be a FLAC audio'}, HTTPStatus.BAD_REQUEST
+
+        if content_type != 'image' and category != 'song':
+             return {'message': 'Content type must be image'}, HTTPStatus.BAD_REQUEST
+
+        content_id = db.put_content(category, category_id, mimetype)
+
         result = {
             'image': {
-                'url': get_images_bucket_url(conf)
+                'url': get_images_bucket_url(conf, content_id, mimetype, size)
             },
             'audio': {
-                'url': get_reference_songs_bucket_url(conf)
+                'url': get_reference_songs_bucket_url(conf, content_id, mimetype, size)
             }
         }.get(content_type)
 
         if result is not None:
-            result['id'] = db.put_content(content_type, content_format)
+            result['id'] = content_id
             return result, HTTPStatus.OK
         return {'message': 'Content type not valid'}, HTTPStatus.BAD_REQUEST

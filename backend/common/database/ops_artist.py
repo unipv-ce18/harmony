@@ -53,3 +53,9 @@ class ArtistOpsMixin:
     def remove_artist(self, artist_id: str):
         query = {c.ARTIST_ID: ObjectId(artist_id)}
         self.artists.remove(query)
+
+    def update_artist_image(self, artist_id, image_link):
+        return self.artists.update_one(
+            {c.ARTIST_ID: ObjectId(artist_id)},
+            {'$set': {c.ARTIST_IMAGE: image_link}}
+        ).matched_count

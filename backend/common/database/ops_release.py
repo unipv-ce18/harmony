@@ -76,3 +76,9 @@ class ReleaseOpsMixin:
             {'$pull': {c.ARTIST_RELEASES: {c.RELEASE_ID: ObjectId(release_id)}}})
         if res.matched_count != 1:
             raise ValueError('The given release_id does not exist')
+
+    def update_release_cover(self, release_id, image_link):
+        return self.artists.update_one(
+            {c.INDEX_RELEASE_ID: ObjectId(release_id)},
+            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_COVER}': image_link}}
+        ).matched_count

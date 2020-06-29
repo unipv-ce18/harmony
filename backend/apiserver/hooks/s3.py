@@ -21,6 +21,16 @@ def get_bucket_notification():
     content_id = content_name.split('.')[0]
 
     if content_type == 'image':
+        cat_info = db.get_content_category_info(content_id)
+        category = cat_info['category']
+        category_id = cat_info['category_id']
+
+        result = {
+            'user': db.update_avatar_url(category_id, content_name),
+            'artist': db.update_artist_image(category_id, content_name),
+            'release': db.update_release_cover(category_id, content_name)
+        }.get(category)
+
         db.remove_content(content_id)
 
     if content_type == 'audio':

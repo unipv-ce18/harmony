@@ -9,14 +9,21 @@ class UploadOpsMixin:
         super().__init__(db_connection)
         self.upload = db_connection['upload']
 
-    def put_content(self, content_type, content_format):
+    def put_content(self, category, category_id, mimetype):
         content = {
-            'content_type': content_type,
-            'content_format': content_format,
+            'category': category,
+            'category_id': category_id,
+            'mimetype': mimetype,
             'status': 'pending',
             'timestamp': datetime.utcnow()
         }
         return str(self.upload.insert_one(content).inserted_id)
+
+    def get_content_category_info(self, content_id):
+        return self.upload.find_one(
+            {'_id': ObjectId(content_id)},
+            {'_id': 0, 'category': 1, 'category_id': 1}
+        )
 
     def remove_content(self, content_id):
         self.upload.delete_one({
