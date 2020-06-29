@@ -76,7 +76,7 @@ class UploadContent(Resource):
             'user': db.get_user(category_id),
             'artist': db.get_artist(category_id),
             'release': db.get_release(category_id),
-            'song': db.get_song(category_id)
+            'song': db.get_release(category_id)
         }.get(category)
 
         if result is None:
