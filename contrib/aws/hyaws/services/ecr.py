@@ -2,7 +2,8 @@
 from ..cli import color_print, bcolors
 from ..config import get_service_config
 from ..service_util import requires_account, IAM, ECR
-from ..service_util.policy import account_trust_relationship_policy, assume_role_policy
+from ..service_util.policy \
+    import account_trust_relationship_policy, assume_role_policy, ecr_lifecycle_policy_image_count
 
 DELEGATE_ROLE_NAME = 'HYDelegateEcr'
 ASSUME_ROLE_POLICY_NAME = 'AssumeEducateEcrRole'
@@ -67,8 +68,10 @@ def command_user_remove(_):
 def command_create_repositories(_):
     """Creates ECR repositories for harmony images"""
     ecr = ECR(service_account, ecr_conf['region'])
+    lifecycle_policy = ecr_lifecycle_policy_image_count(ecr_conf['max-image-count'])
     for name in ecr_conf['repositories']:
         ecr.create_repository(name)
+        ecr.put_lifecycle_policy(name, lifecycle_policy)
 
 
 @requires_account(service_account)

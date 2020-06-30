@@ -32,3 +32,10 @@ class ECR:
             _util_print(f"Repository \"{repository['repositoryName']}\"", 'deleted')
         except ClientError as e:
             _util_handle_error(e)
+
+    def put_lifecycle_policy(self, repository_name, policy_text):
+        try:
+            response = self.client.put_lifecycle_policy(repositoryName=repository_name, lifecyclePolicyText=policy_text)
+            _util_print(f"Repository \"{response['repositoryName']}\"", 'applied lifecycle policy')
+        except ClientError as e:
+            _util_handle_error(e)

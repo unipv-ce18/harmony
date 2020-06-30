@@ -28,3 +28,22 @@ def assume_role_policy(role_arn):
             }
         ]
     })
+
+
+def ecr_lifecycle_policy_image_count(max_images_count):
+    return json.dumps({
+        "rules": [
+            {
+                "rulePriority": 2,
+                "description": "string",
+                "selection": {
+                    "tagStatus": "any",
+                    "countType": "imageCountMoreThan",
+                    "countNumber": max_images_count
+                },
+                "action": {
+                    "type": "expire"
+                }
+            }
+        ]
+    })

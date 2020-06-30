@@ -20,6 +20,7 @@ services:
 
     region: 'us-east-1'            # The region to use for ECR
     ci-user: 'ci-cd-ecr'           # User name that will be used by the CI pipeline to upload images
+    max-image-count: 5             # Max. number of images to keep, older ones get removed automatically
 
     # ECR repository names to manage
     repositories:
