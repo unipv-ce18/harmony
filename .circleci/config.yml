@@ -1,4 +1,8 @@
-version: 2
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@1.2.0
+  aws-ecr: circleci/aws-ecr@6.9.1
 
 jobs:
 
@@ -79,9 +83,74 @@ jobs:
       - store_test_results:
           path: test-results
 
+  publish-images:
+    docker:
+      - image: circleci/python:3.8
+        user: root  # See <https://github.com/CircleCI-Public/circleci-cli/issues/291>
+    steps:
+      - checkout
+
+      - aws-cli/install
+
+      - run:
+          name: Configure the AWS client
+          command: |
+            aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+            aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+            aws configure set role_arn "$AWS_ECR_ROLE"
+            aws configure set source_profile default
+
+      - setup_remote_docker
+
+      - run:
+          name: Define image tags to push
+          command: |
+            COMMIT_HASH=${CIRCLE_SHA1:-$LOCALBUILD_COMMIT_HASH}
+            echo IMAGE_TAGS=${COMMIT_HASH:0:7},latest >> $BASH_ENV
+
+      # The following steps take as a default "account-url: AWS_ECR_ACCOUNT_URL"
+
+      - aws-ecr/build-image:
+          path: ./backend
+          dockerfile: apiserver/Dockerfile
+          repo: harmony/apiserver
+          tag: "$IMAGE_TAGS"
+
+      - aws-ecr/build-image:
+          path: ./backend
+          dockerfile: director/Dockerfile
+          repo: harmony/director
+          tag: "$IMAGE_TAGS"
+
+      - aws-ecr/build-image:
+          path: ./backend
+          dockerfile: transcoder_worker/Dockerfile
+          repo: harmony/transcoder-worker
+          tag: "$IMAGE_TAGS"
+
+      - aws-ecr/ecr-login:
+          region: AWS_REGION
+
+      - aws-ecr/push-image:
+          repo: harmony/apiserver
+          tag: "$IMAGE_TAGS"
+
+      - aws-ecr/push-image:
+          repo: harmony/director
+          tag: "$IMAGE_TAGS"
+
+      - aws-ecr/push-image:
+          repo: harmony/transcoder-worker
+          tag: "$IMAGE_TAGS"
+
 workflows:
   version: 2
   main-workflow:
     jobs:
       - test-apiserver
       - test-webapp
+      - publish-images:
+          filters:
+            branches:
+              only:
+                - staging
