@@ -81,11 +81,11 @@ class UploadContent(Resource):
             return {'message': 'Category ID not valid'}, HTTPStatus.BAD_REQUEST
 
         result = {
-            'user': db.get_user(category_id),
-            'artist': db.get_artist(category_id),
-            'release': db.get_release(category_id),
-            'song': db.get_release(category_id)
-        }.get(category)
+            'user': db.get_user,
+            'artist': db.get_artist,
+            'release': db.get_release,
+            'song': db.get_release
+        }.get(category)(category_id)
 
         if result is None:
             return {'message': 'Category ID not found'}, HTTPStatus.BAD_REQUEST
