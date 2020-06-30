@@ -44,3 +44,10 @@ class UploadOpsMixin:
             'timestamp': {'$lt': (datetime.utcnow() - timedelta(seconds=since))}
         }, {'_id': 1, 'content_type': 1, 'content_format': 1})
         return [res for res in result]
+
+    def get_content_status(self, content_id):
+        result = self.upload.find_one(
+            {'_id': ObjectId(content_id)},
+            {'_id': 0, 'status': 1}
+        )
+        return result['status']

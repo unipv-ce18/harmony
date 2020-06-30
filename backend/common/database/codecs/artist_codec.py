@@ -170,7 +170,7 @@ def song_to_document(song: Song, strip_unsafe=True) -> dict:
 
     if not strip_unsafe:
         doc[c.SONG_ID] = ObjectId(song.id)
-        doc[c.SONG_ARTIST_REF] = _artist_ref_to_document(song.artist)
-        doc[c.SONG_RELEASE_REF] = _release_ref_to_document(song.release)
-        doc[c.SONG_REPRESENTATION_DATA] = song.repr_data
+        #doc[c.SONG_ARTIST_REF] = _artist_ref_to_document(song.artist)
+        #doc[c.SONG_RELEASE_REF] = _release_ref_to_document(song.release)
+        #doc[c.SONG_REPRESENTATION_DATA] = song.repr_data
     return doc
