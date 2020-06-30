@@ -145,7 +145,7 @@ class SongUpload(Resource):
         data = _arg_parser_song.parse_args()
 
         user_id = security.get_jwt_identity()
-        song_id = data['_id'] = data['song_id']
+        song_id = data[c.SONG_ID] = data['song_id']
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
