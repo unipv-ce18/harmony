@@ -8,8 +8,7 @@ class ReleasesPage extends Component {
     super(props);
 
     this.state = {
-      clicked : true,
-      releases: [...this.props.releases]
+      clicked : true
     };
   }
 
@@ -27,9 +26,9 @@ class ReleasesPage extends Component {
     return (
       <div className={styles.libraryCommon}>
         <div>
-          {this.state.clicked && this.state.releases.map(item =>
+          {this.state.clicked && this.props.releases.map(item =>
               <span>
-                <img src={image} alt={""}/>
+                <a href='#' onClick={this.clickRelease.bind(this, item.id)}><img src={image} alt={""}/></a>
                 <p><a href='#' onClick={this.clickRelease.bind(this, item.id)}>{item.name}</a></p>
                 <p>By <a href='#' onClick={this.clickArtist.bind(this, item.artist.id)}>{item.artist.name}</a></p>
               </span>)}

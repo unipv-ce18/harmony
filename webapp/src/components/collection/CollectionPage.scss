@@ -6,7 +6,7 @@
   padding: 16px;
   box-sizing: border-box;
 
-  > div {
+  > div:first-of-type {
     width: 100%;
     border-radius: 16px;
     min-height: calc(100vh - 32px - #{$navbar-height});
@@ -19,185 +19,176 @@
     display: inline-block;
     text-align: center;
     padding: 20px 0;
+  }
+}
 
-    > div:first-of-type {
-      display: inline-block;
-      height: 200px;
-      margin: 100px 0 0;
+.releaseInfo {
+  margin: 100px 0 50px;
 
-      img {
-        width: 200px;
-        height: 200px;
-        border-radius: 15px 0;
-      }
+  div {
+    display: inline-block;
+    vertical-align: middle;
+  }
 
-      > div:first-of-type {
-        display: inline-block;
+  img {
+    width: 200px;
+    height: 200px;
+    border-radius: 15px 0;
+  }
+  div:nth-of-type(2) {
+    margin-left: 50px;
 
-        p:nth-of-type(1) {
-          font-size: 14px;
-          margin: 10px;
-        }
-
-        p:nth-of-type(2) {
-          font-size: 30px;
-          margin: 40px 50px 10px;
-        }
-
-        p:nth-of-type(3) {
-          font-size: 18px;
-          margin: 10px 0 40px;
-        }
-
-        p:nth-of-type(4) {
-          font-size: 13px;
-          margin: 10px;
-        }
-      }
-      > div:last-of-type {
-        >button {
-          cursor: pointer;
-          border-radius: 100%;
-          background: transparent;
-          padding: 3px 5px;
-          i {
-            -webkit-text-fill-color: transparent;
-            -webkit-text-stroke: 1px $panel-text-color-test;
-          }
-        }
-      }
-
+    p:nth-of-type(1) {
+      font-size: 14px;
+      margin: 0 0 40px 0;
     }
 
-    > div:nth-of-type(2) {
-      width: 50%;
-      margin: 100px 25%;
-      text-align: justify;
+    p:nth-of-type(2) {
+      font-size: 30px;
+      margin: 0 0 20px 0;
+    }
 
-      > div {
-         > div:first-of-type {
-          display: table;
-           &:hover {
-            background-color: $panel-text-color-test;
-            color: $application-background;
-            border-radius: 20px;
-            padding: 0 20px;
-            margin: 0 -37px 0 -20px;
-            button:last-of-type {
-              display: block;
-            }
-          }
+    p:nth-of-type(3) {
+      font-size: 18px;
+      margin: 0 0 40px 0;
+    }
 
-          >button:first-of-type {
-            cursor: pointer;
-            width: 0;
-            height: 0;
-            background: none;
-            border: none;
-            margin-right: 30px;
-            -webkit-text-fill-color: transparent;
-            -webkit-text-stroke: 1px $panel-text-color-test;
-            &:hover {
-              -webkit-text-fill-color: $panel-text-color-test;
-            }
-          }
+    p:nth-of-type(4) {
+      font-size: 13px;
+      margin: 0;
+    }
+  }
 
-          span {
-            padding: 10px 0;
-            display: table-cell;
-            white-space: nowrap;
-          }
-
-          span:nth-of-type(2) {
-            width: 100%;
-            text-align: right;
-          }
-
-          >button:last-of-type {
-            position: relative;
-            display: none;
-            cursor: pointer;
-            width: 0;
-            height: 0;
-            background: none;
-            border: none;
-            bottom: 15px;
-            i {
-              margin-top: 5px;
-            }
-          }
-
-           >div {
-             position: absolute;
-             border: solid 1px $panel-text-color-test;
-             color: $panel-text-color-test;
-             background-color: $application-background;
-             font-size: 14px;
-
-             >div {
-               margin: 5px 0;
-               padding: 2px 5px;
-
-               &:hover {
-                 color: $application-background;
-                 background-color: $panel-text-color-test;
-               }
-
-               i {
-                 padding-left: 10px;
-               }
-
-               >div {
-                 position: absolute;
-                 left: 70px;
-                 border: solid 1px $panel-text-color-test;
-                 background-color: $application-background;
-                 font-size: 14px;
-                 div {
-                   button {
-                     border: none;
-                     margin: 5px 0;
-                     padding: 2px 5px;
-                     text-align: left;
-                     white-space: nowrap;
-                     color: $panel-text-color-test;
-                     background-color: $application-background;
-                     width: 100%;
-                     cursor: pointer;
-
-                     &:hover {
-                       color: $application-background;
-                       background-color: $panel-text-color-test;
-                     }
-                   }
-                 }
-               }
-             }
-           }
-
-
-        }
-        hr {
-          width: 95%;
-          margin: 0;
-          height: 1px;
-          border-color: transparent;
-          background: linear-gradient(to right,
-            rgba(255,255,255, 0),
-            white,
-            rgba(255,255,255, 0)
-          );
-        }
+  div:last-of-type {
+    margin-left: 50px;
+    >button {
+      cursor: pointer;
+      border-radius: 100%;
+      background: transparent;
+      padding: 3px 5px;
+      i {
+        -webkit-text-fill-color: transparent;
+        -webkit-text-stroke: 1px $panel-text-color-test;
       }
     }
-    button {
-      border-radius: 0;
-      padding: 3px 10px;
+  }
+}
 
-      &:hover {
+.songsInfo {
+  hr {
+    width: 95%;
+    margin: 0;
+    height: 1px;
+    border-color: transparent;
+    background: linear-gradient(to right,
+      rgba(255,255,255, 0),
+      white,
+      rgba(255,255,255, 0)
+    );
+  }
+  .librarySongs {
+    margin: 50px auto;
+    text-align: left;
+    border-collapse: collapse;
+
+    td, th {
+      white-space: nowrap;
+      padding: 10px 30px;
+    }
+    td:first-child { border-radius: 15px 0 0 15px }
+    td:last-child { border-radius: 0 15px 15px 0 }
+    tr:not(:first-child):hover td { background: black }
+
+    tr:first-of-type {
+      text-align: center;
+      padding-bottom: 30px;
+
+      button {
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        border: none;
         cursor: pointer;
-        background-color: $panel-text-color-test;
+        color: $panel-text-color-test;
+        text-decoration: underline;
       }
+    }
+
+    tr {
+      &:not(:hover) {
+        .menuButton {
+          display: none;
+        }
+      }
+      td:nth-of-type(2), td:last-of-type, th:nth-of-type(2), th:last-of-type {
+        padding: 0 10px;
+        width: 30px;
+        > button {
+          cursor: pointer;
+          width: 0;
+          height: 0;
+          background: none;
+          color: $panel-text-color-test;
+          border: none;
+        }
+      }
+      td:nth-of-type(2) button:last-of-type {
+        -webkit-text-fill-color: transparent;
+        -webkit-text-stroke: 1px $panel-text-color-test;
+        &:hover {
+          -webkit-text-fill-color: $panel-text-color-test;
+        }
+      }
+      th:nth-of-type(6), td:nth-of-type(6) {
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+.dropdownMenu {
+  position: absolute;
+  border: solid 1px $panel-text-color-test;
+  color: $panel-text-color-test;
+  background-color: $application-background;
+  font-size: 14px;
+
+  > div {
+    margin: 5px 0;
+    padding: 2px 5px;
+
+    &:hover {
+      color: $application-background;
+      background-color: $panel-text-color-test;
+    }
+
+    i {
+      padding-left: 10px;
+    }
+
+    > div {
+      position: absolute;
+      left: 70px;
+      border: solid 1px $panel-text-color-test;
+      background-color: $application-background;
+      font-size: 14px;
+    }
+  }
+
+  button {
+    border: none;
+    margin: 5px 0;
+    padding: 2px 5px;
+    text-align: left;
+    white-space: nowrap;
+    color: $panel-text-color-test;
+    background-color: $application-background;
+    width: 100%;
+    cursor: pointer;
+
+    &:hover {
+      color: $application-background;
+      background-color: $panel-text-color-test;
     }
   }
 }
@@ -205,19 +196,21 @@
 .modalBox {
   position: fixed;
   z-index: 1;
-  padding-top: 100px;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
   overflow: auto;
+  background-color: rgba(0, 0, 0, 0.7);
 
-  div {
+  > div {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background-color: $panel-text-color-test;
-    margin: auto;
     padding: 2px;
     border: 1px solid #888;
-    width: 250px;
     color: $application-background;
     text-align: center;
 
@@ -232,32 +225,56 @@
       cursor: pointer;
     }
 
-    > button:nth-of-type(2) {
-      border-radius: 0;
-      color: $application-background;
-    }
-
-    > button:nth-of-type(3) {
-      background-color: $application-background;
-      color: $panel-text-color-test;
-      &:hover {
-        background-color: #4a0c12;
+    > div {
+      > button {
+        margin: 5px;
       }
-    }
 
-    input {
-      margin-bottom: 10px;
-      &:first-of-type {
-        width: 80%;
-        text-align: center;
-      }
-      &:last-of-type {
+      > button:first-of-type {
         border-radius: 0;
-        padding: 3px 10px;
+        color: $application-background;
+      }
+
+      > button:nth-of-type(2) {
         background-color: $application-background;
         color: $panel-text-color-test;
-        cursor: pointer;
+
+        &:hover {
+          background-color: #4a0c12;
+        }
+      }
+
+      > input {
+        margin-bottom: 10px;
+
+        &:first-of-type {
+          width: 80%;
+          text-align: center;
+        }
+
+        &:last-of-type {
+          border-radius: 0;
+          padding: 3px 10px;
+          background-color: $application-background;
+          color: $panel-text-color-test;
+          cursor: pointer;
+        }
       }
     }
+  }
+
+  .modalSuccess, .modalError {
+    white-space: nowrap;
+    border-radius: 3px 35px;
+    padding: 5px 35px;
+  }
+  .modalSuccess {
+    border: 3px solid green;
+    border-bottom: 4px solid #005500;
+  }
+
+  .modalError {
+    border: 3px solid red;
+    border-bottom: 4px solid #bb0000;
   }
 }

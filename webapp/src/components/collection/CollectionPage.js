@@ -4,10 +4,10 @@ import {getReleasePlaylist, getUserPlaylists} from "../../core/apiCalls";
 import {catalog, session} from "../../Harmony"
 import styles from './CollectionPage.scss';
 import image from './image.jpg';
-import {route} from 'preact-router';
+import CollectionSongsTable from './CollectionSongsTable';
+import ModalBox from './ModalBox';
 
-
-const SONGS_TYPE = 'songs';
+const MODALBOX_PLAYLIST_DELETE = 'modalbox_playlist_delete';
 
 class CollectionPage extends Component {
 
@@ -17,16 +17,11 @@ class CollectionPage extends Component {
     this.state = {
       userPlaylists: {},
       collectionType: '',
-      firstWindow : '',
-      secondWindow : '',
-      newPlaylistWindow : '',
-      newPlaylistName : '',
-      deleteClicked : false
+      modalBox : {type:'', message:''},
+      stateUpdated : true
     }
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
+    this.addNewPlaylist = this.addNewPlaylist.bind(this);
   }
 
   componentDidMount() {
@@ -36,28 +31,25 @@ class CollectionPage extends Component {
         elem = elem.slice(Math.max(elem.length - 2))
         this.setState({collectionType : elem[0] + 's'})
         getReleasePlaylist(elem[0], elem[1], true, token)
-          .then(result => {this.setState({collection: result});})
-          .catch( e => {session.error = true;});
+          .then(result => {
+            this.setState({collection: result});
+            this.setState({songs: result.songs});
+          })
+          .catch( () => session.error = true);
         getUserPlaylists(token)
-          .then(result => {this.setState({userPlaylists: result});})
-          .catch( e => {session.error = true;});
+          .then(result => this.setState({userPlaylists: result}))
+          .catch( () => session.error = true);
       })
   }
 
-  composeTime(time) {
-    let date = new Date(time);
-    let seconds = ('0' + date.getUTCSeconds()).slice(-2);
-    let minutes = date.getUTCMinutes();
-    let hours = date.getUTCHours();
-    if (hours > 0)
-      return hours + ":" + minutes + ":" + seconds;
-    return minutes + ":" + seconds;
-  }
-
   initialLikeState (media_type, element) {
-    if(element && catalog.inLibrary(media_type, element.firstChild.id)) {
-      element.firstChild.classList.add("liked");
-      element.firstChild.style = '-webkit-text-fill-color: white;';
+    if(element) {
+      element.style = '-webkit-text-fill-color: transparent;';
+      element.classList.remove("liked");
+    }
+    if(element && catalog.inLibrary(media_type, element.id)) {
+      element.classList.add("liked");
+      element.style = '-webkit-text-fill-color: white;';
     }
   };
 
@@ -71,66 +63,38 @@ class CollectionPage extends Component {
       } else {
         element.classList.add("liked");
         element.style = '-webkit-text-fill-color: white;';
+        if (media_type === 'playlists' && session.getOwnData().id === this.state.collection.creator.id)
+          media_type = 'personal_playlists';
         catalog.favorite('PUT', media_type, element.id)
+        this.setState({stateUpdated: true});
       }
     }
   }
 
-  isUserOwner() {
+  userLikeOwnPlaylist() {
     return catalog.inLibrary('personal_playlists', this.state.collection.id);
   }
 
-  handleClick(element_id) {
-    this.state.firstWindow === element_id ?
-      this.setState({firstWindow: ''}) : this.setState({firstWindow: element_id});
-  }
-  handleMouseEnter(element_id) {
-    this.state.secondWindow === element_id ?
-      this.setState({secondWindow: ''}) : this.setState({secondWindow: element_id});
-  }
-  handleMouseLeave(window) {
-    if(this.state.secondWindow) this.setState({secondWindow: ''});
-    if(window === 'first' && this.state.firstWindow) this.setState({firstWindow: ''});
-  }
-  closeNewPlaylistWindow() {
-    this.setState({newPlaylistName : ''});
-    this.setState({newPlaylistWindow : ''});
-  }
-  handleChange(e) {
-    this.setState({newPlaylistName : e.target.value});
-  }
-  handleSubmit(e) {
-    e.preventDefault();
-    let name = this.state.newPlaylistName;
-    if (!name) name = 'New Playlist';
-    catalog.createPlaylist(name)
-      .then(playlist_id => {
-        catalog.addSongToPlaylist(playlist_id, this.state.newPlaylistWindow)
-        this.closeNewPlaylistWindow();
-      })
-  }
-  deleteButton(bool) {
-    this.setState({deleteClicked : bool});
+  handleModalBox(modalbox_type, message) {
+    this.setState({modalBox: {type: modalbox_type, message: message}});
   }
 
-  deleteConfirmed(e) {
-    catalog.favorite('DELETE', 'personal_playlists', this.state.collection.id)
-      .then(() => route('/library/me'));
+  addNewPlaylist(playlist_id, playlist_name) {
+    let playlists = [...this.state.userPlaylists];
+    const newPlaylist = {id: playlist_id, name: playlist_name, policiy: 'public'}
+    playlists.push(newPlaylist);
+    this.setState({userPlaylists: playlists});
   }
-
-  addSongToPlaylist(e) {
-    catalog.addSongToPlaylist(e.target.id, this.state.secondWindow);
-  }
-
+  
   render() {
     return (
       <div>
         {this.state.collection &&
         <div className={styles.releasePage}>
           <div>
-            <div>
+            <div className={styles.releaseInfo}>
               {/*<img src={this.props.release.cover} alt={""}/>*/}
-              <img src={image} alt={""}/>
+              <div><img src={image} alt={""}/></div>
               {this.state.collectionType === 'releases' &&
                 <div>
                   <p>{this.state.collection.type}</p>
@@ -147,85 +111,28 @@ class CollectionPage extends Component {
               </div>
               }
               <div>
-                {!this.isUserOwner() &&
-                  <button onClick={this.liked.bind(this, this.state.collectionType)}
-                          ref={this.initialLikeState.bind(this, this.state.collectionType)}>
-                    <i id={this.state.collection.id} className={"fa fa-star "}/>
+                {this.state.stateUpdated && !this.userLikeOwnPlaylist() &&
+                  <button onClick={this.liked.bind(this, this.state.collectionType)}>
+                    <i id={this.state.collection.id} ref={this.initialLikeState.bind(this, this.state.collectionType)} className={"fa fa-star "}/>
                   </button>
                 }
               </div>
-
             </div>
-            <div>
-              {this.state.collection.songs.map(item =>
-                <div>
-                  <hr/>
-                  <div>
-                    <button onClick={this.liked.bind(this, SONGS_TYPE)}
-                            ref={this.initialLikeState.bind(this, SONGS_TYPE)}>
-                      <i id={item.id} className={"fa fa-star "}/></button>
-                    <span>{item.title}</span>
-                    <span>{this.composeTime(item.length)}</span>
-                    <button onClick={this.handleClick.bind(this, item.id)}>
-                      <i className={"fa fa-ellipsis-h"}/>
-                    </button>
-                    {this.state.firstWindow === item.id &&
-                    <div onMouseLeave={this.handleMouseLeave.bind(this, 'first')}>
-                      <div
-                        onMouseEnter={this.handleMouseEnter.bind(this, item.id)}
-                        onMouseLeave={this.handleMouseLeave.bind(this, 'second')}>
-                        Add To Playlist
-                        <i className={"fa fa-caret-right"}/>
-                        {this.state.secondWindow === item.id &&
-                        <div onMouseLeave={this.handleMouseLeave.bind(this, 'second')}>
-                          <div>
-                            <button onClick={()=>this.setState({newPlaylistWindow : item.id})}>New Playlist</button>
-                          </div>
-
-                          {Object.values(this.state.userPlaylists).map(playlist =>
-                            <div>
-                              <button id={playlist.id} onClick={this.addSongToPlaylist}>{playlist.name}</button>
-                            </div>
-                          )}
-
-                        </div>
-                        }
-                      </div>
-                      <div>Like Onions</div>
-                    </div>}
-                  </div>
-                  {this.state.newPlaylistWindow &&
-                  <div className={styles.modalBox}>
-                    <div>
-                      <button
-                        onClick={this.closeNewPlaylistWindow}>&times;
-                      </button>
-                      <p>New Playlist</p>
-                        <input type="text" placeholder="Playlist Name" onChange={this.handleChange}/>
-                        <input onClick={this.handleSubmit} type="submit" value="Create"/>
-                    </div>
-                  </div>
-                  }
-                </div>
-              )}
-            </div>
-            {this.isUserOwner() &&
-              <button onClick={this.deleteButton.bind(this, true)}>Delete</button>}
-            <div>
-              {this.state.deleteClicked &&
-                <div className={styles.modalBox}>
-                  <div>
-                    <button
-                      onClick={this.deleteButton.bind(this, false)}>&times;
-                    </button>
-                    <p>Do you really want to delete this playlist?</p>
-                    <button onClick={this.deleteButton.bind(this, false)}>Cancel</button>
-                    <button onClick={this.deleteConfirmed.bind(this)}>Delete</button>
-                  </div>
-                </div>
-              }
-            </div>
+            <CollectionSongsTable
+              initialLikeState={this.initialLikeState}
+              likeSong={this.liked}
+              handleModalBox={this.handleModalBox.bind(this)}
+              collection={this.state.collection}
+              userPlaylists={this.state.userPlaylists}
+            />
+            {this.state.stateUpdated && this.userLikeOwnPlaylist() &&
+              <button onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST_DELETE, this.state.collection.id)}>Delete</button>}
           </div>
+          <ModalBox
+              handleModalBox={this.handleModalBox.bind(this)}
+              addNewPlaylist={this.addNewPlaylist}
+              type={this.state.modalBox.type}
+              message={this.state.modalBox.message}/>
         </div>
         }
       </div>);

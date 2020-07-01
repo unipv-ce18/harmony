@@ -1,6 +1,5 @@
 import {Component} from 'preact';
 import styles from './LibraryPage.scss';
-import {catalog} from '../../Harmony';
 
 class SongsPage extends Component {
   constructor(props) {

@@ -59,6 +59,16 @@ export function execRefresh(token) {
   });
 }
 
+export function getUserInfo(token, user_id) {
+  return fetch(API_USER_URL + user_id, {
+    method: 'GET',
+    headers: new Headers({'Accept': 'application/json', 'Authorization':'Bearer ' + token})
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return response.json();
+  });
+}
+
 export function getReleasePlaylist(type, type_id, with_song, token) {
   // with_song == true includes the songs in the result
   let query;
@@ -130,14 +140,15 @@ export function createPlaylist(name, token) {
   });
 }
 
-export function addSongToPlaylist(playlist_id, song_id, token) {
+export function updateSongInPlaylist(type_method, playlist_id, song_id, token) {
   const data = {playlist_id, song_id};
   return fetch(API_USER_URL + 'playlist/update', {
-    method: 'PUT',
+    method: type_method,
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
     body: JSON.stringify(data)
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
+    return 'song added successfully';
   });
 }
 

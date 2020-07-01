@@ -1,4 +1,4 @@
-import {execLogin, execRefresh, setLike} from './apiCalls';
+import {execLogin, execRefresh, getUserInfo, setLike} from './apiCalls';
 import {execLogout} from './apiCalls';
 import {getCurrentTime} from './utils'
 
@@ -6,6 +6,7 @@ import {catalog, session} from '../Harmony';
 
 const SESSION_STORE_KEY = 'session';
 const REFRESH_STORE_KEY = 'refresh';
+const USER_STORE_KEY = 'user_info';
 
 export class Session {
 
@@ -44,6 +45,15 @@ export class Session {
       window.localStorage.removeItem(REFRESH_STORE_KEY);
     else {
       window.localStorage.setItem(REFRESH_STORE_KEY, JSON.stringify(value));
+    }
+  }
+
+  set #userInfo(value) {
+    if (value == null) {
+      window.localStorage.removeItem(USER_STORE_KEY);
+    }
+    else {
+      window.localStorage.setItem(USER_STORE_KEY, JSON.stringify(value));
     }
   }
 
@@ -149,6 +159,11 @@ export class Session {
         this.#refresh = {token:refreshToken, expiration:refreshExpiration};
         catalog.setCachedLibrary();
         //catalog.setCachedPlaylists();
+
+        getUserInfo(accessToken,'me')
+          .then(user_data => {
+            this.#userInfo = {user_data: user_data}
+          })
       });
   }
 
@@ -163,6 +178,10 @@ export class Session {
       })
     this.#store = null;
     this.#refresh = null;
+  }
+
+  getOwnData() {
+    return JSON.parse(window.localStorage.getItem(USER_STORE_KEY)).user_data;
   }
 
   /**
