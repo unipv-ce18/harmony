@@ -12,9 +12,7 @@ _USER_DOCUMENT_BINDINGS = {
     'email': c.USER_EMAIL,
     'password': c.USER_PASSWORD,
     'bio': c.USER_BIO,
-    'location': c.USER_LOCATION,
     'avatar_url': c.USER_AVATAR_URL,
-    'stats': c.USER_STATS,
     'prefs': c.USER_PREFS,
     'library': c.USER_LIBRARY
 }
