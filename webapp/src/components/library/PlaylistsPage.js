@@ -4,12 +4,28 @@ import styles from './LibraryPage.scss';
 
 import {route} from 'preact-router';
 import image from '../collection/image.jpg';
-import {session} from '../../Harmony';
+import {catalog, session} from '../../Harmony';
+import ModalBox from '../collection/ModalBox';
+
+const MODALBOX_PLAYLIST = 'modalbox_playlist';
+const MODAL_BOX_SUCCESS = 'modalbox_success';
 
 class PlaylistsPage extends Component {
-   constructor(props) {
-     super(props);
-   }
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      playlists : {
+        personal : {},
+        others : {}
+      },
+      modalBox : {type:'', message:''}
+    }
+  }
+
+  componentDidMount() {
+    this.setState({playlists : this.props.playlists});
+  }
 
   clickPlaylist(playlist_id, e) {
      e.preventDefault();
@@ -25,19 +41,45 @@ class PlaylistsPage extends Component {
     return session.getOwnData().id === this.props.user.id;
   }
 
+  handleModalBox(modalbox_type, message, e) {
+    e.preventDefault();
+    this.setState({modalBox: {type: modalbox_type, message: message}});
+  }
+
+  newPlaylist(playlist_name) {
+    catalog.createPlaylist(playlist_name)
+      .then(playlist_id => {
+        const newPlaylist = {id: playlist_id, name: playlist_name, policiy: 'public'}
+        let personalPlaylists = [...this.state.playlists['personal']];
+        personalPlaylists.push(newPlaylist);
+        this.setState({modalBox: {type: MODAL_BOX_SUCCESS, message: 'Playlist created successfully.'}})
+        setTimeout(()=>this.setState({modalBox: {type: '', message: ''}}),2000);
+        this.setState(
+    {playlists: {
+            personal : personalPlaylists,
+            others : this.state.playlists.others
+          }})
+      })
+  }
+
   render() {
     return (
       <div className={styles.libraryCommon}>
-        {Object.entries(this.props.playlists).map(([type, arrays]) =>
+        {Object.entries(this.state.playlists).map(([type, arrays]) => (
           <div>
             {this.isUserOwner() ?
               <div>
-                {type === 'personal' && arrays.length > 0 && <p>Realized by you</p>}
-                {type === 'others' && arrays.length > 0 && <p>Playlists you like</p>}
-              </div>
+                {type === 'personal' && arrays.length > 0 && <div><hr/><p>Realized by you</p></div>}
+                {type === 'others' && arrays.length > 0 && <div><hr/><p>Playlists you like</p></div>}
+              </div> &&
+              (type === 'personal' &&
+                <span>
+                <a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST, '')}><img src={image} alt={""}/></a>
+                <p><a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST, '')}>New Playlist</a></p>
+              </span>)
               :
               <div>
-                {type === 'personal' && <p>Playlists {this.props.user.username} likes</p>}
+                {type === 'personal' && <div><hr/><p>Playlists {this.props.user.username} likes</p></div>}
               </div>}
             {
             Object.values(arrays).map(playlist =>
@@ -48,8 +90,13 @@ class PlaylistsPage extends Component {
               <p>By <a href='#' onClick={this.clickCreator.bind(this, playlist.creator.id)}>{playlist.creator.username}</a>
               </p>}
             </span>)}
-          </div>
+          </div>)
           )}
+        <ModalBox
+          handleModalBox={this.handleModalBox.bind(this)}
+          newPlaylist={this.newPlaylist.bind(this)}
+          type={this.state.modalBox.type}
+          message={this.state.modalBox.message}/>
       </div>
     );
   }

@@ -2,12 +2,6 @@
 
 .libraryPage {
   width: 100%;
-  padding: 16px;
-  box-sizing: border-box;
-}
-
-.libraryPageContent {
-  width: 100%;
   border-radius: 16px;
   min-height: calc(100vh - 32px - #{$navbar-height});
 
@@ -19,41 +13,64 @@
   display: inline-block;
   text-align: center;
   padding: 20px 0;
+
+  > div {
+    > div
+      > button {
+      width: 15%;
+      border: none;
+      cursor: pointer;
+      color: $panel-color-test;
+      background: linear-gradient(to right,
+        rgba(255,255,255, 0),
+        rgba(255,255,255, 0.7),
+        rgba(255,255,255, 0)
+      );
+      font-size: medium;
+    }
+  }
 }
 
 .libraryCommon {
   margin: 50px auto;
-  div {
-    div {
-      color: $panel-color-test;
-      background: linear-gradient(to right,
-            rgba(255,255,255, 0),
-            white,
-            rgba(255,255,255, 0)
-          );
+  > div {
+    > div {
+      > hr {
+        width: 95%;
+        margin-top: 100px;
+        height: 1px;
+        border-color: transparent;
+        background: linear-gradient(to right,
+          rgba(255,255,255, 0),
+          white,
+          rgba(255,255,255, 0)
+        );
+      }
+      p {
+        font-size: large;
+      }
+    }
+  }
+  span {
+    display: inline-block;
+    margin: 20px 8%;
+    text-align: left;
+
+    img {
+      width: 150px;
+      height: 150px;
     }
 
-    span {
-      display: inline-block;
-      margin: 20px 8%;
-      text-align: left;
+    p {
+      margin: 0;
 
-      img {
-        width: 150px;
-        height: 150px;
-      }
-
-      p {
+      a {
+        padding: 0;
         margin: 0;
-
-        a {
-          padding: 0;
-          margin: 0;
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          color: white;
-        }
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: white;
       }
     }
   }
@@ -84,40 +101,5 @@
         color: white;
       }
     }
-  }
-}
-
-.librarySongs table {
-  margin: 50px auto;
-  text-align: left;
-  border-collapse: collapse;
-
-  td, th { padding: 10px 30px }
-  td:first-child { border-radius: 15px 0 0 15px }
-  td:last-child { border-radius: 0 15px 15px 0 }
-  tr:not(:first-child):hover td { background: black }
-
-  th {
-    text-align: center;
-    padding-bottom: 30px;
-
-    button {
-      padding: 0;
-      margin: 0;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      color: white;
-      text-decoration: underline;
-    }
-  }
-}
-
-
-.inputs {
-  width: 90%;
-  margin-left: 5%;
-  button{
-    width: 200px;
   }
 }

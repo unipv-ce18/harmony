@@ -1,7 +1,9 @@
 import {Component} from 'preact';
 
 import {catalog, session} from "../../Harmony"
-import styles from './CollectionPage.scss';
+import styles from './CollectionSongsTable.scss';
+import {getUserPlaylists} from '../../core/apiCalls';
+import ModalBox from './ModalBox';
 
 const SONGS_TYPE = 'songs';
 const FIRST_MENU = 'first';
@@ -14,12 +16,51 @@ class CollectionSongsTable extends Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      modalBox : {type:'', message:''},
+    }
+    this.initialSongLikeState = this.initialSongLikeState.bind(this);
+    this.likeSong = this.likeSong.bind(this);
     this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
     this.removeSongFromPlaylist = this.removeSongFromPlaylist.bind(this);
   }
 
   componentDidMount() {
     this.setState({songs: [...this.props.collection.songs]});
+    session.getAccessToken()
+      .then (token => {
+        getUserPlaylists(token)
+          .then(result => this.setState({userPlaylists: result}))
+          .catch( () => session.error = true);
+      })
+  }
+
+  initialSongLikeState (element) {
+    if(element) {
+      element.style = '-webkit-text-fill-color: transparent;';
+      element.classList.remove("liked");
+    }
+    if(element && catalog.inLibrary(SONGS_TYPE, element.id)) {
+      element.classList.add("liked");
+      element.style = '-webkit-text-fill-color: white;';
+    }
+  };
+
+  likeSong(element) {
+    if(element) {
+      element = element.currentTarget.firstChild;
+      if (element.classList.contains("liked")) {
+        element.classList.remove("liked");
+        element.style = '-webkit-text-fill-color: transparent;';
+        catalog.favorite('DELETE', SONGS_TYPE, element.id)
+      } else {
+        element.classList.add("liked");
+        element.style = '-webkit-text-fill-color: white;';
+        catalog.favorite('PUT', SONGS_TYPE, element.id)
+        this.setState({stateUpdated: true});
+      }
+    }
   }
 
   composeTime(time) {
@@ -51,7 +92,7 @@ class CollectionSongsTable extends Component {
   isUserOwner() {
     if(this.props.collection.creator)
       return session.getOwnData().id === this.props.collection.creator.id;
-    return session.getOwnData().id === this.props.collection.artist.id;
+    return false;
   }
 
   handleMenu(menu_window) {
@@ -63,15 +104,34 @@ class CollectionSongsTable extends Component {
     this.setState({elementId: element_id})
   }
 
+  handleModalBox(modalbox_type, message) {
+    this.setState({modalBox: {type: modalbox_type, message: message}});
+  }
+
+  newPlaylist(playlist_name) {
+    catalog.createPlaylist(playlist_name)
+      .then(playlist_id => {
+        let playlists = [...this.state.userPlaylists];
+        const newPlaylist = {id: playlist_id, name: playlist_name, policiy: 'public'}
+        playlists.push(newPlaylist);
+        this.setState({userPlaylists: playlists});
+        catalog.updateSongInPlaylist('PUT', playlist_id, this.state.elementId)
+          .then(()=> {
+            this.handleModalBox(MODAL_BOX_SUCCESS, 'Playlist created successfully.');
+            setTimeout(()=>this.handleModalBox('', ''),2000)
+          })
+      })
+  }
+
   addSongToPlaylist(e) {
     catalog.updateSongInPlaylist('PUT', e.target.id, this.state.elementId)
       .then(() => {
-        this.props.handleModalBox(MODAL_BOX_SUCCESS, 'Song added to the playlist.')
-        setTimeout(()=> this.props.handleModalBox('', ''),2000)
+        this.handleModalBox(MODAL_BOX_SUCCESS, 'Song added to the playlist.')
+        setTimeout(()=> this.handleModalBox('', ''),2000)
       })
       .catch(() => {
-        this.props.handleModalBox(MODAL_BOX_ERROR, 'Song already present in the playlist.')
-        setTimeout(()=> this.props.handleModalBox('', '') ,2000)
+        this.handleModalBox(MODAL_BOX_ERROR, 'Song already present in the playlist.')
+        setTimeout(()=> this.handleModalBox('', '') ,2000)
       });
   }
 
@@ -82,75 +142,93 @@ class CollectionSongsTable extends Component {
 
   render() {
     return (
-      <div className={styles.songsInfo}>
-        <hr/>
-        <table className={styles.librarySongs}>
-          <tr>
-            <th/>
-            <th/>
-            <th><button onClick={this.reorderList.bind(this, 'title')}>Title</button></th>
-            <th>
-              {this.props.collection.creator &&
-              <button onClick={this.reorderList.bind(this, 'artist')}>Artist</button>}
-            </th>
-            <th>
-              {this.props.collection.creator &&
-              <button onClick={this.reorderList.bind(this, 'release')}>Release</button>}
-            </th>
-            <th><button onClick={this.reorderList.bind(this, 'length')}>Time</button></th>
-            <th/>
-          </tr>
-          {this.state.songs && this.state.songs.map(element =>
-            <tr onMouseLeave={this.handleMenu.bind(this, '')}>
-              <td></td>
-              <td>
-                <button onClick={this.props.likeSong.bind(this, SONGS_TYPE)}>
-                  <i
-                ref={this.props.initialLikeState.bind(this, SONGS_TYPE)} id={element.id} className={"fa fa-star "}/>
-                </button>
-              </td>
-              <td>{element.title }</td>
-              {this.props.collection.creator ? <td>{element.artist.name}</td> : <td/>}
-              {this.props.collection.creator ? <td>{element.release.name}</td> : <td/>}
-              <td>{this.composeTime(element.length)}</td>
-              <td>
-                <button className={styles.menuButton}
-                        onClick={this.handleMenuAndElementId.bind(this, element.id)}>
-                  <i className={"fa fa-ellipsis-h"}/>
-                </button>
-                {(this.state.menuWindow === FIRST_MENU || this.state.menuWindow === SECOND_MENU)
-                && this.state.elementId === element.id &&
-                  <div className={styles.dropdownMenu} onMouseLeave={this.handleMenu.bind(this, '')}>
-                    <div
-                      onMouseEnter={this.handleMenu.bind(this, SECOND_MENU)}
-                      onClick={this.handleMenu.bind(this, SECOND_MENU)}
-                      onMouseLeave={this.handleMenu.bind(this, FIRST_MENU)}>
-                      Add To Playlist
-                      <i className={"fa fa-caret-right"}/>
-                      {this.state.menuWindow === SECOND_MENU && this.state.elementId === element.id &&
-                      <div onMouseLeave={this.handleMenu.bind(this, FIRST_MENU)}>
-                        <div>
-                          <button onClick={this.props.handleModalBox.bind(this, MODALBOX_PLAYLIST, this.state.elementId)}>New Playlist</button>
-                        </div>
-                        {Object.values(this.props.userPlaylists)
-                          .filter(el=> el.id !== this.props.collection.id)
-                          .map(playlist =>
-                          <div>
-                            <button id={playlist.id} onClick={this.addSongToPlaylist}>{playlist.name}</button>
-                          </div>
-                        )}
-
-                      </div>
-                      }
-                    </div>
-                    {this.isUserOwner() &&
-                      <button onClick={this.removeSongFromPlaylist}>Remove</button>
-                    }
-                  </div>}
-              </td>
+      <div>
+        {this.state.songs && this.state.songs.length > 0 &&
+        <div className={styles.songsInfo}>
+          <table>
+            <tr>
+              <th/>
+              <th/>
+              <th><button onClick={this.reorderList.bind(this, 'title')}>Title</button></th>
+              <th>
+                {this.props.collection.creator &&
+                <button onClick={this.reorderList.bind(this, 'artist')}>Artist</button>}
+              </th>
+              <th>
+                {this.props.collection.creator &&
+                <button onClick={this.reorderList.bind(this, 'release')}>Release</button>}
+              </th>
+              <th><button onClick={this.reorderList.bind(this, 'length')}>Time</button></th>
+              <th/>
             </tr>
-          )}
-        </table>
+            {this.state.songs.map(element =>
+              <tr onMouseLeave={this.handleMenu.bind(this, '')}>
+                <td></td>
+                <td>
+                  <button onClick={this.likeSong}>
+                    <i
+                      ref={this.initialSongLikeState} id={element.id} className={"fa fa-star "}/>
+                  </button>
+                </td>
+                <td>{element.title }</td>
+                {this.props.collection.creator ? <td>{element.artist.name}</td> : <td/>}
+                {this.props.collection.creator ? <td>{element.release.name}</td> : <td/>}
+                <td>{this.composeTime(element.length)}</td>
+                <td>
+                  <button className={styles.menuButton}
+                          onClick={this.handleMenuAndElementId.bind(this, element.id)}>
+                    <i className={"fa fa-ellipsis-h"}/>
+                  </button>
+                  {(this.state.menuWindow === FIRST_MENU || this.state.menuWindow === SECOND_MENU)
+                  && this.state.elementId === element.id &&
+                    <div className={styles.dropdownMenu}>
+                      <div onMouseLeave={this.handleMenu.bind(this, '')}>
+                        <div>
+                          <div
+                          onMouseEnter={this.handleMenu.bind(this, SECOND_MENU)}
+                          onClick={this.handleMenu.bind(this, SECOND_MENU)}
+                          onMouseLeave={this.handleMenu.bind(this, FIRST_MENU)}>
+                          Add To Playlist
+                          <i className={"fa fa-caret-right"}/>
+                          {this.state.menuWindow === SECOND_MENU && this.state.elementId === element.id &&
+                            <div>
+                              <div onMouseLeave={this.handleMenu.bind(this, FIRST_MENU)}>
+                                <div>
+                                <div>
+                                  <button onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST, this.state.elementId)}>
+                                    New Playlist
+                                  </button>
+                                </div>
+                                  <hr/>
+                                {Object.values(this.state.userPlaylists)
+                                  .filter(el=> el.id !== this.props.collection.id)
+                                  .map(playlist =>
+                                  <div>
+                                    <button id={playlist.id} onClick={this.addSongToPlaylist}>{playlist.name}</button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          }
+                        </div>
+                          <hr/>
+                        {this.isUserOwner() &&
+                          <button onClick={this.removeSongFromPlaylist}>Remove</button>
+                        }
+                        </div>
+                      </div>
+                    </div>}
+                </td>
+              </tr>
+            )}
+          </table>
+          <ModalBox
+            handleModalBox={this.handleModalBox.bind(this)}
+            newPlaylist={this.newPlaylist.bind(this)}
+            type={this.state.modalBox.type}
+            message={this.state.modalBox.message}/>
+        </div>}
       </div>
       );
   }

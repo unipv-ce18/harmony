@@ -24,12 +24,16 @@ class ArtistsPage extends Component {
 
   render() {
     return (
-      <div className={styles.libraryArtists}>
-          {this.state.clicked && this.state.artists.map(item =>
+      <div>
+        { this.state.artists.length > 0 &&
+          <div className={styles.libraryArtists}>
+            {this.state.clicked && this.state.artists.map(item =>
               <span>
                 <img src={image} alt={""}/>
-                <p><a href='' onClick={()=>this.clickArtist(item.artist.id)}>{item.artist.name}</a></p>
+                <p><a href='' onClick={() => this.clickArtist(item.artist.id)}>{item.artist.name}</a></p>
               </span>)}
+          </div>
+        }
       </div>
     );
   }

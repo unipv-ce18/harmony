@@ -5,26 +5,17 @@ const LIBRARY_STORE_KEY = 'library';
 
 export class MediaCatalog {
 
-  #libraryCache = undefined;
-
   constructor(session) {
     this.session = session;
   }
 
   get #storeLibrary() {
-    if (this.#libraryCache === undefined)
-      this.#libraryCache = JSON.parse(window.localStorage.getItem(LIBRARY_STORE_KEY));
-    return this.#libraryCache;
+    return JSON.parse(window.localStorage.getItem(LIBRARY_STORE_KEY));
   }
 
   set #storeLibrary(value) {
-    this.#libraryCache = value;
-    if (value == null) {
-      window.localStorage.removeItem(LIBRARY_STORE_KEY);
-    }
-    else {
-      window.localStorage.setItem(LIBRARY_STORE_KEY, JSON.stringify(value));
-    }
+    if (value == null) window.localStorage.removeItem(LIBRARY_STORE_KEY);
+    else window.localStorage.setItem(LIBRARY_STORE_KEY, JSON.stringify(value));
   }
 
   /**
@@ -65,23 +56,24 @@ export class MediaCatalog {
   }
 
   favorite(function_type, media_type, element_id) {
-    let elem, bool = false;
-    if (media_type === 'songs') elem = this.#libraryCache.songs;
-    if (media_type === 'artists') elem = this.#libraryCache.artists;
-    if (media_type === 'releases') elem = this.#libraryCache.releases;
-    if (media_type === 'playlists') elem = this.#libraryCache.playlists['others'];
-    if (media_type === 'personal_playlists') elem = this.#libraryCache.playlists['personal'];
+    let list, obj, bool = false;
+    obj = {...this.#storeLibrary}
+    if (media_type === 'songs') list = obj.songs;
+    if (media_type === 'artists') list = obj.artists;
+    if (media_type === 'releases') list = obj.releases;
+    if (media_type === 'playlists') list = obj.playlists['others'];
+    if (media_type === 'personal_playlists') list = obj.playlists['personal'];
     if (function_type === 'PUT' && !this.inLibrary(media_type, element_id)) {
-      elem.push(element_id);
+      list.push(element_id);
       bool = true;
     }
     if (function_type === 'DELETE' && this.inLibrary(media_type, element_id)) {
-      const index = elem.indexOf(element_id);
-      if (index > -1) elem.splice(index, 1);
+      const index = list.indexOf(element_id);
+      if (index > -1) list.splice(index, 1);
       bool = true;
     }
     if (bool) {
-      this.#storeLibrary = this.#libraryCache;
+      this.#storeLibrary = obj;
       if (media_type === 'personal_playlists') media_type = 'playlists';
       return this.session.getAccessToken()
       .then (token => {
@@ -95,14 +87,17 @@ export class MediaCatalog {
   createPlaylist(playlist_name) {
     return this.session.getAccessToken()
       .then (token => {
-          return createPlaylist(playlist_name, token)
-            .then (data => {
-              const playlist_id = data['playlist_id'];
-              this.#libraryCache.playlists['personal'].push(playlist_id);
-              this.#storeLibrary = this.#libraryCache;
-              return playlist_id;
-            })
-            .catch(e => console.log(e));
+        return createPlaylist(playlist_name, token)
+          .then (data => {
+            let list, obj;
+            obj = {...this.#storeLibrary}
+            let playlist_id = data['playlist_id'];
+            list = obj.playlists['personal'];
+            list.push(playlist_id);
+            this.#storeLibrary = obj;
+            return playlist_id;
+          })
+          .catch(e => console.log(e));
       })
   }
 

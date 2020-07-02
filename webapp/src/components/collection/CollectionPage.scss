@@ -1,7 +1,7 @@
 @import "../../styledefs";
 @import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
 
-.releasePage {
+.collectionPage {
   width: 100%;
   padding: 16px;
   box-sizing: border-box;
@@ -22,7 +22,7 @@
   }
 }
 
-.releaseInfo {
+.collectionInfo {
   margin: 100px 0 50px;
 
   div {
@@ -72,12 +72,10 @@
       }
     }
   }
-}
 
-.songsInfo {
   hr {
     width: 95%;
-    margin: 0;
+    margin-top: 100px;
     height: 1px;
     border-color: transparent;
     background: linear-gradient(to right,
@@ -85,196 +83,5 @@
       white,
       rgba(255,255,255, 0)
     );
-  }
-  .librarySongs {
-    margin: 50px auto;
-    text-align: left;
-    border-collapse: collapse;
-
-    td, th {
-      white-space: nowrap;
-      padding: 10px 30px;
-    }
-    td:first-child { border-radius: 15px 0 0 15px }
-    td:last-child { border-radius: 0 15px 15px 0 }
-    tr:not(:first-child):hover td { background: black }
-
-    tr:first-of-type {
-      text-align: center;
-      padding-bottom: 30px;
-
-      button {
-        padding: 0;
-        margin: 0;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        color: $panel-text-color-test;
-        text-decoration: underline;
-      }
-    }
-
-    tr {
-      &:not(:hover) {
-        .menuButton {
-          display: none;
-        }
-      }
-      td:nth-of-type(2), td:last-of-type, th:nth-of-type(2), th:last-of-type {
-        padding: 0 10px;
-        width: 30px;
-        > button {
-          cursor: pointer;
-          width: 0;
-          height: 0;
-          background: none;
-          color: $panel-text-color-test;
-          border: none;
-        }
-      }
-      td:nth-of-type(2) button:last-of-type {
-        -webkit-text-fill-color: transparent;
-        -webkit-text-stroke: 1px $panel-text-color-test;
-        &:hover {
-          -webkit-text-fill-color: $panel-text-color-test;
-        }
-      }
-      th:nth-of-type(6), td:nth-of-type(6) {
-        padding-right: 0;
-      }
-    }
-  }
-}
-
-.dropdownMenu {
-  position: absolute;
-  border: solid 1px $panel-text-color-test;
-  color: $panel-text-color-test;
-  background-color: $application-background;
-  font-size: 14px;
-
-  > div {
-    margin: 5px 0;
-    padding: 2px 5px;
-
-    &:hover {
-      color: $application-background;
-      background-color: $panel-text-color-test;
-    }
-
-    i {
-      padding-left: 10px;
-    }
-
-    > div {
-      position: absolute;
-      left: 70px;
-      border: solid 1px $panel-text-color-test;
-      background-color: $application-background;
-      font-size: 14px;
-    }
-  }
-
-  button {
-    border: none;
-    margin: 5px 0;
-    padding: 2px 5px;
-    text-align: left;
-    white-space: nowrap;
-    color: $panel-text-color-test;
-    background-color: $application-background;
-    width: 100%;
-    cursor: pointer;
-
-    &:hover {
-      color: $application-background;
-      background-color: $panel-text-color-test;
-    }
-  }
-}
-
-.modalBox {
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.7);
-
-  > div {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: $panel-text-color-test;
-    padding: 2px;
-    border: 1px solid #888;
-    color: $application-background;
-    text-align: center;
-
-    > button:first-of-type {
-      background-color: $application-background;
-      border: none;
-      color: $panel-text-color-test;
-      float: right;
-      font-size: 16px;
-      font-weight: bold;
-      padding: 0 5px;
-      cursor: pointer;
-    }
-
-    > div {
-      > button {
-        margin: 5px;
-      }
-
-      > button:first-of-type {
-        border-radius: 0;
-        color: $application-background;
-      }
-
-      > button:nth-of-type(2) {
-        background-color: $application-background;
-        color: $panel-text-color-test;
-
-        &:hover {
-          background-color: #4a0c12;
-        }
-      }
-
-      > input {
-        margin-bottom: 10px;
-
-        &:first-of-type {
-          width: 80%;
-          text-align: center;
-        }
-
-        &:last-of-type {
-          border-radius: 0;
-          padding: 3px 10px;
-          background-color: $application-background;
-          color: $panel-text-color-test;
-          cursor: pointer;
-        }
-      }
-    }
-  }
-
-  .modalSuccess, .modalError {
-    white-space: nowrap;
-    border-radius: 3px 35px;
-    padding: 5px 35px;
-  }
-  .modalSuccess {
-    border: 3px solid green;
-    border-bottom: 4px solid #005500;
-  }
-
-  .modalError {
-    border: 3px solid red;
-    border-bottom: 4px solid #bb0000;
   }
 }

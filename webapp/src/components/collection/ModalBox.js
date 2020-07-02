@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 
-import styles from './CollectionPage.scss';
+import styles from './ModalBox.scss';
 import {route} from 'preact-router';
 import {catalog} from '../../Harmony';
 
@@ -21,7 +21,7 @@ class ModalBox extends Component {
     }
 
     this.handleChange = this.handleChange.bind(this);
-    this.newPlaylist = this.newPlaylist.bind(this);
+    this.addNewPlaylist = this.addNewPlaylist.bind(this);
     this.deletePlaylist = this.deletePlaylist.bind(this);
   }
 
@@ -34,18 +34,10 @@ class ModalBox extends Component {
     this.setState({newPlaylistName : e.target.value});
   }
 
-  newPlaylist() {
+  addNewPlaylist() {
     let playlist_name = this.state.newPlaylistName;
     if (!playlist_name) playlist_name = 'New Playlist';
-    catalog.createPlaylist(playlist_name)
-      .then(playlist_id => {
-        this.props.addNewPlaylist(playlist_id, playlist_name);
-        catalog.updateSongInPlaylist('PUT', playlist_id, this.props.message)
-          .then(()=> {
-            this.props.handleModalBox(MODAL_BOX_SUCCESS, 'Playlist created successfully.');
-            setTimeout(this.props.handleModalBox('', ''),2000)
-          })
-      })
+    this.props.newPlaylist(playlist_name);
   }
 
   deletePlaylist(e) {
@@ -76,7 +68,7 @@ class ModalBox extends Component {
             <div>
               <p>New Playlist</p>
               <input type="text" placeholder="Playlist Name" onChange={this.handleChange}/>
-              <input onClick={this.newPlaylist} type="submit" value="Create"/>
+              <input onClick={this.addNewPlaylist} type="submit" value="Create"/>
             </div>}
             {this.props.type === MODALBOX_PLAYLIST_DELETE &&
             <div>

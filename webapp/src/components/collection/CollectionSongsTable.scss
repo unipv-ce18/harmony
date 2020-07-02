@@ -1,0 +1,133 @@
+@import "../../styledefs";
+@import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.songsInfo {
+  table {
+    margin: 50px auto;
+    text-align: left;
+    border-collapse: collapse;
+
+    td, th {
+      white-space: nowrap;
+      padding: 10px 30px;
+    }
+    td:first-child { border-radius: 15px 0 0 15px }
+    td:last-child { border-radius: 0 15px 15px 0 }
+    tr:not(:first-child):hover td { background: black }
+
+    tr:first-of-type {
+      text-align: center;
+      padding-bottom: 30px;
+
+      button {
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: $panel-text-color-test;
+        text-decoration: underline;
+      }
+    }
+
+    tr {
+      &:not(:hover) {
+        .menuButton {
+          display: none;
+        }
+      }
+      td:nth-of-type(2), td:last-of-type, th:nth-of-type(2), th:last-of-type {
+        padding: 0 10px;
+        width: 30px;
+        > button {
+          cursor: pointer;
+          width: 0;
+          height: 0;
+          background: none;
+          color: $panel-text-color-test;
+          border: none;
+        }
+      }
+      td:nth-of-type(2) button:last-of-type {
+        -webkit-text-fill-color: transparent;
+        -webkit-text-stroke: 1px $panel-text-color-test;
+        &:hover {
+          -webkit-text-fill-color: $panel-text-color-test;
+        }
+      }
+      th:nth-of-type(6), td:nth-of-type(6) {
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+.dropdownMenu {
+  position: absolute;
+  > div {
+    position: relative;
+    padding: 10px;
+    bottom: 10px;
+
+    > div {
+      border: solid 1px $panel-text-color-test;
+      color: $panel-text-color-test;
+      background-color: $application-background;
+      font-size: 14px;
+
+      hr {
+        margin: 0;
+      }
+
+      > div {
+        margin: 5px 0;
+        padding: 2px 5px;
+
+        &:hover {
+          color: $application-background;
+          background-color: $panel-text-color-test;
+        }
+
+        i {
+          padding-left: 10px;
+        }
+
+        > div {
+          position: absolute;
+          left: 70px;
+
+          > div {
+            position: relative;
+            padding: 10px;
+            bottom: 10px;
+
+            > div {
+              border: solid 1px $panel-text-color-test;
+              color: $panel-text-color-test;
+              background-color: $application-background;
+              font-size: 14px;
+
+            }
+          }
+        }
+      }
+
+      button {
+        border: none;
+        margin: 5px 0;
+        padding: 2px 5px;
+        text-align: left;
+        white-space: nowrap;
+        color: $panel-text-color-test;
+        background-color: $application-background;
+        width: 100%;
+        cursor: pointer;
+
+        &:hover {
+          color: $application-background;
+          background-color: $panel-text-color-test;
+        }
+      }
+    }
+  }
+}

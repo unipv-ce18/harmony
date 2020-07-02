@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 
-import {getReleasePlaylist, getUserPlaylists} from "../../core/apiCalls";
+import {getReleasePlaylist} from "../../core/apiCalls";
 import {catalog, session} from "../../Harmony"
 import styles from './CollectionPage.scss';
 import image from './image.jpg';
@@ -21,7 +21,9 @@ class CollectionPage extends Component {
       stateUpdated : true
     }
 
-    this.addNewPlaylist = this.addNewPlaylist.bind(this);
+    this.initialCollectionLikeState = this.initialCollectionLikeState.bind(this);
+    this.likeCollection = this.likeCollection.bind(this);
+
   }
 
   componentDidMount() {
@@ -36,36 +38,30 @@ class CollectionPage extends Component {
             this.setState({songs: result.songs});
           })
           .catch( () => session.error = true);
-        getUserPlaylists(token)
-          .then(result => this.setState({userPlaylists: result}))
-          .catch( () => session.error = true);
       })
   }
 
-  initialLikeState (media_type, element) {
-    if(element) {
-      element.style = '-webkit-text-fill-color: transparent;';
-      element.classList.remove("liked");
-    }
-    if(element && catalog.inLibrary(media_type, element.id)) {
+  initialCollectionLikeState (element) {
+    if(element && catalog.inLibrary(this.state.collectionType, this.state.collection.id)) {
       element.classList.add("liked");
       element.style = '-webkit-text-fill-color: white;';
     }
   };
 
-  liked(media_type, element) {
+  likeCollection(element) {
+    let media_type = this.state.collectionType;
     if(element) {
       element = element.currentTarget.firstChild;
       if (element.classList.contains("liked")) {
         element.classList.remove("liked");
         element.style = '-webkit-text-fill-color: transparent;';
-        catalog.favorite('DELETE', media_type, element.id)
+        catalog.favorite('DELETE', media_type, this.state.collection.id)
       } else {
         element.classList.add("liked");
         element.style = '-webkit-text-fill-color: white;';
         if (media_type === 'playlists' && session.getOwnData().id === this.state.collection.creator.id)
           media_type = 'personal_playlists';
-        catalog.favorite('PUT', media_type, element.id)
+        catalog.favorite('PUT', media_type, this.state.collection.id)
         this.setState({stateUpdated: true});
       }
     }
@@ -78,21 +74,14 @@ class CollectionPage extends Component {
   handleModalBox(modalbox_type, message) {
     this.setState({modalBox: {type: modalbox_type, message: message}});
   }
-
-  addNewPlaylist(playlist_id, playlist_name) {
-    let playlists = [...this.state.userPlaylists];
-    const newPlaylist = {id: playlist_id, name: playlist_name, policiy: 'public'}
-    playlists.push(newPlaylist);
-    this.setState({userPlaylists: playlists});
-  }
   
   render() {
     return (
       <div>
         {this.state.collection &&
-        <div className={styles.releasePage}>
+        <div className={styles.collectionPage}>
           <div>
-            <div className={styles.releaseInfo}>
+            <div className={styles.collectionInfo}>
               {/*<img src={this.props.release.cover} alt={""}/>*/}
               <div><img src={image} alt={""}/></div>
               {this.state.collectionType === 'releases' &&
@@ -112,27 +101,21 @@ class CollectionPage extends Component {
               }
               <div>
                 {this.state.stateUpdated && !this.userLikeOwnPlaylist() &&
-                  <button onClick={this.liked.bind(this, this.state.collectionType)}>
-                    <i id={this.state.collection.id} ref={this.initialLikeState.bind(this, this.state.collectionType)} className={"fa fa-star "}/>
+                  <button onClick={this.likeCollection.bind(this)}>
+                    <i id={this.state.collection.id} ref={this.initialCollectionLikeState} className={"fa fa-star "}/>
                   </button>
                 }
               </div>
+            <hr/>
             </div>
-            <CollectionSongsTable
-              initialLikeState={this.initialLikeState}
-              likeSong={this.liked}
-              handleModalBox={this.handleModalBox.bind(this)}
-              collection={this.state.collection}
-              userPlaylists={this.state.userPlaylists}
-            />
+            <CollectionSongsTable collection={this.state.collection} />
             {this.state.stateUpdated && this.userLikeOwnPlaylist() &&
               <button onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST_DELETE, this.state.collection.id)}>Delete</button>}
           </div>
           <ModalBox
-              handleModalBox={this.handleModalBox.bind(this)}
-              addNewPlaylist={this.addNewPlaylist}
-              type={this.state.modalBox.type}
-              message={this.state.modalBox.message}/>
+            handleModalBox={this.handleModalBox.bind(this)}
+            type={this.state.modalBox.type}
+            message={this.state.modalBox.message}/>
         </div>
         }
       </div>);

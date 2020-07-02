@@ -24,15 +24,17 @@ class ReleasesPage extends Component {
 
   render() {
     return (
-      <div className={styles.libraryCommon}>
-        <div>
+      <div>
+        {this.props.releases.length > 0 &&
+        <div className={styles.libraryCommon}>
           {this.state.clicked && this.props.releases.map(item =>
-              <span>
-                <a href='#' onClick={this.clickRelease.bind(this, item.id)}><img src={image} alt={""}/></a>
-                <p><a href='#' onClick={this.clickRelease.bind(this, item.id)}>{item.name}</a></p>
-                <p>By <a href='#' onClick={this.clickArtist.bind(this, item.artist.id)}>{item.artist.name}</a></p>
-              </span>)}
+            <span>
+              <a href='#' onClick={this.clickRelease.bind(this, item.id)}><img src={image} alt={""}/></a>
+              <p><a href='#' onClick={this.clickRelease.bind(this, item.id)}>{item.name}</a></p>
+              <p>By <a href='#' onClick={this.clickArtist.bind(this, item.artist.id)}>{item.artist.name}</a></p>
+            </span>)}
         </div>
+        }
       </div>
     );
   }
