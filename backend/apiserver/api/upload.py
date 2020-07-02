@@ -71,7 +71,7 @@ class UploadContent(Resource):
         content_type = mimetype.split('/')[0]
         size = data['size']
 
-        if category_id == 'me':
+        if category == 'user':
             category_id = user_id
 
         if not ObjectId.is_valid(user_id):
