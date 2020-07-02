@@ -7,7 +7,7 @@ import WaveformLoaderPlugin from '../plugins/WaveformLoaderPlugin';
 import SizeControls from './SizeControls';
 import PlayerFrame from './PlayerFrame';
 import {PlayerViewContextProvider} from './PlayerViewContext';
-import {fadeIn} from './animations';
+import {fadeIn} from '../../components/animations';
 
 import style from './PlayerFrame.scss';
 

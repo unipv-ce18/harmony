@@ -3,6 +3,7 @@ from collections import namedtuple
 
 _artist_tuple = namedtuple('Artist', [
     'id',
+    'creator',
     'name',
     'sort_name',
     'country',

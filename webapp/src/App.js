@@ -46,7 +46,8 @@ class App extends Component {
       </Router>
     ) : (
       <Router onChange={this.handleRoute}>
-        <LoginPage path="/login"/>
+        <LoginPage key="login" registration={false} path="/login"/>
+        <LoginPage key="login" registration={true} path="/signup"/>
         <Redirect default to="/login"/>
       </Router>
     );

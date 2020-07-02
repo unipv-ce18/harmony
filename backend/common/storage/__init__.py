@@ -44,6 +44,21 @@ def _make_bucket_notification(arn, events, suffix=None):
     }
 
 
+def _create_presigned_post_policy(bucket_name, content_id, mimetype, size):
+    from datetime import datetime, timedelta
+    from minio import PostPolicy
+
+    post_policy = PostPolicy()
+    post_policy.set_bucket_name(bucket_name)
+    post_policy.set_key_startswith(content_id)
+    post_policy.set_content_length_range(size, size)
+    post_policy.set_content_type(mimetype)
+    expires_date = datetime.utcnow() + timedelta(days=1)
+    post_policy.set_expires(expires_date)
+
+    return post_policy
+
+
 def connect_storage(config: BackendConfig):
     import minio
     return minio.Minio(config.STORAGE_ENDPOINT,
@@ -78,3 +93,13 @@ def get_storage_interface(config: BackendConfig):
 def get_transcoded_songs_bucket_url(config: BackendConfig):
     scheme = 'https' if config.STORAGE_USE_TLS else 'http'
     return f'{scheme}://{config.STORAGE_ENDPOINT_PUBLIC}/{config.STORAGE_BUCKET_TRANSCODED}'
+
+
+def get_reference_songs_bucket_url(config: BackendConfig, content_id, mimetype, size):
+    st = Storage(connect_storage(config))
+    return st.minio_client.presigned_post_policy(_create_presigned_post_policy(config.STORAGE_BUCKET_REFERENCE, content_id, mimetype, size))
+
+
+def get_images_bucket_url(config: BackendConfig, content_id, mimetype, size):
+    st = Storage(connect_storage(config))
+    return st.minio_client.presigned_post_policy(_create_presigned_post_policy(config.STORAGE_BUCKET_IMAGES, content_id, mimetype, size))

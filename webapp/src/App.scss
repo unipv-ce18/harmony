@@ -19,6 +19,10 @@
     color: $text-color-default;
   }
 
+  input[type="button"], input[type="submit"] {
+    font-family: $font-stack-sans;
+  }
+
   code {
     font-family: $font-stack-mono;
   }

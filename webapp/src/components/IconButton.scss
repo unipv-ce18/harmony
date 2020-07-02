@@ -1,4 +1,4 @@
-@import './player_styledefs';
+@import '../styledefs';
 
 .iconButton {
   display: inline-block;
@@ -11,7 +11,7 @@
   background-color: rgba(0, 0, 0, .2);
 
   opacity: 0.7;
-  transition: opacity $player-transition-len-ms;
+  transition: opacity $transition-len-ms;
 
   &:hover {
     opacity: 1;

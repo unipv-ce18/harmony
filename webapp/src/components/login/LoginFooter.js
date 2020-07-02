@@ -11,7 +11,8 @@ const RAND_MESSAGES = [
   'b3st pr0jekt ev4r',
   'Jesus Christ Superstar',
   '...made to roundhouse kick your ears',
-  'Carefully designed and handcrafted in Italy'
+  'Carefully designed and handcrafted in Italy',
+  'it looks cool'
 ];
 
 export default () => (

@@ -28,6 +28,7 @@ def _prefix_projection(projection, prefix):
 def artist_projection(include_releases=False):
     projection = {
         c.ARTIST_ID: f'${c.ARTIST_ID}',
+        c.ARTIST_CREATOR: f'${c.ARTIST_CREATOR}',
         c.ARTIST_NAME: f'${c.ARTIST_NAME}',
         c.ARTIST_SORT_NAME: f'${c.ARTIST_SORT_NAME}',
         c.ARTIST_COUNTRY: f'${c.ARTIST_COUNTRY}',
@@ -88,7 +89,6 @@ def song_projection(include_ref=True, this_name=f'${c.ARTIST_RELEASES}.{c.RELEAS
         c.SONG_TITLE: f'{this_name}.{c.SONG_TITLE}',
         c.SONG_LENGTH: f'{this_name}.{c.SONG_LENGTH}',
         c.SONG_LYRICS: f'{this_name}.{c.SONG_LYRICS}',
-        c.SONG_REFERENCE_URL: f'{this_name}.{c.SONG_REFERENCE_URL}',
         c.SONG_REPRESENTATION_DATA: f'{this_name}.{c.SONG_REPRESENTATION_DATA}',
     }
     if include_ref:

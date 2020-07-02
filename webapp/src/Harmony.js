@@ -14,19 +14,25 @@ function printConsoleWelcome(body, bodyStyle) {
     bodyStyle);
 }
 
-if (process.env.NODE_ENV === 'development') {
-  printConsoleWelcome(
-    'Player, session and catalog APIs are available here in the console for you to play with...',
-    'color: #eee');
-  Object.defineProperties(window, {
-    session: { value: session },
-    catalog: { value: catalog },
-    player: { value: mediaPlayer },
-    MediaItemInfo: { value: MediaItemInfo },
-    PlayStartModes: { value: PlayStartModes }
-  });
-} else {
-  printConsoleWelcome(
-    'This is your browser\'s development console: if someone told you to paste something in here they probably want to mess with your account!',
-    'font-weight: bold; font-family: sans-serif; color: #fc4');
+switch (process.env.NODE_ENV) {
+  case 'development':
+    printConsoleWelcome(
+      'Player, session and catalog APIs are available here in the console for you to play with...',
+      'color: #eee');
+    Object.defineProperties(window, {
+      session: { value: session },
+      catalog: { value: catalog },
+      player: { value: mediaPlayer },
+      MediaItemInfo: { value: MediaItemInfo },
+      PlayStartModes: { value: PlayStartModes }
+    });
+    break;
+
+  case 'test':
+    break;
+
+  default:
+    printConsoleWelcome(
+      'This is your browser\'s development console: if someone told you to paste something in here they probably want to mess with your account!',
+      'font-weight: bold; font-family: sans-serif; color: #fc4');
 }

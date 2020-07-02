@@ -6,6 +6,7 @@ from ..contracts import artist_contract as c
 
 _ARTIST_DOCUMENT_BINDINGS = {
     'id': c.ARTIST_ID,
+    'creator': c.ARTIST_CREATOR,
     'name': c.ARTIST_NAME,
     'sort_name': c.ARTIST_SORT_NAME,
     'country': c.ARTIST_COUNTRY,
@@ -35,8 +36,6 @@ _SONG_DOCUMENT_BINDINGS = {
     'release': c.SONG_RELEASE_REF,
     'length': c.SONG_LENGTH,
     'lyrics': c.SONG_LYRICS,
-    'links': c.SONG_LINKS,
-    'reference_url': c.SONG_REFERENCE_URL,
     'repr_data': c.SONG_REPRESENTATION_DATA
 }
 
@@ -88,6 +87,9 @@ def artist_from_document(doc: dict) -> Artist:
         if k == c.ARTIST_ID:
             return str(doc[c.ARTIST_ID]) \
                 if c.ARTIST_ID in doc else None
+        if k == c.ARTIST_CREATOR:
+            return str(doc[c.ARTIST_CREATOR]) \
+                if c.ARTIST_CREATOR in doc else None
         if k == c.ARTIST_RELEASES:
             releases = doc.get(c.ARTIST_RELEASES)
             return [release_from_document(release) for release in releases] \
@@ -102,6 +104,7 @@ def artist_to_document(artist: Artist, strip_unsafe=True) -> dict:
     doc = {doc_field: getattr(artist, model_property)
            for model_property, doc_field in _ARTIST_DOCUMENT_BINDINGS.items()
            if doc_field not in _UNSAFE_ARTIST_FIELDS}
+    doc[c.ARTIST_CREATOR] = ObjectId(artist.creator)
 
     if not strip_unsafe:
         doc[c.ARTIST_ID] = ObjectId(artist.id)
@@ -170,7 +173,7 @@ def song_to_document(song: Song, strip_unsafe=True) -> dict:
 
     if not strip_unsafe:
         doc[c.SONG_ID] = ObjectId(song.id)
-        doc[c.SONG_ARTIST_REF] = _artist_ref_to_document(song.artist)
-        doc[c.SONG_RELEASE_REF] = _release_ref_to_document(song.release)
-        doc[c.SONG_REPRESENTATION_DATA] = song.repr_data
+        #doc[c.SONG_ARTIST_REF] = _artist_ref_to_document(song.artist)
+        #doc[c.SONG_RELEASE_REF] = _release_ref_to_document(song.release)
+        #doc[c.SONG_REPRESENTATION_DATA] = song.repr_data
     return doc

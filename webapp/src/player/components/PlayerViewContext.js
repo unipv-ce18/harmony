@@ -2,7 +2,7 @@ import {Component, createContext} from 'preact';
 import PropTypes from 'prop-types';
 
 import style from './player_styledefs.scss';
-import {FlipContext} from './animations';
+import {FlipContext} from '../../components/animations';
 import PlayerEvents from '../PlayerEvents';
 import MediaPlayerCore from '../MediaPlayerCore';
 

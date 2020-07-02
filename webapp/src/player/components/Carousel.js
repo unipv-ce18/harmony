@@ -1,7 +1,7 @@
 import {cloneElement, Component, createRef} from 'preact';
 import TransitionGroup from 'preact-transition-group';
 import PropTypes from 'prop-types'
-import * as animations from './animations';
+import * as animations from '../../components/animations';
 
 import style from './Carousel.scss';
 

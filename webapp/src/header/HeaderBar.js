@@ -5,14 +5,14 @@ import MiddleBar from "./MiddleBar";
 import RightBar from "./RightBar";
 
 class HeaderBar extends Component {
-  render(props, state) {
+  render({page}, state) {
     // No header in login page
-    if (this.props.page === '/login') return null;
+    if (page === '/login' || page === '/signup') return null;
 
     return (
       <header>
         <LeftBar />
-        <MiddleBar page = {this.props.page}/>
+        <MiddleBar page={page}/>
         <RightBar />
       </header>
     );

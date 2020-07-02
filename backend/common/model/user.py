@@ -9,9 +9,7 @@ _user_tuple = namedtuple('User', [
     'email',
     'password',
     'bio',
-    'location',
     'avatar_url',
-    'stats',
     'prefs',
     'library'
 ])

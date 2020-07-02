@@ -1,0 +1,29 @@
+# IDs of used AWS accounts, referenced from service sections
+accounts:
+
+  # Luca Z. accounts - used for CI/CD image deploys
+  lczx-mgmt:
+    description: Zoltrix, supreme master of pointless matters and image registry gatekeeper
+    id: '083396689394'
+  lczx-serv:
+    description: Zoltrix's servant with the power to convert credits into poop
+    id: '299635501215'
+
+
+# The AWS services we use
+services:
+
+  # Docker image registry - "Elastic Container Registry"
+  ecr:
+    management-account: lczx-mgmt  # A sane account on which we create the CI user with ECR access
+    service-account: lczx-serv     # The account on which ECR will run (and be billed upon)
+
+    region: 'us-east-1'            # The region to use for ECR
+    ci-user: 'ci-cd-ecr'           # User name that will be used by the CI pipeline to upload images
+    max-image-count: 5             # Max. number of images to keep, older ones get removed automatically
+
+    # ECR repository names to manage
+    repositories:
+      - harmony/apiserver
+      - harmony/director
+      - harmony/transcoder-worker

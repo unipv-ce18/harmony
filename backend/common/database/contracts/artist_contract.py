@@ -2,6 +2,7 @@ COLLECTION_NAME = 'artists'
 
 # Artist document fields
 ARTIST_ID = '_id'
+ARTIST_CREATOR = 'creator'
 ARTIST_NAME = 'name'
 ARTIST_SORT_NAME = 'sort_name'
 ARTIST_COUNTRY = 'country'
@@ -29,8 +30,6 @@ SONG_ARTIST_REF = 'artist'
 SONG_RELEASE_REF = 'release'
 SONG_LENGTH = 'length'
 SONG_LYRICS = 'lyrics'
-SONG_LINKS = 'links'
-SONG_REFERENCE_URL = 'reference_url'
 SONG_REPRESENTATION_DATA = 'repr_data'
 
 # Artist reference fields

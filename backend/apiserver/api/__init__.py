@@ -23,4 +23,4 @@ def on_register(state: BlueprintSetupState):
     # Import resources to register them with the blueprint
     # Do it only after registration so they see the updated db instance
     from . import hello_world, authentication, media_info, search,\
-        user_info, library, playlist, user_upgrade  # noqa
+        user_info, library, playlist, user_upgrade, upload  # noqa

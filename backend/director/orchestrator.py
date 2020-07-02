@@ -16,7 +16,7 @@ class Orchestrator:
         """Initialize Orchestrator.
 
         :param common.database.Database db_interface: database handling interface
-        :param transcoder_director.worker.WorkerDriver worker_driver: driver used to manage workers
+        :param director.worker.WorkerDriver worker_driver: driver used to manage workers
         """
         self.db = db_interface
         self.worker_driver = worker_driver

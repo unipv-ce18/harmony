@@ -16,6 +16,13 @@ _arg_parser_prefs = RequestParser()\
     .add_argument('media_id', required=True)
 _arg_parser_library = RequestParser().add_argument('full')
 
+_library_get = lambda media_type, media_id: {
+    c.LIBRARY_PLAYLISTS: db.get_playlist_for_library,
+    c.LIBRARY_ARTISTS: db.get_artist_for_library,
+    c.LIBRARY_RELEASES: db.get_release_for_library,
+    c.LIBRARY_SONGS: db.get_song_for_library
+}.get(media_type)(media_id)
+
 
 @api.resource('/library')
 class UpdateLibrary(Resource):
@@ -81,12 +88,7 @@ class UpdateLibrary(Resource):
         if db.media_in_library(user_id, media_type, media_id) != media_present:
             return {'message': fail_msg}, HTTPStatus.CONFLICT
 
-        result = {
-            c.LIBRARY_PLAYLISTS: db.get_playlist_for_library(media_id),
-            c.LIBRARY_ARTISTS: db.get_artist_for_library(media_id),
-            c.LIBRARY_RELEASES: db.get_release_for_library(media_id),
-            c.LIBRARY_SONGS: db.get_song_for_library(media_id)
-        }.get(media_type)
+        result = _library_get(media_type, media_id)
 
         if result is None:
             return {'message': 'Media ID not found'}, HTTPStatus.BAD_REQUEST
@@ -174,14 +176,8 @@ class GetLibrary(Resource):
               application/json:
                 example: {'message': 'No library'}
         """
-        _func = lambda type : {
-            c.LIBRARY_PLAYLISTS: db.get_playlist_for_library,
-            c.LIBRARY_ARTISTS: db.get_artist_for_library,
-            c.LIBRARY_RELEASES: db.get_release_for_library,
-            c.LIBRARY_SONGS: db.get_song_for_library
-        }.get(type)
         _action = lambda type : library[type] if not resolve_library \
-            else [_func(type)(id).to_dict() for id in library[type]]
+            else [_library_get(type, id).to_dict() for id in library[type]]
         _resolve = lambda type : _action(type) if library[type] is not None else []
 
         if user_id == 'me':

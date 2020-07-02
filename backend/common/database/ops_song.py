@@ -24,17 +24,19 @@ class SongOpsMixin:
         super().__init__(db_connection)
         self.artists = db_connection[c.COLLECTION_NAME]
 
-    def put_song(self, release_id: str, song: Song) -> str:
+    def put_song(self, release_id: str, song: Song, strip_unsafe=True) -> str:
         """Inserts a song into the database and returns its ID"""
-        song_id = ObjectId()
-        song_data = song_to_document(song, strip_unsafe=True)
+        song_data = song_to_document(song, strip_unsafe)
+        if strip_unsafe:
+            song_id = ObjectId()
+            song_data = {c.SONG_ID: song_id, **song_data}
 
         res = self.artists.update_one(
             {c.INDEX_RELEASE_ID: ObjectId(release_id)},
-            {'$push': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}': {c.SONG_ID: song_id, **song_data}}})
+            {'$push': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}': song_data}})
         if res.matched_count != 1:
             raise ValueError('The given release_id does not exist')
-        return str(song_id)
+        return str(song_data[c.SONG_ID])
 
     def put_songs(self, release_id: str, songs: List[Song]) -> List[str]:
         """Inserts more songs at once"""
