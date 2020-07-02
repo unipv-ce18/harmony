@@ -1,3 +1,5 @@
+@import '../../styledefs';
+
 $player-height-minimized: 36px;
 $player-default-bg: #ddd;
 $player-default-fg: 0,0,0;
@@ -6,7 +8,7 @@ $player-default-fg: 0,0,0;
 // --- Transition properties ---
 
 // Standard timing
-$player-transition-len: 400;
+$player-transition-len: $transition-len;
 $player-transition-len-ms: $player-transition-len + 0ms;
 
 // Short timing (for icon buttons fading in/out)

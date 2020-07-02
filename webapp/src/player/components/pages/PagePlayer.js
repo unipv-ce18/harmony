@@ -3,7 +3,7 @@ import {Component, createRef} from 'preact';
 import {classList} from '../../../core/utils';
 import {IconPlay, IconPause, IconTrackNext, IconTrackPrev, IconTrackRepeat, IconTrackShuffle} from '../../../assets/icons/icons';
 import {PlayerViewContextConsumer, FlipTags, FLIP_GROUP_PAGE_PLAYER} from '../PlayerViewContext';
-import IconButton from '../IconButton';
+import IconButton from '../../../components/IconButton';
 import Seekbar from '../Seekbar';
 import OverflowWrapper from '../OverflowWrapper';
 import {getExpandedSize} from '../playerUiPrefs';

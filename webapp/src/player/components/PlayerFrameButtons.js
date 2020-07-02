@@ -2,7 +2,7 @@
 
 import {classList} from '../../core/utils';
 import {IconClose, IconRadioOff, IconRadioOn} from '../../assets/icons/icons';
-import IconButton from './IconButton';
+import IconButton from '../../components/IconButton';
 import {PlayerViewContextConsumer} from './PlayerViewContext';
 
 import style from './PlayerFrameButtons.scss';
