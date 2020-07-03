@@ -8,7 +8,7 @@ from flask_restful.reqparse import RequestParser
 from . import api_blueprint, db
 from ..util import security
 from common.database.contracts import artist_contract as c
-from common.database.codecs import artist_from_document
+from common.database.codecs import artist_from_document, release_from_document
 
 
 api = Api(api_blueprint)
@@ -21,6 +21,12 @@ _arg_parser_artist = RequestParser()\
     .add_argument('bio')\
     .add_argument('members')\
     .add_argument('links')
+
+_arg_parser_release = RequestParser()\
+    .add_argument('artist_id', required=True)\
+    .add_argument('name', required=True)\
+    .add_argument('date')\
+    .add_argument('type')
 
 
 @api.resource('/createArtist')
@@ -52,7 +58,7 @@ class CreateArtist(Resource):
             description: Artist created
             content:
               application/json:
-                example: {'message': 'Artist created'}
+                example: {'artist_id': 'ARTIST_ID'}
           400:
             description: ID not valid
             content:
@@ -72,4 +78,50 @@ class CreateArtist(Resource):
         data['creator'] = user_id
         artist_id = db.put_artist(artist_from_document(data))
 
-        return {'artist_id': artist_id}, HTTPStatus.OK
+        return {'artist_id': artist_id}, HTTPStatus.CREATED
+
+
+@api.resource('/createRelease')
+class CreateRelease(Resource):
+    method_decorators = [security.jwt_required]
+
+    def post(self):
+        """Create a release
+        ---
+        tags: [misc]
+        requestBody:
+          description: Release to create
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name: {type: string, description: Release}
+              examples:
+                0: {summary: 'Release', value: {'artist_id': 'ARTIST_ID', 'name': 'NAME', 'date': 'COUNTRY', 'type': 'TYPE'}}
+        responses:
+          201:
+            description: Release created
+            content:
+              application/json:
+                example: {'release_id': 'RELEASE_ID'}
+          400:
+            description: ID not valid
+            content:
+              application/json:
+                example: {'message': 'ID not valid'}
+        """
+        data = _arg_parser_release.parse_args()
+
+        user_id = security.get_jwt_identity()
+
+        if not ObjectId.is_valid(user_id):
+            return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        if db.get_artist(artist_id).to_dict().get('creator') != user_id:
+            return {'message': 'You are not authorized'}, HTTPStatus.UNAUTHORIZED
+
+        release_id = db.put_release(artist_id, release_from_document(data))
+
+        return {'release_id': release_id}, HTTPStatus.CREATED
