@@ -56,7 +56,7 @@ def _artist_ref_from_document(doc):
     return {
         'id': str(doc[c.ARTIST_REF_ID]),
         'name': doc[c.ARTIST_REF_NAME],
-        'creator': doc[c.ARTIST_REF_CREATOR]
+        'creator': str(doc[c.ARTIST_CREATOR]) if doc.get(c.ARTIST_CREATOR) is not None else None
     }
 
 
@@ -90,7 +90,7 @@ def artist_from_document(doc: dict) -> Artist:
                 if c.ARTIST_ID in doc else None
         if k == c.ARTIST_CREATOR:
             return str(doc[c.ARTIST_CREATOR]) \
-                if c.ARTIST_CREATOR in doc else None
+                if doc.get(c.ARTIST_CREATOR) is not None else None
         if k == c.ARTIST_RELEASES:
             releases = doc.get(c.ARTIST_RELEASES)
             return [release_from_document(release) for release in releases] \
@@ -105,6 +105,7 @@ def artist_to_document(artist: Artist, strip_unsafe=True) -> dict:
     doc = {doc_field: getattr(artist, model_property)
            for model_property, doc_field in _ARTIST_DOCUMENT_BINDINGS.items()
            if doc_field not in _UNSAFE_ARTIST_FIELDS}
+    doc[c.ARTIST_CREATOR] = ObjectId(artist.creator) if artist.creator is not None else None
 
     if not strip_unsafe:
         doc[c.ARTIST_ID] = ObjectId(artist.id)

@@ -27,7 +27,7 @@ test_artist_data = read_json(path.join(_test_resources_dir, 'test_artists.json')
 
 
 def make_artist_ref(artist_id, artist):
-    return {'id': artist_id, 'name': artist.name}
+    return {'id': artist_id, 'name': artist.name, 'creator': artist.creator}
 
 
 def make_release_ref(release_id, release):
