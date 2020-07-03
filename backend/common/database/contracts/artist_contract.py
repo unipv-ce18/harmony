@@ -35,6 +35,7 @@ SONG_REPRESENTATION_DATA = 'repr_data'
 # Artist reference fields
 ARTIST_REF_ID = 'id'
 ARTIST_REF_NAME = 'name'
+ARTIST_REF_CREATOR = 'creator'
 
 # Release reference fields
 RELEASE_REF_ID = 'id'

@@ -90,6 +90,14 @@ class UploadContent(Resource):
         if result is None:
             return {'message': 'Category ID not found'}, HTTPStatus.BAD_REQUEST
 
+        if category != 'user':
+            result = result.to_dict()
+            if category == 'artist':
+                if result['creator'] != user_id:
+                    return {'message': 'No authorized to modify this content'}, HTTPStatus.UNAUTHORIZED
+            if result['artist']['creator'] != user_id:
+                    return {'message': 'No authorized to modify this content'}, HTTPStatus.UNAUTHORIZED
+
         if category == 'song' and mimetype != 'audio/flac':
             return {'message': 'A song must be a FLAC audio'}, HTTPStatus.BAD_REQUEST
 

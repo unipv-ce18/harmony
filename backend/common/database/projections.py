@@ -4,7 +4,8 @@ from .contracts import artist_contract as c
 # <https://github.com/unipv-ce18/harmony/wiki/API-Entity-Reference#artistref>
 _ARTIST_REF_PROJECTION = {
     c.ARTIST_REF_ID: f'${c.ARTIST_ID}',
-    c.ARTIST_REF_NAME: f'${c.ARTIST_NAME}'
+    c.ARTIST_REF_NAME: f'${c.ARTIST_NAME}',
+    c.ARTIST_REF_CREATOR: f'${c.ARTIST_CREATOR}'
 }
 
 # Projection for a release reference
