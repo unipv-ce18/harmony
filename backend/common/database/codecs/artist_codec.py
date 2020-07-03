@@ -55,7 +55,8 @@ def _artist_ref_to_document(artist_ref_data):
 def _artist_ref_from_document(doc):
     return {
         'id': str(doc[c.ARTIST_REF_ID]),
-        'name': doc[c.ARTIST_REF_NAME]
+        'name': doc[c.ARTIST_REF_NAME],
+        'creator': doc[c.ARTIST_REF_CREATOR]
     }
 
 
@@ -104,7 +105,6 @@ def artist_to_document(artist: Artist, strip_unsafe=True) -> dict:
     doc = {doc_field: getattr(artist, model_property)
            for model_property, doc_field in _ARTIST_DOCUMENT_BINDINGS.items()
            if doc_field not in _UNSAFE_ARTIST_FIELDS}
-    doc[c.ARTIST_CREATOR] = ObjectId(artist.creator)
 
     if not strip_unsafe:
         doc[c.ARTIST_ID] = ObjectId(artist.id)
