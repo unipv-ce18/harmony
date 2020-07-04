@@ -97,9 +97,13 @@ class CreateRelease(Resource):
               schema:
                 type: object
                 properties:
-                  name: {type: string, description: Release}
+                  artist_id: {type: string, description: ID of the artist where the release will be created}
+                  name: {type: string, description: Name of the release}
+                  date: {type: string, description: Date of the release (AAAA or AAAA-MM-DD)}
+                  type: {type: strng, description: Type of the release (album, live, ...)}
+                required: [artist_id, name]
               examples:
-                0: {summary: 'Release', value: {'artist_id': 'ARTIST_ID', 'name': 'NAME', 'date': 'COUNTRY', 'type': 'TYPE'}}
+                0: {summary: 'Release', value: {'artist_id': 'ARTIST_ID', 'name': 'NAME', 'date': 'AAAA-MM-DD', 'type': 'TYPE'}}
         responses:
           201:
             description: Release created
@@ -111,15 +115,29 @@ class CreateRelease(Resource):
             content:
               application/json:
                 example: {'message': 'ID not valid'}
+          401:
+            description: The user logged in is not authorized to upload the release for this artist
+            content:
+              application/json:
+                example: {'message': 'You are not authorized'}
         """
         data = _arg_parser_release.parse_args()
 
         user_id = security.get_jwt_identity()
+        artist_id = data['artist_id']
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
 
-        if db.get_artist(artist_id).to_dict().get('creator') != user_id:
+        if not ObjectId.is_valid(artist_id):
+            return {'message': 'Artist ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        artist = db.get_artist(artist_id)
+
+        if artist is None:
+            return {'message': 'No valid artist'}, HTTPStatus.BAD_REQUEST
+
+        if artist.to_dict().get(c.ARTIST_CREATOR) != user_id:
             return {'message': 'You are not authorized'}, HTTPStatus.UNAUTHORIZED
 
         release_id = db.put_release(artist_id, release_from_document(data))
