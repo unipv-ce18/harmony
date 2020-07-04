@@ -44,8 +44,11 @@ class UploadContent(Resource):
               schema:
                 type: object
                 properties:
-                  name: {type: string, description: The desired name}
-                required: [content_type]
+                  category: {type: string, description: The category of the content to upload}
+                  category_id: {type: string, description: The ID of the category where the content will be uploaded}
+                  mimetype: {type: string, description: The MIMEtype}
+                  size: {type: int, description: Size of the object to upload}
+                required: [category, category_id, mimetype, size]
               examples:
                 0: {summary: 'Image type', value: {'category': 'user', 'category_id': 'me', mimetype: 'image/png', 'size': 1024}}
                 1: {summary: 'Audio type', value: {'category': 'song', 'category_id': 'RELEASE_ID', mimetype: 'audio/flac', 'size': 1024}}
@@ -56,10 +59,15 @@ class UploadContent(Resource):
               application/json:
                 example: {'url': 'URL', 'id': 'ID'}
           400:
-            description: User ID not valid
+            description: ID not valid
             content:
               application/json:
-                example: {'message': 'User ID not valid'}
+                example: {'message': 'ID not valid'}
+          401:
+            description: The user logged in is not authorized to upload the content for that category
+            content:
+              application/json:
+                example: {'message': 'No authorized to upload this content'}
         """
         conf = config[os.environ.get('FLASK_CONFIG', 'development')]
         data = _arg_parser_content.parse_args()
@@ -93,11 +101,11 @@ class UploadContent(Resource):
         if category != 'user':
             result = result.to_dict()
             if category == 'artist':
-                if result['creator'] != user_id:
-                    return {'message': 'No authorized to modify this content'}, HTTPStatus.UNAUTHORIZED
+                if result[c.ARTIST_CREATOR] != user_id:
+                    return {'message': 'No authorized to upload this content'}, HTTPStatus.UNAUTHORIZED
             else:
-                if result['artist']['creator'] != user_id:
-                        return {'message': 'No authorized to modify this content'}, HTTPStatus.UNAUTHORIZED
+                if result[c.RELEASE_ARTIST_REF][c.ARTIST_REF_CREATOR] != user_id:
+                        return {'message': 'No authorized to upload this content'}, HTTPStatus.UNAUTHORIZED
 
         if category == 'song' and mimetype != 'audio/flac':
             return {'message': 'A song must be a FLAC audio'}, HTTPStatus.BAD_REQUEST
@@ -136,9 +144,13 @@ class SongUpload(Resource):
               schema:
                 type: object
                 properties:
-                  name: {type: string, description: Song}
+                  song_id: {type: string, description: Song ID}
+                  title: {type: string, description: Song title}
+                  length: {type: int, description: Song length}
+                  lyrics: {type: string, description: Song lyrics}
+                required: [song_id, title, length]
               examples:
-                0: {summary: 'Song', value: {'song_id': 'SONG_ID', 'title': 'SONG_TITLE', 'LENGTH': 123, 'lyrics': ''}}
+                0: {summary: 'Song', value: {'song_id': 'SONG_ID', 'title': 'SONG_TITLE', 'length': 123, 'lyrics': ''}}
         responses:
           200:
             description: Song uploaded successfully
