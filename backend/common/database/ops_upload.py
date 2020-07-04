@@ -42,7 +42,7 @@ class UploadOpsMixin:
     def get_contents_to_remove(self, since):
         result = self.upload.find({
             'timestamp': {'$lt': (datetime.utcnow() - timedelta(seconds=since))}
-        }, {'_id': 1, 'content_type': 1, 'content_format': 1})
+        }, {'_id': 1, 'mimetype': 1})
         return [res for res in result]
 
     def get_content_status(self, content_id):

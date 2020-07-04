@@ -33,9 +33,9 @@ class Terminator:
                     bucket = {
                         'image': director_config.STORAGE_BUCKET_IMAGES,
                         'audio': director_config.STORAGE_BUCKET_REFERENCE
-                    }.get(c['content_type'])
+                    }.get(c['mimetype'].split('/')[0])
 
-                    self.st.delete_file(bucket, f'{c["_id"]}.{c["content_format"]}')
+                    self.st.delete_file(bucket, f'{c["_id"]}')
                     self.db.remove_content(c['_id'])
 
                 n_killed = len(contents)

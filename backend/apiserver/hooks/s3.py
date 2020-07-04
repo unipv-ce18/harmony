@@ -17,8 +17,7 @@ def get_bucket_notification():
 
     object = request.json['Records'][0]['s3']['object']
     content_type = object['contentType'].split('/')[0]
-    content_name = object['key']
-    content_id = content_name.split('.')[0]
+    content_id = object['key'].split('.')[0]
 
     if content_type == 'image':
         cat_info = db.get_content_category_info(content_id)
@@ -29,7 +28,7 @@ def get_bucket_notification():
             'user': db.update_avatar_url,
             'artist': db.update_artist_image,
             'release': db.update_release_cover
-        }.get(category)(category_id, content_name)
+        }.get(category)(category_id, content_id)
 
         db.remove_content(content_id)
 
