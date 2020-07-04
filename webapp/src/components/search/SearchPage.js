@@ -1,50 +1,77 @@
 import {Component} from 'preact';
+import PropTypes from 'prop-types';
 
-import results from './test';
-import styles from './SearchPage.scss';
-import SongResults from "./SongResults";
-import ReleaseResults from "./ReleaseResults";
-import ArtistResults from "./ArtistResults";
+import {catalog} from '../../Harmony';
+import {SearchTypes} from '../../core/MediaCatalog';
+import {classList} from '../../core/utils';
+import SongResult from "./SongResult";
+import ReleaseResult from "./ReleaseResult";
+import ArtistResult from "./ArtistResult";
 
+import style from './SearchPage.scss';
 
 class SearchPage extends Component {
-  render(props) {
-    // query to db using this.props.query
-    //let results = results of the query;
 
-    let type = this.props.type;
-    let release = [];
-    let songs = [];
-    let artists = [];
-    Object.keys(results).forEach(function(key) {
-      if (results[key].hasOwnProperty('releases') && (type ==="all" || type === "release")) {
-        Object.keys(results[key].releases).forEach(function (key2) {
-          release.push(results[key].releases[key2]);
-        });
-      }
-      if (results[key].hasOwnProperty('songs') && (type ==="all" || type === "songs")) {
-        Object.keys(results[key].songs).forEach(function (key2) {
-          songs.push(results[key].songs[key2]);
-        });
-      }
-      if (results[key].hasOwnProperty('artists') && (type ==="all" || type === "artists")) {
-        Object.keys(results[key].artists).forEach(function (key2) {
-          artists.push(results[key].artists[key2]);
-        });
-      }
-    });
-    return (
-      <div>
-        <div>Results for: "{this.props.query.replace(/\+/g, ' ')}" - Type Search: {type}</div>
+  static PropTypes = {
+    /** Type of search */
+    type: PropTypes.string.isRequired,
+    /** Search query to perform */
+    query: PropTypes.string.isRequired
+  }
+
+  state = {
+    // Data for the current search results
+    type: null, query: null, results: null,
+    // Data for the next/pending search results
+    updating: null
+  }
+
+  componentDidUpdate(previousProps, previousState, snapshot) {
+    this.#performSearch();
+  }
+
+  render(props, {type, query, results, updating}) {
+    return results && (
+      <div class={classList(style.searchPage, updating && style.updating)}>
+        <div>{SearchTypes[type].name} results for: "{query}"</div>
         <div>
-          {songs.length ? (<div><h1>Songs</h1> {songs.map(item => <SongResults key = {item.id} song = {item} />)}</div>) : null}
-          {release.length ? (<div><h1>Releases</h1> {release.map(item => <ReleaseResults key = {item.id} release = {item} />)}</div>) : null}
-          {artists.length ? (<div><h1>Artists</h1> {artists.map(item => <ArtistResults key = {item.id} artist = {item} />)}</div>) : null}
+          <ResultGroup name="Artists" type='artists' elementView={ArtistResult} results={results}/>
+          <ResultGroup name="Releases" type='releases' elementView={ReleaseResult} results={results}/>
+          <ResultGroup name="Songs" type='songs' elementView={SongResult} results={results}/>
+          {/*<ResultGroup name="Playlists" type='playlists' elementView={TO DO} results={results}/>*/}
         </div>
         {/*//<Footer />*/}
       </div>
     );
   }
+
+  #performSearch() {
+    const {type, query: rawQuery} = this.props;
+    const query = rawQuery.replace(/\+/g, ' ');
+
+    // Do nothing if results for current parameters are already displaying
+    if (this.state.type === type && this.state.query === query)
+      return;
+
+    // Do nothing if a search for these parameters is already being performed
+    const updating = this.state.updating;
+    if (updating != null && updating.type === type && updating.query === query)
+      return;
+
+    // Do the search
+    this.setState({updating: {type, query}})
+    catalog.search(type, query)
+      .then(results => this.setState({type, query, results, updating: null}))
+  }
+}
+
+const ResultGroup = ({name, type, results, elementView: ElView}) => {
+  return results[type] && results[type].length > 0 && (
+    <div>
+      <h1>{name}</h1>
+      {results[type].map(item => <ElView key={item.id} content={item}/>)}
+    </div>
+  )
 }
 
 export default SearchPage;

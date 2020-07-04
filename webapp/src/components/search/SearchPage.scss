@@ -1,3 +1,13 @@
+@import '../../styledefs';
+
+.searchPage {
+  transition: opacity $transition-len-ms;
+
+  &.updating {
+    opacity: .5;
+  }
+}
+
 a {
   text-decoration: none;
 }

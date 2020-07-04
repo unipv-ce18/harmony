@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 import styles from "./ArtistPage.scss";
-import SongResults from "../search/SongResults";
+
 class Tags extends Component {
   render({list}) {
     return (

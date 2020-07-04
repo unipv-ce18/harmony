@@ -1,6 +1,6 @@
 import {Component} from "preact";
 import logoImage from "!file-loader!../assets/logo.svg";
-import Search from "../components/search/Search";
+import SearchInput from "../components/search/SearchInput";
 
 class MiddleBar extends Component {
   render(props) {
@@ -8,7 +8,7 @@ class MiddleBar extends Component {
     if(this.props.page === '/'){
         content =  <img src={logoImage} alt=""/>
      } else {
-       content = <Search />
+       content = <SearchInput autofocus/>
      }
     return (
       <div>
