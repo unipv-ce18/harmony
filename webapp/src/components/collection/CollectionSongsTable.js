@@ -1,9 +1,13 @@
 import {Component} from 'preact';
 
-import {catalog, session} from "../../Harmony"
+import {mediaPlayer, catalog, session} from "../../Harmony"
+import {MediaItemInfo, PlayStartModes} from "../../player/MediaPlayer";
 import styles from './CollectionSongsTable.scss';
 import {getUserPlaylists} from '../../core/apiCalls';
 import ModalBox from './ModalBox';
+import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconArrowRight} from '../../assets/icons/icons';
+import IconButton from '../IconButton';
+import {route} from 'preact-router';
 
 const SONGS_TYPE = 'songs';
 const FIRST_MENU = 'first';
@@ -19,9 +23,8 @@ class CollectionSongsTable extends Component {
 
     this.state = {
       modalBox : {type:'', message:''},
+      updated : true
     }
-    this.initialSongLikeState = this.initialSongLikeState.bind(this);
-    this.likeSong = this.likeSong.bind(this);
     this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
     this.removeSongFromPlaylist = this.removeSongFromPlaylist.bind(this);
   }
@@ -36,31 +39,13 @@ class CollectionSongsTable extends Component {
       })
   }
 
-  initialSongLikeState (element) {
-    if(element) {
-      element.style = '-webkit-text-fill-color: transparent;';
-      element.classList.remove("liked");
-    }
-    if(element && catalog.inLibrary(SONGS_TYPE, element.id)) {
-      element.classList.add("liked");
-      element.style = '-webkit-text-fill-color: white;';
-    }
+  initialSongLikeState (element_id) {
+    return catalog.inLibrary(SONGS_TYPE, element_id);
   };
 
-  likeSong(element) {
-    if(element) {
-      element = element.currentTarget.firstChild;
-      if (element.classList.contains("liked")) {
-        element.classList.remove("liked");
-        element.style = '-webkit-text-fill-color: transparent;';
-        catalog.favorite('DELETE', SONGS_TYPE, element.id)
-      } else {
-        element.classList.add("liked");
-        element.style = '-webkit-text-fill-color: white;';
-        catalog.favorite('PUT', SONGS_TYPE, element.id)
-        this.setState({stateUpdated: true});
-      }
-    }
+  likeSong(function_type, element_id) {
+    catalog.favorite(function_type, SONGS_TYPE, element_id);
+    this.setState({updated : true})
   }
 
   composeTime(time) {
@@ -140,6 +125,17 @@ class CollectionSongsTable extends Component {
       .then(this.setState( prevState => ({ songs: prevState.songs.filter(obj => obj.id !== prevState.elementId)})))
   }
 
+  clickArtist(artist_id, e) {
+     e.preventDefault();
+     route('/artist/' + artist_id);
+  }
+
+  clickRelease(release_id, e) {
+     e.preventDefault();
+     route('/release/' + release_id);
+  }
+
+
   render() {
     return (
       <div>
@@ -151,11 +147,11 @@ class CollectionSongsTable extends Component {
               <th/>
               <th><button onClick={this.reorderList.bind(this, 'title')}>Title</button></th>
               <th>
-                {this.props.collection.creator &&
+                {!this.props.isRelease &&
                 <button onClick={this.reorderList.bind(this, 'artist')}>Artist</button>}
               </th>
               <th>
-                {this.props.collection.creator &&
+                {!this.props.isRelease &&
                 <button onClick={this.reorderList.bind(this, 'release')}>Release</button>}
               </th>
               <th><button onClick={this.reorderList.bind(this, 'length')}>Time</button></th>
@@ -163,22 +159,33 @@ class CollectionSongsTable extends Component {
             </tr>
             {this.state.songs.map(element =>
               <tr onMouseLeave={this.handleMenu.bind(this, '')}>
-                <td></td>
+                <td className={styles.hidenButtons}>
+                  <IconButton size={22} name="Play" icon={IconPlay}
+                        onClick={() => mediaPlayer.play(new MediaItemInfo(element.id, null), PlayStartModes.APPEND_PLAYLIST_AND_PLAY)}/>
+                </td>
                 <td>
-                  <button onClick={this.likeSong}>
-                    <i
-                      ref={this.initialSongLikeState} id={element.id} className={"fa fa-star "}/>
-                  </button>
+                  {this.state.updated && this.initialSongLikeState(element.id)
+                    ? <IconButton size={24} name="Dislike" icon={IconStarFull}
+                                  onClick={this.likeSong.bind(this, 'DELETE', element.id)}/>
+                    : <IconButton size={24} name="Like" icon={IconStarEmpty}
+                                  onClick={this.likeSong.bind(this, 'PUT', element.id)}/>
+                  }
                 </td>
                 <td>{element.title }</td>
-                {this.props.collection.creator ? <td>{element.artist.name}</td> : <td/>}
-                {this.props.collection.creator ? <td>{element.release.name}</td> : <td/>}
+                {!this.props.isRelease ?
+                  <td>
+                    <a href='#' onClick={this.clickArtist.bind(this, element.artist.id)}>{element.artist.name}</a>
+                  </td>
+                  : <td/>}
+                {!this.props.isRelease ?
+                  <td>
+                    <a href='#' onClick={this.clickRelease.bind(this, element.release.id)}>{element.release.name}</a>
+                  </td>
+                  : <td/>}
                 <td>{this.composeTime(element.length)}</td>
-                <td>
-                  <button className={styles.menuButton}
-                          onClick={this.handleMenuAndElementId.bind(this, element.id)}>
-                    <i className={"fa fa-ellipsis-h"}/>
-                  </button>
+                <td className={styles.hidenButtons}>
+                  <IconButton size={24} name="Menu" icon={IconMore}
+                        onClick={this.handleMenuAndElementId.bind(this, element.id)}/>
                   {(this.state.menuWindow === FIRST_MENU || this.state.menuWindow === SECOND_MENU)
                   && this.state.elementId === element.id &&
                     <div className={styles.dropdownMenu}>
@@ -189,7 +196,8 @@ class CollectionSongsTable extends Component {
                           onClick={this.handleMenu.bind(this, SECOND_MENU)}
                           onMouseLeave={this.handleMenu.bind(this, FIRST_MENU)}>
                           Add To Playlist
-                          <i className={"fa fa-caret-right"}/>
+                          <IconButton size={24} name="Add To Playlist" icon={IconArrowRight}/>
+
                           {this.state.menuWindow === SECOND_MENU && this.state.elementId === element.id &&
                             <div>
                               <div onMouseLeave={this.handleMenu.bind(this, FIRST_MENU)}>
@@ -213,9 +221,19 @@ class CollectionSongsTable extends Component {
                           }
                         </div>
                           <hr/>
-                        {this.isUserOwner() &&
-                          <button onClick={this.removeSongFromPlaylist}>Remove</button>
-                        }
+                          {this.isUserOwner() &&
+                          <button onClick={this.removeSongFromPlaylist}>Remove From Playlist</button>}
+
+                            <a href='#'
+                               onClick={this.props.isRelease
+                                 ? this.clickArtist.bind(this, this.props.collection.artist.id)
+                                 : this.clickArtist.bind(this, element.artist.id)}>
+                              Go To Artist
+                            </a>
+                          {this.props.isRelease ? '' :
+                            <a href='#' onClick={this.clickRelease.bind(this, element.release.id)}>
+                              Go To Release
+                            </a>}
                         </div>
                       </div>
                     </div>}

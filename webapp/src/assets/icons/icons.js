@@ -23,3 +23,13 @@ export const IconTrackShuffle = (props) => <Icon mod={require('./shuffle-24px.sv
 export const IconRadioOff = (props) => <Icon mod={require('./radio_button_unchecked-24px.svg')} {...props}/>;
 export const IconRadioOn = (props) => <Icon mod={require('./radio_button_checked-24px.svg')} {...props}/>;
 export const IconClose = (props) => <Icon mod={require('./close-24px.svg')} {...props}/>;
+
+// Library
+export const IconExpand = (props) => <Icon mod={require('./expand_more-24px.svg')} {...props}/>;
+export const IconCollapse = (props) => <Icon mod={require('./expand_less-24px.svg')} {...props}/>;
+
+// CollectionSongsTable
+export const IconMore = (props) => <Icon mod={require('./more_vert-24px.svg')} {...props}/>;
+export const IconStarEmpty = (props) => <Icon mod={require('./star_outline-24px.svg')} {...props}/>;
+export const IconStarFull = (props) => <Icon mod={require('./star-24px.svg')} {...props}/>;
+export const IconArrowRight = (props) => <Icon mod={require('./arrow_right-24px.svg')} {...props}/>;

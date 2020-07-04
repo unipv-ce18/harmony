@@ -2,7 +2,7 @@ import {Component} from 'preact';
 
 import OverflowWrapper from './OverflowWrapper';
 import IconButton from '../../components/IconButton';
-import {IconPause, IconPlay} from '../../assets/icons/icons';
+import {IconPause,  IconPlay} from '../../assets/icons/icons';
 import {fadeIn, fadeOut} from '../../components/animations';
 import {PlayerViewContextConsumer, FlipTags, FLIP_GROUP_MINI_PLAYER} from './PlayerViewContext';
 import PlayStates from '../PlayStates';

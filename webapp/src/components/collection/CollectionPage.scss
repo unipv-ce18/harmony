@@ -50,6 +50,9 @@
     p:nth-of-type(3) {
       font-size: 18px;
       margin: 0 0 40px 0;
+      > a {
+        color: $panel-text-color-test;;
+      }
     }
 
     p:nth-of-type(4) {
@@ -60,15 +63,12 @@
 
   div:last-of-type {
     margin-left: 50px;
-    >button {
+    >span {
       cursor: pointer;
-      border-radius: 100%;
       background: transparent;
       padding: 3px 5px;
-      i {
-        -webkit-text-fill-color: transparent;
-        -webkit-text-stroke: 1px $panel-text-color-test;
-      }
+      fill: $panel-text-color-test;
+      border: solid 2px;
     }
   }
 

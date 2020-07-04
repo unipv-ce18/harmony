@@ -10,6 +10,12 @@
     td, th {
       white-space: nowrap;
       padding: 10px 30px;
+      > a {
+        color: $panel-text-color-test;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
     }
     td:first-child { border-radius: 15px 0 0 15px }
     td:last-child { border-radius: 0 15px 15px 0 }
@@ -32,28 +38,38 @@
 
     tr {
       &:not(:hover) {
-        .menuButton {
-          display: none;
+        .hidenButtons {
+          > span {
+            display: none;
+          }
         }
       }
-      td:nth-of-type(2), td:last-of-type, th:nth-of-type(2), th:last-of-type {
+      th:first-of-type, td:first-of-type,
+      th:nth-of-type(2), td:nth-of-type(2),
+      th:last-of-type, td:last-of-type {
         padding: 0 10px;
         width: 30px;
-        > button {
+        > span {
+          top: 3px;
           cursor: pointer;
           width: 0;
           height: 0;
-          background: none;
-          color: $panel-text-color-test;
           border: none;
+          fill: $panel-text-color-test;
+          background-color: transparent;
         }
       }
-      td:nth-of-type(2) button:last-of-type {
-        -webkit-text-fill-color: transparent;
-        -webkit-text-stroke: 1px $panel-text-color-test;
-        &:hover {
-          -webkit-text-fill-color: $panel-text-color-test;
+      th:first-of-type, td:first-of-type {
+        > span {
+          border: 1px solid;
         }
+      }
+
+      th:nth-of-type(2), td:nth-of-type(2){
+        padding-left: 0;
+      }
+      th:nth-of-type(3), td:nth-of-type(3) {
+        padding-left: 10px;
       }
       th:nth-of-type(6), td:nth-of-type(6) {
         padding-right: 0;
@@ -86,10 +102,20 @@
         &:hover {
           color: $application-background;
           background-color: $panel-text-color-test;
+          > span {
+            fill: $application-background;
+          }
         }
 
-        i {
-          padding-left: 10px;
+        > span {
+          position: relative;
+          float: right;
+          bottom: 3px;
+          background-color: transparent;
+          fill: $panel-text-color-test;
+        }
+        > span:nth-of-type(2) {
+          width: 100%;
         }
 
         > div {
@@ -114,15 +140,18 @@
 
       button {
         border: none;
+        width: 100%;
+      }
+
+      button, a {
+        display: block;
         margin: 5px 0;
         padding: 2px 5px;
         text-align: left;
         white-space: nowrap;
         color: $panel-text-color-test;
         background-color: $application-background;
-        width: 100%;
         cursor: pointer;
-
         &:hover {
           color: $application-background;
           background-color: $panel-text-color-test;
