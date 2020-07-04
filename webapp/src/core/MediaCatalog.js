@@ -1,4 +1,4 @@
-import {updateSongInPlaylist, createPlaylist, getLibrary, setLike} from "./apiCalls";
+import {updateSongInPlaylist, createPlaylist, getLibrary, setLike, execSearch} from "./apiCalls";
 import library from '../components/library/testLibrary';
 
 const LIBRARY_STORE_KEY = 'library';
@@ -107,4 +107,18 @@ export class MediaCatalog {
           return updateSongInPlaylist(type_method, playlist_id, song_id, token);
       })
   }
+
+  search(searchType, query) {
+    // This will use client-side caching
+    return this.session.getAccessToken()
+      .then(token => execSearch(token, searchType, query));
+  }
 }
+
+export const SearchTypes = Object.freeze({
+  any: {name: 'All'},
+  artists: {name: 'Artists'},
+  releases: {name: 'Releases'},
+  songs: {name: 'Songs'},
+  playlists: {name: 'Playlists'}
+});

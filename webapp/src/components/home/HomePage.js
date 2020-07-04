@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 
-import Search from "../search/Search";
+import SearchInput from "../search/SearchInput";
 import styles from './HomePage.scss';
 
 import {session, mediaPlayer} from '../../Harmony';
@@ -11,7 +11,7 @@ class HomePage extends Component {
     // Behold the almighty home page of Harmony!
     return (
       <div class={styles.homepage}>
-        <Search/>
+        <SearchInput autofocus/>
 
         {/* Temporary player controls */}
         <button onClick={() => session.doLogout()}>Logout</button>
