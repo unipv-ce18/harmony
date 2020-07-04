@@ -4,7 +4,7 @@ export const artistLink = id => `/artist/${id}`;
 
 export const releaseLink = id => `/release/${id}`;
 
-// Not really a link but allows "linking" to tke player given a song model
+// Not really a link but allows "linking" to the player given a song model
 export function createMediaItemInfo(song) {
   return new MediaItemInfo(song.id, {
     [MediaItemInfo.TAG_TITLE]: song.title,

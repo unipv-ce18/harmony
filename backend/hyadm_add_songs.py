@@ -1,14 +1,20 @@
 import argparse
+import io
 import json
+import mimetypes
 import os
 import sys
 import urllib.parse
 from http.client import HTTPConnection
 
+from bson import ObjectId
+
 from apiserver.config import current_config as config
 from common.database import Database, connect_db
 from common.database.codecs import artist_from_document, release_from_document, song_from_document
 from common.storage import get_storage_interface
+
+_COVER_TRY_FILES = ['cover.jpg', 'cover.png', 'folder.jpg', 'folder.png', 'front.jpg', 'front.png']
 
 
 def _http_get_json(host, path, params):
@@ -41,6 +47,34 @@ def extract_tags_flac(file_path):
         assert pos == len(raw), 'Vorbis comment block not completely processed'
         return tags
 
+    def _read_picture(data):
+        # Note: some moronic taggers store the picture base64 encoded inside a COVERART vorbis comment tag,
+        # this does not comply with the standard and we simply ignore it
+
+        # Usually there is a single cover of type 0 (other)
+        picture_type = int.from_bytes(data[0:4], byteorder='big', signed=False)
+        pos = 4
+
+        mime_len = int.from_bytes(data[pos:pos + 4], byteorder='big', signed=False)
+        mime = data[pos + 4:pos + 4 + mime_len].decode('utf-8')
+        pos += 4 + mime_len
+
+        desc_len = int.from_bytes(data[pos:pos + 4], byteorder='big', signed=False)
+        desc = data[pos + 4:pos + 4 + desc_len].decode('utf-8') if desc_len > 0 else None
+        pos += 4 + desc_len
+
+        width = int.from_bytes(data[pos:pos + 4], byteorder='big', signed=False)
+        height = int.from_bytes(data[pos + 4:pos + 8], byteorder='big', signed=False)
+        # color_depth = int.from_bytes(data[pos + 8:pos + 12], byteorder='big', signed=False)
+        # gif_palette_size = int.from_bytes(data[pos + 12:pos + 16], byteorder='big', signed=False)
+        pos += 16
+
+        picture_len = int.from_bytes(data[pos:pos + 4], byteorder='big', signed=False)
+        picture_data = data[pos+4:pos+4+picture_len]
+
+        return {'id': str(ObjectId()), 'type': picture_type, 'data': picture_data,
+                'width': width, 'height': height, 'mime': mime, 'desc': desc}
+
     def _get_track_len(stream_info):
         # https://xiph.org/flac/format.html#metadata_block_streaminfo
         sample_and_chan = int.from_bytes(stream_info[10:13], byteorder='big', signed=False)
@@ -50,23 +84,28 @@ def extract_tags_flac(file_path):
         return int(sample_count * channel_count / sampling_raw * 1000)
 
     # https://xiph.org/flac/format.html
-    block_streaminfo = None
-    block_vorbis_comment = None
+    tags = None
+    picture = None
     with open(file_path, 'rb') as f:
         if f.read(4) != b'fLaC':
             raise ValueError('Not a valid FLAC file')
         while True:
             block_t = f.read(1)[0]
             block_sz = int.from_bytes(f.read(3), byteorder='big', signed=False)
-            if block_t & 0x7f == 0:  # Block type 0 is STREAMINFO
-                block_streaminfo = f.read(block_sz)
-            elif block_t & 0x7f == 4:  # Block type 4 is VORBIS_COMMENT
-                block_vorbis_comment = f.read(block_sz)
+            if block_t & 0x7f == 0:  # Block type 0 is METADATA_BLOCK_STREAMINFO
+                track_len = _get_track_len(f.read(block_sz))
+            elif block_t & 0x7f == 4:  # Block type 4 is METADATA_BLOCK_VORBIS_COMMENT
+                tags = _parse_vorbis_comment(f.read(block_sz))
+            elif block_t & 0x7f == 6:  # Block type 6 is METADATA_BLOCK_PICTURE
+                pic = _read_picture(f.read(block_sz))
+                if pic['type'] == 3:  # Usually picture is of type 3 (front cover), ignore others
+                    picture = pic
             else:
                 f.seek(block_sz, os.SEEK_CUR)
             if block_t & 0x80:  # If 1st bit of type is set, this is the last
                 break
-    return _parse_vorbis_comment(block_vorbis_comment), _get_track_len(block_streaminfo)
+
+    return track_len, tags, picture
 
 
 def lfm_get_artist_info(artist_name):
@@ -100,10 +139,22 @@ def mb_get_artist_info(mbid):
 
 
 def make_tree(files):
+    def _get_coverart(file_path, pic_data):
+        for cov_name in _COVER_TRY_FILES:
+            cov_path = f'{os.path.dirname(file_path)}/{cov_name}'
+            if os.path.isfile(cov_path):
+                mime, _ = mimetypes.guess_type(cov_path)
+                with open(cov_path, 'rb') as cov_f:
+                    data = cov_f.read()
+                return {'data': data, 'mime': mime, 'id': str(ObjectId())}
+
+        # Use picture extracted from audio file
+        return pic_data
+
     tree = {}
     for f in files:
         try:
-            tags, track_len = extract_tags_flac(f)
+            track_len, tags, picture = extract_tags_flac(f)
             artist = tags.get('ALBUMARTIST') or tags['ARTIST']
             release = tags['ALBUM']
             song = tags['TITLE']
@@ -112,7 +163,8 @@ def make_tree(files):
             if artist not in tree:
                 tree[artist] = {'releases': {}}
             if release not in tree[artist]['releases']:
-                tree[artist]['releases'][release] = {'songs': {}, 'date': tags.get('DATE')}
+                tree[artist]['releases'][release] = \
+                    {'songs': {}, 'date': tags.get('DATE'), 'cover': _get_coverart(f, picture)}
             tree[artist]['releases'][release]['songs'][track_num] = \
                 {'title': song, 'length': track_len, 'lyrics': lyrics, 'file': f}
         except KeyError as e:
@@ -144,7 +196,8 @@ def get_or_put_artist(name):
 
 def create_release(name, data):
     # Put here MB or LFM calls to enrich metadata
-    return release_from_document({'name': name, 'date': data['date'], 'type': 'album'})
+    return release_from_document({'name': name, 'date': data['date'], 'type': 'album',
+                                  'cover': data['cover']['id'] if data['cover'] is not None else None})
 
 
 def get_or_put_release(artist_id, release_name, release_data):
@@ -156,6 +209,13 @@ def get_or_put_release(artist_id, release_name, release_data):
 
     release_id = db.put_release(artist_id, create_release(release_name, release_data))
     print(f'  Release "{release_name}" ({release_id}) [NEW]', file=sys.stderr)
+
+    if release_data['cover'] is not None:
+        cov_data = release_data['cover']
+        st.minio_client.put_object(config.STORAGE_BUCKET_IMAGES, cov_data['id'],
+                                   io.BytesIO(cov_data['data']), len(cov_data['data']), content_type=cov_data['mime'])
+        art_src = "from metadata" if ("type" in release_data["cover"]) else "from external file"
+        print(f'    > Uploaded album art {art_src} ({release_data["cover"]["id"]})')
     return release_id
 
 
@@ -173,7 +233,7 @@ def get_or_put_song(release_id, song_data):
     song_id = db.put_song(release_id, create_song(song_data))
     print(f'    Song "{song_data["title"]}" ({song_id}) [NEW]', file=sys.stderr)
 
-    st.minio_client.fput_object(config.STORAGE_BUCKET_REFERENCE, f'{song_id}.flac', song_data['file'])
+    st.minio_client.fput_object(config.STORAGE_BUCKET_REFERENCE, song_id, song_data['file'], content_type='audio/flac')
     print(f'      > uploaded "{song_data["file"]}"', file=sys.stderr)
 
 
@@ -210,6 +270,7 @@ if args.clean:
     db.artists.drop()
     st.delete_all_files(config.STORAGE_BUCKET_REFERENCE)
     st.delete_all_files(config.STORAGE_BUCKET_TRANSCODED)
+    st.delete_all_files(config.STORAGE_BUCKET_IMAGES)
     print('Cleaned up database and storage', file=sys.stderr)
 
 songs = [os.path.join(dp, f) for dp, dn, filenames in os.walk(args.folder)
