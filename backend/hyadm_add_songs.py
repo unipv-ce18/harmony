@@ -3,16 +3,21 @@ import io
 import json
 import mimetypes
 import os
-import sys
+import re
+import ssl
 import urllib.parse
+import urllib.request
 from http.client import HTTPConnection
 
+import sys
 from bson import ObjectId
 
 from apiserver.config import current_config as config
 from common.database import Database, connect_db
 from common.database.codecs import artist_from_document, release_from_document, song_from_document
 from common.storage import get_storage_interface
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 _COVER_TRY_FILES = ['cover.jpg', 'cover.png', 'folder.jpg', 'folder.png', 'front.jpg', 'front.png']
 
@@ -70,7 +75,7 @@ def extract_tags_flac(file_path):
         pos += 16
 
         picture_len = int.from_bytes(data[pos:pos + 4], byteorder='big', signed=False)
-        picture_data = data[pos+4:pos+4+picture_len]
+        picture_data = data[pos + 4:pos + 4 + picture_len]
 
         return {'id': str(ObjectId()), 'type': picture_type, 'data': picture_data,
                 'width': width, 'height': height, 'mime': mime, 'desc': desc}
@@ -117,10 +122,22 @@ def lfm_get_artist_info(artist_name):
     })
     if code != 200:
         raise RuntimeError('Last.fm API was not OK with this')
+
+    with urllib.request.urlopen('https://www.last.fm/music/' + artist_name.replace(' ', '+')) as res:
+        img_url_s = re.search('class="header-new-background-image"\n[ ]+style="background-image: url\\((.*)\\);"',
+                              res.read().decode('utf-8'), re.IGNORECASE)
+        img_url = img_url_s.group(1) if img_url_s else None
+
+    img = None
+    if img_url is not None:
+        img_res = urllib.request.urlopen(img_url)
+        img = {'id': str(ObjectId()), 'data': img_res.read(), 'mime': img_res.info()['Content-Type']}
+
     return {
                'bio': info_json['artist']['bio']['summary'],
-               'genres': [tag['name'] for tag in info_json['artist']['tags']['tag']]
-           }, info_json['artist']['mbid']
+               'genres': [tag['name'] for tag in info_json['artist']['tags']['tag']],
+               'image': img['id'] if img is not None else None
+           }, info_json['artist']['mbid'], img
 
 
 def mb_get_artist_info(mbid):
@@ -175,22 +192,30 @@ def make_tree(files):
 def create_artist(name):
     if lastfm_api_key is None:
         artist_doc = {'name': name, 'sort_name': name}
+        image = None
     else:
-        lfm_data, mbid = lfm_get_artist_info(name)
+        lfm_data, mbid, image = lfm_get_artist_info(name)
         mb_data = mb_get_artist_info(mbid)
         artist_doc = {**lfm_data, **mb_data}
-    return artist_from_document(artist_doc)
+    return artist_from_document(artist_doc), image
 
 
 def get_or_put_artist(name):
     artist_result = db.search_artist(name, limit=1)
     if len(artist_result) != 0 and artist_result[0].name == name:
         artist_id = artist_result[0].id
-        state = 'SKIP'
-    else:
-        artist_id = db.put_artist(create_artist(name))
-        state = 'NEW'
-    print(f'Artist "{name}" ({artist_id}) [{state}]', file=sys.stderr)
+        print(f'Artist "{name}" ({artist_id}) [SKIP]', file=sys.stderr)
+        return artist_id
+
+    artist, image = create_artist(name)
+    artist_id = db.put_artist(artist)
+    print(f'Artist "{name}" ({artist_id}) [NEW]', file=sys.stderr)
+
+    if image is not None:
+        st.minio_client.put_object(config.STORAGE_BUCKET_IMAGES, image['id'],
+                                   io.BytesIO(image['data']), len(image['data']), content_type=image['mime'])
+        print(f'  > Uploaded image from last.fm ({image["id"]})')
+
     return artist_id
 
 
@@ -214,8 +239,8 @@ def get_or_put_release(artist_id, release_name, release_data):
         cov_data = release_data['cover']
         st.minio_client.put_object(config.STORAGE_BUCKET_IMAGES, cov_data['id'],
                                    io.BytesIO(cov_data['data']), len(cov_data['data']), content_type=cov_data['mime'])
-        art_src = "from metadata" if ("type" in release_data["cover"]) else "from external file"
-        print(f'    > Uploaded album art {art_src} ({release_data["cover"]["id"]})')
+        art_src = "from metadata" if ("type" in cov_data) else "from external file"
+        print(f'    > Uploaded album art {art_src} ({cov_data["id"]})')
     return release_id
 
 
