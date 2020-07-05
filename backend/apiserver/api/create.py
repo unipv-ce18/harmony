@@ -16,11 +16,11 @@ api = Api(api_blueprint)
 _arg_parser_artist = RequestParser()\
     .add_argument('name', required=True)\
     .add_argument('country')\
-    .add_argument('life_span')\
-    .add_argument('genres')\
+    .add_argument('life_span', type=dict)\
+    .add_argument('genres', type=str, action='append')\
     .add_argument('bio')\
-    .add_argument('members')\
-    .add_argument('links')
+    .add_argument('members', type=dict, action='append')\
+    .add_argument('links', type=dict)
 
 _arg_parser_release = RequestParser()\
     .add_argument('artist_id', required=True)\
@@ -75,7 +75,9 @@ class CreateArtist(Resource):
         if db.get_user_type(user_id) != 'creator':
             return {'message': 'You are not a creator'}, HTTPStatus.UNAUTHORIZED
 
-        data['creator'] = user_id
+        data[c.ARTIST_CREATOR] = user_id
+        data[c.ARTIST_SORT_NAME] = data['name']
+
         artist_id = db.put_artist(artist_from_document(data))
 
         return {'artist_id': artist_id}, HTTPStatus.CREATED
