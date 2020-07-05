@@ -75,7 +75,7 @@ def get_storage_interface(config: BackendConfig):
             st.create_bucket(config.STORAGE_BUCKET_REFERENCE)
             st.minio_client.set_bucket_notification(config.STORAGE_BUCKET_REFERENCE,
                                                     _make_bucket_notification(config.STORAGE_NOTIFICATION_ARN,
-                                                                              ['s3:ObjectCreated:*'], '.flac'))
+                                                                              ['s3:ObjectCreated:*']))
 
         if not st.check_bucket_exist(config.STORAGE_BUCKET_TRANSCODED):
             st.create_bucket(config.STORAGE_BUCKET_TRANSCODED)
