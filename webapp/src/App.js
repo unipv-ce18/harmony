@@ -23,25 +23,27 @@ class App extends Component {
     super(props);
     session.addStatusListener(() => {
       console.log('Event logged in:', session.loggedIn);
-      this.forceUpdate()
+      this.forceUpdate();
     });
     session.addStatusListener(() => {
       console.log('Error occured:', session.error);
-      this.forceUpdate()
     });
   }
 
-  handleRoute = e => this.setState({currentPath: e.url});
+  handleRoute = e => {
+    this.setState({currentPath: e.url});
+    session.error = false;
+  }
 
   render(_, {currentPath}) {
     const router = session.loggedIn ? (
       <Router onChange={this.handleRoute}>
         <HomePage path="/"/>
         <SearchPage path="/search/:type/:query"/>
-        <ArtistPage path="/artist/:id"/>
-        <CollectionPage path="/release/:id"/>
-        <CollectionPage path="/playlist/:id"/>
-        <LibraryPage path="/library/:id"/>
+        {session.error ? <ErrorPage path="/artist/:id"/> : <ArtistPage path="/artist/:id"/>}
+        {session.error ? <ErrorPage path="/release/:id"/> : <CollectionPage path="/release/:id"/>}
+        {session.error ? <ErrorPage path="/playlist/:id"/> : <CollectionPage path="/playlist/:id"/>}
+        {session.error ? <ErrorPage path="/library/:id"/> : <LibraryPage path="/library/:id"/>}
         <Redirect default to="/"/>
       </Router>
     ) : (
@@ -56,7 +58,7 @@ class App extends Component {
       <Fragment>
         <HeaderBar page={currentPath}/>
         <div class={styles.content}>{
-          session.error ? <ErrorPage/> : router
+          router
         }</div>
         {session.loggedIn && <MediaPlayerWrapper playerLoader={mediaPlayer}/>}
       </Fragment>

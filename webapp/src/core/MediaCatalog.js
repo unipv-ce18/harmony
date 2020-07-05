@@ -38,7 +38,6 @@ export class MediaCatalog {
     return this.session.getAccessToken()
       .then (token => {
         return getLibrary(user_id, token, true)
-          .catch(e => console.log(e));
       })
   }
 

@@ -67,27 +67,26 @@ class PlaylistsPage extends Component {
       <div className={styles.libraryCommon}>
         {Object.entries(this.state.playlists).map(([type, arrays]) => (
           <div>
-            {this.isUserOwner() ?
-              <div>
-                {type === 'personal' && arrays.length > 0 && <div><hr/><p>Realized by you</p></div>}
-                {type === 'others' && arrays.length > 0 && <div><hr/><p>Playlists you like</p></div>}
-              </div> &&
-              (type === 'personal' &&
-                <span>
-                <a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST, '')}><img src={image} alt={""}/></a>
-                <p><a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST, '')}>New Playlist</a></p>
-              </span>)
-              :
-              <div>
-                {type === 'personal' && <div><hr/><p>Playlists {this.props.user.username} likes</p></div>}
-              </div>}
+            {this.isUserOwner()
+              ? type === 'others'
+                ? arrays.length > 0 && <div><hr/><p>Playlists you like</p></div>
+                : [
+                  <div><hr/><p>Realized by you</p></div>,
+                  <span>
+                  <a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST, '')}>
+                    <img src={image} alt={""}/>
+                  </a>
+                  <p><a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST, '')}>New Playlist</a></p>
+                </span>]
+              : <div><hr/><p>Playlists {this.props.user.username} likes</p></div>}
             {
             Object.values(arrays).map(playlist =>
             <span>
               <a href='#' onClick={this.clickPlaylist.bind(this, playlist.id)}><img src={image} alt={""}/></a>
               <p><a href='#' onClick={this.clickPlaylist.bind(this, playlist.id)}>{playlist.name}</a></p>
               {(type === 'others' || !this.isUserOwner()) &&
-              <p>By <a href='#' onClick={this.clickCreator.bind(this, playlist.creator.id)}>{playlist.creator.username}</a>
+              <p>By <a href='#'
+                       onClick={this.clickCreator.bind(this, playlist.creator.id)}>{playlist.creator.username}</a>
               </p>}
             </span>)}
           </div>)

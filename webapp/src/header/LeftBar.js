@@ -11,11 +11,13 @@ class LeftBar extends Component {
 
   clickHome(event) {
     event.preventDefault();
+    session.error = false;
     route('/');
   }
 
   clickLibrary(event) {
     event.preventDefault();
+    session.error = false;
     route('/library/me');
   }
 

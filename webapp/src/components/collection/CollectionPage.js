@@ -121,7 +121,9 @@ class CollectionPage extends Component {
               isRelease={this.state.collectionType === 'releases'}
             />
             {this.state.stateUpdated && this.userLikeOwnPlaylist() &&
-              <button onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST_DELETE, this.state.collection.id)}>Delete</button>}
+              <button
+                onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST_DELETE, this.state.collection.id)}>Delete
+              </button>}
           </div>
           <ModalBox
             handleModalBox={this.handleModalBox.bind(this)}
