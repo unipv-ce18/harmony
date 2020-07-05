@@ -64,7 +64,7 @@ class Transcoder:
         :raise: `FFRuntimeError` in case FFmpeg command exits with a non-zero code;
                 `FFExecutableNotFoundError` in case the executable path passed was not valid
         """
-        in_file = f'{_tmp_folder}/{id}_'
+        in_file = f'{_tmp_folder}/{id}.flac'
         out_file = f'{_tmp_folder}/{_tmp_subfolder}/{id}-{bitrate}{extension}'
 
         metadata = self.metadata(id) if include_metadata else ''
@@ -220,7 +220,7 @@ class Transcoder:
         """
         result = self.st.download_file(transcoder_config.STORAGE_BUCKET_REFERENCE, song_id, _tmp_folder)
         if result:
-            os.rename(f'{_tmp_folder}/{song_id}', f'{_tmp_folder}/{song_id}_')
+            os.rename(f'{_tmp_folder}/{song_id}', f'{_tmp_folder}/{song_id}.flac')
         return result
 
     def upload_files_to_storage_server(self, id, extension):
@@ -248,7 +248,7 @@ class Transcoder:
         :param str id: id of the transcoded song
         :param str extension: the extension of the transcoded song. The default is .webm
         """
-        os.remove(f'{_tmp_folder}/{id}_')
+        os.remove(f'{_tmp_folder}/{id}.flac')
         for b in _bitrate:
             os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{id}-{b}{extension}')
         shutil.rmtree(f'{_tmp_folder}/{id}')
