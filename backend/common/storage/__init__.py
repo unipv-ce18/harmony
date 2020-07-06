@@ -90,16 +90,21 @@ def get_storage_interface(config: BackendConfig):
     return st
 
 
-def get_transcoded_songs_bucket_url(config: BackendConfig):
-    scheme = 'https' if config.STORAGE_USE_TLS else 'http'
-    return f'{scheme}://{config.STORAGE_ENDPOINT_PUBLIC}/{config.STORAGE_BUCKET_TRANSCODED}'
+def _conf_value(config, key):
+    # To account for flask configuration in API being a dict
+    return config[key] if isinstance(config, dict) else getattr(config, key)
 
 
-def get_reference_songs_bucket_url(config: BackendConfig, content_id, mimetype, size):
+def get_storage_base_url(config):
+    scheme = 'https' if _conf_value(config, 'STORAGE_USE_TLS') else 'http'
+    return f"{scheme}://{_conf_value(config, 'STORAGE_ENDPOINT_PUBLIC')}/"
+
+
+def get_reference_songs_post_policy(config: BackendConfig, content_id, mimetype, size):
     st = Storage(connect_storage(config))
     return st.minio_client.presigned_post_policy(_create_presigned_post_policy(config.STORAGE_BUCKET_REFERENCE, content_id, mimetype, size))
 
 
-def get_images_bucket_url(config: BackendConfig, content_id, mimetype, size):
+def get_images_post_policy(config: BackendConfig, content_id, mimetype, size):
     st = Storage(connect_storage(config))
     return st.minio_client.presigned_post_policy(_create_presigned_post_policy(config.STORAGE_BUCKET_IMAGES, content_id, mimetype, size))

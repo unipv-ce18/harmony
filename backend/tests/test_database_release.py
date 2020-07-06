@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from common.database.codecs import artist_from_document, release_from_document
 from tests.db_test_utils import DatabaseTest, test_artist_data, make_artist_ref
 
@@ -21,8 +23,8 @@ class ReleaseDatabaseTest(DatabaseTest):
         artist_ref = make_artist_ref(self.artist_id, self.artist_in)
 
         for i in range(len(self.release_ids)):
-            rel_in_data = self.artist_in.releases[i].to_dict()
-            rel_out_data = self.db.get_release(self.release_ids[i]).to_dict()
+            rel_in_data = asdict(self.artist_in.releases[i])
+            rel_out_data = asdict(self.db.get_release(self.release_ids[i]))
 
             # Check references match
             self.assertIsNone(rel_in_data['artist'],
@@ -49,5 +51,5 @@ class ReleaseDatabaseTest(DatabaseTest):
             'artist': make_artist_ref(self.artist_id, self.artist_in),
             'cover': self.artist_in.releases[3].cover
         })
-        self.assertDictEqual(expected_result.to_dict(), search_result[0].to_dict(),
+        self.assertDictEqual(asdict(expected_result), asdict(search_result[0]),
                              'Release search result should match search projection')

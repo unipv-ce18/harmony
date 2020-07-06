@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from bson import ObjectId
 
 from common.database.codecs import artist_from_document
@@ -21,8 +23,8 @@ class ArtistDatabaseTest(DatabaseTest):
                           'The returned artist should still not have any release')
 
         # Check object equality
-        artist_data_in = artist_in.to_dict()
-        artist_data_out = artist_out.to_dict()
+        artist_data_in = asdict(artist_in)
+        artist_data_out = asdict(artist_out)
         artist_data_in['releases'] = None
         artist_data_out['id'] = None
         self.assertDictEqual(artist_data_in, artist_data_out,
@@ -55,5 +57,5 @@ class ArtistDatabaseTest(DatabaseTest):
             'name': artist_in.name,
             'image': artist_in.image,
         })
-        self.assertDictEqual(artist_search_result.to_dict(), search_results[0].to_dict(),
+        self.assertDictEqual(asdict(artist_search_result), asdict(search_results[0]),
                              'Artist search result should match search projection')

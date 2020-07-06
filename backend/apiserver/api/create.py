@@ -139,7 +139,7 @@ class CreateRelease(Resource):
         if artist is None:
             return {'message': 'No valid artist'}, HTTPStatus.BAD_REQUEST
 
-        if artist.to_dict().get(c.ARTIST_CREATOR) != user_id:
+        if artist.creator != user_id:
             return {'message': 'You are not authorized'}, HTTPStatus.UNAUTHORIZED
 
         release_id = db.put_release(artist_id, release_from_document(data))

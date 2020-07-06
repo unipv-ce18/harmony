@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from random import randrange
 
 from common.database.codecs import artist_from_document, song_from_document
@@ -35,8 +36,8 @@ class SongDatabaseTest(DatabaseTest):
                              'Inserted songs length should match returned IDs array length')
 
             for j in range(len(self.song_ids[i])):
-                song_in_data = rel_in.songs[j].to_dict()
-                song_out_data = self.db.get_song(self.song_ids[i][j]).to_dict()
+                song_in_data = asdict(rel_in.songs[j])
+                song_out_data = asdict(self.db.get_song(self.song_ids[i][j]))
 
                 # Check references match
                 self.assertIsNone(song_in_data['artist'],
@@ -67,8 +68,8 @@ class SongDatabaseTest(DatabaseTest):
 
             # For each song, check if it matches inserted
             for j in range(len(release_in.songs)):
-                song_in = release_in.songs[j].to_dict()
-                song_out = rich_release_out.songs[j].to_dict()
+                song_in = asdict(release_in.songs[j])
+                song_out = asdict(rich_release_out.songs[j])
                 song_out['id'] = None
                 self.assertDictEqual(song_in, song_out)
 
@@ -89,7 +90,7 @@ class SongDatabaseTest(DatabaseTest):
             'artist': make_artist_ref(self.artist_id, self.artist_in),
             'release': make_release_ref(self.release_ids[1], self.artist_in.releases[1])
         })
-        self.assertDictEqual(expected_result.to_dict(), search_result[0].to_dict(),
+        self.assertDictEqual(asdict(expected_result), asdict(search_result[0]),
                              'Release search result should match search projection')
 
     def test_db_song_repr_data(self):

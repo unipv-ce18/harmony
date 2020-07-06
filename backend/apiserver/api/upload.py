@@ -8,7 +8,7 @@ from flask_restful.reqparse import RequestParser
 from . import api_blueprint, db
 from ..util import security
 import apiserver.config as config
-from common.storage import get_reference_songs_bucket_url, get_images_bucket_url
+from common.storage import get_reference_songs_post_policy, get_images_post_policy
 from common.database.contracts import artist_contract as c
 from common.database.codecs import song_from_document
 
@@ -99,13 +99,12 @@ class UploadContent(Resource):
             return {'message': 'Category ID not found'}, HTTPStatus.BAD_REQUEST
 
         if category != 'user':
-            result = result.to_dict()
             if category == 'artist':
-                if result[c.ARTIST_CREATOR] != user_id:
+                if result.creator != user_id:
                     return {'message': 'No authorized to upload this content'}, HTTPStatus.UNAUTHORIZED
             else:
-                if result[c.RELEASE_ARTIST_REF][c.ARTIST_REF_CREATOR] != user_id:
-                        return {'message': 'No authorized to upload this content'}, HTTPStatus.UNAUTHORIZED
+                if result.artist.creator != user_id:
+                    return {'message': 'No authorized to upload this content'}, HTTPStatus.UNAUTHORIZED
 
         if category == 'song' and mimetype != 'audio/flac':
             return {'message': 'A song must be a FLAC audio'}, HTTPStatus.BAD_REQUEST
@@ -117,10 +116,10 @@ class UploadContent(Resource):
 
         result = {
             'image': {
-                'url': get_images_bucket_url(conf, content_id, mimetype, size)
+                'url': get_images_post_policy(conf, content_id, mimetype, size)
             },
             'audio': {
-                'url': get_reference_songs_bucket_url(conf, content_id, mimetype, size)
+                'url': get_reference_songs_post_policy(conf, content_id, mimetype, size)
             }
         }.get(content_type)
         result['id'] = content_id

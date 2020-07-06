@@ -5,6 +5,7 @@ from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
+from ._conversions import create_artist_result, create_release_result, create_song_result
 from ..util import security
 from common.database.contracts import user_contract as c
 
@@ -16,12 +17,21 @@ _arg_parser_prefs = RequestParser()\
     .add_argument('media_id', required=True)
 _arg_parser_library = RequestParser().add_argument('full')
 
-_library_get = lambda media_type, media_id: {
+
+def _library_get(media_type, media_id): return {
     c.LIBRARY_PLAYLISTS: db.get_playlist_for_library,
     c.LIBRARY_ARTISTS: db.get_artist_for_library,
     c.LIBRARY_RELEASES: db.get_release_for_library,
     c.LIBRARY_SONGS: db.get_song_for_library
 }.get(media_type)(media_id)
+
+
+def _make_result(media_type, model): return {
+    c.LIBRARY_PLAYLISTS: lambda p: p.to_dict(),
+    c.LIBRARY_ARTISTS: create_artist_result,
+    c.LIBRARY_RELEASES: create_release_result,
+    c.LIBRARY_SONGS: create_song_result
+}.get(media_type)(model)
 
 
 @api.resource('/library')
@@ -176,9 +186,14 @@ class GetLibrary(Resource):
               application/json:
                 example: {'message': 'No library'}
         """
-        _action = lambda type : library[type] if not resolve_library \
-            else [_library_get(type, id).to_dict() for id in library[type]]
-        _resolve = lambda type : _action(type) if library[type] is not None else []
+        def _resolve(lib_type):
+            if library[lib_type] is None:
+                return []
+
+            if not resolve_library:
+                return library[lib_type]
+
+            return [_make_result(lib_type, _library_get(lib_type, item_id)) for item_id in library[lib_type]]
 
         if user_id == 'me':
             user_id = security.get_jwt_identity()

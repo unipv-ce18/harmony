@@ -1,4 +1,4 @@
-from common.storage import get_transcoded_songs_bucket_url
+from common.storage import get_storage_base_url
 
 
 # noinspection PyMethodMayBeStatic
@@ -12,7 +12,7 @@ class MediaDeliveryProtocol:
     def __init__(self, config, socketio, namespace):
         self.socketio = socketio
         self.namespace = namespace
-        self.transcoded_songs_bucket_url = get_transcoded_songs_bucket_url(config)
+        self.transcoded_songs_bucket_url = get_storage_base_url(config) + config.STORAGE_BUCKET_TRANSCODED
 
     def recv_play_song(self, message):
         """Decodes a received "play_song" message"""

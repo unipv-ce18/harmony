@@ -4,6 +4,7 @@ from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
+from ._conversions import create_artist_result, create_release_result, create_song_result
 from ..util import security
 
 
@@ -14,6 +15,11 @@ _arg_parser_search = RequestParser()\
     .add_argument('t')\
     .add_argument('s', type=int)\
     .add_argument('c', type=int)
+
+
+_SEARCH_FIELDS_ARTIST = ['id', 'name', 'image']
+_SEARCH_FIELDS_RELEASE = ['id', 'name', 'artist', 'cover']
+_SEARCH_FIELDS_SONG = ['id', 'title', 'artist', 'release']
 
 
 @api.resource('/search')
@@ -68,8 +74,7 @@ class Search(Resource):
               application/json:
                 example: {"message": 'Unknown search type: "foobar"'}
         """
-        _check_input = lambda x: x is not None and x > 0
-        _convert_result = lambda res: [r.to_dict() for r in res]
+        def _check_input(x): return x is not None and x > 0
 
         data = _arg_parser_search.parse_args()
 
@@ -80,15 +85,27 @@ class Search(Resource):
 
         result = {}
         if search_type in ['any', 'artists']:
-            result['artists'] = _convert_result(db.search_artist(query, start, count))
+            result['artists'] = list(map(_to_artist_search_entry, db.search_artist(query, start, count)))
         if search_type in ['any', 'releases']:
-            result['releases'] = _convert_result(db.search_release(query, start, count))
+            result['releases'] = list(map(_to_release_search_entry, db.search_release(query, start, count)))
         if search_type in ['any', 'songs']:
-            result['songs'] = _convert_result(db.search_song(query, start, count))
+            result['songs'] = list(map(_to_song_search_entry, db.search_song(query, start, count)))
         if search_type in ['any', 'playlists']:
-            result['playlists'] = _convert_result(db.search_playlist(query, start, count))
+            result['playlists'] = list(map(lambda r: r.to_dict(), db.search_playlist(query, start, count)))
 
         if len(result) == 0:
             return {'message': f'Unknown search type: "{search_type}"'}, HTTPStatus.BAD_REQUEST
 
         return result, HTTPStatus.OK
+
+
+def _to_artist_search_entry(artist):
+    return {k: v for k, v in create_artist_result(artist).items() if k in _SEARCH_FIELDS_ARTIST}
+
+
+def _to_release_search_entry(release):
+    return {k: v for k, v in create_release_result(release).items() if k in _SEARCH_FIELDS_RELEASE}
+
+
+def _to_song_search_entry(song):
+    return {k: v for k, v in create_song_result(song).items() if k in _SEARCH_FIELDS_SONG}

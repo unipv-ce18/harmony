@@ -5,6 +5,7 @@ from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
+from ._conversions import create_artist_result, create_release_result, create_song_result
 from ..util import security
 from common.database.contracts import playlist_contract as c
 
@@ -72,7 +73,7 @@ class GetRelease(Resource):
 
         if release is None:
             return {'message': 'Release not found'}, HTTPStatus.NOT_FOUND
-        return release.to_dict(), HTTPStatus.OK
+        return create_release_result(release), HTTPStatus.OK
 
 
 @api.resource('/artist/<artist_id>')
@@ -141,7 +142,7 @@ class GetArtist(Resource):
 
         if artist is None:
             return {'message': 'No artist'}, HTTPStatus.NOT_FOUND
-        return artist.to_dict(), HTTPStatus.OK
+        return create_artist_result(artist), HTTPStatus.OK
 
 
 @api.resource('/playlist/<playlist_id>')
@@ -190,6 +191,7 @@ class GetPlaylist(Resource):
             return {'message': 'Playlist not found'}, HTTPStatus.NOT_FOUND
 
         playlist = playlist.to_dict()
-        playlist[c.PLAYLIST_SONGS] = [db.get_song_for_library(song_id).to_dict() for song_id in playlist[c.PLAYLIST_SONGS]]
+        playlist[c.PLAYLIST_SONGS] = [create_song_result(db.get_song_for_library(song_id))
+                                      for song_id in playlist[c.PLAYLIST_SONGS]]
 
         return playlist, HTTPStatus.OK

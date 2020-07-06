@@ -88,11 +88,11 @@ class Transcoder:
 
         :param str id: id of the song to be transcoded
         """
-        lossless_song_info = self.db.get_song(id).to_dict()
+        song = self.db.get_song(id)
         m = [
-            f'title="{lossless_song_info["title"]}"',
-            f'artist="{lossless_song_info["artist"]["name"]}"',
-            f'album="{lossless_song_info["release"]["name"]}"'
+            f'title="{song.title}"',
+            f'artist="{song.artist.name}"',
+            f'album="{song.release.name}"'
         ]
         metadata = ''
         for i in range(len(m)):
