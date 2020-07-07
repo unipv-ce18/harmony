@@ -1,15 +1,16 @@
 import {Component} from 'preact';
 
 import {getReleasePlaylist} from "../../core/apiCalls";
-import {catalog, session} from "../../Harmony"
+import {catalog, mediaPlayer, session} from "../../Harmony"
 import styles from './CollectionPage.scss';
-import image from './image.jpg';
 import CollectionSongsTable from './CollectionSongsTable';
 import ModalBox from './ModalBox';
 import IconButton from '../IconButton';
-import {IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
+import {IconPause, IconPlay, IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
 import {route} from 'preact-router';
-import PlayStates from '../../player/PlayStates';
+import {createMediaItemInfo} from '../../core/links';
+import {MediaItemInfo, PlayStartModes} from '../../player/MediaPlayer';
+import PlaylistImage from './PlaylistImage';
 
 const MODALBOX_PLAYLIST_DELETE = 'modalbox_playlist_delete';
 
@@ -22,10 +23,12 @@ class CollectionPage extends Component {
       userPlaylists: {},
       collectionType: '',
       modalBox : {type:'', message:''},
+      songPlayed : '',
       stateUpdated : true
     }
 
     this.clickCreator = this.clickCreator.bind(this);
+    this.playRelease = this.playRelease.bind(this)
   }
 
   componentDidMount() {
@@ -76,7 +79,35 @@ class CollectionPage extends Component {
 
   clickCreator(e) {
     e.preventDefault();
-     route('/library/' + this.state.collection.creator.id);
+    this.isRelease()
+      ? route('/artist/' + this.state.collection.artist.id)
+      : route('/library/' + this.state.collection.creator.id);
+  }
+
+  isRelease() {
+    return this.state.collectionType === 'releases';
+  }
+
+  createSong(song) {
+    if(this.isRelease())
+      return new MediaItemInfo(song.id, {
+          [MediaItemInfo.TAG_TITLE]: song.title,
+          [MediaItemInfo.TAG_RELEASE]: this.state.collection.name,
+          [MediaItemInfo.TAG_ARTIST]: this.state.collection.artist.name,
+          [MediaItemInfo.TAG_ALBUMART_URL]: this.state.collection.cover
+        })
+    return createMediaItemInfo(song);
+  }
+
+  playRelease() {
+    let arrayMediaInfo = this.state.collection.songs.map(song => {
+      return this.createSong(song)});
+
+    mediaPlayer.play(arrayMediaInfo, PlayStartModes.APPEND_QUEUE_AND_PLAY);
+  }
+
+  playedSongInCollection() {
+    return this.state.collection.songs.map(song => {return song.id}).includes(this.state.songPlayed);
   }
 
   render() {
@@ -86,24 +117,17 @@ class CollectionPage extends Component {
         <div className={styles.collectionPage}>
           <div>
             <div className={styles.collectionInfo}>
-              {/*<img src={this.props.release.cover} alt={""}/>*/}
-              <div><img src={image} alt={""}/></div>
-              {this.state.collectionType === 'releases' &&
-                <div>
-                  <p>{this.state.collection.type}</p>
-                  <p>{this.state.collection.name}</p>
-                  <p>{this.state.collection.artist.name}</p>
-                  <p>{this.state.collection.date}</p>
-                </div>
-              }{this.state.collectionType === 'playlists' &&
-                <div>
-                  <p>Playlist</p>
-                  <p>{this.state.collection.name}</p>
-                  <p>
-                    <a href='#' onClick={this.clickCreator}>{this.state.collection.creator.username}</a></p>
-                  <p>{this.state.collection['policy']}</p>
-              </div>
+              {this.isRelease() ? <div><img src={this.state.collection.cover} alt={""}/></div> :
+                <PlaylistImage playlist={this.state.collection}/>
               }
+              <div>
+                <p>{this.isRelease() ? this.state.collection.type : 'Playlist'}</p>
+                <p>{this.state.collection.name}</p>
+                <p><a href='#' onClick={this.clickCreator}>
+                    {this.isRelease() ? this.state.collection.artist.name : this.state.collection.creator.username}
+                  </a></p>
+                <p>{this.isRelease() ? this.state.collection.date : this.state.collection['policy']}</p>
+              </div>
               <div>
                 {this.state.stateUpdated && !this.userLikeOwnPlaylist() &&
                   (this.initialCollectionLikeState()
@@ -113,12 +137,19 @@ class CollectionPage extends Component {
                                   onClick={this.likeCollection.bind(this, 'PUT')}/>
                   )
                 }
+                  <IconButton
+                    size={22}
+                    name={this.playedSongInCollection() ? "Pause" : "Play"}
+                    icon={this.playedSongInCollection() ? IconPause : IconPlay}
+                    onClick={this.playedSongInCollection()
+                      ? () => mediaPlayer.pause()
+                      : this.playRelease}/>
               </div>
             <hr/>
             </div>
             <CollectionSongsTable
               collection={this.state.collection}
-              isRelease={this.state.collectionType === 'releases'}
+              isRelease={this.isRelease()}
             />
             {this.state.stateUpdated && this.userLikeOwnPlaylist() &&
               <button

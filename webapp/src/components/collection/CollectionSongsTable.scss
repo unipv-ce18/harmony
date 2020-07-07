@@ -17,6 +17,11 @@
         }
       }
     }
+
+    .visibleButtons {
+      display: block;
+    }
+
     td:first-child { border-radius: 15px 0 0 15px }
     td:last-child { border-radius: 0 15px 15px 0 }
     tr:not(:first-child):hover td { background: black }
@@ -47,7 +52,7 @@
       th:first-of-type, td:first-of-type,
       th:nth-of-type(2), td:nth-of-type(2),
       th:last-of-type, td:last-of-type {
-        padding: 0 10px;
+        padding: 6px 10px;
         width: 30px;
         > span {
           top: 3px;

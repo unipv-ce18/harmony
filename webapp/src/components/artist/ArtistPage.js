@@ -1,24 +1,37 @@
 import {Component} from 'preact';
 
 import styles from './ArtistPage.scss';
-import test from './test.js';
 import ArtistInfo from "./ArtistInfo";
 import ReleaseList from "./ReleaseList";
+import {session} from '../../Harmony';
+import {getArtist} from '../../core/apiCalls';
+
 
 class ArtistPage extends Component {
+
+
+  componentDidMount() {
+    session.getAccessToken()
+      .then (token => {
+        getArtist(this.props.id, true, token)
+          .then(result => {
+            this.setState({artist: result});
+          })
+          .catch( () => session.error = true);
+      })
+  }
+
   render({id}) {
-    // function to retrieve data from db - fetching id
-    let result = test;
-    let info = JSON.parse(JSON.stringify(result));
-    delete info.releases;
     return (
       <div class={styles.artistPage}>
-        <div class={styles.artistPageContent}>
-          <ArtistInfo info = {info}/>
-          {/*<Songs list = {songTest}/>*/}
-          <ReleaseList list = {result.releases} />
-          {/*<SimilarArtists />*/}
-        </div>
+        {this.state.artist &&
+          <div class={styles.artistPageContent}>
+            <ArtistInfo artist={this.state.artist}/>
+            {/*<Songs list = {songTest}/>*/}
+            <ReleaseList list={this.state.artist.releases}/>
+            {/*<SimilarArtists />*/}
+          </div>
+        }
       </div>);
   }
 }

@@ -7,12 +7,11 @@ class ReleaseList extends Component {
     super(props);
     this.state = {order: 'date'};
     this.handleChangeOrder = this.handleChangeOrder.bind(this);
-    this.handleClickRelease = this.handleClickRelease.bind(this);
   }
 
-  handleClickRelease(event) {
-    route('/release/' + event.target.getAttribute('href'));
+  handleClickRelease(release_id, event) {
     event.preventDefault();
+    route('/release/' + release_id);
   }
 
 
@@ -49,7 +48,14 @@ class ReleaseList extends Component {
             <option value='date' selected>DATE</option>
           </select>
         </div>
-        {list.map(item => <div class = {styles.release}><a href='1' onClick={this.handleClickRelease}><img src={item.cover} alt={item.name}/></a></div> ) }
+        {list.map(release =>
+          <div class = {styles.release}>
+            <a href='#' onClick={this.handleClickRelease.bind(this, release.id)}>
+              <img src={release.cover} alt={release.name}/>
+            </a>
+            <p><a href='#' onClick={this.handleClickRelease.bind(this, release.id)}>{release.name}</a></p>
+          </div>)
+        }
       </div>
     );
   }

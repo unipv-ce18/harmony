@@ -6,6 +6,7 @@ import {route} from 'preact-router';
 import image from '../collection/image.jpg';
 import {catalog, session} from '../../Harmony';
 import ModalBox from '../collection/ModalBox';
+import PlaylistImage from '../collection/PlaylistImage';
 
 const MODALBOX_PLAYLIST = 'modalbox_playlist';
 const MODAL_BOX_SUCCESS = 'modalbox_success';
@@ -82,7 +83,9 @@ class PlaylistsPage extends Component {
             {
             Object.values(arrays).map(playlist =>
             <span>
-              <a href='#' onClick={this.clickPlaylist.bind(this, playlist.id)}><img src={image} alt={""}/></a>
+              <a href='#' onClick={this.clickPlaylist.bind(this, playlist.id)}>
+                <PlaylistImage playlist={playlist} size={150}/>
+              </a>
               <p><a href='#' onClick={this.clickPlaylist.bind(this, playlist.id)}>{playlist.name}</a></p>
               {(type === 'others' || !this.isUserOwner()) &&
               <p>By <a href='#'

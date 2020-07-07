@@ -79,10 +79,10 @@ export function getUserInfo(token, user_id) {
   });
 }
 
-export function getReleasePlaylist(type, type_id, with_song, token) {
+export function getReleasePlaylist(type_collection, collection_id, with_song, token) {
   // with_song == true includes the songs in the result
   let query;
-  type==='release' ? query = API_RELEASE_URL + '/' + type_id : query = API_PLAYLIST_URL + '/' + type_id;
+  type_collection==='release' ? query = API_RELEASE_URL + '/' + collection_id : query = API_PLAYLIST_URL + '/' + collection_id;
   if (with_song) query += '?songs=1';
   return fetch(query, {
     method: 'GET',
@@ -93,12 +93,14 @@ export function getReleasePlaylist(type, type_id, with_song, token) {
     })
 }
 
-export function getArtist(id, with_releases) {
-  // with_releases == true includes the releases in the result
-  let query = API_ARTIST_URL + '/' + id;
+export function getArtist(artist_id, with_releases, token) {
+  // with_releases == true includes the songs in the result
+  let query = API_ARTIST_URL + '/' + artist_id;
   if (with_releases) query += '?releases=1';
-  return fetch(query)
-    .then(response => {
+  return fetch(query, {
+    method: 'GET',
+    headers: new Headers({'Accept': 'application/json', 'Authorization':'Bearer ' + token}),
+  }).then(response => {
       if (!response.ok) throw new ApiError(response);
       return response.json()
     })

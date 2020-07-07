@@ -2,69 +2,72 @@ import {Component} from "preact";
 import styles from './ArtistPage.scss';
 import Tags from "./Tags";
 import Links from "./Links";
+import IconButton from '../IconButton';
+import {IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
+import {catalog, session} from '../../Harmony';
 
 class ArtistInfo extends Component {
   constructor(props) {
     super(props);
-    this.state = {additional: false};
-    this.handleActiveAdditional = this.handleActiveAdditional.bind(this);
-    this.handleRemoveAdditional = this.handleRemoveAdditional.bind(this);
+    this.state = {
+      additional: false,
+      stateUpdated: true
+    };
+    this.handleAdditional = this.handleAdditional.bind(this);
   }
 
-  handleActiveAdditional() {
-    this.setState({additional: true});
+  handleAdditional() {
+    this.setState( prevState => ({ additional: !prevState.additional}));
   }
 
-  handleRemoveAdditional(){
-    this.setState({additional: false});
+  initialArtistLikeState () {
+    return catalog.inLibrary('artists', this.props.artist.id);
+  };
+
+  likeArtist(function_type) {
+      catalog.favorite(function_type, 'artists', this.props.artist.id)
+      this.setState({stateUpdated: true});
   }
 
   render() {
-    let info = this.props.info;
-    const additional = this.state.additional;
-    let additionalInfo, members, links, life_span;
-    if(info.hasOwnProperty('life_span')){
-      life_span = (
-        <span>{info.life_span.begin} - {info.life_span.end == null ? "Still Active" : info.life_span.end}</span>
-      );
-    }
-    if(info.hasOwnProperty('members') && info.members.length > 1) {
-      members = (<ul>
-        {info.members.map(item => <li className={styles.member}>{item.name} - {item.role}</li>)}
-      </ul>);
-    }
-    if(info.hasOwnProperty('links')){
-      links = (<div>
-        {Object.keys(info.links).length > 0 ? <Links links = {info.links}/> : null}
-        </div>
-      );
-    }
-
-    if (additional) {
-      additionalInfo = (
-        <div class={styles.additionalInfo}>
-          {life_span}
-          {members}
-          {links}
-          <button onClick={this.handleRemoveAdditional}>Remove</button>
-        </div>);
-    } else {
-      additionalInfo = (<button onClick={this.handleActiveAdditional}>...</button>);
-    }
-
+    const artist = this.props.artist;
 
     return(
       <div>
-        <div class={styles.artistInfo} style = {{backgroundImage: "url('" + info.image + "')"}}>
-          <h2 class={styles.name}>{info.name}</h2>
-          <Tags list = {info.genres}/>
+        <div class={styles.artistInfo} style = {{backgroundImage: "url('" + this.props.artist.image + "')"}}>
+          <h2 class={styles.name}>{artist.name}</h2>
+          <Tags list = {artist.genres}/>
+          {this.state.stateUpdated && this.initialArtistLikeState()
+            ? <IconButton size={24} name="Dislike" icon={IconStarFull}
+                          onClick={this.likeArtist.bind(this, 'DELETE')}/>
+            : <IconButton size={24} name="Like" icon={IconStarEmpty}
+                          onClick={this.likeArtist.bind(this, 'PUT')}/>}
         </div>
-        <div class={styles.artistBio}>
-          {info.bio}
+        <div className={styles.artistBio}>
+          {artist.bio}
         </div>
-        {additionalInfo}
+        {this.state.additional ?
+        <div className={styles.additionalInfo}>
+          {artist.life_span &&
+            <span>
+              {artist.life_span.begin} - {artist.life_span.end == null
+                ? "Still Active"
+                : artist.life_span.end}
+            </span>}
+          {artist.members && artist.members.length > 1 &&
+            <ul>
+              {artist.members.map(item => <li className={styles.member}>{item.name} - {item.role}</li>)}}
+            </ul>}
+          <div>
+        {artist.links && Object.keys(artist.links).length > 0 ? <Links links = {artist.links}/> : null}
+          </div>
+            <button onClick={this.handleAdditional}>Collapse</button>
+          </div>
+        :
+          <button onClick={this.handleAdditional}>...</button>
+        }
       </div>
-        );
+    );
   }
 }
 

@@ -5,9 +5,11 @@ import {MediaItemInfo, PlayStartModes} from "../../player/MediaPlayer";
 import styles from './CollectionSongsTable.scss';
 import {getUserPlaylists} from '../../core/apiCalls';
 import ModalBox from './ModalBox';
-import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconArrowRight} from '../../assets/icons/icons';
+import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconArrowRight, IconPause} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 import {route} from 'preact-router';
+import {createMediaItemInfo} from '../../core/links';
+import PlayerEvents from '../../player/PlayerEvents';
 
 const SONGS_TYPE = 'songs';
 const FIRST_MENU = 'first';
@@ -23,7 +25,8 @@ class CollectionSongsTable extends Component {
 
     this.state = {
       modalBox : {type:'', message:''},
-      updated : true
+      updated : true,
+      songPlayed : '5f0331e04a639de0cb76da8c'
     }
     this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
     this.removeSongFromPlaylist = this.removeSongFromPlaylist.bind(this);
@@ -135,8 +138,22 @@ class CollectionSongsTable extends Component {
      route('/release/' + release_id);
   }
 
+  playSong(song, start_mode) {
+    let mediaItemInfo;
+    this.props.isRelease
+      ? mediaItemInfo = new MediaItemInfo(song.id, {
+          [MediaItemInfo.TAG_TITLE]: song.title,
+          [MediaItemInfo.TAG_RELEASE]: this.props.collection.name,
+          [MediaItemInfo.TAG_ARTIST]: this.props.collection.artist.name,
+          [MediaItemInfo.TAG_ALBUMART_URL]: this.props.collection.cover
+        })
+      : mediaItemInfo = createMediaItemInfo(song);
+
+    mediaPlayer.play(mediaItemInfo, start_mode);
+  }
 
   render() {
+
     return (
       <div>
         {this.state.songs && this.state.songs.length > 0 &&
@@ -159,9 +176,14 @@ class CollectionSongsTable extends Component {
             </tr>
             {this.state.songs.map(element =>
               <tr onMouseLeave={this.handleMenu.bind(this, '')}>
-                <td className={styles.hidenButtons}>
-                  <IconButton size={22} name="Play" icon={IconPlay}
-                        onClick={() => mediaPlayer.play(new MediaItemInfo(element.id, null), PlayStartModes.APPEND_PLAYLIST_AND_PLAY)}/>
+                <td className={this.state.songPlayed === element.id ? styles.visibleButtons : styles.hidenButtons}>
+                  <IconButton
+                    size={22}
+                    name={this.state.songPlayed === element.id ? "Pause" : "Play"}
+                    icon={this.state.songPlayed === element.id ? IconPause : IconPlay}
+                    onClick={this.state.songPlayed === element.id
+                      ? () => mediaPlayer.pause()
+                      : this.playSong.bind(this, element, PlayStartModes.APPEND_QUEUE_AND_PLAY)}/>
                 </td>
                 <td>
                   {this.state.updated && this.initialSongLikeState(element.id)
@@ -173,15 +195,13 @@ class CollectionSongsTable extends Component {
                 </td>
                 <td>{element.title }</td>
                 {!this.props.isRelease ?
-                  <td>
+                  [<td>
                     <a href='#' onClick={this.clickArtist.bind(this, element.artist.id)}>{element.artist.name}</a>
-                  </td>
-                  : <td/>}
-                {!this.props.isRelease ?
+                  </td>,
                   <td>
                     <a href='#' onClick={this.clickRelease.bind(this, element.release.id)}>{element.release.name}</a>
-                  </td>
-                  : <td/>}
+                  </td>]
+                  : [<td/>,<td/>]}
                 <td>{this.composeTime(element.length)}</td>
                 <td className={styles.hidenButtons}>
                   <IconButton size={24} name="Menu" icon={IconMore}
@@ -223,17 +243,21 @@ class CollectionSongsTable extends Component {
                           <hr/>
                           {this.isUserOwner() &&
                           <button onClick={this.removeSongFromPlaylist}>Remove From Playlist</button>}
-
                             <a href='#'
                                onClick={this.props.isRelease
                                  ? this.clickArtist.bind(this, this.props.collection.artist.id)
                                  : this.clickArtist.bind(this, element.artist.id)}>
                               Go To Artist
                             </a>
-                          {this.props.isRelease ? '' :
+                          {!this.props.isRelease &&
                             <a href='#' onClick={this.clickRelease.bind(this, element.release.id)}>
                               Go To Release
                             </a>}
+                          <hr/>
+                          {this.isUserOwner() &&
+                          <button onClick={this.playSong.bind(this, element, PlayStartModes.APPEND_QUEUE)}>
+                            Add To Queue
+                          </button>}
                         </div>
                       </div>
                     </div>}

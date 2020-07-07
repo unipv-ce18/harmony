@@ -1,11 +1,8 @@
 import {Component} from 'preact';
 
-import library from './testLibrary';
 import styles from './LibraryPage.scss';
 
-import {catalog} from '../../Harmony';
 import {route} from 'preact-router';
-import image from '../collection/image.jpg';
 
 class ArtistsPage extends Component {
   constructor(props) {
@@ -13,24 +10,27 @@ class ArtistsPage extends Component {
 
     this.state = {
       clicked : true,
-      artists: [...this.props.artists]
     };
-
-    this.clickArtist = this.clickArtist.bind(this);
   }
 
-  clickArtist(id) {
+  clickArtist(artist_id, event) {
+    event.preventDefault();
+    route('/artist/' + artist_id);
   }
 
   render() {
     return (
       <div>
-        { this.state.artists.length > 0 &&
+        { this.props.artists.length > 0 &&
           <div className={styles.libraryArtists}>
-            {this.state.clicked && this.state.artists.map(item =>
+            {this.props.artists.map(artist =>
               <span>
-                <img src={image} alt={""}/>
-                <p><a href='' onClick={() => this.clickArtist(item.artist.id)}>{item.artist.name}</a></p>
+                <a href='#' onClick={this.clickArtist.bind(this, artist.id)}>
+                  <img src={artist.image} alt={""}/>
+                </a>
+                <p><a href='#' onClick={this.clickArtist.bind(this, artist.id)}>
+                  {artist.name}
+                </a></p>
               </span>)}
           </div>
         }
