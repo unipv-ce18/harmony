@@ -5,7 +5,7 @@ from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
-from ._conversions import create_artist_result, create_release_result, create_song_result
+from ._conversions import create_artist_result, create_release_result, create_song_result, create_playlist_result
 from ..util import security
 from common.database.contracts import user_contract as c
 
@@ -27,7 +27,7 @@ def _library_get(media_type, media_id): return {
 
 
 def _make_result(media_type, model): return {
-    c.LIBRARY_PLAYLISTS: lambda p: p.to_dict(),
+    c.LIBRARY_PLAYLISTS: create_playlist_result,
     c.LIBRARY_ARTISTS: create_artist_result,
     c.LIBRARY_RELEASES: create_release_result,
     c.LIBRARY_SONGS: create_song_result

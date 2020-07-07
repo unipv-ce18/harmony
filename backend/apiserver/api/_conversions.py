@@ -2,8 +2,10 @@ from dataclasses import asdict
 
 from flask import current_app
 
-from common.model import Artist, Release, Song
+from . import db
+from common.model import Artist, Release, Song, Playlist
 from common.storage import get_storage_base_url
+from common.database.contracts import playlist_contract as c
 
 
 def _get_image_url(image_id):
@@ -52,3 +54,16 @@ def create_song_result(song: Song, strip_refs=False):
             song_dict['release']['cover'] = cover_url
 
     return song_dict
+
+
+def create_playlist_result(playlist: Playlist, include_songs=False):
+    playlist_dict = playlist.to_dict()
+
+    if playlist_dict[c.PLAYLIST_IMAGES]:
+        playlist_dict[c.PLAYLIST_IMAGES] = [_get_image_url(cover) for cover in playlist_dict[c.PLAYLIST_IMAGES]]
+
+    if include_songs:
+        playlist_dict[c.PLAYLIST_SONGS] = [create_song_result(db.get_song_for_library(song_id))
+                                            for song_id in playlist_dict[c.PLAYLIST_SONGS]]
+
+    return playlist_dict

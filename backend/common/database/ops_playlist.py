@@ -18,16 +18,20 @@ class PlaylistOpsMixin:
         playlist_data = playlist_to_document(playlist, strip_unsafe=True)
         return str(self.playlists.insert_one(playlist_data).inserted_id)
 
-    def add_song_to_playlist(self, playlist_id, song_id):
+    def add_song_to_playlist(self, playlist_id, song_id, cover):
+        update = {c.PLAYLIST_SONGS: song_id, c.PLAYLIST_IMAGES: cover} \
+            if cover is not None else {c.PLAYLIST_SONGS: song_id}
         return bool(self.playlists.update_one(
             {c.PLAYLIST_ID: ObjectId(playlist_id)},
-            {'$addToSet': {c.PLAYLIST_SONGS: song_id}}
+            {'$addToSet': update}
         ).matched_count)
 
-    def pull_song_from_playlist(self, playlist_id, song_id):
+    def pull_song_from_playlist(self, playlist_id, song_id, cover):
+        update = {c.PLAYLIST_SONGS: song_id, c.PLAYLIST_IMAGES: cover} \
+            if cover is not None else {c.PLAYLIST_SONGS: song_id}
         return bool(self.playlists.update_one(
             {c.PLAYLIST_ID: ObjectId(playlist_id)},
-            {'$pull': {c.PLAYLIST_SONGS: song_id}}
+            {'$pull': update}
         ).matched_count)
 
     def get_playlist_creator(self, playlist_id):

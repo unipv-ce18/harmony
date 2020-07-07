@@ -9,6 +9,7 @@ from ..util import security
 from common.database.contracts import user_contract as uc
 from common.database.contracts import playlist_contract as c
 from common.database.codecs import playlist_from_document
+from ._conversions import create_song_result
 
 
 api = Api(api_blueprint, prefix='/user/playlist')
@@ -101,6 +102,7 @@ class CreatePlaylist(Resource):
             c.PLAYLIST_CREATOR_USERNAME: db.get_user_username(user_id)
         }
         data[c.PLAYLIST_POLICY] = c.PLAYLIST_POLICY_PUBLIC
+        data[c.PLAYLIST_IMAGES] = []
         data[c.PLAYLIST_SONGS] = []
 
         playlist_id = db.put_playlist(playlist_from_document(data))
@@ -211,12 +213,12 @@ class UpdatePlaylist(Resource):
 
         if user_id == db.get_playlist_creator(playlist_id):
 
-            result = db.get_song_for_library(song_id)
+            song = db.get_song_for_library(song_id)
 
-            if result is None:
+            if song is None:
                 return {'message': 'Song ID not found'}, HTTPStatus.BAD_REQUEST
 
-            response = operation(playlist_id, song_id)
+            response = operation(playlist_id, song_id, song.release.get('cover'))
 
             if response:
                 return None, HTTPStatus.NO_CONTENT

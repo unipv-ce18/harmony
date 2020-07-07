@@ -8,7 +8,7 @@ _PLAYLIST_DOCUMENT_BINDINGS = {
     'id': c.PLAYLIST_ID,
     'name': c.PLAYLIST_NAME,
     'creator': c.PLAYLIST_CREATOR,
-    'image': c.PLAYLIST_IMAGE,
+    'images': c.PLAYLIST_IMAGES,
     'policy': c.PLAYLIST_POLICY,
     'songs': c.PLAYLIST_SONGS
 }
