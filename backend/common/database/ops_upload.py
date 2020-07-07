@@ -19,10 +19,9 @@ class UploadOpsMixin:
         }
         return str(self.upload.insert_one(content).inserted_id)
 
-    def get_content_category_info(self, content_id):
+    def get_content(self, content_id):
         return self.upload.find_one(
-            {'_id': ObjectId(content_id)},
-            {'_id': 0, 'category': 1, 'category_id': 1}
+            {'_id': ObjectId(content_id)}
         )
 
     def remove_content(self, content_id):

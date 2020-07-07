@@ -16,13 +16,14 @@ def get_bucket_notification():
     print('S3 Notification received')
 
     object = request.json['Records'][0]['s3']['object']
-    content_type = object['contentType'].split('/')[0]
     content_id = object['key'].split('.')[0]
 
+    content = db.get_content(content_id)
+    content_type = content['mimetype'].split('/')[0]
+
     if content_type == 'image':
-        cat_info = db.get_content_category_info(content_id)
-        category = cat_info['category']
-        category_id = cat_info['category_id']
+        category = content['category']
+        category_id = content['category_id']
 
         result = {
             'user': db.update_avatar_url,
