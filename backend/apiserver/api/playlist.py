@@ -19,6 +19,8 @@ _arg_parser_create_playlist = RequestParser().add_argument('name', required=True
 _arg_parser_update_playlist = RequestParser()\
     .add_argument('playlist_id', required=True)\
     .add_argument('song_id', required=True)
+_arg_parser_patch_playlist = RequestParser()\
+    .add_argument('playlist_id', required=True)
 
 
 @api.resource('')
@@ -116,6 +118,56 @@ class CreatePlaylist(Resource):
 @api.resource('/update')
 class UpdatePlaylist(Resource):
     method_decorators = [security.jwt_required]
+
+    def patch(self):
+        """Modify playlist policy
+        ---
+        tags: [user]
+        requestBody:
+          description: Modify the playlist policy
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  playlist_id: {type: string, description: The playlist id}
+                required: [playlist_id]
+              examples:
+                0: {summary: 'Modify policy', value: {'playlist_id': 'PLAYLIST ID'}}
+        responses:
+          204:  # No Content
+            description: Policy modified correctly
+            content: {}
+          400:  # Bad Request
+            $ref: '#components/responses/InvalidId'
+          401:
+            description: User is different from the creator
+            content:
+              application/json:
+                example: {'message': 'You are not authorized to modify this playlist'}
+          404:  # Not Found
+            $ref: '#components/responses/LibraryUpdateNoUser'
+        """
+        data = _arg_parser_patch_playlist.parse_args()
+
+        user_id = security.get_jwt_identity()
+        playlist_id = data['playlist_id']
+
+        if not ObjectId.is_valid(user_id):
+            return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
+        if not ObjectId.is_valid(playlist_id):
+            return {'message': 'Playlist ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        if user_id == db.get_playlist_creator(playlist_id):
+            current_policy = db.get_policy(playlist_id)
+            new_policy = c.PLAYLIST_POLICY_PUBLIC if current_policy == c.PLAYLIST_POLICY_PRIVATE \
+                else c.PLAYLIST_POLICY_PRIVATE
+
+            if db.set_policy(playlist_id, new_policy):
+                return None, HTTPStatus.NO_CONTENT
+            return {'message': 'Playlist not found'}, HTTPStatus.NOT_FOUND
+        return {'message': 'You are not authorized to modify this playlist'}, HTTPStatus.UNAUTHORIZED
 
     def put(self):
         """Add a song to a playlist

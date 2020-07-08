@@ -67,11 +67,18 @@ class PlaylistOpsMixin:
             result.limit(limit)
         return [playlist_from_document(res) for res in result]
 
-    def set_policy_private(self, playlist_id):
-        self.playlists.update_one(
+    def get_policy(self, playlist_id):
+        playlist_doc = self.playlists.find_one(
             {c.PLAYLIST_ID: ObjectId(playlist_id)},
-            {'$set': {c.PLAYLIST_POLICY: c.PLAYLIST_POLICY_PRIVATE}}
+            {c.PLAYLIST_ID: 0, c.PLAYLIST_POLICY: 1}
         )
+        return playlist_doc[c.PLAYLIST_POLICY] if playlist_doc else None
+
+    def set_policy(self, playlist_id, policy):
+        return bool(self.playlists.update_one(
+            {c.PLAYLIST_ID: ObjectId(playlist_id)},
+            {'$set': {c.PLAYLIST_POLICY: policy}}
+        ).matched_count)
 
     def get_creator_playlists(self, creator):
         result = self.playlists.find(
