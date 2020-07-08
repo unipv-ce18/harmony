@@ -99,3 +99,9 @@ class PlaylistOpsMixin:
             {},
             {'$pull': {c.PLAYLIST_SONGS: song_id}}
         )
+
+    def remove_image_from_playlists(self, image):
+        self.playlists.update_many(
+            {},
+            {'$pull': {c.PLAYLIST_IMAGES: image}}
+        )

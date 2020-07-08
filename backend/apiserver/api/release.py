@@ -136,9 +136,14 @@ class RemoveRelease(Resource):
         db.remove_release(release_id)
         db.remove_release_from_libraries(release_id)
 
-        for song in release.songs:
-            db.remove_song_from_playlists(song.id)
-            db.remove_song_from_libraries(song.id)
-            db.put_content(None, None, 'audio/flac', song.id)
+        if release.cover is not None:
+            db.remove_image_from_playlists(release.cover)
+            db.put_content(None, None, 'image/_', release.cover)
+
+        if release.songs:
+            for song in release.songs:
+                db.remove_song_from_playlists(song.id)
+                db.remove_song_from_libraries(song.id)
+                db.put_content(None, None, 'audio/flac', song.id)
 
         return None, HTTPStatus.NO_CONTENT
