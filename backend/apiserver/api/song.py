@@ -165,12 +165,12 @@ class RemoveSong(Resource):
                 0: {summary: 'Delete a song', value: {'song_id': 'SONG_ID'}}
         responses:
           204:  # No Content
-            description: Title modified correctly
+            description: Song deleted correctly
             content: {}
           400:
             $ref: '#components/responses/InvalidId'
           401:
-            description: The user logged in is not authorized to modify this song
+            description: The user logged in is not authorized to remove this song
             content:
               application/json:
                 example: {'message': 'No authorized to remove this song'}

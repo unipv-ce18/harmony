@@ -82,3 +82,9 @@ class ReleaseOpsMixin:
             {c.INDEX_RELEASE_ID: ObjectId(release_id)},
             {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_COVER}': image_link}}
         ).matched_count
+
+    def change_name_release(self, release_id, name):
+        return self.artists.update_one(
+            {c.INDEX_RELEASE_ID: ObjectId(release_id)},
+            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_NAME}': name}}
+        ).matched_count

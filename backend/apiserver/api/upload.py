@@ -166,6 +166,11 @@ class SongUpload(Resource):
             content:
               application/json:
                 example: {'message': 'No authorized to upload this song'}
+          404:
+            description: Release not found
+            content:
+              application/json:
+                example: {'message': 'Release not found'}
         """
         data = _arg_parser_song.parse_args()
 
@@ -181,10 +186,12 @@ class SongUpload(Resource):
         if db.get_content_status(song_id) != 'complete':
             return {'message': 'Upload on storage not complete'}, HTTPStatus.BAD_REQUEST
 
-        release_info = db.get_content(song_id)
-        release_id = release_info['category_id']
+        content = db.get_content(song_id)
+        release_id = content['category_id']
 
         release = db.get_release(release_id)
+        if release is None:
+            return {'message': 'Release not found'}, HTTPStatus.NOT_FOUND
         if release.artist.get(c.ARTIST_REF_CREATOR) != user_id:
             return {'message': 'No authorized to upload this song'}, HTTPStatus.UNAUTHORIZED
 
