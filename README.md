@@ -85,7 +85,7 @@ Enable webhooks notification:
 ```console
 $ ./mc admin config set local/ notify_webhook:_ endpoint="http://localhost/_webhooks/s3/events" auth_token="ivitelloniinbouvette"
 $ ./mc admin service restart local/
-$ ./mc event add local/lossless-songs arn:minio:sqs::_:webhook --event put --suffix .flac
+$ ./mc event add local/lossless-songs arn:minio:sqs::_:webhook --event put
 $ ./mc event list local/lossless-songs
 $ ./mc event add local/images arn:minio:sqs::_:webhook --event put
 $ ./mc event list local/images
