@@ -14,7 +14,6 @@ from ._conversions import create_song_result
 
 api = Api(api_blueprint, prefix='/user/playlist')
 
-
 _arg_parser_create_playlist = RequestParser().add_argument('name', required=True)
 _arg_parser_update_playlist = RequestParser()\
     .add_argument('playlist_id', required=True)\
@@ -134,7 +133,7 @@ class UpdatePlaylist(Resource):
                   playlist_id: {type: string, description: The playlist id}
                 required: [playlist_id]
               examples:
-                0: {summary: 'Modify policy', value: {'playlist_id': 'PLAYLIST ID'}}
+                0: {summary: 'Modify policy', value: {'playlist_id': 'PLAYLIST_ID'}}
         responses:
           204:  # No Content
             description: Policy modified correctly
@@ -185,7 +184,7 @@ class UpdatePlaylist(Resource):
                   song_id: {type: string, description: The song id}
                 required: [playlist_id, song_id]
               examples:
-                0: {summary: 'Add song', value: {'playlist_id': 'PLAYLIST ID', 'song_id': 'SONG ID'}}
+                0: {summary: 'Add song', value: {'playlist_id': 'PLAYLIST_ID', 'song_id': 'SONG ID'}}
         responses:
           204:  # No Content
             description: Item inserted correctly

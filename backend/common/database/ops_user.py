@@ -109,3 +109,15 @@ class UserOpsMixin:
             {c.USER_ID: ObjectId(user_id)},
             {'$set': {c.USER_AVATAR_URL: image_link}}
         ).matched_count
+
+    def update_user_bio(self, user_id, bio):
+        return bool(self.users.update_one(
+            {c.USER_ID: ObjectId(user_id)},
+            {'$set': {c.USER_BIO: bio}}
+        ).matched_count)
+
+    def remove_song_from_libraries(self, song_id):
+        self.users.update_many(
+            {},
+            {'$pull': {f'{c.USER_LIBRARY}.{c.LIBRARY_SONGS}': song_id}}
+        )

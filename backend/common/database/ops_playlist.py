@@ -93,3 +93,9 @@ class PlaylistOpsMixin:
             {c.PLAYLIST_ID: 1}
         )
         return [str(res[c.PLAYLIST_ID]) for res in result]
+
+    def remove_song_from_playlists(self, song_id):
+        self.playlists.update_many(
+            {},
+            {'$pull': {c.PLAYLIST_SONGS: song_id}}
+        )

@@ -99,3 +99,17 @@ class SongOpsMixin:
             return ret if ret else None     # Emptiness check
         except StopIteration:
             raise ValueError('The given song_id does not exist')
+
+    def update_lyrics(self, song_id, lyrics):
+        res = self.artists.update_one(
+            {c.INDEX_SONG_ID: ObjectId(song_id)},
+            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}.$[s].{c.SONG_LYRICS}': lyrics}},
+            array_filters=[{f's.{c.SONG_ID}': ObjectId(song_id)}])
+        return res.matched_count == 1
+
+    def change_title(self, song_id, title):
+        res = self.artists.update_one(
+            {c.INDEX_SONG_ID: ObjectId(song_id)},
+            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}.$[s].{c.SONG_TITLE}': title}},
+            array_filters=[{f's.{c.SONG_ID}': ObjectId(song_id)}])
+        return res.matched_count == 1

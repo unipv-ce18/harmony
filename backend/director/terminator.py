@@ -35,8 +35,8 @@ class Terminator:
                         'audio': director_config.STORAGE_BUCKET_REFERENCE
                     }.get(c['mimetype'].split('/')[0])
 
-                    self.st.delete_file(bucket, f'{c["_id"]}')
-                    self.db.remove_content(c['_id'])
+                    self.st.delete_file(bucket, str(c['_id']))
+                    self.db.remove_content(str(c['_id']))
 
                 n_killed = len(contents)
                 if n_killed:

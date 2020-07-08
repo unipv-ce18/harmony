@@ -103,7 +103,7 @@ class UploadContent(Resource):
                 if result.creator != user_id:
                     return {'message': 'No authorized to upload this content'}, HTTPStatus.UNAUTHORIZED
             else:
-                if result.artist.creator != user_id:
+                if result.artist.get(c.ARTIST_REF_CREATOR) != user_id:
                     return {'message': 'No authorized to upload this content'}, HTTPStatus.UNAUTHORIZED
 
         if category == 'song' and mimetype != 'audio/flac':
@@ -161,6 +161,11 @@ class SongUpload(Resource):
             content:
               application/json:
                 example: {'message': 'ID not valid'}
+          401:
+            description: The user logged in is not authorized to upload this song
+            content:
+              application/json:
+                example: {'message': 'No authorized to upload this song'}
         """
         data = _arg_parser_song.parse_args()
 
@@ -176,8 +181,12 @@ class SongUpload(Resource):
         if db.get_content_status(song_id) != 'complete':
             return {'message': 'Upload on storage not complete'}, HTTPStatus.BAD_REQUEST
 
-        release_info = db.get_content_category_info(song_id)
+        release_info = db.get_content(song_id)
         release_id = release_info['category_id']
+
+        release = db.get_release(release_id)
+        if release.artist.get(c.ARTIST_REF_CREATOR) != user_id:
+            return {'message': 'No authorized to upload this song'}, HTTPStatus.UNAUTHORIZED
 
         db.put_song(release_id, song_from_document(data), False)
         db.remove_content(song_id)

@@ -9,7 +9,7 @@ class UploadOpsMixin:
         super().__init__(db_connection)
         self.upload = db_connection['upload']
 
-    def put_content(self, category, category_id, mimetype):
+    def put_content(self, category, category_id, mimetype, content_id=None):
         content = {
             'category': category,
             'category_id': category_id,
@@ -17,6 +17,8 @@ class UploadOpsMixin:
             'status': 'pending',
             'timestamp': datetime.utcnow()
         }
+        if content_id is not None:
+            content['_id'] = ObjectId(content_id)
         return str(self.upload.insert_one(content).inserted_id)
 
     def get_content(self, content_id):
