@@ -8,14 +8,14 @@ from . import api_blueprint, db
 from ..util import security
 
 
-api = Api(api_blueprint, prefix='/artist')
+api = Api(api_blueprint)
 
-_arg_parser_artist = RequestParser()\
+_arg_parser_delete = RequestParser()\
     .add_argument('artist_id', required=True)
 
 
-@api.resource('/remove')
-class RemoveArtist(Resource):
+@api.resource('/artist')
+class UpdateArtist(Resource):
     method_decorators = [security.jwt_required]
 
     def delete(self):
@@ -51,7 +51,7 @@ class RemoveArtist(Resource):
               application/json:
                 example: {'message': 'Artist not found'}
         """
-        data = _arg_parser_artist.parse_args()
+        data = _arg_parser_delete.parse_args()
 
         user_id = security.get_jwt_identity()
         artist_id = data['artist_id']
@@ -68,7 +68,6 @@ class RemoveArtist(Resource):
         if artist.creator != user_id:
             return {'message': 'No authorized to remove this artist'}, HTTPStatus.UNAUTHORIZED
 
-        db.remove_artist(artist_id)
         db.remove_artist_from_libraries(artist_id)
 
         if artist.image is not None:
@@ -78,7 +77,6 @@ class RemoveArtist(Resource):
             for release in artist.releases:
                 r = db.get_release(release.id, True)
 
-                db.remove_release(release.id)
                 db.remove_release_from_libraries(release.id)
 
                 if release.cover is not None:
@@ -90,5 +88,7 @@ class RemoveArtist(Resource):
                         db.remove_song_from_playlists(song.id)
                         db.remove_song_from_libraries(song.id)
                         db.put_content(None, None, 'audio/flac', song.id)
+
+        db.remove_artist(artist_id)
 
         return None, HTTPStatus.NO_CONTENT

@@ -9,25 +9,25 @@ from ..util import security
 from common.database.contracts import artist_contract as c
 
 
-api = Api(api_blueprint, prefix='/release')
+api = Api(api_blueprint)
 
-_arg_parser_name = RequestParser()\
+_arg_parser_patch = RequestParser()\
     .add_argument('release_id', required=True)\
-    .add_argument('name', required=True)
-_arg_parser_release = RequestParser()\
+    .add_argument('name')
+_arg_parser_delete = RequestParser()\
     .add_argument('release_id', required=True)
 
 
-@api.resource('/name')
-class ChangeReleaseName(Resource):
+@api.resource('/release')
+class UpdateRelease(Resource):
     method_decorators = [security.jwt_required]
 
     def patch(self):
-        """Change the name of a release
+        """Update release data
         ---
         tags: [misc]
         requestBody:
-          description: Modify the name
+          description: Update the release
           required: true
           content:
             application/json:
@@ -36,12 +36,12 @@ class ChangeReleaseName(Resource):
                 properties:
                   release_id: {type: string, description: The release id}
                   name: {type: string, description: The release name}
-                required: [release_id, name]
+                required: [release_id]
               examples:
-                0: {summary: 'Modify name', value: {'release_id': 'RELEASE_ID', 'name': 'NAME'}}
+                0: {summary: 'Update the release', value: {'release_id': 'RELEASE_ID', 'name': 'NAME'}}
         responses:
           204:  # No Content
-            description: Name modified correctly
+            description: Release modified correctly
             content: {}
           400:
             $ref: '#components/responses/InvalidId'
@@ -56,7 +56,7 @@ class ChangeReleaseName(Resource):
               application/json:
                 example: {'message': 'Release not found'}
         """
-        data = _arg_parser_title.parse_args()
+        data = _arg_parser_patch.parse_args()
 
         user_id = security.get_jwt_identity()
         release_id = data['release_id']
@@ -74,14 +74,10 @@ class ChangeReleaseName(Resource):
         if release.artist.get(c.ARTIST_REF_CREATOR) != user_id:
             return {'message': 'No authorized to modify this release'}, HTTPStatus.UNAUTHORIZED
 
-        if db.change_name_release(release_id, name):
-            return None, HTTPStatus.NO_CONTENT
-        return {'message': 'Release not found'}, HTTPStatus.NOT_FOUND
+        if name is not None:
+            db.change_name_release(release_id, name)
 
-
-@api.resource('/remove')
-class RemoveRelease(Resource):
-    method_decorators = [security.jwt_required]
+        return None, HTTPStatus.NO_CONTENT
 
     def delete(self):
         """Delete a release
@@ -116,7 +112,7 @@ class RemoveRelease(Resource):
               application/json:
                 example: {'message': 'Release not found'}
         """
-        data = _arg_parser_release.parse_args()
+        data = _arg_parser_delete.parse_args()
 
         user_id = security.get_jwt_identity()
         release_id = data['release_id']

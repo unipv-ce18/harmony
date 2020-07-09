@@ -13,7 +13,7 @@ from common.database.contracts import artist_contract as c
 from common.database.codecs import song_from_document
 
 
-api = Api(api_blueprint)
+api = Api(api_blueprint, prefix='/upload')
 
 _arg_parser_content = RequestParser()\
     .add_argument('category', required=True)\
@@ -28,7 +28,7 @@ _arg_parser_song = RequestParser()\
     .add_argument('lyrics')
 
 
-@api.resource('/uploadContent')
+@api.resource('/content')
 class UploadContent(Resource):
     method_decorators = [security.jwt_required]
 
@@ -127,7 +127,7 @@ class UploadContent(Resource):
         return result, HTTPStatus.OK
 
 
-@api.resource('/songUpload')
+@api.resource('/song')
 class SongUpload(Resource):
     method_decorators = [security.jwt_required]
 

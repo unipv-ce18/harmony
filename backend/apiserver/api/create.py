@@ -11,7 +11,7 @@ from common.database.contracts import artist_contract as c
 from common.database.codecs import artist_from_document, release_from_document
 
 
-api = Api(api_blueprint)
+api = Api(api_blueprint, prefix='/create')
 
 _arg_parser_artist = RequestParser()\
     .add_argument('name', required=True)\
@@ -29,7 +29,7 @@ _arg_parser_release = RequestParser()\
     .add_argument('type')
 
 
-@api.resource('/createArtist')
+@api.resource('/artist')
 class CreateArtist(Resource):
     method_decorators = [security.jwt_required]
 
@@ -83,7 +83,7 @@ class CreateArtist(Resource):
         return {'artist_id': artist_id}, HTTPStatus.CREATED
 
 
-@api.resource('/createRelease')
+@api.resource('/release')
 class CreateRelease(Resource):
     method_decorators = [security.jwt_required]
 

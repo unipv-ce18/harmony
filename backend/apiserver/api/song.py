@@ -9,28 +9,26 @@ from ..util import security
 from common.database.contracts import artist_contract as c
 
 
-api = Api(api_blueprint, prefix='/song')
+api = Api(api_blueprint)
 
-_arg_parser_lyrics = RequestParser()\
+_arg_parser_patch = RequestParser()\
     .add_argument('song_id', required=True)\
-    .add_argument('lyrics', required=True)
-_arg_parser_title = RequestParser()\
-    .add_argument('song_id', required=True)\
-    .add_argument('title', required=True)
-_arg_parser_song = RequestParser()\
+    .add_argument('title')\
+    .add_argument('lyrics')
+_arg_parser_delete = RequestParser()\
     .add_argument('song_id', required=True)
 
 
-@api.resource('/lyrics')
-class AddLyricsSong(Resource):
+@api.resource('/song')
+class UpdateSong(Resource):
     method_decorators = [security.jwt_required]
 
     def patch(self):
-        """Update lyrics of a song
+        """Update song data
         ---
         tags: [misc]
         requestBody:
-          description: Modify the lyrics
+          description: Updaye song data
           required: true
           content:
             application/json:
@@ -38,13 +36,14 @@ class AddLyricsSong(Resource):
                 type: object
                 properties:
                   song_id: {type: string, description: The song id}
+                  title: {type: string, description: The song title}
                   lyrics: {type: string, description: The song lyrics}
-                required: [song_id, lyrics]
+                required: [song_id]
               examples:
-                0: {summary: 'Modify lyrics', value: {'song_id': 'SONG_ID', 'lyrics': 'LYRICS'}}
+                0: {summary: 'Modify song', value: {'song_id': 'SONG_ID', 'title': 'TITLE', 'lyrics': 'LYRICS'}}
         responses:
           204:  # No Content
-            description: Lyrics modified correctly
+            description: Song modified correctly
             content: {}
           400:
             $ref: '#components/responses/InvalidId'
@@ -59,10 +58,11 @@ class AddLyricsSong(Resource):
               application/json:
                 example: {'message': 'Song not found'}
         """
-        data = _arg_parser_lyrics.parse_args()
+        data = _arg_parser_patch.parse_args()
 
         user_id = security.get_jwt_identity()
         song_id = data['song_id']
+        title = data['title']
         lyrics = data['lyrics']
 
         if not ObjectId.is_valid(user_id):
@@ -77,75 +77,13 @@ class AddLyricsSong(Resource):
         if song.artist.get(c.ARTIST_REF_CREATOR) != user_id:
             return {'message': 'No authorized to modify this song'}, HTTPStatus.UNAUTHORIZED
 
-        if db.update_lyrics(song_id, lyrics):
-            return None, HTTPStatus.NO_CONTENT
-        return {'message': 'Song not found'}, HTTPStatus.NOT_FOUND
+        if title is not None:
+            db.change_title(song_id, title)
 
+        if lyrics is not None:
+            db.update_lyrics(song_id, lyrics)
 
-@api.resource('/title')
-class ChangeSongTitle(Resource):
-    method_decorators = [security.jwt_required]
-
-    def patch(self):
-        """Change the title of a song
-        ---
-        tags: [misc]
-        requestBody:
-          description: Modify the title
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  song_id: {type: string, description: The song id}
-                  title: {type: string, description: The song title}
-                required: [song_id, title]
-              examples:
-                0: {summary: 'Modify title', value: {'song_id': 'SONG_ID', 'title': 'TITLE'}}
-        responses:
-          204:  # No Content
-            description: Title modified correctly
-            content: {}
-          400:
-            $ref: '#components/responses/InvalidId'
-          401:
-            description: The user logged in is not authorized to modify this song
-            content:
-              application/json:
-                example: {'message': 'No authorized to modify this song'}
-          404:
-            description: Song not found
-            content:
-              application/json:
-                example: {'message': 'Song not found'}
-        """
-        data = _arg_parser_title.parse_args()
-
-        user_id = security.get_jwt_identity()
-        song_id = data['song_id']
-        title = data['title']
-
-        if not ObjectId.is_valid(user_id):
-            return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
-
-        if not ObjectId.is_valid(song_id):
-            return {'message': 'Song ID not valid'}, HTTPStatus.BAD_REQUEST
-
-        song = db.get_song(song_id)
-        if song is None:
-            return {'message': 'Song not found'}, HTTPStatus.NOT_FOUND
-        if song.artist.get(c.ARTIST_REF_CREATOR) != user_id:
-            return {'message': 'No authorized to modify this song'}, HTTPStatus.UNAUTHORIZED
-
-        if db.change_title(song_id, title):
-            return None, HTTPStatus.NO_CONTENT
-        return {'message': 'Song not found'}, HTTPStatus.NOT_FOUND
-
-
-@api.resource('/remove')
-class RemoveSong(Resource):
-    method_decorators = [security.jwt_required]
+        return None, HTTPStatus.NO_CONTENT
 
     def delete(self):
         """Delete a song
@@ -180,7 +118,7 @@ class RemoveSong(Resource):
               application/json:
                 example: {'message': 'Song not found'}
         """
-        data = _arg_parser_song.parse_args()
+        data = _arg_parser_delete.parse_args()
 
         user_id = security.get_jwt_identity()
         song_id = data['song_id']
