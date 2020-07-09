@@ -6,7 +6,6 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
-from common.database.contracts import artist_contract as c
 
 
 api = Api(api_blueprint, prefix='/artist')
@@ -70,7 +69,7 @@ class RemoveArtist(Resource):
             return {'message': 'No authorized to remove this artist'}, HTTPStatus.UNAUTHORIZED
 
         db.remove_artist(artist_id)
-        db.remove_artist_from_libraries(release_id)
+        db.remove_artist_from_libraries(artist_id)
 
         if artist.image is not None:
             db.put_content(None, None, 'image/_', artist.image)
