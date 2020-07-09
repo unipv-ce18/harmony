@@ -20,17 +20,15 @@ class PlaylistInfo extends Component {
 
   clickCreator(e) {
     e.preventDefault();
-    route('/library/' + this.state.collection.creator.id);
+    route('/library/' + this.props.collection.creator.id);
   }
 
   changePolicy() {
-    catalog.updateSongInPlaylist('PATCH', this.state.collection.id)
+    catalog.updateSongInPlaylist('PATCH', this.props.collection.id)
       .then(()=> {
-        let collection = {...this.state.collection};
-        collection['policy'] = this.state.collection.policy === 'public'? 'private' : 'public' ;
-        this.setState({collection : collection});
-        this.setState({stateUpdated : true})
-        console.log(this.state.collection);
+        const policy = this.state.policy;
+        if (policy === 'public') this.setState({policy : 'private'});
+        else  this.setState({policy : 'public'});
       })
   }
 
