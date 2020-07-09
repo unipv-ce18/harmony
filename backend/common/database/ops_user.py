@@ -127,3 +127,9 @@ class UserOpsMixin:
             {},
             {'$pull': {f'{c.USER_LIBRARY}.{c.LIBRARY_RELEASES}': release_id}}
         )
+
+    def remove_artist_from_libraries(self, artist_id):
+        self.users.update_many(
+            {},
+            {'$pull': {f'{c.USER_LIBRARY}.{c.LIBRARY_ARTISTS}': artist_id}}
+        )

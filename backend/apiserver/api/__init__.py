@@ -24,4 +24,4 @@ def on_register(state: BlueprintSetupState):
     # Do it only after registration so they see the updated db instance
     from . import hello_world, authentication, media_info, search,\
         user_info, library, playlist, user_upgrade, upload, create,\
-        song, release  # noqa
+        song, release, artist  # noqa

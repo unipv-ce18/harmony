@@ -131,7 +131,7 @@ class RemoveRelease(Resource):
         if release is None:
             return {'message': 'Release not found'}, HTTPStatus.NOT_FOUND
         if release.artist.get(c.ARTIST_REF_CREATOR) != user_id:
-            return {'message': 'No authorized to modify this release'}, HTTPStatus.UNAUTHORIZED
+            return {'message': 'No authorized to remove this release'}, HTTPStatus.UNAUTHORIZED
 
         db.remove_release(release_id)
         db.remove_release_from_libraries(release_id)
