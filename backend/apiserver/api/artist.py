@@ -10,30 +10,22 @@ from ..util import security
 
 api = Api(api_blueprint)
 
-_arg_parser_delete = RequestParser()\
-    .add_argument('artist_id', required=True)
 
-
-@api.resource('/artist')
+@api.resource('/artist/<artist_id>')
 class UpdateArtist(Resource):
     method_decorators = [security.jwt_required]
 
-    def delete(self):
+    def delete(self, artist_id):
         """Delete an artist
         ---
         tags: [misc]
-        requestBody:
-          description: Delete an artist
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  artist_id: {type: string, description: The artist id}
-                required: [artist_id]
-              examples:
-                0: {summary: 'Delete an artist', value: {'artist_id': 'ARTIST_ID'}}
+        parameters:
+          - in: path
+            name: artist_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the artist to delete
         responses:
           204:  # No Content
             description: Artist deleted correctly
@@ -51,10 +43,7 @@ class UpdateArtist(Resource):
               application/json:
                 example: {'message': 'Artist not found'}
         """
-        data = _arg_parser_delete.parse_args()
-
         user_id = security.get_jwt_identity()
-        artist_id = data['artist_id']
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST

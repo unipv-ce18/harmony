@@ -88,3 +88,15 @@ class ReleaseOpsMixin:
             {c.INDEX_RELEASE_ID: ObjectId(release_id)},
             {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_NAME}': name}}
         ).matched_count
+
+    def change_date_release(self, release_id, date):
+        return self.artists.update_one(
+            {c.INDEX_RELEASE_ID: ObjectId(release_id)},
+            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_DATE}': date}}
+        ).matched_count
+
+    def change_type_release(self, release_id, type):
+        return self.artists.update_one(
+            {c.INDEX_RELEASE_ID: ObjectId(release_id)},
+            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_TYPE}': type}}
+        ).matched_count

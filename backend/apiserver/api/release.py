@@ -12,20 +12,26 @@ from common.database.contracts import artist_contract as c
 api = Api(api_blueprint)
 
 _arg_parser_patch = RequestParser()\
-    .add_argument('release_id', required=True)\
-    .add_argument('name')
-_arg_parser_delete = RequestParser()\
-    .add_argument('release_id', required=True)
+    .add_argument('name')\
+    .add_argument('date')\
+    .add_argument('type')
 
 
-@api.resource('/release')
+@api.resource('/release/<release_id>')
 class UpdateRelease(Resource):
     method_decorators = [security.jwt_required]
 
-    def patch(self):
+    def patch(self, release_id):
         """Update release data
         ---
         tags: [misc]
+        parameters:
+          - in: path
+            name: release_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the release to update
         requestBody:
           description: Update the release
           required: true
@@ -34,11 +40,11 @@ class UpdateRelease(Resource):
               schema:
                 type: object
                 properties:
-                  release_id: {type: string, description: The release id}
                   name: {type: string, description: The release name}
-                required: [release_id]
+                  date: {type: string, description: The release date}
+                  type: {type: string, description: The release type}
               examples:
-                0: {summary: 'Update the release', value: {'release_id': 'RELEASE_ID', 'name': 'NAME'}}
+                0: {summary: 'Update the release', value: {'name': 'NAME', 'date': 'AAAA-MM-DD', 'type': 'ALBUM'}}
         responses:
           204:  # No Content
             description: Release modified correctly
@@ -59,8 +65,9 @@ class UpdateRelease(Resource):
         data = _arg_parser_patch.parse_args()
 
         user_id = security.get_jwt_identity()
-        release_id = data['release_id']
         name = data['name']
+        date = data['date']
+        type = data['type']
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
@@ -76,25 +83,24 @@ class UpdateRelease(Resource):
 
         if name is not None:
             db.change_name_release(release_id, name)
+        if date is not None:
+            db.change_date_release(release_id, date)
+        if type is not None:
+            db.change_type_release(release_id, type)
 
         return None, HTTPStatus.NO_CONTENT
 
-    def delete(self):
+    def delete(self, release_id):
         """Delete a release
         ---
         tags: [misc]
-        requestBody:
-          description: Delete a release
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  release_id: {type: string, description: The release id}
-                required: [release_id]
-              examples:
-                0: {summary: 'Delete a release', value: {'release_id': 'RELEASE_ID'}}
+        parameters:
+          - in: path
+            name: release_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the release to delete
         responses:
           204:  # No Content
             description: Release deleted correctly
@@ -112,10 +118,7 @@ class UpdateRelease(Resource):
               application/json:
                 example: {'message': 'Release not found'}
         """
-        data = _arg_parser_delete.parse_args()
-
         user_id = security.get_jwt_identity()
-        release_id = data['release_id']
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST

@@ -12,35 +12,37 @@ from common.database.contracts import artist_contract as c
 api = Api(api_blueprint)
 
 _arg_parser_patch = RequestParser()\
-    .add_argument('song_id', required=True)\
     .add_argument('title')\
     .add_argument('lyrics')
-_arg_parser_delete = RequestParser()\
-    .add_argument('song_id', required=True)
 
 
-@api.resource('/song')
+@api.resource('/song/<song_id>')
 class UpdateSong(Resource):
     method_decorators = [security.jwt_required]
 
-    def patch(self):
+    def patch(self, song_id):
         """Update song data
         ---
         tags: [misc]
+        parameters:
+          - in: path
+            name: song_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the song to update
         requestBody:
-          description: Updaye song data
+          description: Update song data
           required: true
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  song_id: {type: string, description: The song id}
                   title: {type: string, description: The song title}
                   lyrics: {type: string, description: The song lyrics}
-                required: [song_id]
               examples:
-                0: {summary: 'Modify song', value: {'song_id': 'SONG_ID', 'title': 'TITLE', 'lyrics': 'LYRICS'}}
+                0: {summary: 'Modify song', value: {'title': 'TITLE', 'lyrics': 'LYRICS'}}
         responses:
           204:  # No Content
             description: Song modified correctly
@@ -61,7 +63,6 @@ class UpdateSong(Resource):
         data = _arg_parser_patch.parse_args()
 
         user_id = security.get_jwt_identity()
-        song_id = data['song_id']
         title = data['title']
         lyrics = data['lyrics']
 
@@ -79,28 +80,22 @@ class UpdateSong(Resource):
 
         if title is not None:
             db.change_title(song_id, title)
-
         if lyrics is not None:
             db.update_lyrics(song_id, lyrics)
 
         return None, HTTPStatus.NO_CONTENT
 
-    def delete(self):
+    def delete(self, song_id):
         """Delete a song
         ---
         tags: [misc]
-        requestBody:
-          description: Delete a song
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  song_id: {type: string, description: The song id}
-                required: [song_id]
-              examples:
-                0: {summary: 'Delete a song', value: {'song_id': 'SONG_ID'}}
+        parameters:
+          - in: path
+            name: song_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the song to delete
         responses:
           204:  # No Content
             description: Song deleted correctly
@@ -118,10 +113,7 @@ class UpdateSong(Resource):
               application/json:
                 example: {'message': 'Song not found'}
         """
-        data = _arg_parser_delete.parse_args()
-
         user_id = security.get_jwt_identity()
-        song_id = data['song_id']
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
