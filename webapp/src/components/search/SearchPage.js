@@ -67,9 +67,11 @@ class SearchPage extends Component {
 
 const ResultGroup = ({name, type, results, elementView: ElView}) => {
   return results[type] && results[type].length > 0 && (
-    <div>
-      <h1>{name}</h1>
-      {results[type].map(item => <ElView key={item.id} content={item}/>)}
+    <div class={style.resultGroup}>
+      <h3>{name}</h3>
+      <div>
+        {results[type].map(item => <ElView key={item.id} content={item}/>)}
+      </div>
     </div>
   )
 }

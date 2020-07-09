@@ -17,7 +17,7 @@ _arg_parser_search = RequestParser()\
     .add_argument('c', type=int)
 
 
-_SEARCH_FIELDS_ARTIST = ['id', 'name', 'image']
+_SEARCH_FIELDS_ARTIST = ['id', 'name', 'image', 'genres']
 _SEARCH_FIELDS_RELEASE = ['id', 'name', 'artist', 'cover']
 _SEARCH_FIELDS_SONG = ['id', 'title', 'artist', 'release']
 

@@ -51,7 +51,8 @@ def artist_projection_search_result():
     return {
         '_id': f'${c.ARTIST_ID}',
         'name': f'${c.ARTIST_NAME}',
-        'image': f'${c.ARTIST_IMAGE}'
+        'image': f'${c.ARTIST_IMAGE}',
+        'genres': f'${c.ARTIST_GENRES}'
     }
 
 
