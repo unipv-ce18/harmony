@@ -11,12 +11,12 @@ class PlaylistImage extends Component {
   }
 
   render() {
-    const images = this.props.playlist.images;
+    const images = this.props.images;
     const size = this.props.size;
     let divStyle;
     if (images.length === 2) divStyle = styles.twoimages;
     else if (images.length === 3) divStyle = styles.threeimages;
-    else if (images.length === 4) divStyle = styles.fourimages;
+    else if (images.length >= 4) divStyle = styles.fourimages;
     else divStyle = styles.singleimage;
 
     return (

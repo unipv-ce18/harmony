@@ -153,7 +153,9 @@ export function createPlaylist(name, token) {
 }
 
 export function updateSongInPlaylist(type_method, playlist_id, song_id, token) {
-  const data = {playlist_id, song_id};
+  let data;
+  if (type_method === 'PATCH') data = {playlist_id};
+  else data = {playlist_id, song_id};
   return fetch(API_USER_URL + 'playlist/update', {
     method: type_method,
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),

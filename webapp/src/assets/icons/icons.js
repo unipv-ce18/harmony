@@ -28,6 +28,11 @@ export const IconClose = (props) => <Icon mod={require('./close-24px.svg')} {...
 export const IconExpand = (props) => <Icon mod={require('./expand_more-24px.svg')} {...props}/>;
 export const IconCollapse = (props) => <Icon mod={require('./expand_less-24px.svg')} {...props}/>;
 
+// CollectionPage
+export const IconLockClose = (props) => <Icon mod={require('./lock-24px.svg')} {...props}/>;
+export const IconLockOpen = (props) => <Icon mod={require('./lock_open-24px.svg')} {...props}/>;
+
+
 // CollectionSongsTable
 export const IconMore = (props) => <Icon mod={require('./more_vert-24px.svg')} {...props}/>;
 export const IconStarEmpty = (props) => <Icon mod={require('./star_outline-24px.svg')} {...props}/>;

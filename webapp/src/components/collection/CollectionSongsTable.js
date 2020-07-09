@@ -9,7 +9,6 @@ import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconArrowRight, IconPau
 import IconButton from '../IconButton';
 import {route} from 'preact-router';
 import {createMediaItemInfo} from '../../core/links';
-import PlayerEvents from '../../player/PlayerEvents';
 
 const SONGS_TYPE = 'songs';
 const FIRST_MENU = 'first';
@@ -26,6 +25,7 @@ class CollectionSongsTable extends Component {
     this.state = {
       modalBox : {type:'', message:''},
       updated : true,
+      actualOrder: 'date',
       songPlayed : '5f0331e04a639de0cb76da8c'
     }
     this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
@@ -68,13 +68,16 @@ class CollectionSongsTable extends Component {
     }
 
   reorderList(type) {
-    if(type === 'date') this.setState({songs:[...this.props.collection.songs]});
-    this.setState( prevState => ({ songs: prevState.songs.sort((a, b) => {
+    let orderedList = [...this.state.songs];
+    if(type === this.state.actualOrder) orderedList.reverse();
+    else orderedList.sort((a, b) => {
       if(type === 'title') return this.compare(a.title, b.title);
       if(type === 'artist') return this.compare(a.artist.name, b.artist.name);
       if(type === 'release') return this.compare(a.release.name, b.release.name);
       if(type === 'length') return this.compare(a.length, b.length);
-    })}));
+    })
+    this.setState({songs : orderedList});
+    this.setState({actualOrder : type});
   }
 
   isUserOwner() {

@@ -63,7 +63,6 @@ class LibraryPage extends Component {
         <h1>LIBRARY</h1>
         {this.state.user &&
         <div>
-          {console.log(this.state.library)}
           <div className={styles.libraryMenues} onClick={this.changeState.bind(this, PLAYLISTS_TYPE)}>
             <IconButton size={20}
                         name={this.state[PLAYLISTS_TYPE] ? "Collapse Playlist" : "Expand Playlist"}

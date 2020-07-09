@@ -32,27 +32,12 @@
 .threeimages {
   div:first-of-type{
     clip-path: polygon(0 0, 100% 0, 100% 33%, 50% 50%, 0 33%);
-    img {
-      bottom: 50%;
-    }
   }
   div:nth-of-type(2){
     clip-path: polygon(0 33%, 50% 50%, 50% 100%, 0% 100%);
-    img {
-      top: 33%;
-      right: 16.5%;
-      height: 67%;
-      width: 67%;
-    }
   }
   div:last-of-type{
     clip-path: polygon(100% 33%, 50% 50%, 50% 100%, 100% 100%);
-    img {
-      top: 33%;
-      left: 16.5%;
-      height: 67%;
-      width: 67%;
-    }
   }
 }
 .fourimages {

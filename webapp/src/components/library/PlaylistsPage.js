@@ -84,7 +84,7 @@ class PlaylistsPage extends Component {
             Object.values(arrays).map(playlist =>
             <span>
               <a href='#' onClick={this.clickPlaylist.bind(this, playlist.id)}>
-                <PlaylistImage playlist={playlist} size={150}/>
+                <PlaylistImage images={playlist.images} size={150}/>
               </a>
               <p><a href='#' onClick={this.clickPlaylist.bind(this, playlist.id)}>{playlist.name}</a></p>
               {(type === 'others' || !this.isUserOwner()) &&
