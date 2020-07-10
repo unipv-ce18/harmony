@@ -6,67 +6,30 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
+from ._conversions import create_playlist_result
 from common.database.contracts import user_contract as uc
 from common.database.contracts import playlist_contract as c
 from common.database.codecs import playlist_from_document
 from ._conversions import create_song_result
 
 
-api = Api(api_blueprint, prefix='/user/playlist')
+api = Api(api_blueprint, prefix='/playlist')
 
-_arg_parser_create_playlist = RequestParser().add_argument('name', required=True)
-_arg_parser_update_playlist = RequestParser()\
-    .add_argument('playlist_id', required=True)\
+_arg_parser_create = RequestParser()\
+    .add_argument('name', required=True)
+
+_arg_parser_update = RequestParser()\
     .add_argument('song_id', required=True)
-_arg_parser_patch_playlist = RequestParser()\
-    .add_argument('playlist_id', required=True)
 
 
 @api.resource('')
-class CreatorPlaylist(Resource):
-    method_decorators = [security.jwt_required]
-
-    def get(self):
-        """Retrieve personal playlists
-        ---
-        tags: [user]
-        responses:
-          200:
-            description: Successful playlists retrieve
-            content:
-              application/json:
-                example: {
-
-                }
-          400:
-            description: User ID not valid
-            content:
-              application/json:
-                example: {'message': 'User ID not valid'}
-        """
-        user_id = security.get_jwt_identity()
-
-        if not ObjectId.is_valid(user_id):
-            return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
-
-        playlists = db.get_creator_playlists(user_id)
-        library = db.get_library(user_id).to_dict()
-
-        if playlists:
-            playlists = [playlist.to_dict() for playlist in playlists]
-            if library[uc.LIBRARY_PLAYLISTS] is not None:
-                return [playlist for playlist in playlists if playlist[c.PLAYLIST_REF_ID] in library[uc.LIBRARY_PLAYLISTS]], HTTPStatus.OK
-        return [], HTTPStatus.OK
-
-
-@api.resource('/create')
 class CreatePlaylist(Resource):
     method_decorators = [security.jwt_required]
 
     def post(self):
-        """Add a playlist to the user's library
+        """Create a playlist
         ---
-        tags: [user]
+        tags: [metadata]
         requestBody:
           description: Playlist to create
           required: true
@@ -91,7 +54,7 @@ class CreatePlaylist(Resource):
               application/json:
                 example: {'message': 'Failed to create new playlist'}
         """
-        data = _arg_parser_create_playlist.parse_args()
+        data = _arg_parser_create.parse_args()
 
         user_id = security.get_jwt_identity()
 
@@ -114,26 +77,63 @@ class CreatePlaylist(Resource):
         return {'message': 'Failed to create new playlist'}, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-@api.resource('/update')
+@api.resource('/<playlist_id>')
 class UpdatePlaylist(Resource):
     method_decorators = [security.jwt_required]
 
-    def patch(self):
+    def get(self, playlist_id):
+        """Retrieve a playlist
+        ---
+        tags: [metadata]
+        parameters:
+          - in: path
+            name: playlist_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the playlist to fetch
+        responses:
+          200:
+            description: Successful playlist retrieve
+            content:
+              application/json:
+                example: {
+                  'id': 'PLAYLIST ID',
+                  'name': 'PLAYLIST NAME',
+                  'creator': {
+                    'id': 'PLAYLIST_CREATOR_ID',
+                    'username': 'PLAYLIST_CREATOR_USERNAME'
+                  },
+                  'songs': ['PLAYLIST SONGS']
+                }
+          400:
+            $ref: '#components/responses/InvalidId'
+          404:
+            description: Playlist not found
+            content:
+              application/json:
+                example: {'message': 'Playlist not found'}
+        """
+        if not ObjectId.is_valid(playlist_id):
+            return {'message': 'ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        playlist = db.get_playlist(playlist_id)
+
+        if playlist is None:
+            return {'message': 'Playlist not found'}, HTTPStatus.NOT_FOUND
+        return create_playlist_result(playlist, True), HTTPStatus.OK
+
+    def patch(self, playlist_id):
         """Modify playlist policy
         ---
-        tags: [user]
-        requestBody:
-          description: Modify the playlist policy
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  playlist_id: {type: string, description: The playlist id}
-                required: [playlist_id]
-              examples:
-                0: {summary: 'Modify policy', value: {'playlist_id': 'PLAYLIST_ID'}}
+        tags: [metadata]
+        parameters:
+          - in: path
+            name: playlist_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the playlist to modify the policy
         responses:
           204:  # No Content
             description: Policy modified correctly
@@ -148,10 +148,7 @@ class UpdatePlaylist(Resource):
           404:  # Not Found
             $ref: '#components/responses/LibraryUpdateNoUser'
         """
-        data = _arg_parser_patch_playlist.parse_args()
-
         user_id = security.get_jwt_identity()
-        playlist_id = data['playlist_id']
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
@@ -168,10 +165,17 @@ class UpdatePlaylist(Resource):
             return {'message': 'Playlist not found'}, HTTPStatus.NOT_FOUND
         return {'message': 'You are not authorized to modify this playlist'}, HTTPStatus.UNAUTHORIZED
 
-    def put(self):
+    def put(self, playlist_id):
         """Add a song to a playlist
         ---
-        tags: [user]
+        tags: [metadata]
+        parameters:
+          - in: path
+            name: playlist_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the playlist
         requestBody:
           description: Song to add to the playlist
           required: true
@@ -180,11 +184,10 @@ class UpdatePlaylist(Resource):
               schema:
                 type: object
                 properties:
-                  playlist_id: {type: string, description: The playlist id}
                   song_id: {type: string, description: The song id}
-                required: [playlist_id, song_id]
+                required: [song_id]
               examples:
-                0: {summary: 'Add song', value: {'playlist_id': 'PLAYLIST_ID', 'song_id': 'SONG ID'}}
+                0: {summary: 'Add song', value: {'song_id': 'SONG_ID'}}
         responses:
           204:  # No Content
             description: Item inserted correctly
@@ -204,12 +207,19 @@ class UpdatePlaylist(Resource):
           404:  # Not Found
             $ref: '#components/responses/LibraryUpdateNoUser'
         """
-        return self._update_op(db.add_song_to_playlist, False, 'Already present')
+        return self._update_op(playlist_id, db.add_song_to_playlist, False, 'Already present')
 
-    def delete(self):
+    def delete(self, playlist_id):
         """Remove a song from a playlist
         ---
-        tags: [user]
+        tags: [metadata]
+        parameters:
+          - in: path
+            name: playlist_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the playlist
         requestBody:
           description: Song to remove from the playlist
           required: true
@@ -218,11 +228,10 @@ class UpdatePlaylist(Resource):
               schema:
                 type: object
                 properties:
-                  playlist_id: {type: string, description: The playlist id}
                   song_id: {type: string, description: The song id}
                 required: [playlist_id, song_id]
               examples:
-                0: {summary: 'Remove song', value: {'playlist_id': 'PLAYLIST ID', 'song_id': 'SONG ID'}}
+                0: {summary: 'Remove song', value: {'song_id': 'SONG_ID'}}
         responses:
           204:  # No Content
             description: Item removed successfully
@@ -242,14 +251,13 @@ class UpdatePlaylist(Resource):
           404:  # Not Found
             $ref: '#components/responses/LibraryUpdateNoUser'
         """
-        return self._update_op(db.pull_song_from_playlist, True, 'Not present')
+        return self._update_op(playlist_id, db.pull_song_from_playlist, True, 'Not present')
 
     @staticmethod
-    def _update_op(operation, song_present, fail_msg):
-        data = _arg_parser_update_playlist.parse_args()
+    def _update_op(playlist_id, operation, song_present, fail_msg):
+        data = _arg_parser_update.parse_args()
 
         user_id = security.get_jwt_identity()
-        playlist_id = data['playlist_id']
         song_id = data['song_id']
 
         if not ObjectId.is_valid(user_id):

@@ -59,6 +59,43 @@ class GetUser(Resource):
         return user.to_dict(), HTTPStatus.OK
 
 
+@api.resource('/playlist')
+class CreatorPlaylist(Resource):
+    method_decorators = [security.jwt_required]
+
+    def get(self):
+        """Retrieve personal playlists
+        ---
+        tags: [user]
+        responses:
+          200:
+            description: Successful playlists retrieve
+            content:
+              application/json:
+                example: {
+
+                }
+          400:
+            description: User ID not valid
+            content:
+              application/json:
+                example: {'message': 'User ID not valid'}
+        """
+        user_id = security.get_jwt_identity()
+
+        if not ObjectId.is_valid(user_id):
+            return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        playlists = db.get_creator_playlists(user_id)
+        library = db.get_library(user_id).to_dict()
+
+        if playlists:
+            playlists = [playlist.to_dict() for playlist in playlists]
+            if library[uc.LIBRARY_PLAYLISTS] is not None:
+                return [playlist for playlist in playlists if playlist[c.PLAYLIST_REF_ID] in library[uc.LIBRARY_PLAYLISTS]], HTTPStatus.OK
+        return [], HTTPStatus.OK
+
+
 @api.resource('/bio')
 class UpdateUserBio(Resource):
     method_decorators = [security.jwt_required]

@@ -24,7 +24,7 @@ tags:
   - name: user
     description: User information, related content and preferences manipulation
   - name: metadata
-    description: Data about `artists`, `releases` and `songs`
+    description: Data about `artists`, `releases`, `songs` and `playlists`
   - name: misc
     description: Server health check and statistics
 
