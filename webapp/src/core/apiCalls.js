@@ -82,7 +82,9 @@ export function getUserInfo(token, user_id) {
 export function getReleasePlaylist(type_collection, collection_id, with_song, token) {
   // with_song == true includes the songs in the result
   let query;
-  type_collection==='release' ? query = API_RELEASE_URL + '/' + collection_id : query = API_PLAYLIST_URL + '/' + collection_id;
+  type_collection==='release'
+    ? query = API_RELEASE_URL + '/' + collection_id
+    : query = API_PLAYLIST_URL + '/' + collection_id;
   if (with_song) query += '?songs=1';
   return fetch(query, {
     method: 'GET',
@@ -142,7 +144,7 @@ export function getUserPlaylists(token) {
 
 export function createPlaylist(name, token) {
   const data = {name};
-  return fetch(API_USER_URL + 'playlist/create', {
+  return fetch(API_PLAYLIST_URL, {
     method: 'POST',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
     body: JSON.stringify(data)
@@ -154,9 +156,8 @@ export function createPlaylist(name, token) {
 
 export function updateSongInPlaylist(type_method, playlist_id, song_id, token) {
   let data;
-  if (type_method === 'PATCH') data = {playlist_id};
-  else data = {playlist_id, song_id};
-  return fetch(API_USER_URL + 'playlist/update', {
+  if (song_id !== null) data = {song_id};
+  return fetch(API_PLAYLIST_URL + '/' + playlist_id, {
     method: type_method,
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
     body: JSON.stringify(data)

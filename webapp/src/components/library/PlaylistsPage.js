@@ -50,7 +50,7 @@ class PlaylistsPage extends Component {
   newPlaylist(playlist_name) {
     catalog.createPlaylist(playlist_name)
       .then(playlist_id => {
-        const newPlaylist = {id: playlist_id, name: playlist_name, policiy: 'public'}
+        const newPlaylist = {id: playlist_id, name: playlist_name, policiy: 'public', images: []}
         let personalPlaylists = [...this.state.playlists['personal']];
         personalPlaylists.push(newPlaylist);
         this.setState({modalBox: {type: MODAL_BOX_SUCCESS, message: 'Playlist created successfully.'}})
