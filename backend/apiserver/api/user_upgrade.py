@@ -15,7 +15,7 @@ api = Api(api_blueprint, prefix='/user')
 class UpgradeType(Resource):
     method_decorators = [security.jwt_required]
 
-    def patch(self):
+    def post(self):
         """Upgrade to creator user
         ---
         tags: [user]
@@ -55,7 +55,7 @@ class UpgradeType(Resource):
 class UpgradeTier(Resource):
     method_decorators = [security.jwt_required]
 
-    def patch(self):
+    def post(self):
         """Upgrade to pro user
         ---
         tags: [user]

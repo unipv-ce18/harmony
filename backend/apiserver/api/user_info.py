@@ -12,7 +12,7 @@ from common.database.contracts import playlist_contract as c
 
 api = Api(api_blueprint, prefix='/user')
 
-_arg_parser_patch_bio = RequestParser()\
+_arg_parser_patch = RequestParser()\
     .add_argument('bio', required=True)
 
 
@@ -98,16 +98,16 @@ class CreatorPlaylist(Resource):
         return [], HTTPStatus.OK
 
 
-@api.resource('/bio')
+@api.resource('')
 class UpdateUserBio(Resource):
     method_decorators = [security.jwt_required]
 
     def patch(self):
-        """Update a user bio
+        """Update a user
         ---
         tags: [user]
         requestBody:
-          description: Modify the bio
+          description: Modify the user
           required: true
           content:
             application/json:
@@ -115,7 +115,6 @@ class UpdateUserBio(Resource):
                 type: object
                 properties:
                   bio: {type: string, description: The user bio}
-                required: [bio]
               examples:
                 0: {summary: 'Modify bio', value: {'bio': 'BIO'}}
         responses:
@@ -130,7 +129,7 @@ class UpdateUserBio(Resource):
               application/json:
                 example: {'message': 'User not found'}
         """
-        data = _arg_parser_patch_bio.parse_args()
+        data = _arg_parser_patch.parse_args()
 
         user_id = security.get_jwt_identity()
         bio = data['bio']
