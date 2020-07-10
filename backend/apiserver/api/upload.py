@@ -63,7 +63,6 @@ class UploadContent(Resource):
               application/json:
                 example: {'message': 'No authorized to upload this content'}
         """
-        # conf = config[os.environ.get('FLASK_CONFIG', 'development')]
         conf = current_app.config
         data = _arg_parser_content.parse_args()
 

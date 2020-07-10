@@ -1,8 +1,8 @@
 from http import HTTPStatus
-from fuzzywuzzy import fuzz
 
 from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
+from fuzzywuzzy import fuzz
 
 from . import api_blueprint, db
 from ._conversions import create_artist_result, create_release_result, create_song_result, create_playlist_result

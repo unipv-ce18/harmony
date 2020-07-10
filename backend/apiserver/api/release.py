@@ -19,7 +19,6 @@ _arg_parser_create = RequestParser()\
     .add_argument('date')\
     .add_argument('type')
 
-
 _arg_parser_get = RequestParser()\
     .add_argument('songs')
 
