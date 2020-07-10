@@ -6,6 +6,8 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
+from common.database.contracts import user_contract as uc
+from common.database.contracts import playlist_contract as c
 
 
 api = Api(api_blueprint, prefix='/user')
