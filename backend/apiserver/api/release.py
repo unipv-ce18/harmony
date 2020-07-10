@@ -94,7 +94,7 @@ class CreateRelease(Resource):
 
 
 @api.resource('/<release_id>')
-class GetRelease(Resource):
+class ReleaseOptions(Resource):
     method_decorators = [security.jwt_required]
 
     def get(self, release_id):
@@ -151,11 +151,6 @@ class GetRelease(Resource):
         if release is None:
             return {'message': 'Release not found'}, HTTPStatus.NOT_FOUND
         return create_release_result(release), HTTPStatus.OK
-
-
-@api.resource('/<release_id>')
-class UpdateRelease(Resource):
-    method_decorators = [security.jwt_required]
 
     def patch(self, release_id):
         """Update a release

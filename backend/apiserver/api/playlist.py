@@ -78,7 +78,7 @@ class CreatePlaylist(Resource):
 
 
 @api.resource('/<playlist_id>')
-class UpdatePlaylist(Resource):
+class PlaylistOptions(Resource):
     method_decorators = [security.jwt_required]
 
     def get(self, playlist_id):

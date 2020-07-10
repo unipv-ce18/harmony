@@ -81,7 +81,7 @@ class CreateArtist(Resource):
 
 
 @api.resource('/<artist_id>')
-class GetArtist(Resource):
+class ArtistOptions(Resource):
     method_decorators = [security.jwt_required]
 
     def get(self, artist_id):
@@ -147,11 +147,6 @@ class GetArtist(Resource):
         if artist is None:
             return {'message': 'No artist'}, HTTPStatus.NOT_FOUND
         return create_artist_result(artist), HTTPStatus.OK
-
-
-@api.resource('/<artist_id>')
-class UpdateArtist(Resource):
-    method_decorators = [security.jwt_required]
 
     def delete(self, artist_id):
         """Delete an artist
