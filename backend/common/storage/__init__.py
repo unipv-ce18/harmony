@@ -2,6 +2,11 @@ from ..backend_config import BackendConfig
 from .storage import Storage
 
 
+def _conf_value(config, key):
+    # To account for flask configuration in API being a dict
+    return config[key] if isinstance(config, dict) else getattr(config, key)
+
+
 def _make_public_bucket_policy(bucket_name):
     import json
     return json.dumps({
@@ -59,40 +64,39 @@ def _create_presigned_post_policy(bucket_name, content_id, mimetype, size):
     return post_policy
 
 
-def connect_storage(config: BackendConfig):
+def connect_storage(config):
     import minio
-    return minio.Minio(config.STORAGE_ENDPOINT,
-                       access_key=config.STORAGE_ACCESS_KEY,
-                       secret_key=config.STORAGE_SECRET_KEY,
-                       secure=config.STORAGE_USE_TLS)
+    return minio.Minio(_conf_value(config, 'STORAGE_ENDPOINT'),
+                       access_key=_conf_value(config, 'STORAGE_ACCESS_KEY'),
+                       secret_key=_conf_value(config, 'STORAGE_SECRET_KEY'),
+                       secure=_conf_value(config, 'STORAGE_USE_TLS'))
 
 
-def get_storage_interface(config: BackendConfig):
+def get_storage_interface(config):
     st = Storage(connect_storage(config))
 
-    if config.STORAGE_AUTO_CONFIGURE:
-        if not st.check_bucket_exist(config.STORAGE_BUCKET_REFERENCE):
-            st.create_bucket(config.STORAGE_BUCKET_REFERENCE)
-            st.minio_client.set_bucket_notification(config.STORAGE_BUCKET_REFERENCE,
-                                                    _make_bucket_notification(config.STORAGE_NOTIFICATION_ARN,
+    if _conf_value(config, 'STORAGE_AUTO_CONFIGURE'):
+        if not st.check_bucket_exist(_conf_value(config, 'STORAGE_BUCKET_REFERENCE')):
+            st.create_bucket(_conf_value(config, 'STORAGE_BUCKET_REFERENCE'))
+            st.minio_client.set_bucket_notification(_conf_value(config, 'STORAGE_BUCKET_REFERENCE'),
+                                                    _make_bucket_notification(_conf_value(config, 'STORAGE_NOTIFICATION_ARN'),
                                                                               ['s3:ObjectCreated:*']))
 
-        if not st.check_bucket_exist(config.STORAGE_BUCKET_TRANSCODED):
-            st.create_bucket(config.STORAGE_BUCKET_TRANSCODED)
-            st.minio_client.set_bucket_policy(config.STORAGE_BUCKET_TRANSCODED,
-                                              _make_public_bucket_policy(config.STORAGE_BUCKET_TRANSCODED))
+        if not st.check_bucket_exist(_conf_value(config, 'STORAGE_BUCKET_TRANSCODED')):
+            st.create_bucket(_conf_value(config, 'STORAGE_BUCKET_TRANSCODED'))
+            st.minio_client.set_bucket_policy(_conf_value(config, 'STORAGE_BUCKET_TRANSCODED'),
+                                              _make_public_bucket_policy(_conf_value(config, 'STORAGE_BUCKET_TRANSCODED')))
 
-        if not st.check_bucket_exist(config.STORAGE_BUCKET_IMAGES):
-            st.create_bucket(config.STORAGE_BUCKET_IMAGES)
-            st.minio_client.set_bucket_policy(config.STORAGE_BUCKET_IMAGES,
-                                              _make_public_bucket_policy(config.STORAGE_BUCKET_IMAGES))
+        if not st.check_bucket_exist(_conf_value(config, 'STORAGE_BUCKET_IMAGES')):
+            st.create_bucket(_conf_value(config, 'STORAGE_BUCKET_IMAGES'))
+            st.minio_client.set_bucket_policy(_conf_value(config, 'STORAGE_BUCKET_IMAGES'),
+                                              _make_public_bucket_policy(_conf_value(config, 'STORAGE_BUCKET_IMAGES')))
+            st.minio_client.set_bucket_notification(_conf_value(config, 'STORAGE_BUCKET_IMAGES'),
+                                                    _make_bucket_notification(
+                                                        _conf_value(config, 'STORAGE_NOTIFICATION_ARN'),
+                                                        ['s3:ObjectCreated:*']))
 
     return st
-
-
-def _conf_value(config, key):
-    # To account for flask configuration in API being a dict
-    return config[key] if isinstance(config, dict) else getattr(config, key)
 
 
 def get_storage_base_url(config):
@@ -100,11 +104,11 @@ def get_storage_base_url(config):
     return f"{scheme}://{_conf_value(config, 'STORAGE_ENDPOINT_PUBLIC')}/"
 
 
-def get_reference_songs_post_policy(config: BackendConfig, content_id, mimetype, size):
-    st = Storage(connect_storage(config))
-    return st.minio_client.presigned_post_policy(_create_presigned_post_policy(config.STORAGE_BUCKET_REFERENCE, content_id, mimetype, size))
+def get_reference_songs_post_policy(config, content_id, mimetype, size):
+    st = get_storage_interface(config)
+    return st.minio_client.presigned_post_policy(_create_presigned_post_policy(_conf_value(config, 'STORAGE_BUCKET_REFERENCE'), content_id, mimetype, size))
 
 
-def get_images_post_policy(config: BackendConfig, content_id, mimetype, size):
-    st = Storage(connect_storage(config))
-    return st.minio_client.presigned_post_policy(_create_presigned_post_policy(config.STORAGE_BUCKET_IMAGES, content_id, mimetype, size))
+def get_images_post_policy(config, content_id, mimetype, size):
+    st = get_storage_interface(config)
+    return st.minio_client.presigned_post_policy(_create_presigned_post_policy(_conf_value(config, 'STORAGE_BUCKET_IMAGES'), content_id, mimetype, size))

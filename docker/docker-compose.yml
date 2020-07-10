@@ -33,6 +33,7 @@ services:
       FLASK_CONFIG: development
       MONGO_URI: mongodb://mongodb:27017/harmony
       MESSAGING_HOST: rabbitmq
+      STORAGE_ENDPOINT: minio:9000
     depends_on:
       - mongodb
       - rabbitmq

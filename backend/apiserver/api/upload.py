@@ -2,12 +2,14 @@ import os
 from http import HTTPStatus
 
 from bson import ObjectId
+from flask import current_app
 from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
 import apiserver.config as config
+from common.database.contracts import artist_contract as c
 from common.storage import get_reference_songs_post_policy, get_images_post_policy
 
 
@@ -61,7 +63,8 @@ class UploadContent(Resource):
               application/json:
                 example: {'message': 'No authorized to upload this content'}
         """
-        conf = config[os.environ.get('FLASK_CONFIG', 'development')]
+        # conf = config[os.environ.get('FLASK_CONFIG', 'development')]
+        conf = current_app.config
         data = _arg_parser_content.parse_args()
 
         user_id = security.get_jwt_identity()
@@ -114,6 +117,5 @@ class UploadContent(Resource):
                 'url': get_reference_songs_post_policy(conf, content_id, mimetype, size)
             }
         }.get(content_type)
-        result['id'] = content_id
 
         return result, HTTPStatus.OK

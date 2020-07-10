@@ -5,6 +5,7 @@ from bson import ObjectId
 from common.model import Playlist
 from .contracts import playlist_contract as c
 from .codecs import playlist_from_document, playlist_to_document
+from .search_util import make_query_regex
 
 
 class PlaylistOpsMixin:
@@ -60,7 +61,7 @@ class PlaylistOpsMixin:
     def search_playlist(self, playlist_name: str, offset=0, limit=-1) -> List[Playlist]:
         """Searches for playlists by name and returns the results"""
         result = self.playlists.find({
-            c.PLAYLIST_NAME: {'$regex': f'{playlist_name}', '$options': '-i'},
+            c.PLAYLIST_NAME: {'$regex': make_query_regex(playlist_name), '$options': '-i'},
             c.PLAYLIST_POLICY: c.PLAYLIST_POLICY_PUBLIC
         }, {c.PLAYLIST_SONGS: 0}).skip(offset)
         if limit >= 0:

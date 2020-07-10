@@ -1,12 +1,12 @@
 from http import HTTPStatus
+from fuzzywuzzy import fuzz
 
 from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
-from ._conversions import create_artist_result, create_release_result, create_song_result
+from ._conversions import create_artist_result, create_release_result, create_song_result, create_playlist_result
 from ..util import security
-
 
 api = Api(api_blueprint)
 
@@ -20,6 +20,7 @@ _arg_parser_search = RequestParser()\
 _SEARCH_FIELDS_ARTIST = ['id', 'name', 'image']
 _SEARCH_FIELDS_RELEASE = ['id', 'name', 'artist', 'cover']
 _SEARCH_FIELDS_SONG = ['id', 'title', 'artist', 'release']
+_SEARCH_FIELDS_PLAYLIST = ['id', 'name', 'creator', 'images']
 
 
 @api.resource('/search')
@@ -85,15 +86,19 @@ class Search(Resource):
 
         result = {}
         if search_type in ['any', 'artists']:
-            result['artists'] = list(map(_to_artist_search_entry, db.search_artist(query, start, count)))
+            result['artists'] = sort_by_weights(list(map(_to_artist_search_entry,
+                                                         db.search_artist(query, start, count))), query, 'name')
         if search_type in ['any', 'releases']:
-            result['releases'] = list(map(_to_release_search_entry, db.search_release(query, start, count)))
+            result['releases'] = sort_by_weights(list(map(_to_release_search_entry,
+                                                          db.search_release(query, start, count))), query, 'name')
         if search_type in ['any', 'songs']:
-            result['songs'] = list(map(_to_song_search_entry, db.search_song(query, start, count)))
+            result['songs'] = sort_by_weights(list(map(_to_song_search_entry,
+                                                       db.search_song(query, start, count))), query, 'title')
         if search_type in ['any', 'playlists']:
-            result['playlists'] = list(map(lambda r: r.to_dict(), db.search_playlist(query, start, count)))
+            result['playlists'] = sort_by_weights(list(map(_to_playlist_search_entry,
+                                                           db.search_playlist(query, start, count))), query, 'name')
 
-        if len(result) == 0:
+        if not result:
             return {'message': f'Unknown search type: "{search_type}"'}, HTTPStatus.BAD_REQUEST
 
         return result, HTTPStatus.OK
@@ -103,9 +108,24 @@ def _to_artist_search_entry(artist):
     return {k: v for k, v in create_artist_result(artist).items() if k in _SEARCH_FIELDS_ARTIST}
 
 
+def _to_playlist_search_entry(playlist):
+    return {k: v for k, v in create_playlist_result(playlist).items() if k in _SEARCH_FIELDS_PLAYLIST}
+
+
 def _to_release_search_entry(release):
     return {k: v for k, v in create_release_result(release).items() if k in _SEARCH_FIELDS_RELEASE}
 
 
 def _to_song_search_entry(song):
     return {k: v for k, v in create_song_result(song).items() if k in _SEARCH_FIELDS_SONG}
+
+
+def sort_by_weights(results, query: str, key: str):
+    sorted_arr = []
+    for result in results:
+        ratio = fuzz.ratio(query.lower(), result[key].lower())
+        partial_ratio = fuzz.partial_ratio(query.lower(), result[key].lower())
+        weighted_avg = round(0.75*ratio + 0.25*partial_ratio, 2)
+        result['weight'] = weighted_avg
+        sorted_arr.append(result)
+    return sorted(sorted_arr, key=lambda obj: obj['weight'], reverse=True)

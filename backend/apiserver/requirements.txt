@@ -9,3 +9,5 @@ flasgger==0.9.4
 nose2==0.9.1
 PyJWT==1.7.1
 eventlet==0.25.1
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.12.0

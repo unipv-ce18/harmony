@@ -7,6 +7,7 @@ from .contracts import artist_contract as c
 from .codecs import song_from_document, song_to_document
 from .pipeline import make_pipeline
 from .projections import song_projection, song_projection_search_result
+from .search_util import make_query_regex
 
 
 _song_pipeline = make_pipeline(lambda match_params: [
@@ -69,7 +70,7 @@ class SongOpsMixin:
     def search_song(self, song_name: str, offset=0, limit=-1):
         """Searches for songs by name and returns the results"""
         result = self.artists.aggregate(_song_pipeline(
-            {c.INDEX_SONG_TITLE: {'$regex': f'{song_name}', '$options': '-i'}},
+            {c.INDEX_SONG_TITLE: {'$regex': make_query_regex(song_name), '$options': '-i'}},
             offset, limit, projection=song_projection_search_result()))
         return [song_from_document(res) for res in result]
 

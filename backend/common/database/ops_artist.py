@@ -6,6 +6,7 @@ from common.model import Artist
 from .contracts import artist_contract as c
 from .codecs import artist_from_document, artist_to_document
 from .projections import artist_projection, artist_projection_search_result
+from .search_util import make_query_regex
 
 
 class ArtistOpsMixin:
@@ -43,7 +44,7 @@ class ArtistOpsMixin:
     def search_artist(self, artist_name: str, offset=0, limit=-1) -> List[Artist]:
         """Searches for artists by name and returns the results"""
         result = self.artists.find(
-            {c.ARTIST_NAME: {'$regex': f'{artist_name}', '$options': '-i'}},
+            {c.ARTIST_NAME: {'$regex': make_query_regex(artist_name), '$options': '-i'}},
             artist_projection_search_result()
         ).skip(offset)
         if limit >= 0:

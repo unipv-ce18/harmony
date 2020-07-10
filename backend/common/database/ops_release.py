@@ -7,6 +7,7 @@ from .contracts import artist_contract as c
 from .codecs import release_to_document, release_from_document
 from .pipeline import make_pipeline
 from .projections import release_projection, release_projection_search_result
+from .search_util import make_query_regex
 
 
 _release_pipeline = make_pipeline(lambda match_params: [
@@ -66,7 +67,7 @@ class ReleaseOpsMixin:
     def search_release(self, release_name: str, offset=0, limit=-1) -> List[Release]:
         """Searches for releases by name and returns the results"""
         result = self.artists.aggregate(_release_pipeline(
-            {c.INDEX_RELEASE_NAME: {'$regex': f'{release_name}', '$options': '-i'}},
+            {c.INDEX_RELEASE_NAME: {'$regex': make_query_regex(release_name), '$options': '-i'}},
             offset, limit, projection=release_projection_search_result()))
         return [release_from_document(res) for res in result]
 
