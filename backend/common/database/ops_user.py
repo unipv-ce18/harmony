@@ -110,10 +110,10 @@ class UserOpsMixin:
             {'$set': {c.USER_AVATAR_URL: image_link}}
         ).matched_count
 
-    def update_user_bio(self, user_id, bio):
+    def update_user(self, user_id, patch):
         return bool(self.users.update_one(
             {c.USER_ID: ObjectId(user_id)},
-            {'$set': {c.USER_BIO: bio}}
+            {'$set': patch}
         ).matched_count)
 
     def remove_song_from_libraries(self, song_id):

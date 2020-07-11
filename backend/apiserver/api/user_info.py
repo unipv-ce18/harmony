@@ -13,11 +13,12 @@ from common.database.contracts import playlist_contract as c
 api = Api(api_blueprint, prefix='/user')
 
 _arg_parser_patch = RequestParser()\
-    .add_argument('bio', required=True)
+    .add_argument('bio')\
+    .add_argument('prefs', type=dict)
 
 
 @api.resource('/<user_id>')
-class GetUser(Resource):
+class UserOptions(Resource):
     method_decorators = [security.jwt_required]
 
     def get(self, user_id):
@@ -60,6 +61,72 @@ class GetUser(Resource):
             return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
         return user.to_dict(), HTTPStatus.OK
 
+    def patch(self, user_id):
+        """Update a user
+        ---
+        tags: [user]
+        parameters:
+          - in: path
+            name: user_id
+            schema:
+              type: string
+            required: true
+            description: The ID of the user or `me` for the currently logged in user
+            example: me
+        requestBody:
+          description: Modify the user
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bio: {type: string, description: The user bio}
+                  prefs: {type: dict, description: The user preferencies}
+              examples:
+                0: {summary: 'Modify user info', value: {'bio': 'BIO', 'prefs': {'private': {'email': true, 'name': false}}}}
+        responses:
+          204:  # No Content
+            description: User info modified correctly
+            content: {}
+          400:
+            $ref: '#components/responses/InvalidId'
+          401:
+            description: The user logged in is not authorized to modify this user info
+            content:
+              application/json:
+                example: {'message': 'No authorized to modify this user'}
+          404:
+            description: User not found
+            content:
+              application/json:
+                example: {'message': 'User not found'}
+        """
+        data = _arg_parser_patch.parse_args()
+
+        if user_id == 'me':
+            user_id = security.get_jwt_identity()
+
+        if user_id != security.get_jwt_identity():
+            return {'message': 'No authorized to modify this user'}, HTTPStatus.UNAUTHORIZED
+
+        bio = data['bio']
+        prefs = data['prefs']
+
+        if not ObjectId.is_valid(user_id):
+            return {'message': 'ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        patch_user = {}
+
+        if bio is not None:
+            patch_user[uc.USER_BIO] = bio
+        if prefs is not None:
+            patch_user[uc.USER_PREFS] = prefs
+
+        if db.update_user(user_id, patch_user):
+            return None, HTTPStatus.NO_CONTENT
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+
 
 @api.resource('/playlist')
 class CreatorPlaylist(Resource):
@@ -96,47 +163,3 @@ class CreatorPlaylist(Resource):
             if library[uc.LIBRARY_PLAYLISTS] is not None:
                 return [playlist for playlist in playlists if playlist[c.PLAYLIST_REF_ID] in library[uc.LIBRARY_PLAYLISTS]], HTTPStatus.OK
         return [], HTTPStatus.OK
-
-
-@api.resource('')
-class UpdateUserBio(Resource):
-    method_decorators = [security.jwt_required]
-
-    def patch(self):
-        """Update a user
-        ---
-        tags: [user]
-        requestBody:
-          description: Modify the user
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  bio: {type: string, description: The user bio}
-              examples:
-                0: {summary: 'Modify bio', value: {'bio': 'BIO'}}
-        responses:
-          204:  # No Content
-            description: Bio modified correctly
-            content: {}
-          400:
-            $ref: '#components/responses/InvalidId'
-          404:
-            description: User not found
-            content:
-              application/json:
-                example: {'message': 'User not found'}
-        """
-        data = _arg_parser_patch.parse_args()
-
-        user_id = security.get_jwt_identity()
-        bio = data['bio']
-
-        if not ObjectId.is_valid(user_id):
-            return {'message': 'ID not valid'}, HTTPStatus.BAD_REQUEST
-
-        if db.update_user_bio(user_id, bio):
-            return None, HTTPStatus.NO_CONTENT
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
