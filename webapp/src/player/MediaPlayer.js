@@ -76,14 +76,41 @@ export class MediaPlayer {
 
   #_instance = null;
 
+  #instanceLoadObservers = [];
+
   play(items, startMode) {
     this.fetchInstance()
       .then(inst => inst.play(items, startMode));
   }
 
+  pause() {
+    if(!this.instance) throw new Error('Instance not defined.');
+    this.instance.pause();
+  }
+
+  set #instance(instance) {
+    this.#_instance = instance;
+    this.#instanceLoadObservers.forEach(f => f(instance));
+  }
+
   get instance() {
     return this.#_instance;
   }
+
+  addInstanceLoadObserver(observer) {
+    this.#instanceLoadObservers.push(observer);
+    if (this.#_instance !== null) observer(this.instance);
+  }
+
+  removeInstanceLoadObserver(observer) {
+    const idx = this.#instanceLoadObservers.findIndex(f => f === observer);
+    if (idx !== -1)
+      this.#instanceLoadObservers.splice(idx, 1);
+    else
+      throw new Error('Observer not found');
+  }
+
+
 
   fetchInstance() {
     if (this.#_instance)
@@ -91,7 +118,7 @@ export class MediaPlayer {
 
     // This promise resolves when the player core is loaded and initialized (i.e. bound to the DOM)
     return import(/* webpackChunkName: "player" */ './MediaPlayerCore')
-      .then(m => (this.#_instance = new m.default()))
+      .then(m => (this.#instance = new m.default()))
       .then(playerInstance => {
         if (!this.playerInitializer)
           throw Error('Cannot initialize player, no initializer defined');

@@ -1,3 +1,4 @@
+import {route} from 'preact-router';
 import {Component} from 'preact';
 
 import {getReleasePlaylist} from "../../core/apiCalls";
@@ -6,15 +7,18 @@ import styles from './CollectionPage.scss';
 import CollectionSongsTable from './CollectionSongsTable';
 import ModalBox from './ModalBox';
 import IconButton from '../IconButton';
-import {IconLockClose, IconLockOpen, IconPause, IconPlay, IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
-import {route} from 'preact-router';
+import {
+  IconQueue,
+  IconStarEmpty,
+  IconStarFull
+} from '../../assets/icons/icons';
 import {createMediaItemInfo} from '../../core/links';
 import {MediaItemInfo, PlayStartModes} from '../../player/MediaPlayer';
-import PlaylistImage from './PlaylistImage';
 import ReleaseInfo from './ReleaseInfo';
 import PlaylistInfo from './PlaylistInfo';
 
 const MODALBOX_PLAYLIST_DELETE = 'modalbox_playlist_delete';
+const MODAL_BOX_SUCCESS = 'modalbox_success';
 
 class CollectionPage extends Component {
 
@@ -30,7 +34,7 @@ class CollectionPage extends Component {
       stateUpdated : true
     }
 
-    this.playRelease = this.playRelease.bind(this)
+    this.addSongsToQueue = this.addSongsToQueue.bind(this);
   }
 
   componentDidMount() {
@@ -94,15 +98,13 @@ class CollectionPage extends Component {
     return createMediaItemInfo(song);
   }
 
-  playRelease() {
+  addSongsToQueue() {
     let arrayMediaInfo = this.state.collection.songs.map(song => {
+      console.log(song.title);
       return this.createSong(song)});
-
-    mediaPlayer.play(arrayMediaInfo, PlayStartModes.APPEND_QUEUE_AND_PLAY);
-  }
-
-  playedSongInCollection() {
-    return this.state.collection.songs.map(song => {return song.id}).includes(this.state.songPlayed);
+    mediaPlayer.play(arrayMediaInfo, PlayStartModes.APPEND_QUEUE);
+    this.handleModalBox(MODAL_BOX_SUCCESS, 'Songs added to queue.');
+    setTimeout(()=>this.handleModalBox('', ''),2000)
   }
 
   render() {
@@ -126,11 +128,9 @@ class CollectionPage extends Component {
                 }
                 <IconButton
                   size={22}
-                  name={this.playedSongInCollection() ? "Pause" : "Play"}
-                  icon={this.playedSongInCollection() ? IconPause : IconPlay}
-                  onClick={this.playedSongInCollection()
-                    ? () => mediaPlayer.pause()
-                    : this.playRelease}/>
+                  name={"Add To Queue"}
+                  icon={IconQueue}
+                  onClick={this.addSongsToQueue}/>
               </div>
             <hr/>
             </div>

@@ -9,6 +9,8 @@ import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconArrowRight, IconPau
 import IconButton from '../IconButton';
 import {route} from 'preact-router';
 import {createMediaItemInfo} from '../../core/links';
+import PlayerEvents from '../../player/PlayerEvents';
+import PlayStates from '../../player/PlayStates';
 
 const SONGS_TYPE = 'songs';
 const FIRST_MENU = 'first';
@@ -25,11 +27,13 @@ class CollectionSongsTable extends Component {
     this.state = {
       modalBox : {type:'', message:''},
       updated : true,
-      actualOrder: 'date',
-      songPlayed : '5f0331e04a639de0cb76da8c'
+      actualOrder: 'date'
     }
     this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
     this.removeSongFromPlaylist = this.removeSongFromPlaylist.bind(this);
+    this.onPlayerAvailable = this.onPlayerAvailable.bind(this);
+    this.onPlayerChangeSong = this.onPlayerChangeSong.bind(this);
+    this.onPlayerChangeState = this.onPlayerChangeState.bind(this);
   }
 
   componentDidMount() {
@@ -40,6 +44,15 @@ class CollectionSongsTable extends Component {
           .then(result => this.setState({userPlaylists: result}))
           .catch( () => session.error = true);
       })
+    mediaPlayer.addInstanceLoadObserver(this.onPlayerAvailable);
+  }
+
+  componentWillUnmount() {
+    mediaPlayer.removeInstanceLoadObserver(this.onPlayerAvailable);
+    if (mediaPlayer.instance) {
+      mediaPlayer.instance.removeEventListener(PlayerEvents.NEW_MEDIA, this.onPlayerChangeSong);
+      mediaPlayer.instance.removeEventListener(PlayerEvents.STATE_CHANGE, this.onPlayerChangeState);
+    }
   }
 
   initialSongLikeState (element_id) {
@@ -141,18 +154,46 @@ class CollectionSongsTable extends Component {
      route('/release/' + release_id);
   }
 
-  playSong(song, start_mode) {
-    let mediaItemInfo;
-    this.props.isRelease
-      ? mediaItemInfo = new MediaItemInfo(song.id, {
-          [MediaItemInfo.TAG_TITLE]: song.title,
-          [MediaItemInfo.TAG_RELEASE]: this.props.collection.name,
-          [MediaItemInfo.TAG_ARTIST]: this.props.collection.artist.name,
-          [MediaItemInfo.TAG_ALBUMART_URL]: this.props.collection.cover
-        })
-      : mediaItemInfo = createMediaItemInfo(song);
+  createMediaInfo(song) {
+    if (this.props.isRelease)
+      return new MediaItemInfo(song.id, {
+        [MediaItemInfo.TAG_TITLE]: song.title,
+        [MediaItemInfo.TAG_RELEASE]: this.props.collection.name,
+        [MediaItemInfo.TAG_ARTIST]: this.props.collection.artist.name,
+        [MediaItemInfo.TAG_ALBUMART_URL]: this.props.collection.cover
+      });
+    return createMediaItemInfo(song);
+  }
 
-    mediaPlayer.play(mediaItemInfo, start_mode);
+  playSong(song) {
+    let songs = this.state.songs;
+    let arrayMediaInfo = this.state.songs
+      .slice(songs.indexOf(song), songs.length)
+      .map(song => this.createMediaInfo(song));
+      mediaPlayer.play(arrayMediaInfo, PlayStartModes.APPEND_QUEUE_AND_PLAY);
+  }
+
+  addToQueue(song) {
+      mediaPlayer.play(this.createMediaInfo(song), PlayStartModes.APPEND_QUEUE);
+      this.handleModalBox.bind(this, MODAL_BOX_SUCCESS, 'Song added to queue.');
+      setTimeout(()=>this.handleModalBox('', ''),2000)
+  }
+
+  onPlayerAvailable(playerInstance) {
+    playerInstance.addEventListener(PlayerEvents.NEW_MEDIA, this.onPlayerChangeSong);
+    playerInstance.addEventListener(PlayerEvents.STATE_CHANGE, this.onPlayerChangeState);
+    if(player.instance.currentMediaInfo) {
+      this.setState({songPlayed: player.instance.currentMediaInfo.id});
+      this.setState({playerState: player.instance.playbackState});
+    }
+  }
+
+  onPlayerChangeSong(e) {
+    this.setState({songPlayed: e.detail.id});
+  }
+
+  onPlayerChangeState(e) {
+    this.setState({playerState: e.detail.newState});
   }
 
   render() {
@@ -180,13 +221,20 @@ class CollectionSongsTable extends Component {
             {this.state.songs.map(element =>
               <tr onMouseLeave={this.handleMenu.bind(this, '')}>
                 <td className={this.state.songPlayed === element.id ? styles.visibleButtons : styles.hidenButtons}>
+                  {this.state.songPlayed === element.id && this.state.playerState === PlayStates.PLAYING ?
                   <IconButton
                     size={22}
-                    name={this.state.songPlayed === element.id ? "Pause" : "Play"}
-                    icon={this.state.songPlayed === element.id ? IconPause : IconPlay}
-                    onClick={this.state.songPlayed === element.id
-                      ? () => mediaPlayer.pause()
-                      : this.playSong.bind(this, element, PlayStartModes.APPEND_QUEUE_AND_PLAY)}/>
+                    name={"Pause"}
+                    icon={IconPause}
+                    onClick={() => mediaPlayer.pause()}/>
+                      :
+                  <IconButton
+                    size={22}
+                    name={"Play"}
+                    icon={IconPlay}
+                    onClick={this.state.songPlayed === element.id && this.state.playerState === PlayStates.PAUSED
+                      ? () => mediaPlayer.play()
+                      : this.playSong.bind(this, element, PlayStartModes.APPEND_QUEUE_AND_PLAY)}/>}
                 </td>
                 <td>
                   {this.state.updated && this.initialSongLikeState(element.id)
@@ -258,7 +306,7 @@ class CollectionSongsTable extends Component {
                             </a>}
                           <hr/>
                           {this.isUserOwner() &&
-                          <button onClick={this.playSong.bind(this, element, PlayStartModes.APPEND_QUEUE)}>
+                          <button onClick={this.addToQueue.bind(this, element)}>
                             Add To Queue
                           </button>}
                         </div>

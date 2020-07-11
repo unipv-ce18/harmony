@@ -60,7 +60,6 @@ class MediaPlayerCore extends EventTarget {
         this.#queueIndex = 0;
         this.#queue = items;
       } else {  // Append to current queue
-        this.#queueIndex = this.#queue.length;
         this.#queue = this.#queue.concat(items);
       }
     }

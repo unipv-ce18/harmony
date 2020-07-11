@@ -40,7 +40,7 @@
     > div:nth-of-type(2) {
       display: inline-block;
       vertical-align: middle;
-      margin-left: 50px;
+      min-width: 200px;
 
       p:nth-of-type(1) {
         font-size: 14px;
@@ -74,12 +74,8 @@
   }
 
   >div:last-of-type {
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 50px;
     >span {
-      display: block;
-      margin: 30px 0;
+      margin: 30px 20px 0 20px;
       padding: 3px 5px;
       cursor: pointer;
       background: transparent;
@@ -90,7 +86,7 @@
 
   hr {
     width: 95%;
-    margin-top: 100px;
+    margin-top: 70px;
     height: 1px;
     border-color: transparent;
     background: linear-gradient(to right,

@@ -31,6 +31,7 @@ export const IconCollapse = (props) => <Icon mod={require('./expand_less-24px.sv
 // CollectionPage
 export const IconLockClose = (props) => <Icon mod={require('./lock-24px.svg')} {...props}/>;
 export const IconLockOpen = (props) => <Icon mod={require('./lock_open-24px.svg')} {...props}/>;
+export const IconQueue = (props) => <Icon mod={require('./queue-24px.svg')} {...props}/>;
 
 
 // CollectionSongsTable
