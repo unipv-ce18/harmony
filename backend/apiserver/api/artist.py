@@ -25,6 +25,15 @@ _arg_parser_create = RequestParser()\
 _arg_parser_get = RequestParser()\
     .add_argument('releases')
 
+_arg_parser_patch = RequestParser()\
+    .add_argument('name')\
+    .add_argument('country')\
+    .add_argument('life_span', type=dict)\
+    .add_argument('genres', type=str, action='append')\
+    .add_argument('bio')\
+    .add_argument('members', type=dict, action='append')\
+    .add_argument('links', type=dict)
+
 
 @api.resource('')
 class CreateArtist(Resource):
@@ -42,7 +51,14 @@ class CreateArtist(Resource):
               schema:
                 type: object
                 properties:
-                  name: {type: string, description: Artist}
+                  name: {type: string, description: Artist name}
+                  country: {type: string, description: Artist country}
+                  life_span: {type: dict, description: Artist life span (begin - end)}
+                  genres: {type: list, description: Artist genres (list of string)}
+                  bio: {type: string, description: Artist bio}
+                  members: {type: list, description: Members (list of dict)}
+                  links: {type: dict, description: Artist social links}
+                required: [name]
               examples:
                 0: {summary: 'Artist', value: {'name': 'NAME', 'country': 'COUNTRY',
                                                'life_span': {'begin': 1994, 'end': None},
@@ -147,6 +163,100 @@ class ArtistOptions(Resource):
         if artist is None:
             return {'message': 'No artist'}, HTTPStatus.NOT_FOUND
         return create_artist_result(artist), HTTPStatus.OK
+
+    def patch(self, artist_id):
+        """Update an artist
+        ---
+        tags: [metadata]
+        parameters:
+          - in: path
+            name: artist_id
+            schema:
+              $ref: '#components/schemas/ObjectId'
+            required: true
+            description: ID of the artist to update
+        requestBody:
+          description: Update the artist
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name: {type: string, description: Artist name}
+                  country: {type: string, description: Artist country}
+                  life_span: {type: dict, description: Artist life span (begin - end)}
+                  genres: {type: list, description: Artist genres (list of string)}
+                  bio: {type: string, description: Artist bio}
+                  members: {type: list, description: Members (list of dict)}
+                  links: {type: dict, description: Artist social links}
+              examples:
+                0: {summary: 'Update the artist', value: {'name': 'NAME', 'country': 'COUNTRY',
+                                                          'life_span': {'begin': 1994, 'end': 2000},
+                                                          'genres': ['hey', 'eh'], 'bio': 'no eheh',
+                                                          'members': [{'name': 'tu', 'role': 'bass'}, {'name': 'you', 'role': 'drums'}],
+                                                          'links': {'website': 'http', 'instagram': 'http', 'facebook': 'http', 'twitter': 'http'}}
+                   }
+        responses:
+          204:  # No Content
+            description: Artist modified correctly
+            content: {}
+          400:
+            $ref: '#components/responses/InvalidId'
+          401:
+            description: The user logged in is not authorized to modify this artist
+            content:
+              application/json:
+                example: {'message': 'No authorized to modify this artist'}
+          404:
+            description: Artist not found
+            content:
+              application/json:
+                example: {'message': 'Artist not found'}
+        """
+        data = _arg_parser_patch.parse_args()
+
+        user_id = security.get_jwt_identity()
+        name = data['name']
+        country = data['country']
+        life_span = data['life_span']
+        genres = data['genres']
+        bio = data['bio']
+        members = data['members']
+        links = data['links']
+
+        if not ObjectId.is_valid(user_id):
+            return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        if not ObjectId.is_valid(artist_id):
+            return {'message': 'Artist ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        artist = db.get_artist(artist_id)
+        if artist is None:
+            return {'message': 'Artist not found'}, HTTPStatus.NOT_FOUND
+        if artist.creator != user_id:
+            return {'message': 'No authorized to modify this artist'}, HTTPStatus.UNAUTHORIZED
+
+        patch_artist = {}
+
+        if name is not None:
+            patch_artist[c.ARTIST_NAME] = name
+        if country is not None:
+            patch_artist[c.ARTIST_COUNTRY] = country
+        if life_span is not None:
+            patch_artist[c.ARTIST_LIFE_SPAN] = life_span
+        if genres is not None:
+            patch_artist[c.ARTIST_GENRES] = genres
+        if bio is not None:
+            patch_artist[c.ARTIST_BIO] = bio
+        if members is not None:
+            patch_artist[c.ARTIST_MEMBERS] = members
+        if links is not None:
+            patch_artist[c.ARTIST_LINKS] = links
+
+        db.update_artist(artist_id, patch_artist)
+
+        return None, HTTPStatus.NO_CONTENT
 
     def delete(self, artist_id):
         """Delete an artist

@@ -60,3 +60,9 @@ class ArtistOpsMixin:
             {c.ARTIST_ID: ObjectId(artist_id)},
             {'$set': {c.ARTIST_IMAGE: image_link}}
         ).matched_count
+
+    def update_artist(self, artist_id, patch):
+        return self.artists.update_one(
+            {c.ARTIST_ID: ObjectId(artist_id)},
+            {'$set': patch}
+        ).matched_count

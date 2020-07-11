@@ -84,20 +84,9 @@ class ReleaseOpsMixin:
             {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_COVER}': image_link}}
         ).matched_count
 
-    def change_name_release(self, release_id, name):
+    def update_release(self, release_id, patch):
+        patch = dict((f'{c.ARTIST_RELEASES}.$.{k}', v) for k, v in patch.items())
         return self.artists.update_one(
             {c.INDEX_RELEASE_ID: ObjectId(release_id)},
-            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_NAME}': name}}
-        ).matched_count
-
-    def change_date_release(self, release_id, date):
-        return self.artists.update_one(
-            {c.INDEX_RELEASE_ID: ObjectId(release_id)},
-            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_DATE}': date}}
-        ).matched_count
-
-    def change_type_release(self, release_id, type):
-        return self.artists.update_one(
-            {c.INDEX_RELEASE_ID: ObjectId(release_id)},
-            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_TYPE}': type}}
+            {'$set': patch}
         ).matched_count

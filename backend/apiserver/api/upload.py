@@ -117,8 +117,6 @@ class UploadContent(Resource):
             }
         }.get(content_type)
 
-        print(type(result['url']))
-
         url, params = result['url']
         url = url.replace(conf['STORAGE_ENDPOINT'], conf['STORAGE_ENDPOINT_PUBLIC'])
 

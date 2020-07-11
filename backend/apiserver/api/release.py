@@ -47,7 +47,7 @@ class CreateRelease(Resource):
                   artist_id: {type: string, description: ID of the artist where the release will be created}
                   name: {type: string, description: Name of the release}
                   date: {type: string, description: Date of the release (AAAA or AAAA-MM-DD)}
-                  type: {type: strng, description: Type of the release (album, live, ...)}
+                  type: {type: string, description: Type of the release (album - live - ...)}
                 required: [artist_id, name]
               examples:
                 0: {summary: 'Release', value: {'artist_id': 'ARTIST_ID', 'name': 'NAME', 'date': 'AAAA-MM-DD', 'type': 'TYPE'}}
@@ -211,12 +211,16 @@ class ReleaseOptions(Resource):
         if release.artist.get(c.ARTIST_REF_CREATOR) != user_id:
             return {'message': 'No authorized to modify this release'}, HTTPStatus.UNAUTHORIZED
 
+        patch_release = {}
+
         if name is not None:
-            db.change_name_release(release_id, name)
+            patch_release[c.RELEASE_NAME] = name
         if date is not None:
-            db.change_date_release(release_id, date)
+            patch_release[c.RELEASE_DATE] = date
         if type is not None:
-            db.change_type_release(release_id, type)
+            patch_release[c.RELEASE_TYPE] = type
+
+        db.update_release(release_id, patch_release)
 
         return None, HTTPStatus.NO_CONTENT
 

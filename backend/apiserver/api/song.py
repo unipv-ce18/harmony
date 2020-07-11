@@ -159,10 +159,14 @@ class UpdateSong(Resource):
         if song.artist.get(c.ARTIST_REF_CREATOR) != user_id:
             return {'message': 'No authorized to modify this song'}, HTTPStatus.UNAUTHORIZED
 
+        patch_song = {}
+
         if title is not None:
-            db.change_title(song_id, title)
+            patch_song[c.SONG_TITLE] = title
         if lyrics is not None:
-            db.update_lyrics(song_id, lyrics)
+            patch_song[c.SONG_LYRICS] = lyrics
+
+        db.update_song(song_id, patch_song)
 
         return None, HTTPStatus.NO_CONTENT
 

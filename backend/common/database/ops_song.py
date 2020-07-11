@@ -101,16 +101,10 @@ class SongOpsMixin:
         except StopIteration:
             raise ValueError('The given song_id does not exist')
 
-    def update_lyrics(self, song_id, lyrics):
+    def update_song(self, song_id, patch):
+        patch = dict((f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}.$[s].{k}', v) for k, v in patch.items())
         res = self.artists.update_one(
             {c.INDEX_SONG_ID: ObjectId(song_id)},
-            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}.$[s].{c.SONG_LYRICS}': lyrics}},
-            array_filters=[{f's.{c.SONG_ID}': ObjectId(song_id)}])
-        return res.matched_count == 1
-
-    def change_title(self, song_id, title):
-        res = self.artists.update_one(
-            {c.INDEX_SONG_ID: ObjectId(song_id)},
-            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}.$[s].{c.SONG_TITLE}': title}},
+            {'$set': patch},
             array_filters=[{f's.{c.SONG_ID}': ObjectId(song_id)}])
         return res.matched_count == 1
