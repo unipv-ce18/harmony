@@ -35,6 +35,10 @@ _arg_parser_patch = RequestParser()\
     .add_argument('links', type=dict)
 
 
+def create_sort_name(name):
+    return name
+
+
 @api.resource('')
 class CreateArtist(Resource):
     method_decorators = [security.jwt_required]
@@ -89,7 +93,7 @@ class CreateArtist(Resource):
             return {'message': 'You are not a creator'}, HTTPStatus.UNAUTHORIZED
 
         data[c.ARTIST_CREATOR] = user_id
-        data[c.ARTIST_SORT_NAME] = data['name']
+        data[c.ARTIST_SORT_NAME] = create_sort_name(data['name'])
 
         artist_id = db.put_artist(artist_from_document(data))
 

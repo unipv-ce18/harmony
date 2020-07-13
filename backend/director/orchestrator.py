@@ -1,5 +1,6 @@
 import logging
 import uuid
+import json
 
 import pika
 from pika.exceptions import ChannelClosedByBroker
@@ -21,6 +22,7 @@ class Orchestrator:
         self.db = db_interface
         self.worker_driver = worker_driver
         worker_driver.set_db(self.db)
+        self.counter = {}
 
         self.connection = None
         self.channel = None
@@ -77,23 +79,44 @@ class Orchestrator:
         so create a new transcoder worker.
 
         :param pika.adapters.blocking_connection.BlockingChannel ch: channel
-        :param bytes body: the body of the message, i.e. the id of the song to
-            transcode
+        :param bytes body: the body of the message
         """
-        song_id = body.decode('utf-8')
-        log.info('%s: Received transcode request', song_id)
+        message = json.loads(body.decode('utf-8'))
 
-        if not self.song_is_already_transcoded(song_id):
-            if not self.song_is_transcoding(song_id):
-                self.push_song_in_queue(song_id)
-                self.store_pending_song(song_id)
-                if self.consumers_less_than_pending_song():
-                    self.create_worker()
+        if message['type'] == 'transcode':
+            song_id = message['song_id']
+            log.info('%s: Received transcode request', song_id)
+
+            if not self.song_is_already_transcoded(song_id):
+                if not self.song_is_transcoding(song_id):
+                    self.push_song_in_queue(song_id)
+                    self.store_pending_song(song_id)
+                    if self.consumers_less_than_pending_song():
+                        self.create_worker()
+                else:
+                    log.debug('%s: Duplicate request, ignoring', song_id)
             else:
-                log.debug('%s: Duplicate request, ignoring', song_id)
-        else:
+                self.notify_api_server(song_id)
+                log.debug('%s: Already converted, notification sent', song_id)
+
+        if message['type'] == 'counter':
+            song_id = list(message.keys())[0]
+            song_update = {song_id: message[song_id]}
+
+            log.info('%s: Received update request', song_id)
+
+            if song_id in self.counter:
+                self.counter[song_id] += song_update[song_id]
+            else:
+                self.counter = {**self.counter, **song_update}
+
+            if len(self.counter) == director_config.UPDATE_COUNTER:
+                self.update_counters()
+                self.counter = {}
+                log.info('Updated counters inside database')
+
             self.notify_api_server(song_id)
-            log.debug('%s: Already converted, notification sent', song_id)
+            log.debug('%s: Notify update', song_id)
 
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -181,3 +204,11 @@ class Orchestrator:
         :rtype: bool
         """
         return True if self.db.get_song_representation_data(id) is not None else False
+
+    def update_counters(self):
+        for song_id, count in self.counter.items():
+            song = self.db.get_song(song_id)
+
+            self.db.update_song_counter(song_id, count)
+            self.db.update_release_counter(song.release['id'], count)
+            self.db.update_artist_counter(song.artist['id'], count)

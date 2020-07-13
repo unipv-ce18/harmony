@@ -40,6 +40,9 @@ class Artist:
     image: Optional[str]
     """Object storage ID for an image of this artist"""
 
+    counter: int
+    """Sum of the count of the number of plays of each song of the artist"""
+
     releases: Optional[List[Release]]
     """Releases for this artist"""
 

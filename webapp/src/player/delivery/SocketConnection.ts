@@ -40,7 +40,7 @@ export class SocketConnection {
     }
 
     fetchManifestUrl(songId: string): Promise<string> {
-        return this.sendRequest('play_song', {id: songId})
+        return this.sendRequest('play_song', {id: songId});
     }
 
     fetchMediaKey(songId: string, keyId: string): Promise<string> {
@@ -65,7 +65,7 @@ export class SocketConnection {
         return new Promise((resolve, reject) => {
             this.pendingRequests.get(body.id)?.reject();  // Cancel already running pending requests
 
-            this.pendingRequests.set(body.id, {resolve, reject})
+            this.pendingRequests.set(body.id, {resolve, reject});
             this.getSocket().then(socket => socket.emit(type, body));
         })
     }

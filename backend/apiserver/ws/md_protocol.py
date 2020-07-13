@@ -22,6 +22,10 @@ class MediaDeliveryProtocol:
         """Decodes a received "get_key" message """
         return message['id'], message['kid']
 
+    def recv_count_song(self, message):
+        """Decodes a received "count_song" message"""
+        return message['id']
+
     def send_manifest(self, song_id, manifest_path):
         """Sends a "manifest" message in response to "play_song"
 

@@ -12,6 +12,7 @@ ARTIST_BIO = 'bio'
 ARTIST_MEMBERS = 'members'
 ARTIST_LINKS = 'links'
 ARTIST_IMAGE = 'image'
+ARTIST_COUNTER = 'counter'
 ARTIST_RELEASES = 'releases'
 
 # Release sub-document fields
@@ -21,6 +22,7 @@ RELEASE_DATE = 'date'
 RELEASE_ARTIST_REF = 'artist'
 RELEASE_TYPE = 'type'
 RELEASE_COVER = 'cover'
+RELEASE_COUNTER = 'counter'
 RELEASE_SONGS = 'songs'
 
 # Song sub-document fields
@@ -30,6 +32,7 @@ SONG_ARTIST_REF = 'artist'
 SONG_RELEASE_REF = 'release'
 SONG_LENGTH = 'length'
 SONG_LYRICS = 'lyrics'
+SONG_COUNTER = 'counter'
 SONG_REPRESENTATION_DATA = 'repr_data'
 
 # Artist reference fields

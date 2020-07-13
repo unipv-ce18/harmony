@@ -25,6 +25,9 @@ class Release:
     cover: Optional[str]
     """Object storage ID for this release's cover art"""
 
+    counter: int
+    """Sum of the count of the number of plays of each song inside the release"""
+
     songs: Optional[List[Song]]
     """A list of songs for this release"""
 

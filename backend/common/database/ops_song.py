@@ -108,3 +108,10 @@ class SongOpsMixin:
             {'$set': patch},
             array_filters=[{f's.{c.SONG_ID}': ObjectId(song_id)}])
         return res.matched_count == 1
+
+    def update_song_counter(self, song_id, count):
+        res = self.artists.update_one(
+            {c.INDEX_SONG_ID: ObjectId(song_id)},
+            {'$inc': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}.$[s].{c.SONG_COUNTER}': count}},
+            array_filters=[{f's.{c.SONG_ID}': ObjectId(song_id)}])
+        return res.matched_count == 1

@@ -90,3 +90,9 @@ class ReleaseOpsMixin:
             {c.INDEX_RELEASE_ID: ObjectId(release_id)},
             {'$set': patch}
         ).matched_count
+
+    def update_release_counter(self, release_id, count):
+        return self.artists.update_one(
+            {c.INDEX_RELEASE_ID: ObjectId(release_id)},
+            {'$inc': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_COUNTER}': count}}
+        ).matched_count

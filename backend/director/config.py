@@ -12,6 +12,8 @@ class Config:
     TERMINATOR_IDLE_REMOVAL_CONTENTS = 1800       # On each run, remove uploads that stayed penidng for more than this (in seconds)
     TERMINATOR_POLLING_CYCLE = 300      # Amount of time between idle worker termination runs (in seconds)
 
+    UPDATE_COUNTER = 1000     # update the database after this value of new listening
+
     # --- Parameters for the 'docker' worker driver ---
 
     # Location of the controlling docker socket
@@ -30,7 +32,8 @@ class Config:
 
 
 class DevelopmentConfig(Config, BackendConfigDev):
-    pass
+    
+    UPDATE_COUNTER = 2
 
 
 class ProductionConfig(Config, BackendConfigProd):

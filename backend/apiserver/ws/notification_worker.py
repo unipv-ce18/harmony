@@ -1,6 +1,7 @@
 import logging
 import threading
 import uuid
+import json
 
 import pika
 
@@ -12,7 +13,7 @@ log = logging.getLogger(__name__)
 
 class NotificationWorker(threading.Thread):
 
-    def __init__(self, song_id, transcoder_client, callback_fn):
+    def __init__(self, message, transcoder_client, callback_fn=None):
         """Initialize Notification Worker.
 
         Each instance is a thread.
@@ -23,7 +24,8 @@ class NotificationWorker(threading.Thread):
         :param callback_fn: function to call when the notification is received
         """
         threading.Thread.__init__(self)
-        self.song_id = song_id
+        self.message = message
+        self.song_id = self.message['song_id'] if self.message['type'] == 'transcode' else list(self.message.keys())[0]
         self.transcoder_client = transcoder_client
         self.callback_fn = callback_fn
         self.consumer_tag = uuid.uuid4().hex
@@ -38,26 +40,26 @@ class NotificationWorker(threading.Thread):
             queue=self.transcoder_client.get_local_queue(),
             routing_key=self.song_id
         )
-        log.debug('Started notification worker for song (%s)', song_id)
+        log.debug('Started notification worker for song (%s)', self.song_id)
 
-        # Send transcode request
-        self.start_transcode_job(song_id)
-        log.debug('Song (%s): Enqueued for transcoding', song_id)
+        # Send message request
+        self.send_message(self.message)
+        log.debug('Song (%s): Enqueued for transcoding', self.song_id)
 
-    def start_transcode_job(self, song_id):
-        """Publishes a new transcoding job to the orchestrator queue
+    def send_message(self, message):
+        """Publishes a new job to the orchestrator queue
 
-        :param str song_id: ID of the song to transcode
+        :param dict message: message
         """
         self.channel.basic_publish(
             exchange=self.transcoder_client.config.MESSAGING_EXCHANGE_JOBS,
             routing_key='id',
-            body=song_id,
+            body=json.dumps(message),
             properties=pika.BasicProperties(
                 delivery_mode=2,
             )
         )
-        log.info('Sent job for song (%s)', song_id)
+        log.info('Sent job for song (%s)', self.song_id)
 
     def run(self):
         """Wait for the notification."""
@@ -80,5 +82,6 @@ class NotificationWorker(threading.Thread):
         """
         data = body.decode('utf-8')
         log.debug('Received notification: %s', data)
-        self.callback_fn(data)
+        if self.callback_fn is not None:
+            self.callback_fn(data)
         ch.basic_cancel(consumer_tag=self.consumer_tag)

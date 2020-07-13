@@ -16,6 +16,7 @@ _ARTIST_DOCUMENT_BINDINGS = {
     'members': c.ARTIST_MEMBERS,
     'links': c.ARTIST_LINKS,
     'image': c.ARTIST_IMAGE,
+    'counter': c.ARTIST_COUNTER,
     'releases': c.ARTIST_RELEASES
 }
 
@@ -26,6 +27,7 @@ _RELEASE_DOCUMENT_BINDINGS = {
     'artist': c.RELEASE_ARTIST_REF,
     'type': c.RELEASE_TYPE,
     'cover': c.RELEASE_COVER,
+    'counter': c.RELEASE_COUNTER,
     'songs': c.RELEASE_SONGS
 }
 
@@ -36,6 +38,7 @@ _SONG_DOCUMENT_BINDINGS = {
     'release': c.SONG_RELEASE_REF,
     'length': c.SONG_LENGTH,
     'lyrics': c.SONG_LYRICS,
+    'counter': c.SONG_COUNTER,
     'repr_data': c.SONG_REPRESENTATION_DATA
 }
 
@@ -106,6 +109,7 @@ def artist_to_document(artist: Artist, strip_unsafe=True) -> dict:
            for model_property, doc_field in _ARTIST_DOCUMENT_BINDINGS.items()
            if doc_field not in _UNSAFE_ARTIST_FIELDS}
     doc[c.ARTIST_CREATOR] = ObjectId(artist.creator) if artist.creator is not None else None
+    doc[c.ARTIST_COUNTER] = 0 if artist.counter is None else artist.counter
 
     if not strip_unsafe:
         doc[c.ARTIST_ID] = ObjectId(artist.id)
@@ -139,6 +143,7 @@ def release_to_document(release: Release, strip_unsafe=True) -> dict:
     doc = {doc_field: getattr(release, model_property)
            for model_property, doc_field in _RELEASE_DOCUMENT_BINDINGS.items()
            if doc_field not in _UNSAFE_RELEASE_FIELDS}
+    doc[c.RELEASE_COUNTER] = 0 if release.counter is None else release.counter
 
     if not strip_unsafe:
         doc[c.RELEASE_ID] = ObjectId(release.id)
@@ -171,6 +176,7 @@ def song_to_document(song: Song, strip_unsafe=True) -> dict:
     doc = {doc_field: getattr(song, model_property)
            for model_property, doc_field in _SONG_DOCUMENT_BINDINGS.items()
            if doc_field not in _UNSAFE_SONG_FIELDS}
+    doc[c.SONG_COUNTER] = 0 if song.counter is None else song.counter
 
     if not strip_unsafe:
         doc[c.SONG_ID] = ObjectId(song.id)

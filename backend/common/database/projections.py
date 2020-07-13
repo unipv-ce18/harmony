@@ -38,7 +38,8 @@ def artist_projection(include_releases=False):
         c.ARTIST_BIO: f'${c.ARTIST_BIO}',
         c.ARTIST_MEMBERS: f'${c.ARTIST_MEMBERS}',
         c.ARTIST_LINKS: f'${c.ARTIST_LINKS}',
-        c.ARTIST_IMAGE: f'${c.ARTIST_IMAGE}'
+        c.ARTIST_IMAGE: f'${c.ARTIST_IMAGE}',
+        c.ARTIST_COUNTER: f'${c.ARTIST_COUNTER}'
     }
     if include_releases:
         projection.update(_prefix_projection(
@@ -61,7 +62,8 @@ def release_projection(include_ref=True, include_songs=False):
         c.RELEASE_NAME: f'${c.ARTIST_RELEASES}.{c.RELEASE_NAME}',
         c.RELEASE_DATE: f'${c.ARTIST_RELEASES}.{c.RELEASE_DATE}',
         c.RELEASE_TYPE: f'${c.ARTIST_RELEASES}.{c.RELEASE_TYPE}',
-        c.RELEASE_COVER: f'${c.ARTIST_RELEASES}.{c.RELEASE_COVER}'
+        c.RELEASE_COVER: f'${c.ARTIST_RELEASES}.{c.RELEASE_COVER}',
+        c.RELEASE_COUNTER: f'${c.ARTIST_RELEASES}.{c.RELEASE_COUNTER}'
     }
     if include_songs:
         projection[c.RELEASE_SONGS] = {
@@ -90,6 +92,7 @@ def song_projection(include_ref=True, this_name=f'${c.ARTIST_RELEASES}.{c.RELEAS
         c.SONG_TITLE: f'{this_name}.{c.SONG_TITLE}',
         c.SONG_LENGTH: f'{this_name}.{c.SONG_LENGTH}',
         c.SONG_LYRICS: f'{this_name}.{c.SONG_LYRICS}',
+        c.SONG_COUNTER: f'{this_name}.{c.SONG_COUNTER}',
         c.SONG_REPRESENTATION_DATA: f'{this_name}.{c.SONG_REPRESENTATION_DATA}',
     }
     if include_ref:

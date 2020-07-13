@@ -52,7 +52,7 @@ class PlaybackNamespace(Namespace):
             log.debug('Song (%s): Sent manifest', song_id)
         else:
             # Start async task to transcode and wait for notification
-            td = NotificationWorker(song_id, self.transcoder_client, self._transcode_complete_callback)
+            td = NotificationWorker({'song_id': song_id, 'type': 'transcode'}, self.transcoder_client, self._transcode_complete_callback)
             td.start()
 
     def on_get_key(self, msg):
@@ -75,6 +75,18 @@ class PlaybackNamespace(Namespace):
 
         except RuntimeError as e:
             self.protocol.send_error(song_id, e.args[0])
+
+    def on_count_song(self, msg):
+        song_id = self.protocol.recv_count_song(msg)
+
+        try:
+            _ = self._fetch_representation_data(song_id)
+        except RuntimeError as e:
+            self.protocol.send_error(song_id, e.args[0])
+            return
+
+        td = NotificationWorker({song_id: 1, 'type': 'counter'}, self.transcoder_client)
+        td.start()
 
     def _fetch_representation_data(self, song_id):
         try:
