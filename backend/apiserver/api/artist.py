@@ -6,7 +6,7 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
-from ._conversions import create_artist_result
+from ._conversions import create_artist_result, create_sort_name
 from common.database.contracts import artist_contract as c
 from common.database.codecs import artist_from_document
 
@@ -33,10 +33,6 @@ _arg_parser_patch = RequestParser()\
     .add_argument('bio')\
     .add_argument('members', type=dict, action='append')\
     .add_argument('links', type=dict)
-
-
-def create_sort_name(name):
-    return name
 
 
 @api.resource('')
