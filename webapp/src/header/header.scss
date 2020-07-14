@@ -8,7 +8,7 @@ header {
   height: $navbar-height;
   background-color: rgba($application-background, .5);
 
-  div {
+  > div {
     padding: 0.2em;
     display: inline-block;
     width: 30%;
@@ -33,7 +33,7 @@ header {
   }
 }
 
-.leftBar{
+.leftBar {
   padding: 0.5em;
   vertical-align: top;
   ul {
@@ -51,5 +51,35 @@ header {
   li a {
     display: block;
     text-decoration: none;
+  }
+}
+
+.middle {
+  position: relative;
+
+  // Logo
+  > :nth-child(1) {
+    opacity: 0;
+  }
+
+  // Search bar
+  > :nth-child(2) {
+    transition-timing-function: cubic-bezier(.65,.05,.36,1);  // "cubic"
+  }
+
+  &:global(.on-home) {
+    > :nth-child(1) {
+      opacity: 1;
+    }
+    > :nth-child(2) {
+      transform: translateY(25vh);
+    }
+  }
+
+  > * {
+    position: absolute;
+    width: 100%;
+
+    transition: opacity $transition-len-ms, transform $transition-len-ms;
   }
 }

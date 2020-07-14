@@ -12,6 +12,8 @@ $text-color-link: #00ffe0;
 
 $transition-len: 400;
 $transition-len-ms: $transition-len + 0ms;
+$transition-len-short: 200;
+$transition-len-short-ms: $transition-len-short + 0ms;
 
 $panel-color: rgba(#fff, .9);
 $panel-color-test: rgba(27, 12, 19, 0.69);
