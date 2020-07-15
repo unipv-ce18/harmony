@@ -35,7 +35,7 @@ class SearchForm extends Component {
     return (
       <div class={style.main}>
         <div class={classList(style.hintFrame, !hintVisible && 'hidden')}>
-          <span>{`Search ${APP_NAME}...`}</span>
+          <span>{`Search for music...`}</span>
           <span>Start with an hyphen to trigger advanced search</span>
         </div>
         <ModInput ref={this.#input} modTypes={SEARCH_MODIFIERS}

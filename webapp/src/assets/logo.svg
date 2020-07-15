@@ -1,1 +1,155 @@
-<svg id="H" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 372.06 43.2"><defs><style>.cls-1{fill:#fff;}</style></defs><title>hlogo</title><path id="Hlet" class="cls-1" d="M49.92,20v42.6H46.86V42.24H20v20.4H16.92V20H20V39.48H46.86V20Z" transform="translate(-16.92 -19.74)"/><path id="Alet" class="cls-1" d="M86.4,20H89l18,42.6H103.8L88.05,23.76,71.58,62.64h-3.3Z" transform="translate(-16.92 -19.74)"/><path id="Rlet" class="cls-1" d="M143.52,43.74a7.75,7.75,0,0,0,3.72-.9,9.43,9.43,0,0,0,2.88-2.37A10.52,10.52,0,0,0,152,37.11a12.16,12.16,0,0,0,.63-3.87,10.56,10.56,0,0,0-.75-3.93,11,11,0,0,0-2-3.33,10.21,10.21,0,0,0-3-2.31,8,8,0,0,0-3.69-.87H128.58V62.64h-3.06V20h17.7a11,11,0,0,1,5,1.14,12.7,12.7,0,0,1,3.93,3,14.45,14.45,0,0,1,2.58,4.26,13,13,0,0,1,.93,4.77,14.41,14.41,0,0,1-.72,4.53,13.34,13.34,0,0,1-2,3.93,11.5,11.5,0,0,1-3.18,2.88,11.14,11.14,0,0,1-4.08,1.5l10.62,16.56H152.7L140.58,43.75Z" transform="translate(-16.92 -19.74)"/><path id="Mlet" class="cls-1" d="M215,62.64V25.8l-16.8,28.74h-1.92L179.52,25.8V62.64h-3.06V20h3.06l17.76,30.48L215,20h3.06v42.6Z" transform="translate(-16.92 -19.74)"/><path id="Olet" class="cls-1" d="M258.24,62.94a17.62,17.62,0,0,1-8.1-1.86,20.94,20.94,0,0,1-6.3-4.86,21.73,21.73,0,0,1-4.08-6.9,22.87,22.87,0,0,1-1.44-8,22.15,22.15,0,0,1,1.53-8.16,22.81,22.81,0,0,1,4.2-6.9,20.1,20.1,0,0,1,6.33-4.77,17.92,17.92,0,0,1,7.92-1.77,17.57,17.57,0,0,1,8.13,1.89,20.42,20.42,0,0,1,6.3,4.95,22.65,22.65,0,0,1,4,6.93,22.36,22.36,0,0,1-.08,16.05,22.42,22.42,0,0,1-4.2,6.87,20.32,20.32,0,0,1-6.33,4.74A18,18,0,0,1,258.24,62.94Zm-16.86-21.6a20.51,20.51,0,0,0,1.23,7,19,19,0,0,0,3.48,6,17.13,17.13,0,0,0,5.37,4.17,15,15,0,0,0,6.84,1.56,14.72,14.72,0,0,0,6.93-1.62,17,17,0,0,0,5.28-4.29,20.07,20.07,0,0,0,3.39-6,20.45,20.45,0,0,0,1.2-6.84,20.07,20.07,0,0,0-1.26-7.05,19.51,19.51,0,0,0-3.51-6A17.35,17.35,0,0,0,265,24.12a14.58,14.58,0,0,0-6.72-1.56,14.88,14.88,0,0,0-7,1.62A17.15,17.15,0,0,0,246,28.47a19.73,19.73,0,0,0-3.42,6A20.2,20.2,0,0,0,241.38,41.34Z" transform="translate(-16.92 -19.74)"/><path id="Nlet" class="cls-1" d="M301.49,25.8V62.64h-3.05V20h2.33l29.88,37.5V20h3.06v42.6h-2.82Z" transform="translate(-16.92 -19.74)"/><path id="Ylet" class="cls-1" d="M355.73,20l14.88,23.58L385.55,20H389l-16.8,26.52V62.64h-3.06V46.44L352.37,20Z" transform="translate(-16.92 -19.74)"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 0 392.06 44.06">
+  <defs>
+    <style>
+      @keyframes dash {
+        to { stroke-dashoffset: 0; }
+      }
+
+      #logo {
+        fill: none;
+        stroke: #000;
+        stroke-width: 3px;
+
+        /* Default logo has no animation */
+        stroke-dashoffset: 0;
+        stroke-miterlimit: 10;
+      }
+
+      .bevel { stroke-linejoin: bevel; }
+
+      #lgh1, #lgh2 {
+        stroke-dasharray: 43;
+        animation-delay: 1.7s;
+      }
+      #lgh3 {
+        stroke-dasharray: 30;
+        animation-delay: 2.0s;
+      }
+
+      #lga1 {
+        stroke-dasharray: 92;
+        animation-delay: 1.2s;
+        animation-duration: 1.2s;
+      }
+
+      #lgr1 {
+        stroke-dasharray: 115;
+        animation-delay: 0.2s;
+        animation-duration: 2.2s;
+      }
+
+      #lgm1 {
+        stroke-dasharray: 163;
+        animation-duration: 1.7s;
+      }
+
+      #lgo1 {
+        stroke-dasharray: 122;
+        animation-delay: 0.5s;
+        animation-duration: 3s;
+      }
+
+      #lgn1 {
+        stroke-dasharray: 135;
+        animation-delay: 1.2s;
+        animation-duration: 1.2s;
+      }
+
+      #lgy1 {
+        stroke-dasharray: 48;
+        animation-delay: 1.7s;
+      }
+      #lgy2 {
+        stroke-dasharray: 31;
+        animation-duration: .7s;
+        animation-delay: 2.0s;
+      }
+
+
+      /* --- Collapse related --- */
+
+      #lm { fill: #fff; stroke: none; }
+
+      #logo.ready .lg,
+      #logo.ready #lm > rect {
+        transform-origin: 47% 0;
+        transition: transform .6s;
+      }
+
+      #logo.collapse #lm > rect {
+        transform: scaleX(0);
+      }
+
+      #logo.collapse #lgh1,
+      #logo.collapse #lgh2,
+      #logo.collapse #lgh3 {
+        transform: translateX(145px);
+      }
+
+      #logo.collapse #lgy1,
+      #logo.collapse #lgy2 {
+        transform: translateX(-145px);
+      }
+
+
+      /* --- Animation related --- */
+
+      #logo.animate .lg {
+        animation: dash 1s ease-in-out forwards;
+      }
+
+      #logo.animate #lgh1 { stroke-dashoffset: 43; }
+      #logo.animate #lgh2 { stroke-dashoffset: -43; }
+      #logo.animate #lgh3 { stroke-dashoffset: 30; }
+
+      #logo.animate #lga1 { stroke-dashoffset: -92; }
+
+      #logo.animate #lgr1 { stroke-dashoffset: 115; }
+
+      #logo.animate #lgm1 { stroke-dashoffset: 163; }
+
+      #logo.animate #lgo1 { stroke-dashoffset: 122; }
+
+      #logo.animate #lgn1 { stroke-dashoffset: 135; }
+
+      #logo.animate #lgy1 { stroke-dashoffset: 48; }
+      #logo.animate #lgy2 { stroke-dashoffset: -31; }
+
+    </style>
+  </defs>
+  <!--
+  <g style="fill:#000; opacity: 0;">
+    <path d="M49.92,20v42.6H46.86V42.24H20v20.4H16.92V20H20V39.48H46.86V20Z" transform="translate(-16.92 -19.19)"/>
+    <path d="M86.4,20H89l18,42.6H103.8L87.69,23.79,71.58,62.64h-3.3Z" transform="translate(-16.92 -19.19)"/>
+    <path d="M143.52,43.74a7.75,7.75,0,0,0,3.72-.9,9.43,9.43,0,0,0,2.88-2.37A10.52,10.52,0,0,0,152,37.11a12.16,12.16,0,0,0,.63-3.87,10.56,10.56,0,0,0-.75-3.93,11,11,0,0,0-2-3.33,10.21,10.21,0,0,0-3-2.31,8,8,0,0,0-3.69-.87H128.58V62.64h-3.06V20h17.7a11,11,0,0,1,5,1.14,12.7,12.7,0,0,1,3.93,3,14.45,14.45,0,0,1,2.58,4.26,13,13,0,0,1,.93,4.77,14.41,14.41,0,0,1-.72,4.53,13.34,13.34,0,0,1-2,3.93,11.5,11.5,0,0,1-3.18,2.88,11.14,11.14,0,0,1-4.08,1.5l10.62,16.56H152.7L140.58,43.75Z" transform="translate(-16.92 -19.19)"/>
+    <path d="M215,62.64V25.8l-16.8,28.74h-1.92L179.52,25.8V62.64h-3.06V20h3.06l17.76,30.48L215,20h3.06v42.6Z" transform="translate(-16.92 -19.19)"/>
+    <path d="M258.24,62.94a17.62,17.62,0,0,1-8.1-1.86,20.94,20.94,0,0,1-6.3-4.86,21.73,21.73,0,0,1-4.08-6.9,22.87,22.87,0,0,1-1.44-8,22.15,22.15,0,0,1,1.53-8.16,22.81,22.81,0,0,1,4.2-6.9,20.1,20.1,0,0,1,6.33-4.77,17.92,17.92,0,0,1,7.92-1.77,17.57,17.57,0,0,1,8.13,1.89,20.42,20.42,0,0,1,6.3,4.95,22.65,22.65,0,0,1,4,6.93,22.36,22.36,0,0,1-.08,16.05,22.42,22.42,0,0,1-4.2,6.87,20.32,20.32,0,0,1-6.33,4.74A18,18,0,0,1,258.24,62.94Zm-16.86-21.6a20.51,20.51,0,0,0,1.23,7,19,19,0,0,0,3.48,6,17.13,17.13,0,0,0,5.37,4.17,15,15,0,0,0,6.84,1.56,14.72,14.72,0,0,0,6.93-1.62,17,17,0,0,0,5.28-4.29,20.07,20.07,0,0,0,3.39-6,20.45,20.45,0,0,0,1.2-6.84,20.07,20.07,0,0,0-1.26-7.05,19.51,19.51,0,0,0-3.51-6A17.35,17.35,0,0,0,265,24.12a14.58,14.58,0,0,0-6.72-1.56,14.88,14.88,0,0,0-7,1.62A17.15,17.15,0,0,0,246,28.47a19.73,19.73,0,0,0-3.42,6A20.2,20.2,0,0,0,241.38,41.34Z" transform="translate(-16.92 -19.19)"/>
+    <path d="M301.49,25.8V62.64h-3.05V20h2.33l29.88,37.5V20h3.06v42.6h-2.82Z" transform="translate(-16.92 -19.19)"/>
+    <path d="M355.73,20l14.88,23.58L385.55,20H389l-16.8,26.52V62.64h-3.06V46.44L352.37,20Z" transform="translate(-16.92 -19.19)"/>
+  </g>
+  -->
+
+  <g id="logo">
+    <line id="lgh1" class="lg" x1="1.51" y1="43.17" x2="1.51" y2="0.65"/>
+    <line id="lgh2" class="lg" x1="31.55" y1="43.17" x2="31.55" y2="0.65"/>
+    <line id="lgh3" class="lg" x1="1.51" y1="21.63" x2="31.27" y2="21.63"/>
+
+    <mask id="lm">
+      <rect x="40" y="0" width="290" height="45"/>
+    </mask>
+
+    <g mask="url(#lm)">
+      <polyline id="lga1" class="lg bevel" points="88.47 43.43 70.79 1.27 53.02 43.45"/>
+
+      <path id="lgr1" class="lg" d="M127,62.55V21.45h17S154.15,23,154,33.21s-7.36,11.93-10.78,12l11,17.24" transform="translate(-16.92 -19.19)"/>
+        
+      <polyline id="lgm1" class="lg bevel" points="161.1 43.39 161.1 0.8 180.32 34.55 199.66 0.8 199.66 43.39"/>
+        
+      <ellipse id="lgo1" class="lg" cx="241.34" cy="22.28" rx="18.43" ry="20.2"/>
+        
+      <polyline id="lgn1" class="lg bevel" points="282.95 43.47 283.14 2.38 315.3 42.71 315.3 0.87"/>
+    </g>
+    <polyline id="lgy1" class="lg" points="353.63 43.39 353.63 26.77 337.32 0.8"/>
+    <line id="lgy2" class="lg" x1="370.17" y1="0.95" x2="353.75" y2="26.89"/>
+  </g>
+</svg>
