@@ -56,6 +56,7 @@ class ArtistDatabaseTest(DatabaseTest):
             '_id': ObjectId(artist_id),
             'name': artist_in.name,
             'image': artist_in.image,
+            'genres': ['alternative rock', 'stoner rock', 'hard rock', 'alternative metal']
         })
         self.assertDictEqual(asdict(artist_search_result), asdict(search_results[0]),
                              'Artist search result should match search projection')
