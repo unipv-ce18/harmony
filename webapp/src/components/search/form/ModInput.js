@@ -52,7 +52,7 @@ class ModInput extends Component {
 
   handleChangeValue(event) {
     const {text, modifier} = this.#findModifier(event.target.value);
-    this.update({text, ...(modifier != null && {modifiers: [...this.state.modifiers, modifier]})});
+    this.#update({text, ...(modifier != null && {modifiers: [...this.state.modifiers, modifier]})});
   }
 
   handleKeyDown(e) {
@@ -62,7 +62,7 @@ class ModInput extends Component {
       case 'Backspace':
         // If no text or caret at start of input, remove last modifier in array
         if (text === '' || (this.inputRef.current.selectionStart === 0 && this.inputRef.current.selectionEnd === 0)) {
-          this.update({modifiers: modifiers.slice(0, -1)}, () => this.inputRef.current.focus());
+          this.#update({modifiers: modifiers.slice(0, -1)}, () => this.inputRef.current.focus());
           e.preventDefault();
         }
         break;
@@ -73,21 +73,21 @@ class ModInput extends Component {
     }
   }
 
-  update(state, callback) {
-    super.setState(state, () => {
-      this.props.onChange && this.props.onChange(this.state);
-      return callback && callback();
-    });
-  }
-
   removeModifier(id) {
     const modifiers = this.state.modifiers;
     modifiers.splice(modifiers.findIndex(m => m.id === id), 1);
-    this.update({modifiers}, () => this.inputRef.current.focus());
+    this.#update({modifiers}, () => this.inputRef.current.focus());
   }
 
   updateModifierValue(id, value) {
-    this.update({modifiers: this.state.modifiers.map(m => m.id === id ? {...m, value} : m)});
+    this.#update({modifiers: this.state.modifiers.map(m => m.id === id ? {...m, value} : m)});
+  }
+
+  /**
+   * Load this input state from external data
+   */
+  loadData({text, modifiers}) {
+    this.#update({text, modifiers: modifiers.map(m => ({...m, id: ++this.lastModId}))})
   }
 
   #findModifier(text) {
@@ -102,6 +102,13 @@ class ModInput extends Component {
     if (modType === undefined) return {text, modifier: null};  // No modifier for input sequence
 
     return {text: rest.join(' '), modifier: {key: modType.key, id: ++this.lastModId}};
+  }
+
+  #update(state, callback) {
+    super.setState(state, () => {
+      this.props.onChange && this.props.onChange(this.state);
+      return callback && callback();
+    });
   }
 
 }

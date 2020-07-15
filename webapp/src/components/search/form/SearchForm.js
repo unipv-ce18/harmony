@@ -1,11 +1,11 @@
-import {Component} from 'preact';
+import {Component, createRef} from 'preact';
 
 import ModInput, {MODIFIER_START_CHAR} from './ModInput';
 import {classList} from '../../../core/utils';
 import {SEARCH_MODIFIERS} from './filters';
 
 import style from './SearchForm.scss';
-import {isQueryEmpty, routeSearch} from '../queryParams';
+import {fromSearchUrlData, isQueryEmpty, routeSearch} from '../queryParams';
 
 const INPUT_SEARCH_DELAY = 500;
 
@@ -15,12 +15,20 @@ class SearchForm extends Component {
     hintVisible: true
   }
 
+  #input = createRef();
   #searchTimeout = null;
 
   constructor() {
     super();
     this.onInputChange = this.onInputChange.bind(this);
     this.onInputEnter = this.onInputEnter.bind(this);
+  }
+
+  componentDidMount() {
+    // Restore state from header if we landed on search page
+    const [_, search, query] = window.location.pathname.split('/', 3);
+    if (search === 'search')
+      this.#input.current.loadData(fromSearchUrlData(query));
   }
 
   render(_, {hintVisible}) {
@@ -30,7 +38,8 @@ class SearchForm extends Component {
           <span>{`Search ${APP_NAME}...`}</span>
           <span>Start with an hyphen to trigger advanced search</span>
         </div>
-        <ModInput modTypes={SEARCH_MODIFIERS} onChange={this.onInputChange} onEnter={this.onInputEnter}/>
+        <ModInput ref={this.#input} modTypes={SEARCH_MODIFIERS}
+                  onChange={this.onInputChange} onEnter={this.onInputEnter}/>
       </div>
     )
   }
