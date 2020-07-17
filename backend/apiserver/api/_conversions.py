@@ -25,19 +25,22 @@ def create_sort_name(name):
     suffixes = [suf for suf in _SUFFIXES if suf in name.split()]
     begin_word = name.split()[0].lower()
 
+    join_name = lambda name, limit : \
+        ''.join([f'{w} ' if (c < len(name) - limit) else f'{w}' for c, w in enumerate(name)])
+
     # check for suffixes in artist name
     if suffixes:
         name = name.split()
         for suf in suffixes:
             index = name.index(suf)
             name += [f', {name.pop(index)}']
-        name = ''.join([f'{w} ' if (c < len(name) - (len(suffixes) + 1)) else f'{w}' for c, w in enumerate(name)])
+        name = join_name(name, len(suffixes) + 1)
 
     # check if the artist name begins with an article
     if begin_word in _ARTICLES:
         name = name.split()
         name += [f', {name.pop(0)}']
-        name = ''.join([f'{w} ' if (c < len(name) - 2) else f'{w}' for c, w in enumerate(name)])
+        name = join_name(name, 2)
 
     # de-stylize the artist name
     name = name.split()
@@ -50,7 +53,7 @@ def create_sort_name(name):
                 name[c] = word
             if to_title:
                 name[c] = name[c].title()
-    name = ''.join([f'{w} ' if (c < len(name) - 1) else f'{w}' for c, w in enumerate(name)])
+    name = join_name(name, 1)
 
     return name
 
