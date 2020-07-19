@@ -70,6 +70,59 @@ class Orchestrator:
     def shutdown(self):
         self.channel.close()
 
+    def transcode_callback(self, ch, method, properties, message):
+        song_id = message['song_id']
+        log.info('%s: Received transcode request', song_id)
+
+        if not self.song_is_already_transcoded(song_id):
+            if not self.song_is_transcoding(song_id):
+                self.push_song_in_queue(message)
+                self.store_transcode_pending_song(song_id)
+                if self.consumers_less_than_pending_song():
+                    self.create_worker()
+            else:
+                log.debug('%s: Duplicate request, ignoring', song_id)
+        else:
+            self.notify_api_server(song_id)
+            log.debug('%s: Already converted, notification sent', song_id)
+
+    def change_pitch_callback(self, ch, method, properties, message):
+        song_id = message['song_id']
+        semitones = message['semitones']
+        output_format = message['output_format']
+        log.info('%s: Received change pitch request', song_id)
+
+        if not self.song_is_already_shifted(song_id, semitones, output_format):
+            if not self.song_is_shifting(song_id, semitones, output_format):
+                self.push_song_in_queue(message)
+                self.store_pitch_pending_song(song_id, semitones, output_format)
+                if self.consumers_less_than_pending_song():
+                    self.create_worker()
+            else:
+                log.debug('%s: Duplicate request, ignoring', song_id)
+        else:
+            self.notify_api_server(song_id)
+            log.debug('%s: Already converted, notification sent', song_id)
+
+    def counter_callback(self, ch, method, properties, message):
+        song_id = list(message.keys())[0]
+        song_update = {song_id: message[song_id]}
+
+        log.info('%s: Received update request', song_id)
+
+        if song_id in self.counter:
+            self.counter[song_id] += song_update[song_id]
+        else:
+            self.counter = {**self.counter, **song_update}
+
+        if len(self.counter) == director_config.UPDATE_COUNTER:
+            self.update_counters()
+            self.counter = {}
+            log.info('Updated counters inside database')
+
+        self.notify_api_server(song_id)
+        log.debug('%s: Notify update', song_id)
+
     def callback(self, ch, method, properties, body):
         """Callback function.
 
@@ -85,57 +138,13 @@ class Orchestrator:
         message = json.loads(body.decode('utf-8'))
 
         if message['type'] == jobs.TRANSCODE:
-            song_id = message['song_id']
-            log.info('%s: Received transcode request', song_id)
-
-            if not self.song_is_already_transcoded(song_id):
-                if not self.song_is_transcoding(song_id):
-                    self.push_song_in_queue(message)
-                    self.store_transcode_pending_song(song_id)
-                    if self.consumers_less_than_pending_song():
-                        self.create_worker()
-                else:
-                    log.debug('%s: Duplicate request, ignoring', song_id)
-            else:
-                self.notify_api_server(song_id)
-                log.debug('%s: Already converted, notification sent', song_id)
+            self.transcode_callback(ch, method, properties, message)
 
         if message['type'] == jobs.CHANGE_PITCH:
-            song_id = message['song_id']
-            semitones = message['semitones']
-            output_format = message['output_format']
-            log.info('%s: Received change pitch request', song_id)
-
-            if not self.song_is_already_shifted(song_id, semitones, output_format):
-                if not self.song_is_shifting(song_id, semitones, output_format):
-                    self.push_song_in_queue(message)
-                    self.store_pitch_pending_song(song_id, semitones, output_format)
-                    if self.consumers_less_than_pending_song():
-                        self.create_worker()
-                else:
-                    log.debug('%s: Duplicate request, ignoring', song_id)
-            else:
-                self.notify_api_server(song_id)
-                log.debug('%s: Already converted, notification sent', song_id)
+            self.change_pitch_callback(ch, method, properties, message)
 
         if message['type'] == jobs.COUNTER:
-            song_id = list(message.keys())[0]
-            song_update = {song_id: message[song_id]}
-
-            log.info('%s: Received update request', song_id)
-
-            if song_id in self.counter:
-                self.counter[song_id] += song_update[song_id]
-            else:
-                self.counter = {**self.counter, **song_update}
-
-            if len(self.counter) == director_config.UPDATE_COUNTER:
-                self.update_counters()
-                self.counter = {}
-                log.info('Updated counters inside database')
-
-            self.notify_api_server(song_id)
-            log.debug('%s: Notify update', song_id)
+            self.counter_callback(ch, method, properties, message)
 
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
