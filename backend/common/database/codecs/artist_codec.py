@@ -39,6 +39,7 @@ _SONG_DOCUMENT_BINDINGS = {
     'length': c.SONG_LENGTH,
     'lyrics': c.SONG_LYRICS,
     'counter': c.SONG_COUNTER,
+    'versions': c.SONG_VERSIONS,
     'repr_data': c.SONG_REPRESENTATION_DATA
 }
 
@@ -177,6 +178,7 @@ def song_to_document(song: Song, strip_unsafe=True) -> dict:
            for model_property, doc_field in _SONG_DOCUMENT_BINDINGS.items()
            if doc_field not in _UNSAFE_SONG_FIELDS}
     doc[c.SONG_COUNTER] = 0 if song.counter is None else song.counter
+    doc[c.SONG_VERSIONS] = [] if song.versions is None else song.versions
 
     if not strip_unsafe:
         doc[c.SONG_ID] = ObjectId(song.id)

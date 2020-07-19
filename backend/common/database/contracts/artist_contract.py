@@ -33,6 +33,7 @@ SONG_RELEASE_REF = 'release'
 SONG_LENGTH = 'length'
 SONG_LYRICS = 'lyrics'
 SONG_COUNTER = 'counter'
+SONG_VERSIONS = 'versions'
 SONG_REPRESENTATION_DATA = 'repr_data'
 
 # Artist reference fields

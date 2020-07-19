@@ -101,6 +101,14 @@ class SongOpsMixin:
         except StopIteration:
             raise ValueError('The given song_id does not exist')
 
+    def put_song_version_data(self, song_id: str, data: Any):
+        res = self.artists.update_one(
+            {c.INDEX_SONG_ID: ObjectId(song_id)},
+            {'$push': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}.$[s].{c.SONG_VERSIONS}': data}},
+            array_filters=[{f's.{c.SONG_ID}': ObjectId(song_id)}])
+        if res.matched_count != 1:
+            raise ValueError('The given song_id does not exist')
+
     def update_song(self, song_id, patch):
         patch = dict((f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}.$[s].{k}', v) for k, v in patch.items())
         res = self.artists.update_one(

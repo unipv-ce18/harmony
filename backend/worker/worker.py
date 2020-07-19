@@ -90,6 +90,13 @@ class Worker:
         self.change_pitch.complete_change_pitch(song_id, semitones, output_format)
         return song_id
 
+    def analysis_callback(self, ch, method, properties, message):
+        song_id = message['song_id']
+
+        self.db.bind_consumer_to_song(self.consumer_tag, song_id)
+
+        return song_id
+
     def callback(self, ch, method, properties, body):
         """Callback function.
 
@@ -106,6 +113,9 @@ class Worker:
 
         if message['type'] == jobs.CHANGE_PITCH:
             song_id = self.change_pitch_callback(ch, method, properties, message)
+
+        if message['type'] == jobs.ANALYSIS:
+            song_id = self.analysis_callback(ch, method, properties, message)
 
         ch.basic_publish(
             exchange=worker_config.MESSAGING_EXCHANGE_NOTIFICATION,

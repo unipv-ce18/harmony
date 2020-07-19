@@ -71,6 +71,7 @@ class Orchestrator:
         self.channel.close()
 
     def transcode_callback(self, ch, method, properties, message):
+        """Transcode callback."""
         song_id = message['song_id']
         log.info('%s: Received transcode request', song_id)
 
@@ -87,6 +88,7 @@ class Orchestrator:
             log.debug('%s: Already converted, notification sent', song_id)
 
     def change_pitch_callback(self, ch, method, properties, message):
+        """Change pitch callback."""
         song_id = message['song_id']
         semitones = message['semitones']
         output_format = message['output_format']
@@ -104,7 +106,12 @@ class Orchestrator:
             self.notify_api_server(song_id)
             log.debug('%s: Already converted, notification sent', song_id)
 
+    def analysis_callback(self, ch, method, properties, message):
+        """Analysis callback."""
+        pass
+
     def counter_callback(self, ch, method, properties, message):
+        """Counter callback."""
         song_id = list(message.keys())[0]
         song_update = {song_id: message[song_id]}
 
@@ -142,6 +149,9 @@ class Orchestrator:
 
         if message['type'] == jobs.CHANGE_PITCH:
             self.change_pitch_callback(ch, method, properties, message)
+
+        if message['type'] == jobs.ANALYSIS:
+            self.analysis_callback(ch, method, properties, message)
 
         if message['type'] == jobs.COUNTER:
             self.counter_callback(ch, method, properties, message)
@@ -225,6 +235,11 @@ class Orchestrator:
         :return: True if exist this changed pitch version of the song, False otherwise
         :rtype: bool
         """
+        song = self.db.get_song(song_id)
+        if song.versions is not None:
+            for v in song.versions:
+                if v['semitones'] == semitones and v['output_format'] == output_format:
+                    return True
         return False
 
     def song_is_shifting(self, song_id, semitones, output_format):

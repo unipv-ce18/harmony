@@ -120,6 +120,16 @@ class ChangePitch:
         """
         self.st.upload_file(worker_config.STORAGE_BUCKET_PITCH, f'{song_id}_{semitones}.{output_format}', f'{_tmp_folder}/{_tmp_subfolder}')
 
+    def upload_song_version_data(self, song_id, semitones, output_format):
+        """Upload version data of the song in the database.
+
+        :param str song_id: id of the song changed
+        :param float semitones: how many semitones the song has been shifted
+        :param str output_format: the extension of the ouput song
+        """
+        version_data = {'semitones': semitones, 'output_format': output_format}
+        self.db.put_song_version_data(song_id, version_data)
+
     def remove_pending_song(self, id):
         """Remove the id of the pending song in RabbitMQ queue from database.
 
@@ -155,6 +165,7 @@ class ChangePitch:
             try:
                 self.change_pitch(song_id, semitones)
                 output_format = self.transcode_to_output_format(song_id, semitones, output_format)
+                self.upload_song_version_data(song_id, semitones, output_format)
                 self.upload_files_to_storage_server(song_id, semitones, output_format)
 
                 log.info('%s: Changing pitch job finished', song_id)
