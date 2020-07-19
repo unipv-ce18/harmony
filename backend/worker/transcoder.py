@@ -91,8 +91,8 @@ class Transcoder:
         song = self.db.get_song(id)
         m = [
             f'title="{song.title}"',
-            f'artist="{song.artist.name}"',
-            f'album="{song.release.name}"'
+            f'artist="{song.artist.get("name")}"',
+            f'album="{song.release.get("name")}"'
         ]
         metadata = ''
         for i in range(len(m)):
@@ -269,7 +269,6 @@ class Transcoder:
         :param bool include_metadata: include metadata in the output song if True.
             The default value is False
         """
-
         log.info('%s: Transcoding job started', song_id)
 
         if self.download_song_from_storage_server(song_id):

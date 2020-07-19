@@ -91,7 +91,25 @@ class Orchestrator:
             if not self.song_is_already_transcoded(song_id):
                 if not self.song_is_transcoding(song_id):
                     self.push_song_in_queue(message)
-                    self.store_pending_song(song_id)
+                    self.store_transcode_pending_song(song_id)
+                    if self.consumers_less_than_pending_song():
+                        self.create_worker()
+                else:
+                    log.debug('%s: Duplicate request, ignoring', song_id)
+            else:
+                self.notify_api_server(song_id)
+                log.debug('%s: Already converted, notification sent', song_id)
+
+        if message['type'] == jobs.CHANGE_PITCH:
+            song_id = message['song_id']
+            semitones = message['semitones']
+            output_format = message['output_format']
+            log.info('%s: Received change pitch request', song_id)
+
+            if not self.song_is_already_shifted(song_id, semitones, output_format):
+                if not self.song_is_shifting(song_id, semitones, output_format):
+                    self.push_song_in_queue(message)
+                    self.store_pitch_pending_song(song_id, semitones, output_format)
                     if self.consumers_less_than_pending_song():
                         self.create_worker()
                 else:
@@ -150,14 +168,14 @@ class Orchestrator:
             )
         )
 
-    def store_pending_song(self, id):
+    def store_transcode_pending_song(self, id):
         """Store id of a song in transcoding in database.
 
         :param str id: id of the song
         """
         self.db.put_transcoder_pending_song(id)
 
-    def get_number_of_pending_song(self):
+    def get_number_of_transcode_pending_song(self):
         """Get the number of songs in transcoder queue.
 
         :return: number of pending songs
@@ -189,13 +207,53 @@ class Orchestrator:
         """
         return self.db.get_count_consumers_collection()
 
+    def song_is_already_shifted(self, song_id, semitones, output_format):
+        """Check if a song has already been shifted with the same features.
+
+        :param str song_id: id of the song
+        :param float semitones: semitones to shift
+        :param str output_format: the output format
+        :return: True if exist this changed pitch version of the song, False otherwise
+        :rtype: bool
+        """
+        return False
+
+    def song_is_shifting(self, song_id, semitones, output_format):
+        """Check if a song has been shifting with the same features.
+
+        :param str song_id: id of the song
+        :param float semitones: semitones to shift
+        :param str output_format: the output format
+        :return: True if this changed pitch version of the song is creating now, False otherwise
+        :rtype: bool
+        """
+        return self.db.song_is_changing_pitch(song_id, semitones, output_format)
+
+    def store_pitch_pending_song(self, song_id, semitones, output_format):
+        """Store id of a song changing the pitch in database.
+
+        :param str song_id: id of the song
+        :param float semitones: semitones to shift
+        :param str output_format: the output format
+        """
+        self.db.put_pitch_pending_song(song_id, semitones, output_format)
+
+    def get_number_of_pitch_pending_song(self):
+        """Get the number of songs in pitch queue.
+
+        :return: number of pending songs
+        :rtype: int
+        """
+        return self.db.get_count_pitch_collection()
+
     def consumers_less_than_pending_song(self):
         """Check if the consumers are less than the number of messages in queue.
 
         :return: True if consumers are less than messages, False otherwise
         :rtype: bool
         """
-        return self.get_number_of_consumers() < self.get_number_of_pending_song()
+        return self.get_number_of_consumers() < (self.get_number_of_transcode_pending_song()
+                                                 + self.get_number_of_pitch_pending_song())
 
     def song_is_already_transcoded(self, id):
         """Check if the song is already transcoded.

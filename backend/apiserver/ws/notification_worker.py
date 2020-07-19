@@ -6,6 +6,7 @@ import json
 import pika
 
 from common.messaging.amq_util import amq_connect_blocking
+import common.messaging.jobs as jobs
 
 
 log = logging.getLogger(__name__)
@@ -25,7 +26,7 @@ class NotificationWorker(threading.Thread):
         """
         threading.Thread.__init__(self)
         self.message = message
-        self.song_id = self.message['song_id'] if self.message['type'] == 'transcode' else list(self.message.keys())[0]
+        self.song_id = list(self.message.keys())[0] if self.message['type'] == jobs.COUNTER else self.message['song_id']
         self.transcoder_client = transcoder_client
         self.callback_fn = callback_fn
         self.consumer_tag = uuid.uuid4().hex

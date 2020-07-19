@@ -33,6 +33,7 @@ class BackendConfig:
     STORAGE_SECRET_KEY = os.environ.get('STORAGE_SECRET_KEY', 'kAeWXU3qV5vyofP3kTnyEmtp1BarIvE4CrQIF6wU')
     STORAGE_BUCKET_REFERENCE = 'lossless-songs'
     STORAGE_BUCKET_TRANSCODED = 'compressed-songs'
+    STORAGE_BUCKET_PITCH = 'pitch-songs'
     STORAGE_BUCKET_IMAGES = 'images'
 
     STORAGE_AUTO_CONFIGURE = False

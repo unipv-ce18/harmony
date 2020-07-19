@@ -87,6 +87,11 @@ def get_storage_interface(config):
             st.minio_client.set_bucket_policy(_conf_value(config, 'STORAGE_BUCKET_TRANSCODED'),
                                               _make_public_bucket_policy(_conf_value(config, 'STORAGE_BUCKET_TRANSCODED')))
 
+        if not st.check_bucket_exist(_conf_value(config, 'STORAGE_BUCKET_PITCH')):
+            st.create_bucket(_conf_value(config, 'STORAGE_BUCKET_PITCH'))
+            st.minio_client.set_bucket_policy(_conf_value(config, 'STORAGE_BUCKET_PITCH'),
+                                              _make_public_bucket_policy(_conf_value(config, 'STORAGE_BUCKET_PITCH')))
+
         if not st.check_bucket_exist(_conf_value(config, 'STORAGE_BUCKET_IMAGES')):
             st.create_bucket(_conf_value(config, 'STORAGE_BUCKET_IMAGES'))
             st.minio_client.set_bucket_policy(_conf_value(config, 'STORAGE_BUCKET_IMAGES'),
