@@ -41,7 +41,7 @@ class ChangePitch:
         :param float semitones: how many semitones the song has to be shifted
         """
         in_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}'
-        out_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}.wav'
+        out_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}_{semitones}.wav'
 
         song, samplerate = librosa.load(in_file, sr=None)
         song_shifted = librosa.effects.pitch_shift(song, samplerate, n_steps=semitones)
@@ -59,8 +59,8 @@ class ChangePitch:
         if output_format == 'wav':
             return 'wav'
 
-        in_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}.wav'
-        out_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}.{output_format}'
+        in_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}_{semitones}.wav'
+        out_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}_{semitones}.{output_format}'
 
         metadata = self.metadata(song_id)
 
@@ -118,7 +118,7 @@ class ChangePitch:
         :param float semitones: semitones
         :param str output_format: the extension of the song
         """
-        self.st.upload_file(worker_config.STORAGE_BUCKET_PITCH, f'{song_id}-{semitones}.{output_format}', f'{_tmp_folder}/{_tmp_subfolder}')
+        self.st.upload_file(worker_config.STORAGE_BUCKET_PITCH, f'{song_id}_{semitones}.{output_format}', f'{_tmp_folder}/{_tmp_subfolder}')
 
     def remove_pending_song(self, id):
         """Remove the id of the pending song in RabbitMQ queue from database.
@@ -135,8 +135,8 @@ class ChangePitch:
         :param str output_format: the extension of the ouput song
         """
         os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}')
-        os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}.wav')
-        os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}.{output_format}')
+        os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}_{semitones}.wav')
+        os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}_{semitones}.{output_format}')
 
     def complete_change_pitch(self, song_id, semitones, output_format):
         """Perform a complete changing pitch process on a song.
