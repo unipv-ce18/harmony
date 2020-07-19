@@ -8,6 +8,7 @@ from flask import request
 from .md_protocol import MediaDeliveryProtocol
 from .notification_worker import NotificationWorker
 from ..util import security
+import common.messaging.jobs as jobs
 
 
 log = logging.getLogger(__name__)
@@ -52,7 +53,7 @@ class PlaybackNamespace(Namespace):
             log.debug('Song (%s): Sent manifest', song_id)
         else:
             # Start async task to transcode and wait for notification
-            td = NotificationWorker({'song_id': song_id, 'type': 'transcode'}, self.transcoder_client, self._transcode_complete_callback)
+            td = NotificationWorker({'song_id': song_id, 'type': jobs.TRANSCODE}, self.transcoder_client, self._transcode_complete_callback)
             td.start()
 
     def on_get_key(self, msg):
@@ -85,7 +86,7 @@ class PlaybackNamespace(Namespace):
             self.protocol.send_error(song_id, e.args[0])
             return
 
-        td = NotificationWorker({song_id: 1, 'type': 'counter'}, self.transcoder_client)
+        td = NotificationWorker({song_id: 1, 'type': jobs.COUNTER}, self.transcoder_client)
         td.start()
 
     def _fetch_representation_data(self, song_id):

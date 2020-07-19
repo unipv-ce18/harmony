@@ -6,6 +6,7 @@ import pika
 from pika.exceptions import ChannelClosedByBroker
 
 from common.messaging.amq_util import amq_connect_blocking, amq_orchestrator_declaration
+import common.messaging.jobs as jobs
 from . import director_config
 
 
@@ -83,13 +84,13 @@ class Orchestrator:
         """
         message = json.loads(body.decode('utf-8'))
 
-        if message['type'] == 'transcode':
+        if message['type'] == jobs.TRANSCODE:
             song_id = message['song_id']
             log.info('%s: Received transcode request', song_id)
 
             if not self.song_is_already_transcoded(song_id):
                 if not self.song_is_transcoding(song_id):
-                    self.push_song_in_queue(song_id)
+                    self.push_song_in_queue(message)
                     self.store_pending_song(song_id)
                     if self.consumers_less_than_pending_song():
                         self.create_worker()
@@ -99,7 +100,7 @@ class Orchestrator:
                 self.notify_api_server(song_id)
                 log.debug('%s: Already converted, notification sent', song_id)
 
-        if message['type'] == 'counter':
+        if message['type'] == jobs.COUNTER:
             song_id = list(message.keys())[0]
             song_update = {song_id: message[song_id]}
 
@@ -120,7 +121,7 @@ class Orchestrator:
 
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    def push_song_in_queue(self, id):
+    def push_song_in_queue(self, message):
         """Publish song id to transcoder exchange.
 
         :param str id: id of the song
@@ -128,7 +129,7 @@ class Orchestrator:
         self.channel.basic_publish(
             exchange=director_config.MESSAGING_EXCHANGE_WORKER,
             routing_key='id',
-            body=id,
+            body=json.dumps(message),
             properties=pika.BasicProperties(
                 delivery_mode=2,
             )

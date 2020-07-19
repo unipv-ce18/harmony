@@ -10,12 +10,12 @@ RUN set -ex \
 
 COPY common /app/common
 
-# Layers for the transcoder-worker image
+# Layers for the worker image
 
 ENV PACKAGER_VERSION=2.4.2
 ENV AUDIOWAVEFORM_VERSION=1.4.2
 
-ENV service_package transcoder_worker
+ENV service_package worker
 COPY ${service_package}/requirements.txt /app/${service_package}/
 
 RUN set -ex \
@@ -51,4 +51,4 @@ WORKDIR /app
 # Put job files in tmpfs
 ENV WORK_DIR /dev/shm
 
-CMD ["python3", "-m", "transcoder_worker"]
+CMD ["python3", "-m", "worker"]

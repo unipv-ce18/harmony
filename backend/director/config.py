@@ -28,11 +28,11 @@ class Config:
     # --- Parameters for the 'process' worker driver ---
 
     # The python commandline to start the new process
-    PROCESS_COMMANDLINE = ['python3', '-m', 'transcoder_worker']
+    PROCESS_COMMANDLINE = ['python3', '-m', 'worker']
 
 
 class DevelopmentConfig(Config, BackendConfigDev):
-    
+
     UPDATE_COUNTER = 2
 
 

@@ -6,7 +6,7 @@ import hashlib
 
 from ffmpy import FFmpeg, FFExecutableNotFoundError, FFRuntimeError
 
-from . import transcoder_config
+from . import worker_config
 
 log = logging.getLogger(__name__)
 
@@ -18,9 +18,9 @@ def _create_key(id):
     return hash
 
 
-_bitrate = transcoder_config.VARIANTS_BITRATE
+_bitrate = worker_config.VARIANTS_BITRATE
 
-_tmp_folder = transcoder_config.WORK_DIR
+_tmp_folder = worker_config.WORK_DIR
 _tmp_subfolder = 'upload'
 
 
@@ -149,7 +149,7 @@ class Transcoder:
         manifest_name = 'manifest.mpd'
 
         command = [
-            transcoder_config.PACKAGER_PATH,
+            worker_config.PACKAGER_PATH,
             param(id, _bitrate[0]),
             param(id, _bitrate[1]),
             param(id, _bitrate[2]),
@@ -183,13 +183,13 @@ class Transcoder:
         waveform_name = 'waveform.dat'
 
         command = [
-            transcoder_config.AUDIOWAVEFORM_PATH,
+            worker_config.AUDIOWAVEFORM_PATH,
             '-i',
             f'{_tmp_folder}/{id}.flac',
             '-o',
             f'{waveform_path}/{waveform_name}',
             '-z',
-            str(transcoder_config.WAVEFORM_ZOOM),  # samples per pixel
+            str(worker_config.WAVEFORM_ZOOM),  # samples per pixel
             '-b',
             '8'     # bit
         ]
@@ -218,7 +218,7 @@ class Transcoder:
         :return: True if song is downloaded, False otherwise
         :rtype: bool
         """
-        result = self.st.download_file(transcoder_config.STORAGE_BUCKET_REFERENCE, song_id, _tmp_folder)
+        result = self.st.download_file(worker_config.STORAGE_BUCKET_REFERENCE, song_id, _tmp_folder)
         if result:
             os.rename(f'{_tmp_folder}/{song_id}', f'{_tmp_folder}/{song_id}.flac')
         return result
@@ -232,7 +232,7 @@ class Transcoder:
         :param str id: id of the transcoded song
         :param str extension: the extension of the transcoded song. The default is .webm
         """
-        self.st.upload_folder(transcoder_config.STORAGE_BUCKET_TRANSCODED, _tmp_folder, id)
+        self.st.upload_folder(worker_config.STORAGE_BUCKET_TRANSCODED, _tmp_folder, id)
 
     def remove_pending_song(self, id):
         """Remove the id of the pending song in RabbitMQ queue from database.

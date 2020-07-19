@@ -44,7 +44,7 @@ class DockerWorkerDriver(WorkerDriver):
             environ=[*self.environ_base, f'HARMONY_WORKER_ID={worker_tag}'],
             networks=[self.network_name],
             shm_size=1024,
-            container_name=f'harmony_transcoder-worker_{worker_tag}',
+            container_name=f'harmony_worker_{worker_tag}',
             auto_remove=True
         )
         return {'type': DRIVER_TYPE, 'container_id': container_id}

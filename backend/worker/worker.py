@@ -1,16 +1,18 @@
 import logging
+import json
 
 import pika
 
 from common.messaging.amq_util import amq_connect_blocking, amq_worker_declaration
-from . import transcoder_config
+import common.messaging.jobs as jobs
+from . import worker_config
 from .transcoder import Transcoder
 
 
 log = logging.getLogger(__name__)
 
 
-class TranscoderWorker:
+class Worker:
     def __init__(self, consumer_tag, db_interface, storage_interface):
         """Initialize Transcoder Worker.
 
@@ -25,12 +27,12 @@ class TranscoderWorker:
         self.transcoder = Transcoder(db_interface, storage_interface)
         self.db = db_interface
 
-        self.connection = amq_connect_blocking(transcoder_config)
+        self.connection = amq_connect_blocking(worker_config)
         self.channel = self.connection.channel()
         log.debug('Connected to RabbitMQ')
 
         # Create a jobs queue for this worker and bind it to the workers exchange
-        amq_worker_declaration(self.channel, transcoder_config)
+        amq_worker_declaration(self.channel, worker_config)
 
     def run(self):
         """Wait for song to transcode in transcoder queue.
@@ -41,7 +43,7 @@ class TranscoderWorker:
         self.channel.basic_qos(prefetch_count=1)
 
         self.channel.basic_consume(
-            queue=transcoder_config.MESSAGING_QUEUE_WORKER,
+            queue=worker_config.MESSAGING_QUEUE_WORKER,
             on_message_callback=self.callback,
             consumer_tag=self.consumer_tag
         )
@@ -73,25 +75,28 @@ class TranscoderWorker:
         to the notification exchange, and send an acknowledgment to RabbitMQ broker.
 
         :param pika.adapters.blocking_connection.BlockingChannel ch: channel
-        :param bytes body: the body of the message, i.e. the id of the song to
-            transcode
+        :param bytes body: the body of the message
         """
-        song_id = body.decode('utf-8')
-        log.debug('(%s) received (%s)', self.consumer_tag, song_id)
+        message = json.loads(body.decode('utf-8'))
 
-        # bind the consumer to the song to transcode
-        self.db.bind_consumer_to_song(self.consumer_tag, song_id)
+        if message['type'] == jobs.TRANSCODE:
+            song_id = message['song_id']
+            log.debug('(%s) received (%s)', self.consumer_tag, song_id)
 
-        self.transcoder.complete_transcode(song_id)
+            # bind the consumer to the song to transcode
+            self.db.bind_consumer_to_song(self.consumer_tag, song_id)
 
-        ch.basic_publish(
-            exchange=transcoder_config.MESSAGING_EXCHANGE_NOTIFICATION,
-            routing_key=song_id,
-            body=body,
-            properties=pika.BasicProperties(
-                delivery_mode=2,
+            self.transcoder.complete_transcode(song_id)
+
+            ch.basic_publish(
+                exchange=worker_config.MESSAGING_EXCHANGE_NOTIFICATION,
+                routing_key=song_id,
+                body=song_id,
+                properties=pika.BasicProperties(
+                    delivery_mode=2,
+                )
             )
-        )
-        # unbind the consumer from the transcoded song
-        self.db.unbind_consumer_from_song(self.consumer_tag)
+            # unbind the consumer from the transcoded song
+            self.db.unbind_consumer_from_song(self.consumer_tag)
+
         ch.basic_ack(delivery_tag=method.delivery_tag)

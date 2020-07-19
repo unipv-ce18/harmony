@@ -15,7 +15,7 @@ def _detect_driver():
         return 'docker'
 
     try:
-        import transcoder_worker
+        import worker
         return 'process'
     except ModuleNotFoundError:
         pass
