@@ -13,3 +13,5 @@ env/
 venv/
 
 packager-linux
+
+pretrained_models/

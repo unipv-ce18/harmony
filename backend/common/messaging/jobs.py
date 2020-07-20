@@ -2,6 +2,5 @@
 
 TRANSCODE = 'transcode'
 COUNTER = 'counter'
-CHANGE_PITCH = 'change_pitch'
+MODIFY_SONG = 'modify_song'
 ANALYSIS = 'analysis'
-SPLIT = 'split'

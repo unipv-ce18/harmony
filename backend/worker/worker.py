@@ -7,7 +7,7 @@ from common.messaging.amq_util import amq_connect_blocking, amq_worker_declarati
 import common.messaging.jobs as jobs
 from . import worker_config
 from .transcoder import Transcoder
-from .change_pitch import ChangePitch
+from .modify_song import ModifySong
 
 
 log = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class Worker:
         self.consumer_tag = consumer_tag
 
         self.transcoder = Transcoder(db_interface, storage_interface)
-        self.change_pitch = ChangePitch(db_interface, storage_interface)
+        self.modify_song = ModifySong(db_interface, storage_interface)
 
         self.db = db_interface
 
@@ -80,14 +80,15 @@ class Worker:
         self.transcoder.complete_transcode(song_id)
         return song_id
 
-    def change_pitch_callback(self, ch, method, properties, message):
+    def modify_song_callback(self, ch, method, properties, message):
         song_id = message['song_id']
         semitones = message['semitones']
         output_format = message['output_format']
-        log.debug('(%s) received (%s) for %s job', self.consumer_tag, song_id, jobs.CHANGE_PITCH)
+        split = message['split']
+        log.debug('(%s) received (%s) for %s job', self.consumer_tag, song_id, jobs.MODIFY_SONG)
 
         self.db.bind_consumer_to_song(self.consumer_tag, song_id)
-        self.change_pitch.complete_change_pitch(song_id, semitones, output_format)
+        self.modify_song.complete_modify_song(song_id, semitones, output_format, split)
         return song_id
 
     def analysis_callback(self, ch, method, properties, message):
@@ -111,8 +112,8 @@ class Worker:
         if message['type'] == jobs.TRANSCODE:
             song_id = self.transcode_callback(ch, method, properties, message)
 
-        if message['type'] == jobs.CHANGE_PITCH:
-            song_id = self.change_pitch_callback(ch, method, properties, message)
+        if message['type'] == jobs.MODIFY_SONG:
+            song_id = self.modify_song_callback(ch, method, properties, message)
 
         if message['type'] == jobs.ANALYSIS:
             song_id = self.analysis_callback(ch, method, properties, message)

@@ -8,7 +8,7 @@ class OrchestratorOpsMixin:
     def __init__(self, db_connection):
         super().__init__(db_connection)
         self.transcoder = db_connection['transcoder']
-        self.pitch = db_connection['pitch']
+        self.modified = db_connection['modified']
         self.consumers = db_connection['consumers']
 
     def put_transcoder_pending_song(self, song_id):
@@ -28,28 +28,30 @@ class OrchestratorOpsMixin:
     def get_count_transcoder_collection(self):
         return self.transcoder.count_documents({})
 
-    def put_pitch_pending_song(self, song_id, semitones, output_format):
-        self.pitch.insert_one({
+    def put_modified_pending_song(self, song_id, semitones, output_format, split):
+        self.modified.insert_one({
             '_id': ObjectId(song_id),
             'semitones': semitones,
             'output_format': output_format,
+            'split': split,
             'exp': datetime.utcnow()
         })
 
-    def remove_pitch_pending_song(self, song_id):
-        self.pitch.delete_one({
+    def remove_modified_pending_song(self, song_id):
+        self.modified.delete_one({
             '_id': ObjectId(song_id)
         })
 
-    def song_is_changing_pitch(self, song_id, semitones, output_format):
-        return bool(self.pitch.find_one({
+    def song_is_modifying(self, song_id, semitones, output_format, split):
+        return bool(self.modified.find_one({
             '_id': ObjectId(song_id),
             'semitones': semitones,
-            'output_format': output_format
+            'output_format': output_format,
+            'split': split
         }))
 
-    def get_count_pitch_collection(self):
-        return self.pitch.count_documents({})
+    def get_count_modified_collection(self):
+        return self.modified.count_documents({})
 
     def put_worker(self, consumer_tag, driver_handle):
         """Registers a worker in the database
