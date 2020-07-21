@@ -87,17 +87,18 @@ class Orchestrator:
             self.notify_api_server(song_id)
             log.debug('%s: Already converted, notification sent', song_id)
 
-    def change_pitch_callback(self, ch, method, properties, message):
-        """Change pitch callback."""
+    def modify_song_callback(self, ch, method, properties, message):
+        """Modify song callback."""
         song_id = message['song_id']
         semitones = message['semitones']
         output_format = message['output_format']
-        log.info('%s: Received change pitch request', song_id)
+        split = message['split']
+        log.info('%s: Received modify song request', song_id)
 
-        if not self.song_is_already_shifted(song_id, semitones, output_format):
-            if not self.song_is_shifting(song_id, semitones, output_format):
+        if not self.song_is_already_modified(song_id, semitones, output_format, split):
+            if not self.song_is_modifying(song_id, semitones, output_format, split):
                 self.push_song_in_queue(message)
-                self.store_pitch_pending_song(song_id, semitones, output_format)
+                self.store_modified_pending_song(song_id, semitones, output_format, split)
                 if self.consumers_less_than_pending_song():
                     self.create_worker()
             else:
@@ -147,8 +148,8 @@ class Orchestrator:
         if message['type'] == jobs.TRANSCODE:
             self.transcode_callback(ch, method, properties, message)
 
-        if message['type'] == jobs.CHANGE_PITCH:
-            self.change_pitch_callback(ch, method, properties, message)
+        if message['type'] == jobs.MODIFY_SONG:
+            self.modify_song_callback(ch, method, properties, message)
 
         if message['type'] == jobs.ANALYSIS:
             self.analysis_callback(ch, method, properties, message)
@@ -226,7 +227,7 @@ class Orchestrator:
         """
         return self.db.get_count_consumers_collection()
 
-    def song_is_already_shifted(self, song_id, semitones, output_format):
+    def song_is_already_modified(self, song_id, semitones, output_format, split):
         """Check if a song has already been shifted with the same features.
 
         :param str song_id: id of the song
@@ -238,37 +239,39 @@ class Orchestrator:
         song = self.db.get_song(song_id)
         if song.versions is not None:
             for v in song.versions:
-                if v['semitones'] == semitones and v['output_format'] == output_format:
+                if v['semitones'] == semitones and v['output_format'] == output_format and v['split'] == split:
                     return True
         return False
 
-    def song_is_shifting(self, song_id, semitones, output_format):
-        """Check if a song has been shifting with the same features.
+    def song_is_modifying(self, song_id, semitones, output_format, split):
+        """Check if a song has been modifying with the same features.
 
         :param str song_id: id of the song
         :param float semitones: semitones to shift
         :param str output_format: the output format
-        :return: True if this changed pitch version of the song is creating now, False otherwise
+        :param bool split: whether or not to split the song
+        :return: True if this version of the song is creating now, False otherwise
         :rtype: bool
         """
-        return self.db.song_is_changing_pitch(song_id, semitones, output_format)
+        return self.db.song_is_modifying(song_id, semitones, output_format, split)
 
-    def store_pitch_pending_song(self, song_id, semitones, output_format):
-        """Store id of a song changing the pitch in database.
+    def store_modified_pending_song(self, song_id, semitones, output_format, split):
+        """Store id of a song to modify in database.
 
         :param str song_id: id of the song
         :param float semitones: semitones to shift
         :param str output_format: the output format
+        :param bool split: whether or not to split the song
         """
-        self.db.put_pitch_pending_song(song_id, semitones, output_format)
+        self.db.put_modified_pending_song(song_id, semitones, output_format, split)
 
-    def get_number_of_pitch_pending_song(self):
-        """Get the number of songs in pitch queue.
+    def get_number_of_modified_pending_song(self):
+        """Get the number of songs in modified queue.
 
         :return: number of pending songs
         :rtype: int
         """
-        return self.db.get_count_pitch_collection()
+        return self.db.get_count_modified_collection()
 
     def consumers_less_than_pending_song(self):
         """Check if the consumers are less than the number of messages in queue.
@@ -277,7 +280,7 @@ class Orchestrator:
         :rtype: bool
         """
         return self.get_number_of_consumers() < (self.get_number_of_transcode_pending_song()
-                                                 + self.get_number_of_pitch_pending_song())
+                                                 + self.get_number_of_modified_pending_song())
 
     def song_is_already_transcoded(self, id):
         """Check if the song is already transcoded.

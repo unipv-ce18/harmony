@@ -2,3 +2,4 @@
 ffmpy==0.2.2
 librosa==0.7.2
 numba==0.48
+spleeter==1.5.4

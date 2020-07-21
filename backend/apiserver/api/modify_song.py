@@ -18,19 +18,20 @@ api = Api(api_blueprint)
 _arg_parser_pitch = RequestParser()\
     .add_argument('song_id', required=True)\
     .add_argument('semitones', type=float, required=True)\
-    .add_argument('output_format', required=True)
+    .add_argument('output_format', required=True)\
+    .add_argument('split', type=bool, required=True)
 
 
-@api.resource('/pitch')
-class Pitch(Resource):
+@api.resource('/modifySong')
+class ModifySong(Resource):
     method_decorators = [security.jwt_required]
 
     def post(self):
-        """Change the pitch of a song
+        """Modify a song
         ---
         tags: [misc]
         requestBody:
-          description: Song metadata to upload
+          description: Song features
           required: true
           content:
             application/json:
@@ -40,12 +41,13 @@ class Pitch(Resource):
                   song_id: {type: string, description: Song ID}
                   semitones: {type: float, description: Semitones to shift the song}
                   output_format: {type: string, description: Song output format}
-                required: [song_id, semitones, output_format]
+                  split: {type: bool, description: If split the song in two tracks}
+                required: [song_id, semitones, output_format, split]
               examples:
-                0: {summary: 'Song', value: {'song_id': 'SONG_ID', 'semitones': 1, 'output_format': 'mp3'}}
+                0: {summary: 'Song', value: {'song_id': 'SONG_ID', 'semitones': 1, 'output_format': 'mp3', 'split': true}}
         responses:
           200:
-            description: Song changed the pitch successfully
+            description: Song modified successfully
             content:
               application/json:
                 example: {'url': 'URL'}
@@ -71,6 +73,7 @@ class Pitch(Resource):
         song_id = data['song_id']
         semitones = data['semitones']
         output_format = data['output_format']
+        split = data['split']
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
@@ -89,16 +92,22 @@ class Pitch(Resource):
             'song_id': song_id,
             'semitones': semitones,
             'output_format': output_format,
-            'type': jobs.CHANGE_PITCH
+            'split': split,
+            'type': jobs.MODIFY_SONG
         }
 
         td = NotificationWorker(message, transcoder_client)
         td.start()
         td.join()
 
-        return {'url': _get_pitch_song_url(song_id, semitones, output_format)}, HTTPStatus.OK
+        song = db.get_song(song_id)
+        if song.versions is not None:
+            for v in song.versions:
+                if v['semitones'] == semitones and v['output_format'] == output_format and v['split'] == split:
+                    return {'url': _get_pitch_song_url(v['filename'])}, HTTPStatus.OK
+        return {'message': 'Something went wrong'}, HTTPStatus.NOT_FOUND
 
 
-def _get_pitch_song_url(song_id, semitones, output_format):
+def _get_pitch_song_url(filename):
     conf = current_app.config
-    return get_storage_base_url(conf) + conf['STORAGE_BUCKET_PITCH'] + f'/{song_id}_{semitones}.{output_format}'
+    return get_storage_base_url(conf) + conf['STORAGE_BUCKET_MODIFIED'] + f'/{filename}'
