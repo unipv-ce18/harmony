@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 
 import librosa
 from ffmpy import FFmpeg, FFExecutableNotFoundError, FFRuntimeError
@@ -142,7 +141,7 @@ class ChangePitch:
 
         :param str song_id: id of the song
         :param float semitones: semitones
-        :param str output_format: the extension of the ouput song
+        :param str output_format: the extension of the output song
         """
         os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}')
         os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}_{semitones}.wav')
