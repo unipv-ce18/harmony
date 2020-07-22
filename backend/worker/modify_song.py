@@ -20,7 +20,7 @@ class ModifySong:
         """Initialize ModifySong.
 
         Retrieve instances of database and storage connections. Create the
-        temporary folders used during the change pitch process.
+        temporary folders used during the process.
 
         :param common.database.Database db_interface: database handling interface
         :param common.storage.Storage storage_interface: storage interface
@@ -145,9 +145,9 @@ class ModifySong:
         :return: True if song is downloaded, False otherwise
         :rtype: bool
         """
-        if not os.path.exists(f'{_tmp_song_folder}'):
+        if not os.path.exists(_tmp_song_folder):
             os.makedirs(os.path.join(_tmp_folder, _tmp_subfolder, f'{song_id}-{semitones}-{output_format}'))
-        return self.st.download_file(worker_config.STORAGE_BUCKET_REFERENCE, song_id, f'{_tmp_song_folder}')
+        return self.st.download_file(worker_config.STORAGE_BUCKET_REFERENCE, song_id, _tmp_song_folder)
 
     def upload_files_to_storage_server(self, song_id, semitones, output_format, split):
         """Upload song with pitch changed to storage server.
@@ -162,7 +162,7 @@ class ModifySong:
         filename = f'{song_id}_{semitones}.{output_format}'
         if split:
             filename = f'{song_id}_{semitones}.zip'
-        return self.st.upload_file(worker_config.STORAGE_BUCKET_MODIFIED, filename, f'{_tmp_song_folder}')
+        return self.st.upload_file(worker_config.STORAGE_BUCKET_MODIFIED, filename, _tmp_song_folder)
 
     def upload_song_version_data(self, song_id, semitones, output_format, split):
         """Upload version data of the song in the database.
