@@ -17,7 +17,7 @@ _tmp_subfolder = 'changes'
 
 class ModifySong:
     def __init__(self, db_interface, storage_interface):
-        """Initialize ChangePitch.
+        """Initialize ModifySong.
 
         Retrieve instances of database and storage connections. Create the
         temporary folders used during the change pitch process.
@@ -33,23 +33,22 @@ class ModifySong:
         if not os.path.exists(f'{_tmp_folder}/{_tmp_subfolder}'):
             os.makedirs(os.path.join(_tmp_folder, _tmp_subfolder))
 
-    def change_pitch(self, song_id, semitones, output_format):
+    def change_pitch(self, song_id, semitones):
         """Change pitch to a song.
 
         Save the output song in wav format (the only one supported by librosa).
 
         :param str song_id: id of the song to change the pitch
         :param float semitones: how many semitones the song has to be shifted
-        :param str output_format: the extension of the ouput song
         """
-        in_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}/{song_id}'
-        out_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}/{song_id}_{semitones}.wav'
+        in_file = f'{_tmp_song_folder}/{song_id}'
+        out_file = f'{_tmp_song_folder}/{song_id}_{semitones}.wav'
 
         song, samplerate = librosa.load(in_file, sr=None)
         song_shifted = librosa.effects.pitch_shift(song, samplerate, n_steps=semitones)
         librosa.output.write_wav(out_file, song_shifted, sr=samplerate, norm=False)
 
-    def split_song(self, song_id, semitones, output_format):
+    def split_song(self, song_id, semitones):
         """Create two different tracks for the song.
 
         The first track is the vocal track (vocal.wav), the second is the instrumental
@@ -58,9 +57,8 @@ class ModifySong:
 
         :param str song_id: id of the song
         :param float semitones: how many semitones the song has been shifted
-        :param str output_format: the extension of the song
         """
-        in_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}/{song_id}_{semitones}.wav'
+        in_file = f'{_tmp_song_folder}/{song_id}_{semitones}.wav'
 
         command = [
             'python3',
@@ -70,43 +68,51 @@ class ModifySong:
             '-i',
             in_file,
             '-o',
-            f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}'
+            f'{_tmp_song_folder}'
         ]
 
         subprocess.run(command)
 
-    def make_zip(self, song_id, semitones, output_format):
+    def make_zip(self, song_id, semitones):
         """Zip the vocal and accompaniment audio files."""
-        shutil.make_archive(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}/{song_id}_{semitones}',
-                            'zip', f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}/{song_id}_{semitones}')
+        shutil.make_archive(f'{_tmp_song_folder}/{song_id}_{semitones}', 'zip', f'{_tmp_song_folder}/{song_id}_{semitones}')
 
-    def transcode_to_output_format(self, song_id, semitones, output_format, path):
+    def transcode_to_output_format(self, song_id, output_format, path):
         """Transcode the song in the ouput format.
 
         :param str song_id: id of the song to be transcoded
-        :param float semitones: how many semitones the song has been shifted
-        :param str output_format: the extension of the ouput song
-        :raise: `FFRuntimeError` in case FFmpeg command exits with a non-zero code;
+        :param str output_format: the extension of the ouput song.
+            Supported output format are: wav, webm, mp3
+        :param str path: the path to the audio to transcode
+        :raise: `RuntimeError` in case the output format is not valid
+                `FFRuntimeError` in case FFmpeg command exits with a non-zero code;
                 `FFExecutableNotFoundError` in case the executable path passed was not valid
         """
-        if output_format == 'wav':
-            return 'wav'
-
-        in_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}/{path}.wav'
-        out_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}/{path}.{output_format}'
+        in_file = f'{_tmp_song_folder}/{path}.wav'
+        out_file = f'{_tmp_song_folder}/{path}.{output_format}'
 
         metadata = self.metadata(song_id)
 
         channels = 2
 
-        if output_format == 'webm':
+        if output_format == 'wav':
+            new_in_file = f'{_tmp_song_folder}/{path}_.wav'
+            os.rename(in_file, new_in_file)
+            in_file = new_in_file
+            output_options = f'{metadata} -ac {channels} -vn -map_metadata -1'
+        elif output_format == 'webm':
             output_options = f'-b:a {worker_config.BITRATE_WEBM}k {metadata} -ac ' \
                              f'{channels} -acodec libvorbis -vn -map_metadata -1'
         elif output_format == 'mp3':
             output_options = f'-b:a {worker_config.BITRATE_MP3}k {metadata} -ac ' \
-                             f'{channels} -vn -map_metadata -1'
+                             f'{channels} -acodec libmp3lame -vn -map_metadata -1'
+        elif output_format == 'm4a':
+            output_options = f'-b:a {worker_config.BITRATE_AAC}k {metadata} -ac ' \
+                             f'{channels} -acodec aac -vn -map_metadata -1'
+        elif output_format == 'flac':
+            output_options = f'{metadata} -ac {channels} -acodec flac -vn -map_metadata -1'
         else:
-            return 'wav'
+            raise RuntimeError('Invalid output format')
 
         global_options = '-y'
 
@@ -117,12 +123,12 @@ class ModifySong:
         )
         ff.run()
 
-        return output_format
-
     def metadata(self, id):
         """Generate metadata for song from database information.
 
         :param str id: id of the song to be transcoded
+        :return: metadata for the song
+        :rtype: str
         """
         song = self.db.get_song(id)
         m = [
@@ -130,10 +136,7 @@ class ModifySong:
             f'artist="{song.artist.get("name")}"',
             f'album="{song.release.get("name")}"'
         ]
-        metadata = ''
-        for i in range(len(m)):
-            metadata += f'-metadata {m[i]} '
-        return metadata
+        return ''.join([f'-metadata {m[i]} ' for i in range(len(m))])
 
     def download_song_from_storage_server(self, song_id, semitones, output_format):
         """Download the song to change the pitch from storage server.
@@ -142,9 +145,9 @@ class ModifySong:
         :return: True if song is downloaded, False otherwise
         :rtype: bool
         """
-        if not os.path.exists(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}'):
+        if not os.path.exists(f'{_tmp_song_folder}'):
             os.makedirs(os.path.join(_tmp_folder, _tmp_subfolder, f'{song_id}-{semitones}-{output_format}'))
-        return self.st.download_file(worker_config.STORAGE_BUCKET_REFERENCE, song_id, f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}')
+        return self.st.download_file(worker_config.STORAGE_BUCKET_REFERENCE, song_id, f'{_tmp_song_folder}')
 
     def upload_files_to_storage_server(self, song_id, semitones, output_format, split):
         """Upload song with pitch changed to storage server.
@@ -152,13 +155,14 @@ class ModifySong:
         :param str song_id: id of the song
         :param float semitones: semitones
         :param str output_format: the extension of the song
+        :param bool split: if the song has been splitted
+        :return: True if file is uploaded, False otherwise
+        :rtype: bool
         """
         filename = f'{song_id}_{semitones}.{output_format}'
         if split:
             filename = f'{song_id}_{semitones}.zip'
-        self.st.upload_file(worker_config.STORAGE_BUCKET_MODIFIED,
-                            filename,
-                            f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}')
+        return self.st.upload_file(worker_config.STORAGE_BUCKET_MODIFIED, filename, f'{_tmp_song_folder}')
 
     def upload_song_version_data(self, song_id, semitones, output_format, split):
         """Upload version data of the song in the database.
@@ -187,17 +191,15 @@ class ModifySong:
 
     def delete_split_tmp_files(self, song_id, semitones, output_format):
         """Delete the split temporary files."""
-        os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}/{song_id}_{semitones}/vocals.wav')
-        os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}/{song_id}_{semitones}/accompaniment.wav')
+        tmp_files = ['vocals', 'accompaniment']
+        if output_format == 'wav':
+            tmp_files = ['vocals_', 'accompaniment_']
+        for file in tmp_files:
+            os.remove(f'{_tmp_song_folder}/{song_id}_{semitones}/{file}.wav')
 
-    def clear_tmp_files(self, song_id, semitones, output_format):
-        """Remove temporary changing pitch jobs file.
-
-        :param str song_id: id of the song
-        :param float semitones: semitones
-        :param str output_format: the extension of the ouput song
-        """
-        shutil.rmtree(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}')
+    def clear_tmp_files(self):
+        """Remove temporary jobs file."""
+        shutil.rmtree(_tmp_song_folder)
 
     def complete_modify_song(self, song_id, semitones, output_format, split):
         """Perform a complete modifying song process.
@@ -215,23 +217,30 @@ class ModifySong:
         """
         log.info('%s: Modifying song job started', song_id)
 
+        global _tmp_song_folder
+        _tmp_song_folder = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}'
+
         if self.download_song_from_storage_server(song_id, semitones, output_format):
             try:
-                self.change_pitch(song_id, semitones, output_format)
+                self.change_pitch(song_id, semitones)
+
                 if split:
-                    self.split_song(song_id, semitones, output_format)
-                    self.transcode_to_output_format(song_id, semitones, output_format, f'{song_id}_{semitones}/vocals')
-                    output_format = self.transcode_to_output_format(song_id, semitones, output_format, f'{song_id}_{semitones}/accompaniment')
-                    if output_format != 'wav':
-                        self.delete_split_tmp_files(song_id, semitones, output_format)
-                    self.make_zip(song_id, semitones, output_format)
+                    self.split_song(song_id, semitones)
+                    self.transcode_to_output_format(song_id, output_format, f'{song_id}_{semitones}/vocals')
+                    self.transcode_to_output_format(song_id, output_format, f'{song_id}_{semitones}/accompaniment')
+                    self.delete_split_tmp_files(song_id, semitones, output_format)
+                    self.make_zip(song_id, semitones)
                 else:
-                    output_format = self.transcode_to_output_format(song_id, semitones, output_format, f'{song_id}_{semitones}')
+                    self.transcode_to_output_format(song_id, output_format, f'{song_id}_{semitones}')
 
-                self.upload_files_to_storage_server(song_id, semitones, output_format, split)
-                self.upload_song_version_data(song_id, semitones, output_format, split)
+                if self.upload_files_to_storage_server(song_id, semitones, output_format, split):
+                    self.upload_song_version_data(song_id, semitones, output_format, split)
+                    log.info('%s: Modifying song job finished', song_id)
+                else:
+                    log.error('%s: Failed to upload the file', song_id)
 
-                log.info('%s: Modifying song job finished', song_id)
+            except RuntimeError:
+                log.error('Invalid output format: %s', output_format)
             except FFExecutableNotFoundError:
                 log.error('Executable path not valid')
             except FFRuntimeError as e:
@@ -240,8 +249,8 @@ class ModifySong:
                 log.exception('%s(%s)', type(e).__name__, e)
             finally:
                 try:
-                    self.clear_tmp_files(song_id, semitones, output_format)
-                except FileNotFoundError:
+                    self.clear_tmp_files()
+                except:
                     pass
         else:
             log.error('%s: Failed to download source from server', song_id)
