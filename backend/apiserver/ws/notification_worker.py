@@ -45,7 +45,7 @@ class NotificationWorker(threading.Thread):
 
         # Send message request
         self.send_message(self.message)
-        log.debug('Song (%s): Enqueued for transcoding', self.song_id)
+        log.debug('Song (%s): Enqueued for "%s"', self.song_id, self.message['type'])
 
     def send_message(self, message):
         """Publishes a new job to the orchestrator queue

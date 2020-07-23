@@ -1,6 +1,5 @@
 import logging
 import json
-import threading
 
 import pika
 
@@ -31,7 +30,7 @@ class Worker:
 
         self.db = db_interface
 
-        self.connection = amq_connect_blocking(worker_config)
+        self.connection = amq_connect_blocking(worker_config, disable_heartbeat=True)
         self.channel = self.connection.channel()
         log.debug('Connected to RabbitMQ')
 
@@ -95,16 +94,6 @@ class Worker:
 
         self.db.bind_consumer_to_song(self.consumer_tag, song_id)
 
-    def run_job(self, ch, method, properties, message):
-        if message['type'] == jobs.TRANSCODE:
-            self.transcode_callback(ch, method, properties, message)
-
-        if message['type'] == jobs.MODIFY_SONG:
-            self.modify_song_callback(ch, method, properties, message)
-
-        if message['type'] == jobs.ANALYSIS:
-            self.analysis_callback(ch, method, properties, message)
-
     def callback(self, ch, method, properties, body):
         """Callback function.
 
@@ -116,9 +105,14 @@ class Worker:
         """
         message = json.loads(body.decode('utf-8'))
 
-        thread_gc = threading.Thread(name='worker', target=self.run_job, args=(ch, method, properties, message))
-        thread_gc.start()
-        thread_gc.join()
+        if message['type'] == jobs.TRANSCODE:
+            self.transcode_callback(ch, method, properties, message)
+
+        if message['type'] == jobs.MODIFY_SONG:
+            self.modify_song_callback(ch, method, properties, message)
+
+        if message['type'] == jobs.ANALYSIS:
+            self.analysis_callback(ch, method, properties, message)
 
         ch.basic_publish(
             exchange=worker_config.MESSAGING_EXCHANGE_NOTIFICATION,
