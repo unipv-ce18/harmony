@@ -73,9 +73,9 @@ class ModifySong:
 
         subprocess.run(command)
 
-    def make_zip(self, song_id, semitones):
+    def make_zip(self, song_id, semitones, output_format):
         """Zip the vocal and accompaniment audio files."""
-        shutil.make_archive(f'{_tmp_song_folder}/{song_id}_{semitones}', 'zip', f'{_tmp_song_folder}/{song_id}_{semitones}')
+        shutil.make_archive(f'{_tmp_song_folder}/{song_id}_{semitones}_{output_format}', 'zip', f'{_tmp_song_folder}/{song_id}_{semitones}')
 
     def transcode_to_output_format(self, song_id, output_format, path):
         """Transcode the song in the ouput format.
@@ -138,7 +138,7 @@ class ModifySong:
         ]
         return ''.join([f'-metadata {m[i]} ' for i in range(len(m))])
 
-    def download_song_from_storage_server(self, song_id, semitones, output_format):
+    def download_song_from_storage_server(self, song_id, semitones, output_format, split):
         """Download the song to change the pitch from storage server.
 
         :param str song_id: id of the song to change the pitch
@@ -146,7 +146,7 @@ class ModifySong:
         :rtype: bool
         """
         if not os.path.exists(_tmp_song_folder):
-            os.makedirs(os.path.join(_tmp_folder, _tmp_subfolder, f'{song_id}-{semitones}-{output_format}'))
+            os.makedirs(os.path.join(_tmp_folder, _tmp_subfolder, f'{song_id}-{semitones}-{output_format}-{split}'))
         return self.st.download_file(worker_config.STORAGE_BUCKET_REFERENCE, song_id, _tmp_song_folder)
 
     def upload_files_to_storage_server(self, song_id, semitones, output_format, split):
@@ -161,7 +161,7 @@ class ModifySong:
         """
         filename = f'{song_id}_{semitones}.{output_format}'
         if split:
-            filename = f'{song_id}_{semitones}.zip'
+            filename = f'{song_id}_{semitones}_{output_format}.zip'
         return self.st.upload_file(worker_config.STORAGE_BUCKET_MODIFIED, filename, _tmp_song_folder)
 
     def upload_song_version_data(self, song_id, semitones, output_format, split):
@@ -173,7 +173,7 @@ class ModifySong:
         """
         filename = f'{song_id}_{semitones}.{output_format}'
         if split:
-            filename = f'{song_id}_{semitones}.zip'
+            filename = f'{song_id}_{semitones}_{output_format}.zip'
         version_data = {
             'semitones': semitones,
             'output_format': output_format,
@@ -218,9 +218,9 @@ class ModifySong:
         log.info('%s: Modifying song job started', song_id)
 
         global _tmp_song_folder
-        _tmp_song_folder = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}'
+        _tmp_song_folder = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}-{semitones}-{output_format}-{split}'
 
-        if self.download_song_from_storage_server(song_id, semitones, output_format):
+        if self.download_song_from_storage_server(song_id, semitones, output_format, split):
             try:
                 self.change_pitch(song_id, semitones)
 
@@ -229,7 +229,7 @@ class ModifySong:
                     self.transcode_to_output_format(song_id, output_format, f'{song_id}_{semitones}/vocals')
                     self.transcode_to_output_format(song_id, output_format, f'{song_id}_{semitones}/accompaniment')
                     self.delete_split_tmp_files(song_id, semitones, output_format)
-                    self.make_zip(song_id, semitones)
+                    self.make_zip(song_id, semitones, output_format)
                 else:
                     self.transcode_to_output_format(song_id, output_format, f'{song_id}_{semitones}')
 
