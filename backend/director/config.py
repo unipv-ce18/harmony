@@ -20,7 +20,7 @@ class Config:
     DOCKER_SOCKET_PATH = os.environ.get('DOCKER_SOCKET_PATH', '/var/run/docker.sock')
 
     # The image used to create worker instances
-    DOCKER_WORKER_IMAGE = os.environ.get('DOCKER_WORKER_IMAGE', 'harmony/transcoder-worker:dev')
+    DOCKER_WORKER_IMAGE = os.environ.get('DOCKER_WORKER_IMAGE', 'harmony/worker:dev')
 
     # Config settings to pass to the created container
     DOCKER_SHARED_CONFIG_KEYS = ['MONGO_URI', 'MESSAGING_HOST', 'STORAGE_ENDPOINT']

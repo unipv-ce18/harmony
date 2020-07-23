@@ -26,4 +26,4 @@ services:
     repositories:
       - harmony/apiserver
       - harmony/director
-      - harmony/transcoder-worker
+      - harmony/worker
