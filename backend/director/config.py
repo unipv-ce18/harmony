@@ -25,6 +25,9 @@ class Config:
     # Config settings to pass to the created container
     DOCKER_SHARED_CONFIG_KEYS = ['MONGO_URI', 'MESSAGING_HOST', 'STORAGE_ENDPOINT']
 
+    # Whether spawned containers have the auto-remove flag set
+    DOCKER_AUTO_REMOVE = True
+
     # --- Parameters for the 'process' worker driver ---
 
     # The python commandline to start the new process
@@ -34,6 +37,7 @@ class Config:
 class DevelopmentConfig(Config, BackendConfigDev):
 
     UPDATE_COUNTER = 2
+    DOCKER_AUTO_REMOVE = False
 
 
 class ProductionConfig(Config, BackendConfigProd):
