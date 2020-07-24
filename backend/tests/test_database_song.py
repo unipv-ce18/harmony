@@ -53,6 +53,7 @@ class SongDatabaseTest(DatabaseTest):
                 song_out_data['id'] = None
                 song_out_data['artist'] = None
                 song_out_data['release'] = None
+                song_out_data['counter'] = None  # defaults to 0
                 self.assertDictEqual(song_in_data, song_out_data,
                                      'Extracted release content should match inserted')
 
@@ -71,6 +72,7 @@ class SongDatabaseTest(DatabaseTest):
                 song_in = asdict(release_in.songs[j])
                 song_out = asdict(rich_release_out.songs[j])
                 song_out['id'] = None
+                song_out['counter'] = None  # defaults to 0
                 self.assertDictEqual(song_in, song_out)
 
     def test_db_song_search(self):

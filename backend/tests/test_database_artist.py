@@ -27,6 +27,7 @@ class ArtistDatabaseTest(DatabaseTest):
         artist_data_out = asdict(artist_out)
         artist_data_in['releases'] = None
         artist_data_out['id'] = None
+        artist_data_out['counter'] = None  # defaults to 0
         self.assertDictEqual(artist_data_in, artist_data_out,
                              'Inserted and retrieved artist should match '
                              'except for ID (only in output) and releases (only in input)')
