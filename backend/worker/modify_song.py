@@ -1,9 +1,9 @@
 import logging
 import os
 import shutil
-import subprocess
 
 import librosa
+from spleeter.separator import Separator
 from ffmpy import FFmpeg, FFExecutableNotFoundError, FFRuntimeError
 
 from . import worker_config
@@ -60,18 +60,11 @@ class ModifySong:
         """
         in_file = f'{_tmp_song_folder}/{song_id}_{semitones}.wav'
 
-        command = [
-            'python3',
-            '-m',
-            'spleeter',
-            'separate',
-            '-i',
-            in_file,
-            '-o',
-            f'{_tmp_song_folder}'
-        ]
+        song = self.db.get_song(song_id)
+        length = (song.length / 1000) if song.length is not None else 600
 
-        subprocess.run(command)
+        separator = Separator('worker/spleeter_config.json', multiprocess=False)
+        separator.separate_to_file(in_file, _tmp_song_folder, duration=length)
 
     def make_zip(self, song_id, semitones, output_format):
         """Zip the vocal and accompaniment audio files."""
