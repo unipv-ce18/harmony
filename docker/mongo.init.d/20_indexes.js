@@ -14,3 +14,6 @@ db.blacklist.createIndex({'exp': 1}, {expireAfterSeconds: 86400})
 
 // Transcoder TTL index
 db.transcoder.createIndex({'exp': 1}, {expireAfterSeconds: 60})
+
+// Song alteration jobs TTL
+db.modified.createIndex({'exp': 1}, {expireAfterSeconds: 180})
