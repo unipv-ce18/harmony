@@ -64,7 +64,7 @@ class ModifySong:
         length = (song.length / 1000) if song.length is not None else 600
 
         log.debug('%s: Performing source separation using Spleeter', song_id)
-        separator = Separator('worker/spleeter_config.json', multiprocess=False)
+        separator = Separator('spleeter:2stems', multiprocess=False)
         separator.separate_to_file(in_file, _tmp_song_folder, duration=length)
 
     def make_zip(self, song_id, semitones, output_format):
