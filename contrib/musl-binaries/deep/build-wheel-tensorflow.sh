@@ -56,6 +56,18 @@ wget https://github.com/davido/bazel-alpine-package/releases/download/0.26.1/baz
 apk add bazel-0.26.1-r0.apk
 
 
+# Fetch patch file for Tensorflow logging in py3.8
+# see: https://github.com/tensorflow/tensorflow/pull/33953/
+cd /tmp
+PATCH_COMMIT=ea3063c929c69f738bf65bc99dad1159803e772f
+mkdir tf && cd tf
+git init --bare
+git remote add origin https://github.com/tensorflow/tensorflow.git
+git fetch --depth=2 origin ${PATCH_COMMIT}
+git show ${PATCH_COMMIT} > ../py38-logging-fix.patch
+cd .. && rm -rf tf
+
+
 # Download and compile Tensorflow
 cd /tmp
 curl -SL https://github.com/tensorflow/tensorflow/archive/v${TENSORFLOW_VERSION}.tar.gz | tar xzf -
@@ -74,6 +86,7 @@ sed -i \
   /usr/include/malloc.h
 
 # Support for Python 3.8
+patch -p1 < ../py38-logging-fix.patch
 sed -i '/tp_print/ s/nullptr/NULL/' \
   tensorflow/python/eager/pywrap_tfe_src.cc \
   tensorflow/python/lib/core/bfloat16.cc \
