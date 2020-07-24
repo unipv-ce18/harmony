@@ -63,11 +63,13 @@ class ModifySong:
         song = self.db.get_song(song_id)
         length = (song.length / 1000) if song.length is not None else 600
 
+        log.debug('%s: Performing source separation using Spleeter', song_id)
         separator = Separator('worker/spleeter_config.json', multiprocess=False)
         separator.separate_to_file(in_file, _tmp_song_folder, duration=length)
 
     def make_zip(self, song_id, semitones, output_format):
         """Zip the vocal and accompaniment audio files."""
+        log.debug('%s: Creating zip archive with results for download', song_id)
         shutil.make_archive(f'{_tmp_song_folder}/{song_id}_{semitones}_{output_format}', 'zip', f'{_tmp_song_folder}/{song_id}_{semitones}')
 
     def transcode_to_output_format(self, song_id, output_format, path):
@@ -109,6 +111,7 @@ class ModifySong:
 
         global_options = '-y'
 
+        log.debug('%s: Transcoding "%s" to "%s"', song_id, path, output_format)
         ff = FFmpeg(
             global_options=global_options,
             inputs={in_file: None},
@@ -155,6 +158,7 @@ class ModifySong:
         filename = f'{song_id}_{semitones}.{output_format}'
         if split:
             filename = f'{song_id}_{semitones}_{output_format}.zip'
+        log.debug('%s: Uploading to object storage', song_id)
         return self.st.upload_file(worker_config.STORAGE_BUCKET_MODIFIED, filename, _tmp_song_folder)
 
     def upload_song_version_data(self, song_id, semitones, output_format, split):
