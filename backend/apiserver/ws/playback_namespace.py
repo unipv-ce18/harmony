@@ -17,10 +17,10 @@ log = logging.getLogger(__name__)
 class PlaybackNamespace(Namespace):
     """Socket.io namespace for media playback"""
 
-    def __init__(self, namespace, transcoder_client, db_interface):
+    def __init__(self, namespace, amqp_client, db_interface):
         super().__init__(namespace)
         self.protocol: Optional[MediaDeliveryProtocol] = None
-        self.transcoder_client = transcoder_client
+        self.amqp_client = amqp_client
         self.db_interface = db_interface
 
     # noinspection PyMethodMayBeStatic
@@ -28,7 +28,7 @@ class PlaybackNamespace(Namespace):
         # JWT is sent as query parameter and not in headers, so we must check it manually
         try:
             security.verify_jwt_token(request.args.get('access_token'), token_type='access')
-            self.protocol = MediaDeliveryProtocol(self.transcoder_client.config, self.socketio, self.namespace)
+            self.protocol = MediaDeliveryProtocol(self.amqp_client.config, self.socketio, self.namespace)
             return True
         except Exception as e:
             log.warning('Blocked unauthorized access to playback socket from %s, error: %s', request.remote_addr, e)
@@ -53,7 +53,7 @@ class PlaybackNamespace(Namespace):
             log.debug('Song (%s): Sent manifest', song_id)
         else:
             # Start async task to transcode and wait for notification
-            td = NotificationWorker({'song_id': song_id, 'type': jobs.TRANSCODE}, self.transcoder_client, self._transcode_complete_callback)
+            td = NotificationWorker({'song_id': song_id, 'type': jobs.TRANSCODE}, self.amqp_client, self._transcode_complete_callback)
             td.start()
 
     def on_get_key(self, msg):
@@ -86,7 +86,7 @@ class PlaybackNamespace(Namespace):
             self.protocol.send_error(song_id, e.args[0])
             return
 
-        td = NotificationWorker({song_id: 1, 'type': jobs.COUNTER}, self.transcoder_client)
+        td = NotificationWorker({song_id: 1, 'type': jobs.COUNTER}, self.amqp_client)
         td.start()
 
     def _fetch_representation_data(self, song_id):

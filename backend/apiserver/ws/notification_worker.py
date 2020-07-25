@@ -14,31 +14,31 @@ log = logging.getLogger(__name__)
 
 class NotificationWorker(threading.Thread):
 
-    def __init__(self, message, transcoder_client, callback_fn=None):
+    def __init__(self, message, amqp_client, callback_fn=None):
         """Initialize Notification Worker.
 
         Each instance is a thread.
 
         :param str song_id: id of the song to be notified
-        :param apiserver.ws.transcoder_client.TranscoderClient transcoder_client:
-               transcoder client to which this worker is bound
+        :param apiserver.ws.amqp_client.AmqpClient amqp_client:
+               amqp client to which this worker is bound
         :param callback_fn: function to call when the notification is received
         """
         threading.Thread.__init__(self)
         self.message = message
         self.song_id = list(self.message.keys())[0] if self.message['type'] == jobs.COUNTER else self.message['song_id']
-        self.transcoder_client = transcoder_client
+        self.amqp_client = amqp_client
         self.callback_fn = callback_fn
         self.consumer_tag = uuid.uuid4().hex
 
-        self.connection = amq_connect_blocking(self.transcoder_client.config)
+        self.connection = amq_connect_blocking(self.amqp_client.config)
         self.channel = self.connection.channel()
 
         # Bind the queue of the api server that asked a transcoding to the
         # notification exchange with the routing key equal to the id of the song requested.
         self.channel.queue_bind(
-            exchange=self.transcoder_client.config.MESSAGING_EXCHANGE_NOTIFICATION,
-            queue=self.transcoder_client.get_local_queue(),
+            exchange=self.amqp_client.config.MESSAGING_EXCHANGE_NOTIFICATION,
+            queue=self.amqp_client.get_local_queue(),
             routing_key=self.song_id
         )
         log.debug('Started notification worker for song (%s)', self.song_id)
@@ -53,7 +53,7 @@ class NotificationWorker(threading.Thread):
         :param dict message: message
         """
         self.channel.basic_publish(
-            exchange=self.transcoder_client.config.MESSAGING_EXCHANGE_JOBS,
+            exchange=self.amqp_client.config.MESSAGING_EXCHANGE_JOBS,
             routing_key='id',
             body=json.dumps(message),
             properties=pika.BasicProperties(
@@ -65,7 +65,7 @@ class NotificationWorker(threading.Thread):
     def run(self):
         """Wait for the notification."""
         self.channel.basic_consume(
-            queue=self.transcoder_client.get_local_queue(),
+            queue=self.amqp_client.get_local_queue(),
             on_message_callback=self.callback,
             auto_ack=True,
             consumer_tag=self.consumer_tag

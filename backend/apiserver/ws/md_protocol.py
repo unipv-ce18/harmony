@@ -8,11 +8,13 @@ class MediaDeliveryProtocol:
     ERROR_INVALID_ID = 1
     ERROR_NOT_FOUND = 2
     ERR_JOB_FAILURE = 3
+    ERR_UNAUTHORIZED = 4
 
     def __init__(self, config, socketio, namespace):
         self.socketio = socketio
         self.namespace = namespace
         self.transcoded_songs_bucket_url = get_storage_base_url(config) + config.STORAGE_BUCKET_TRANSCODED
+        self.modified_songs_bucket_url = get_storage_base_url(config) + config.STORAGE_BUCKET_MODIFIED
 
     def recv_play_song(self, message):
         """Decodes a received "play_song" message"""
@@ -26,6 +28,10 @@ class MediaDeliveryProtocol:
         """Decodes a received "count_song" message"""
         return message['id']
 
+    def recv_modify_song(self, message):
+        """Decodes a received "modify_song" message"""
+        return message['id'], message['semitones'], message['output_format'], message['split']
+
     def send_manifest(self, song_id, manifest_path):
         """Sends a "manifest" message in response to "play_song"
 
@@ -34,6 +40,14 @@ class MediaDeliveryProtocol:
         """
         manifest_url = f'{self.transcoded_songs_bucket_url}/{manifest_path}'
         self.socketio.emit('manifest', {'id': song_id, 'manifest_url': manifest_url}, namespace=self.namespace)
+
+    def send_url_modified_song(self, filename):
+        """Sends a "download" message in response to "modify_song"
+
+        :param str filename: The song filename to download
+        """
+        song_url = f'{self.modified_songs_bucket_url}/{filename}'
+        self.socketio.emit('download', {'url': song_url}, namespace=self.namespace)
 
     def send_media_key(self, song_id, key):
         """Sends a "media_key" message to answer "get_key"

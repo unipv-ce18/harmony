@@ -9,14 +9,14 @@ from apiserver.util.api_explorer import OPT_SPEC_TEMPLATE
 
 api_blueprint = Blueprint('api', __name__)
 db = None
-transcoder_client = None
+amqp_client = None
 
 
 @api_blueprint.record
 def on_register(state: BlueprintSetupState):
-    global db, transcoder_client
+    global db, amqp_client
     db = state.options['db']
-    transcoder_client = state.options['transcoder_client']
+    amqp_client = state.options['amqp_client']
 
     # Load base API spec from file and pass it on to generator over setup state options
     with open(os.path.dirname(__file__) + '/spec.yml', 'r', encoding='utf-8') as f:
