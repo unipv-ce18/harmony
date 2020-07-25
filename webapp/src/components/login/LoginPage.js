@@ -1,10 +1,10 @@
 import {Component} from 'preact';
 
+import HarmonyLogo from '../HarmonyLogo';
 import LoginForm from './LoginForm';
 import LoginFooter from './LoginFooter'
 
 import styles from './LoginPage.scss';
-import logoImage from "!file-loader!../../assets/logo.svg";
 
 class LoginPage extends Component {
 
@@ -13,7 +13,7 @@ class LoginPage extends Component {
   render({registration}) {
     return (
       <div class={styles.loginPage}>
-        <img class={styles.logoDiv} src={logoImage} alt=""/>
+        <HarmonyLogo color="#ddd" class={styles.logoDiv} animate/>
         <LoginForm registration={registration}/>
         <LoginFooter/>
       </div>
