@@ -9,48 +9,118 @@ header {
   z-index: 9999;
   background-color: rgba($application-background, .5);
 
-  div {
-    padding: 0.2em;
+  padding: 16px 20px;
+  box-sizing: border-box;
+
+  > * {
+    width: 25%;
+    height: 100%;
+
     display: inline-block;
-    width: 30%;
+  }
+}
+
+.left {
+  list-style-type: none;
+  margin: 0;
+  padding: 0 4px;
+  box-sizing: border-box;
+
+  li {
+    margin: 2px 1.5em 0 0;
+    float: left;
   }
 
-  .userDiv {
-    padding: 0.25em;
-    float: right;
-    margin-left: auto;
-    margin-right: 0.5em;
-    vertical-align: top;
-    span {
-      padding-top: 0.25em;
-      padding-right: 0.5em;
-      float: right;
-      text-align: right;
-    }
-    .userImage {
-      float: right;
-      width: 30px;
+  a {
+    display: block;
+    color: #eee;
+
+    text-shadow: rgba(#fff, .5) 0 0 1px;
+    letter-spacing: .7px;
+
+    font-weight: 600;
+    text-transform: uppercase;
+    text-decoration: none;
+
+    opacity: .5;
+    transition: opacity $transition-len-short-ms;
+
+    &:global(.current), &:hover, &:focus {
+      opacity: 1;
     }
   }
 }
 
-.leftBar{
-  padding: 0.5em;
-  vertical-align: top;
-  ul {
-    list-style-type: none;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
+.middle {
+  width: 50%;
+  position: relative;
+
+  > * {
+    position: absolute;
+    width: 100%;
   }
 
-  li {
-    padding-right: 0.5em;
-    float: left;
+  // Logo
+  > object {
+    height: 100%;
+    pointer-events: none;
+
+    opacity: 0;
+    transform: translateY(-10px);
+
+    transition-property: opacity, transform;
+    transition-duration: $transition-len-short-ms;
   }
 
-  li a {
-    display: block;
-    text-decoration: none;
+  // Search bar wrapper
+  > div > div {
+    margin: -4px auto 0;
+    transition: transform $transition-len-ms;
+    transition-timing-function: cubic-bezier(.65, .05, .36, 1);  // "cubic"
+  }
+
+  // On home page - move search bar and show the logo
+  &:global(.on-home) {
+    > object {
+      opacity: 1;
+      transform: translateY(5px);
+      pointer-events: unset;
+
+      // Wait for search bar to move before start fading in
+      transition-duration: $transition-len-ms;
+      transition-delay: $transition-len-short-ms;
+    }
+    > div > div {
+      transform: translateY(25vh);
+    }
+  }
+}
+
+.right {
+  > div {
+    float: right;
+    margin: -6px;
+    padding: 4px;
+
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    border-radius: 16px;
+    transition: background-color $transition-len-short-ms;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, .5);
+    }
+
+    span {
+      font-size: 75%;
+      letter-spacing: .6px;
+      margin: 0 8px;
+    }
+
+    img {
+      height: 30px;
+    }
   }
 }

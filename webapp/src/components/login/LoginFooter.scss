@@ -7,12 +7,18 @@
   text-align: center;
   font-size: 12px;
 
+  letter-spacing: .6px;
+  user-select: none;
+
   p {
-    margin: 3px;
+    margin: 6px;
   }
 
   em {
-    font-style: normal;
+    font-style: italic;
+    font-size: 90%;
+    opacity: .6;
+    cursor: pointer;
 
     &:before, &:after {
       content: '"';

@@ -5,13 +5,15 @@ $font-stack-sans: 'Raleway', -apple-system, BlinkMacSystemFont, "Segoe UI", "Rob
 
 $font-stack-mono: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 
-$navbar-height: 30px;
+$navbar-height: 50px;
 
 $text-color-default: #ddd;
-$text-color-link: #00ffe0;
+$text-color-link: #29b6f6;
 
 $transition-len: 400;
 $transition-len-ms: $transition-len + 0ms;
+$transition-len-short: 200;
+$transition-len-short-ms: $transition-len-short + 0ms;
 
 $panel-color: rgba(#fff, .9);
 $panel-color-test: rgba(27, 12, 19, 0.69);

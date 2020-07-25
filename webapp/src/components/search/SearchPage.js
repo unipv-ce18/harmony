@@ -9,6 +9,7 @@ import ReleaseResult from "./ReleaseResult";
 import ArtistResult from "./ArtistResult";
 
 import style from './SearchPage.scss';
+import {fromSearchUrlData} from './queryParams';
 
 class SearchPage extends Component {
 
@@ -20,20 +21,19 @@ class SearchPage extends Component {
   }
 
   state = {
-    // Data for the current search results
-    type: null, query: null, results: null,
-    // Data for the next/pending search results
-    updating: null
+    query: null,  // The current query
+    results: null,  // Results for the current query
+    updatingQuery: null  // Query for the next/pending search results
   }
 
   componentDidUpdate(previousProps, previousState, snapshot) {
     this.#performSearch();
   }
 
-  render(props, {type, query, results, updating}) {
+  render(props, {query, results, updatingQuery}) {
     return results && (
-      <div class={classList(style.searchPage, updating && style.updating)}>
-        <div>{SearchTypes[type].name} results for: "{query}"</div>
+      <div class={classList(style.searchPage, updatingQuery && style.updating)}>
+        {/*<div>{SearchTypes[type].name} results for: "{query}"</div>*/}
         <div>
           <ResultGroup name="Artists" type='artists' elementView={ArtistResult} results={results}/>
           <ResultGroup name="Releases" type='releases' elementView={ReleaseResult} results={results}/>
@@ -46,30 +46,30 @@ class SearchPage extends Component {
   }
 
   #performSearch() {
-    const {type, query: rawQuery} = this.props;
-    const query = rawQuery.replace(/\+/g, ' ');
+    const query = this.props.query;
 
     // Do nothing if results for current parameters are already displaying
-    if (this.state.type === type && this.state.query === query)
-      return;
+    if (this.state.query === query) return;
 
     // Do nothing if a search for these parameters is already being performed
-    const updating = this.state.updating;
-    if (updating != null && updating.type === type && updating.query === query)
-      return;
+    const updatingQuery = this.state.updatingQuery;
+    if (updatingQuery != null && updatingQuery === query) return;
 
     // Do the search
-    this.setState({updating: {type, query}})
-    catalog.search(type, query)
-      .then(results => this.setState({type, query, results, updating: null}))
+    const {text, modifiers} = fromSearchUrlData(this.props.query);  // If this throws nothing happens
+    this.setState({updatingQuery: query})
+    catalog.search(text, modifiers)
+      .then(results => this.setState({query, results, updatingQuery: null}))
   }
 }
 
 const ResultGroup = ({name, type, results, elementView: ElView}) => {
   return results[type] && results[type].length > 0 && (
-    <div>
-      <h1>{name}</h1>
-      {results[type].map(item => <ElView key={item.id} content={item}/>)}
+    <div class={style.resultGroup}>
+      <h3>{name}</h3>
+      <div>
+        {results[type].map(item => <ElView key={item.id} content={item}/>)}
+      </div>
     </div>
   )
 }
