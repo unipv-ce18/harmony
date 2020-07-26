@@ -20,9 +20,9 @@ class BackendConfig:
     MESSAGING_PORT = int(os.environ.get('MESSAGING_PORT', '5672'))
     MESSAGING_USERNAME = os.environ.get('MESSAGING_USERNAME', 'guest')
     MESSAGING_PASSWORD = os.environ.get('MESSAGING_PASSWORD', 'guest')
-    MESSAGING_EXCHANGE_JOBS = 'harmony.transcode.jobs'                  # Where API server pushes new transcoding jobs
-    MESSAGING_EXCHANGE_NOTIFICATION = 'harmony.transcode.notification'  # Where completion notifications are to be sent
-    MESSAGING_EXCHANGE_WORKER = 'harmony.transcode.worker'              # Where orchestrator sends jobs to workers
+    MESSAGING_EXCHANGE_JOBS = 'harmony.exchange.jobs'                  # Where API server pushes new jobs
+    MESSAGING_EXCHANGE_NOTIFICATION = 'harmony.exchange.notification'  # Where completion notifications are to be sent
+    MESSAGING_EXCHANGE_WORKER = 'harmony.exchange.worker'              # Where orchestrator sends jobs to workers
     MESSAGING_QUEUE_JOBS = 'harmony.queue.jobs'                         # Where orchestator gets messages
     MESSAGING_QUEUE_WORKER = 'harmony.queue.worker'                     # Where worker gets message
 

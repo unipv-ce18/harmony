@@ -20,7 +20,7 @@
   ],
   "exchanges": [
     {
-      "name": "harmony.transcode.jobs",
+      "name": "harmony.exchange.jobs",
       "vhost": "/",
       "type": "direct",
       "durable": true,
@@ -29,7 +29,7 @@
       "arguments": {}
     },
     {
-      "name": "harmony.transcode.notification",
+      "name": "harmony.exchange.notification",
       "vhost": "/",
       "type": "direct",
       "durable": true,
@@ -38,7 +38,7 @@
       "arguments": {}
     },
     {
-      "name": "harmony.transcode.worker",
+      "name": "harmony.exchange.worker",
       "vhost": "/",
       "type": "direct",
       "durable": true,
