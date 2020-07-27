@@ -252,8 +252,8 @@ class Transcoder:
                 self.transcoding(song_id, sample_rate, channels, extension)
                 manifest_data = self.manifest_creation(song_id)
                 waveform_data = self.waveform_creation(song_id)
-                self.upload_song_repr_data(song_id, manifest_data, waveform_data)
                 self.upload_files_to_storage_server(song_id, extension)
+                self.upload_song_repr_data(song_id, manifest_data, waveform_data)
 
                 log.info('%s: Transcoding job finished', song_id)
             except FFExecutableNotFoundError:
