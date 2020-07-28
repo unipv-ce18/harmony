@@ -47,6 +47,11 @@ class CollectionSongsTable extends Component {
     mediaPlayer.addInstanceLoadObserver(this.onPlayerAvailable);
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.collection.songs !== prevProps.collection.songs)
+      this.setState({songs: [...this.props.collection.songs]});
+  }
+
   componentWillUnmount() {
     mediaPlayer.removeInstanceLoadObserver(this.onPlayerAvailable);
     if (mediaPlayer.instance) {
