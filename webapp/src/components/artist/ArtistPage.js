@@ -28,7 +28,7 @@ class ArtistPage extends Component {
           <div class={styles.artistPageContent}>
             <ArtistInfo artist={this.state.artist}/>
             {/*<Songs list = {songTest}/>*/}
-            <ReleaseList list={this.state.artist.releases}/>
+            {this.state.artist.releases ? <ReleaseList list={this.state.artist.releases}/> : null}
             {/*<SimilarArtists />*/}
           </div>
         }
