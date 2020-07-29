@@ -8,14 +8,17 @@ from ..backend_config import BackendConfig
 machine_id = hex(uuid.getnode())[2:]
 
 
-def amq_connect_blocking(config: BackendConfig):
-    conn_params = pika.ConnectionParameters(
-        host=config.MESSAGING_HOST,
-        port=config.MESSAGING_PORT,
-        credentials=pika.PlainCredentials(config.MESSAGING_USERNAME, config.MESSAGING_PASSWORD),
-        connection_attempts=3, retry_delay=12    # cause Rabbit is slow to start (docker-compose), seriously 12s
-    )
-    return pika.BlockingConnection(conn_params)
+def amq_connect_blocking(config: BackendConfig, disable_heartbeat=False):
+    conn_params = {
+        'host': config.MESSAGING_HOST,
+        'port': config.MESSAGING_PORT,
+        'credentials': pika.PlainCredentials(config.MESSAGING_USERNAME, config.MESSAGING_PASSWORD),
+        'connection_attempts': 3, 'retry_delay': 12,    # cause Rabbit is slow to start (docker-compose), seriously 12s
+    }
+    if disable_heartbeat:
+        conn_params['heartbeat'] = 0
+
+    return pika.BlockingConnection(pika.ConnectionParameters(**conn_params))
 
 
 def amq_notification_declaration(channel, config: BackendConfig):

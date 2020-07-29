@@ -45,7 +45,7 @@ class DockerWorkerDriver(WorkerDriver):
             networks=[self.network_name],
             shm_size=1024,
             container_name=f'harmony_worker_{worker_tag}',
-            auto_remove=True
+            auto_remove=director_config.DOCKER_AUTO_REMOVE
         )
         return {'type': DRIVER_TYPE, 'container_id': container_id}
 

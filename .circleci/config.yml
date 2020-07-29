@@ -49,16 +49,12 @@ jobs:
 
   test-webapp:
     docker:
-      - image: circleci/node:13.1.0
+      - image: cimg/node:13.14.0
     parallelism: 2
     working_directory: ~/harmony/webapp
     steps:
       - checkout:
           path: ~/harmony
-
-      - run:
-          name: Install yarn
-          command: sudo npm install -g yarn
 
       - restore_cache:
           key: dep-cache-webapp-{{ .Branch }}-{{ checksum "yarn.lock" }}

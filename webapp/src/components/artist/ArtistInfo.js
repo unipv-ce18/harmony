@@ -34,18 +34,16 @@ class ArtistInfo extends Component {
 
     return(
       <div>
-        <div class={styles.artistInfo} style = {{backgroundImage: "url('" + this.props.artist.image + "')"}}>
+        <div class={styles.artistInfo} style = {{backgroundImage: "url('" + artist.image + "')"}}>
           <h2 class={styles.name}>{artist.name}</h2>
-          <Tags list = {artist.genres}/>
+          {artist.genres ? <Tags list = {artist.genres}/> : null}
           {this.state.stateUpdated && this.initialArtistLikeState()
             ? <IconButton size={24} name="Dislike" icon={IconStarFull}
                           onClick={this.likeArtist.bind(this, 'DELETE')}/>
             : <IconButton size={24} name="Like" icon={IconStarEmpty}
                           onClick={this.likeArtist.bind(this, 'PUT')}/>}
         </div>
-        <div className={styles.artistBio}>
-          {artist.bio}
-        </div>
+        {artist.bio ? <div className={styles.artistBio}>{artist.bio}</div> : null}
         {this.state.additional ?
         <div className={styles.additionalInfo}>
           {artist.life_span &&

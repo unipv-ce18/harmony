@@ -2,6 +2,7 @@ import {Component, createRef} from 'preact';
 
 import {classList} from '../../../core/utils';
 import {IconPlay, IconPause, IconTrackNext, IconTrackPrev, IconTrackRepeat, IconTrackShuffle} from '../../../assets/icons/icons';
+import {DEFAULT_ALBUMART_URL} from '../../../assets/defaults'
 import {PlayerViewContextConsumer, FlipTags, FLIP_GROUP_PAGE_PLAYER} from '../PlayerViewContext';
 import IconButton from '../../../components/IconButton';
 import Seekbar from '../Seekbar';
@@ -14,8 +15,6 @@ import style from './PagePlayer.scss';
 
 const TRANSITION_LEN = parseInt(style.playerTransitionLen);
 const TRANSITION_LEN_SHORT = parseInt(style.playerTransitionLenShort);
-
-const DEFAULT_ALBUMART_URL = require('../../../assets/albumart_default.jpg');
 
 class PagePlayer extends Component {
 

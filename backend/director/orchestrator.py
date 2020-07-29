@@ -71,7 +71,14 @@ class Orchestrator:
         self.channel.close()
 
     def transcode_callback(self, ch, method, properties, message):
-        """Transcode callback."""
+        """Transcode callback.
+
+        When the message arrives, check if the song is already in transcoding;
+        if yes, just send an ack to api server, otherwise publish the song id
+        to the transcoder exchange, store the id of the song inside database,
+        check if the consumers are less than the messages inside the queue and if
+        so create a new transcoder worker.
+        """
         song_id = message['song_id']
         log.info('%s: Received transcode request', song_id)
 
@@ -147,12 +154,6 @@ class Orchestrator:
     def callback(self, ch, method, properties, body):
         """Callback function.
 
-        When the message arrives, check if the song is already in transcoding;
-        if yes, just send an ack to api server, otherwise publish the song id
-        to the transcoder exchange, store the id of the song inside database,
-        check if the consumers are less than the messages inside the queue and if
-        so create a new transcoder worker.
-
         :param pika.adapters.blocking_connection.BlockingChannel ch: channel
         :param bytes body: the body of the message
         """
@@ -173,9 +174,9 @@ class Orchestrator:
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def push_song_in_queue(self, message):
-        """Publish song id to transcoder exchange.
+        """Publish message to worker exchange.
 
-        :param str id: id of the song
+        :param dict message: message to send
         """
         self.channel.basic_publish(
             exchange=director_config.MESSAGING_EXCHANGE_WORKER,
@@ -281,6 +282,7 @@ class Orchestrator:
         :param str song_id: id of the song
         :param float semitones: semitones to shift
         :param str output_format: the output format
+        :param bool split: if True, split the song
         :return: True if exist this changed pitch version of the song, False otherwise
         :rtype: bool
         """
@@ -340,6 +342,7 @@ class Orchestrator:
         return True if self.db.get_song_representation_data(id) is not None else False
 
     def update_counters(self):
+        """Update the song, release and artist counters."""
         for song_id, count in self.counter.items():
             song = self.db.get_song(song_id)
 

@@ -1,22 +1,83 @@
-import {Component} from "preact";
-import styles from './header.scss';
-import LeftBar from "./LeftBar";
-import MiddleBar from "./MiddleBar";
-import RightBar from "./RightBar";
+import {Component} from 'preact';
+
+import {classList} from '../core/utils';
+import HarmonyLogo from '../components/HarmonyLogo';
+import SearchForm from '../components/search/form/SearchForm';
+import {DEFAULT_USER_IMAGE_URL} from '../assets/defaults';
+
+import style from './header.scss';
+
+const LOGO_COLLAPSE_DELAY_MS = 500;
 
 class HeaderBar extends Component {
-  render({page}, state) {
-    // No header in login page
-    if (page === '/login' || page === '/signup') return null;
+
+  state = {
+    logoCollapsed: true
+  }
+
+  constructor() {
+    super();
+    this.onLogoMouseEvent = this.onLogoMouseEvent.bind(this);
+  }
+
+  componentDidUpdate(previousProps, previousState, snapshot) {
+    const {page} = this.props;
+    if (previousProps.page !== page) {
+      if (isHomePage(page)) {
+        setTimeout(() => this.setState({logoCollapsed: true}), LOGO_COLLAPSE_DELAY_MS);
+      } else {
+        setTimeout(() => this.setState({logoCollapsed: false}), LOGO_COLLAPSE_DELAY_MS);
+      }
+
+      // Autofocus search bar if on home or search page
+      if (isHomePage(page) || isSearchPage(page))
+        this.base.querySelector('input[type=text]').focus();
+    }
+  }
+
+  render({page}, {logoCollapsed}) {
+    const onHome = isHomePage(page);
+    const onLogin = isLoginPage(page);
 
     return (
       <header>
-        <LeftBar />
-        <MiddleBar page={page}/>
-        <RightBar />
+        {/* Left side - navigation */}
+        {!onLogin && (
+          <ul className={style.left}>
+            <li><NavLink page={page} target='/'>Home</NavLink></li>
+            <li><NavLink page={page} target='/library/me'>Library</NavLink></li>
+          </ul>
+        )}
+
+        {/* Center - logo, search */}
+        <div className={classList(style.middle, onHome && `on-home`)}>
+          {!onLogin && <div><SearchForm/></div>}
+          <HarmonyLogo color="#ddd" collapse={logoCollapsed}
+                       onMouseEnter={this.onLogoMouseEvent} onMouseLeave={this.onLogoMouseEvent}/>
+        </div>
+
+        {/* Right side - user */}
+        {!onLogin && (
+          <div className={style.right}>
+            <div title="Logout" onClick={() => session.doLogout()}> {/* TODO: Place logout in a dropdown */}
+              <span>Username</span>
+              <img src={DEFAULT_USER_IMAGE_URL} alt=""/>
+            </div>
+          </div>
+        )}
       </header>
     );
   }
+
+  onLogoMouseEvent(e) {
+    this.setState({logoCollapsed: e.type === 'mouseleave'})
+  }
 }
+
+const NavLink = ({page, target, children}) => (<a class={page === target && 'current'} href={target}>{children}</a>);
+
+const isLoginPage = page => page === '/login' || page === '/signup';
+const isHomePage = page => page === '/';
+const isSearchPage = page => page?.startsWith('/search/');
 
 export default HeaderBar;

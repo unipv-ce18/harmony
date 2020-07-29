@@ -5,7 +5,7 @@ from flask import current_app
 from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
-from . import api_blueprint, db, transcoder_client
+from . import api_blueprint, db, amqp_client
 from ..ws.notification_worker import NotificationWorker
 from ..util import security
 from common.database.contracts import user_contract as c
@@ -96,7 +96,7 @@ class ModifySong(Resource):
             'type': jobs.MODIFY_SONG
         }
 
-        td = NotificationWorker(message, transcoder_client)
+        td = NotificationWorker(message, amqp_client)
         td.start()
         td.join()
 

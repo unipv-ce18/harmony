@@ -32,7 +32,7 @@ class Worker:
 
         self.db = db_interface
 
-        self.connection = amq_connect_blocking(worker_config)
+        self.connection = amq_connect_blocking(worker_config, disable_heartbeat=True)
         self.channel = self.connection.channel()
         log.debug('Connected to RabbitMQ')
 
@@ -80,7 +80,6 @@ class Worker:
         # bind the consumer to the song to transcode
         self.db.bind_consumer_to_song(self.consumer_tag, song_id)
         self.transcoder.complete_transcode(song_id)
-        return song_id
 
     def modify_song_callback(self, ch, method, properties, message):
         song_id = message['song_id']
@@ -91,14 +90,12 @@ class Worker:
 
         self.db.bind_consumer_to_song(self.consumer_tag, song_id)
         self.modify_song.complete_modify_song(song_id, semitones, output_format, split)
-        return song_id
 
     def analysis_callback(self, ch, method, properties, message):
         song_id = message['song_id']
 
         self.db.bind_consumer_to_song(self.consumer_tag, song_id)
         self.analyze_song.analyze_song(song_id)
-        return song_id
 
     def callback(self, ch, method, properties, body):
         """Callback function.
@@ -112,18 +109,18 @@ class Worker:
         message = json.loads(body.decode('utf-8'))
 
         if message['type'] == jobs.TRANSCODE:
-            song_id = self.transcode_callback(ch, method, properties, message)
+            self.transcode_callback(ch, method, properties, message)
 
         if message['type'] == jobs.MODIFY_SONG:
-            song_id = self.modify_song_callback(ch, method, properties, message)
+            self.modify_song_callback(ch, method, properties, message)
 
         if message['type'] == jobs.ANALYSIS:
-            song_id = self.analysis_callback(ch, method, properties, message)
+            self.analysis_callback(ch, method, properties, message)
 
         ch.basic_publish(
             exchange=worker_config.MESSAGING_EXCHANGE_NOTIFICATION,
-            routing_key=song_id,
-            body=song_id,
+            routing_key=message['song_id'],
+            body=message['song_id'],
             properties=pika.BasicProperties(
                 delivery_mode=2,
             )

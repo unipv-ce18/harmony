@@ -6,8 +6,8 @@ from common.messaging.amq_util import amq_connect_blocking, amq_producer_declara
 log = logging.getLogger(__name__)
 
 
-class TranscoderClient:
-    """AMQP (RabbitMQ) client for transcoding operations"""
+class AmqpClient:
+    """AMQP (RabbitMQ) client for different jobs operations"""
 
     def __init__(self, config):
         self.config = config

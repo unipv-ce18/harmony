@@ -33,6 +33,7 @@ class Config:
     # Output bitrate in Kbps for different output format
     BITRATE_WEBM = 160
     BITRATE_MP3 = 320
+    BITRATE_AAC = 256
 
     # Sample decimation factor for generated waveforms (e.g. 4 mins audio * 44100 Hz / 512 zoom = ~20700 points)
     WAVEFORM_ZOOM = 16768  # 4 minutes: ~650 samples for 1.3 KB dat file

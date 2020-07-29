@@ -1,8 +1,7 @@
+import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 import PlayerEvents from '../PlayerEvents';
 
 const PLUGIN_DESCRIPTION = 'Browser Media Session API plugin';
-
-const DEFAULT_ALBUMART_URL = require('../../assets/albumart_default.jpg');
 
 /**
  * Adds Media Session API support to the Harmony player.

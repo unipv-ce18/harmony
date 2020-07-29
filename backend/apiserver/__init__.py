@@ -12,7 +12,8 @@ from common.database import Database
 from .config import config
 from .util.api_explorer import ApiExplorer
 from .ws.playback_namespace import PlaybackNamespace
-from .ws.transcoder_client import TranscoderClient
+from .ws.download_namespace import DownloadNamespace
+from .ws.amqp_client import AmqpClient
 
 
 # Flask extensions
@@ -53,14 +54,15 @@ def create_app(config_name=None):
         return db.is_token_revoked(decrypted_token)
 
     # Configure messaging and WebSocket
-    transcoder_client = TranscoderClient(current_config)
-    socketio.on_namespace(PlaybackNamespace('/playback', transcoder_client, db))
+    amqp_client = AmqpClient(current_config)
+    socketio.on_namespace(PlaybackNamespace('/playback', amqp_client, db))
+    socketio.on_namespace(DownloadNamespace('/download', amqp_client, db))
 
     # Register routes
     from .api import api_blueprint
     from .hooks import webhook_blueprint
     api_explorer.manage_blueprint(api_blueprint)
-    app.register_blueprint(api_blueprint, url_prefix='/api/v1', db=db, transcoder_client=transcoder_client)
+    app.register_blueprint(api_blueprint, url_prefix='/api/v1', db=db, amqp_client=amqp_client)
     app.register_blueprint(webhook_blueprint, url_prefix='/_webhooks', db=db)
 
     return app

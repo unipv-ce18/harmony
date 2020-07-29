@@ -36,6 +36,7 @@ class ReleaseDatabaseTest(DatabaseTest):
             rel_in_data['songs'] = None
             rel_out_data['id'] = None
             rel_out_data['artist'] = None
+            rel_out_data['counter'] = None  # defaults to 0
             self.assertDictEqual(rel_in_data, rel_out_data,
                                  'Extracted release content should match inserted')
 

@@ -99,7 +99,7 @@ $ python -m venv venv
 $ . venv/bin/activate
 $ pip install -r apiserver/requirements.txt
 $ pip install -r director/requirements.txt
-$ pip install -r transcoder_worker/requirements.txt
+$ pip install -r worker/requirements.txt
 ```
 
 Then run the microservices:

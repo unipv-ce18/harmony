@@ -42,7 +42,7 @@ class Transcoder:
         if not os.path.exists(f'{_tmp_folder}/{_tmp_subfolder}'):
             os.makedirs(os.path.join(_tmp_folder, _tmp_subfolder))
 
-    def transcoding_song(self, id, bitrate=160, sample_rate=44100, channels=2, extension='.webm', include_metadata=False):
+    def transcoding_song(self, id, bitrate=160, sample_rate=44100, channels=2, extension='.webm'):
         """Transcode a song from flac format to the format specified in extension.
 
         input file: downloaded from lossless-songs bucket inside storage server
@@ -59,21 +59,17 @@ class Transcoder:
         :param int channels: the number of channels of the ouput song. The default
                              is 2, which stands for stereo; 1 is mono
         :param str extension: the extension of the ouput song. The default is .webm
-        :param bool include_metadata: include metadata in the output song if True.
-            The default value is False
         :raise: `FFRuntimeError` in case FFmpeg command exits with a non-zero code;
                 `FFExecutableNotFoundError` in case the executable path passed was not valid
         """
         in_file = f'{_tmp_folder}/{id}.flac'
         out_file = f'{_tmp_folder}/{_tmp_subfolder}/{id}-{bitrate}{extension}'
 
-        metadata = self.metadata(id) if include_metadata else ''
-
         if channels > 2:
             channels = 2
 
         global_options = '-y'
-        output_options = f'-b:a {bitrate}k -ar {sample_rate} {metadata} -ac {channels} ' \
+        output_options = f'-b:a {bitrate}k -ar {sample_rate} -ac {channels} ' \
                          f'-acodec libvorbis -vn -map_metadata -1'
 
         ff = FFmpeg(
@@ -83,23 +79,7 @@ class Transcoder:
         )
         ff.run()
 
-    def metadata(self, id):
-        """Generate metadata for song from database information.
-
-        :param str id: id of the song to be transcoded
-        """
-        song = self.db.get_song(id)
-        m = [
-            f'title="{song.title}"',
-            f'artist="{song.artist.get("name")}"',
-            f'album="{song.release.get("name")}"'
-        ]
-        metadata = ''
-        for i in range(len(m)):
-            metadata += f'-metadata {m[i]} '
-        return metadata
-
-    def transcoding(self, id, sample_rate=44100, channels=2, extension='.webm', include_metadata=False):
+    def transcoding(self, id, sample_rate=44100, channels=2, extension='.webm'):
         """Transcode a song in multiple bitrates.
 
         Use the different bitrates specified inside _bitrate list to create three
@@ -112,11 +92,9 @@ class Transcoder:
         :param int channels: the number of channels of the ouput song. The default
                              is 2, which stands for stereo; 1 is mono
         :param str extension: the extension of the ouput song. The default is .webm
-        :param bool include_metadata: include metadata in the output song if True.
-            The default value is False
         """
         for b in _bitrate:
-            self.transcoding_song(id, b, sample_rate, channels, extension, include_metadata)
+            self.transcoding_song(id, b, sample_rate, channels, extension)
 
     def manifest_creation(self, id):
         """Create the manifest and the segments of a transcoded song.
@@ -191,7 +169,7 @@ class Transcoder:
             '-z',
             str(worker_config.WAVEFORM_ZOOM),  # samples per pixel
             '-b',
-            '8'     # bit
+            '8'  # bit
         ]
 
         subprocess.run(command)
@@ -253,7 +231,7 @@ class Transcoder:
             os.remove(f'{_tmp_folder}/{_tmp_subfolder}/{id}-{b}{extension}')
         shutil.rmtree(f'{_tmp_folder}/{id}')
 
-    def complete_transcode(self, song_id, sample_rate=44100, channels=2, extension='.webm', include_metadata=False):
+    def complete_transcode(self, song_id, sample_rate=44100, channels=2, extension='.webm'):
         """Perform a complete transcode process on a song.
 
         Retrieve the song from the storage server, transcode it in three different
@@ -266,18 +244,16 @@ class Transcoder:
         :param int channels: the number of channels of the ouput song. The default
                              is 2, which stands for stereo; 1 is mono
         :param str extension: the extension of the ouput song. The default is .webm
-        :param bool include_metadata: include metadata in the output song if True.
-            The default value is False
         """
         log.info('%s: Transcoding job started', song_id)
 
         if self.download_song_from_storage_server(song_id):
             try:
-                self.transcoding(song_id, sample_rate, channels, extension, include_metadata)
+                self.transcoding(song_id, sample_rate, channels, extension)
                 manifest_data = self.manifest_creation(song_id)
                 waveform_data = self.waveform_creation(song_id)
-                self.upload_song_repr_data(song_id, manifest_data, waveform_data)
                 self.upload_files_to_storage_server(song_id, extension)
+                self.upload_song_repr_data(song_id, manifest_data, waveform_data)
 
                 log.info('%s: Transcoding job finished', song_id)
             except FFExecutableNotFoundError:

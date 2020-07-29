@@ -20,10 +20,13 @@ class Config:
     DOCKER_SOCKET_PATH = os.environ.get('DOCKER_SOCKET_PATH', '/var/run/docker.sock')
 
     # The image used to create worker instances
-    DOCKER_WORKER_IMAGE = os.environ.get('DOCKER_WORKER_IMAGE', 'harmony/transcoder-worker:dev')
+    DOCKER_WORKER_IMAGE = os.environ.get('DOCKER_WORKER_IMAGE', 'harmony/worker:dev')
 
     # Config settings to pass to the created container
     DOCKER_SHARED_CONFIG_KEYS = ['MONGO_URI', 'MESSAGING_HOST', 'STORAGE_ENDPOINT']
+
+    # Whether spawned containers have the auto-remove flag set
+    DOCKER_AUTO_REMOVE = True
 
     # --- Parameters for the 'process' worker driver ---
 
@@ -34,6 +37,7 @@ class Config:
 class DevelopmentConfig(Config, BackendConfigDev):
 
     UPDATE_COUNTER = 2
+    DOCKER_AUTO_REMOVE = False
 
 
 class ProductionConfig(Config, BackendConfigProd):
