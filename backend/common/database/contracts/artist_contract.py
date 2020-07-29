@@ -35,6 +35,7 @@ SONG_LYRICS = 'lyrics'
 SONG_COUNTER = 'counter'
 SONG_VERSIONS = 'versions'
 SONG_REPRESENTATION_DATA = 'repr_data'
+SONG_ANALYSIS_DATA = 'anal_data'
 
 # Artist reference fields
 ARTIST_REF_ID = 'id'

@@ -10,6 +10,7 @@ class OrchestratorOpsMixin:
         self.transcoder = db_connection['transcoder']
         self.modified = db_connection['modified']
         self.consumers = db_connection['consumers']
+        self.analyzer = db_connection["analyzer"]
 
     def put_transcoder_pending_song(self, song_id):
         self.transcoder.insert_one({
@@ -52,6 +53,23 @@ class OrchestratorOpsMixin:
 
     def get_count_modified_collection(self):
         return self.modified.count_documents({})
+
+    def put_analyzer_pending_song(self, song_id):
+        self.analyzer.insert_one({
+            '_id': ObjectId(song_id),
+            'exp': datetime.utcnow()
+        })
+
+    def remove_analyzer_pending_song(self, song_id):
+        self.analyzer.delete_one({
+            '_id': ObjectId(song_id)
+        })
+
+    def song_is_analyzing(self, song_id):
+        return bool(self.analyzer.find_one({'_id': ObjectId(song_id)}))
+
+    def get_count_analyzing_collection(self):
+        return self.analyzer.count_documents({})
 
     def put_worker(self, consumer_tag, driver_handle):
         """Registers a worker in the database

@@ -8,6 +8,7 @@ import common.messaging.jobs as jobs
 from . import worker_config
 from .transcoder import Transcoder
 from .modify_song import ModifySong
+from .analyzer import Analyzer
 
 
 log = logging.getLogger(__name__)
@@ -27,6 +28,7 @@ class Worker:
 
         self.transcoder = Transcoder(db_interface, storage_interface)
         self.modify_song = ModifySong(db_interface, storage_interface)
+        self.analyze_song = Analyzer(db_interface, storage_interface)
 
         self.db = db_interface
 
@@ -95,7 +97,7 @@ class Worker:
         song_id = message['song_id']
 
         self.db.bind_consumer_to_song(self.consumer_tag, song_id)
-
+        self.analyze_song.analyze_song(song_id)
         return song_id
 
     def callback(self, ch, method, properties, body):

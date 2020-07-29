@@ -105,10 +105,23 @@ class Orchestrator:
                 log.debug('%s: Duplicate request, ignoring', song_id)
         else:
             self.notify_api_server(song_id)
-            log.debug('%s: Already converted, notification sent', song_id)
+            log.debug('%s: Already modified, notification sent', song_id)
 
     def analysis_callback(self, ch, method, properties, message):
         """Analysis callback."""
+        song_id = message['song_id']
+        log.info('%s: Received analysis song request', song_id)
+        if not self.song_is_already_analyzed(song_id):
+            if not self.song_is_analyzing(song_id):
+                self.push_song_in_queue(message)
+                self.store_analyzing_pending_song(song_id)
+                if self.consumers_less_than_pending_song():
+                    self.create_worker()
+            else:
+                log.debug('%s: Duplicate request, ignoring', song_id)
+        else:
+            self.notify_api_server(song_id)
+            log.debug('%s: Already analyzed, notification sent', song_id)
         pass
 
     def counter_callback(self, ch, method, properties, message):
@@ -226,6 +239,41 @@ class Orchestrator:
         :rtype: int
         """
         return self.db.get_count_consumers_collection()
+
+    def song_is_already_analyzed(self, song_id):
+        """Check if a song has already been analyzed.
+
+        :param str song_id: id of the song
+        :return: True if exist data analysis related to the song, False otherwise
+        :rtype: bool
+        """
+        song = self.db.get_song(song_id)
+        if song.anal_data is not None:
+            return True
+        return False
+
+    def song_is_analyzing(self, song_id):
+        """Check if a song is already in the analysis process.
+
+        :param str song_id: id of the song
+        :rtype: bool
+        """
+        return self.db.song_is_analyzing(song_id)
+
+    def store_analyzing_pending_song(self, song_id):
+        """Store id of a song to analyze in database.
+
+        :param str song_id: id of the song
+        """
+        self.db.put_analyzer_pending_song(song_id)
+
+    def get_number_of_analyzing_pending_song(self):
+        """Get the number of songs in analyzing queue.
+
+        :return: number of pending songs
+        :rtype: int
+        """
+        return self.db.get_count_analyzing_collection()
 
     def song_is_already_modified(self, song_id, semitones, output_format, split):
         """Check if a song has already been shifted with the same features.
