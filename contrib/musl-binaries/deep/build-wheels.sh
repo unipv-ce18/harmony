@@ -3,7 +3,7 @@
 # this builds all the wheels required for worker analysis functionality
 # and puts them in /out/wheels... it may take some hours to complete.
 
-apk add --no-cache gcc g++ make musl-dev python3-dev openblas-dev
+apk add --no-cache gcc g++ make musl-dev python3-dev openblas-dev libsndfile-dev
 pip3 install wheel
 
 mkdir -p /out/wheels
