@@ -57,8 +57,7 @@ class Analyzer:
                 log.exception('%s(%s)', type(e).__name__, e)
             finally:
                 try:
-                    pass
-                    # self.clear_tmp_files(song_id, in_file, out_file)
+                    self.clear_tmp_files(song_id, in_file, out_file)
                 except FileNotFoundError:
                     pass
         else:
