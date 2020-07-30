@@ -1,0 +1,73 @@
+@import "../../styledefs";
+
+.userPage {
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.userPageContent {
+  width: 100%;
+  border-radius: 16px;
+  min-height: calc(100vh - 32px - #{$navbar-height});
+
+  background-color: $panel-color;
+  color: $panel-text-color;
+  overflow: hidden;
+}
+
+.userInfo {
+  background-repeat: no-repeat;
+  padding: 0.5em;
+  .name {
+    margin: 0;
+    padding: 0.2em;
+  }
+
+  img {
+    border-radius: 10px;
+    width: 200px;
+    height: 200px;
+  }
+}
+
+.tags {
+  .tagButton {
+    border-radius: 5px;
+    background-color: $application-background;
+    color: $text-color-default;
+    padding: 0.1em 0.2em;
+    margin: 0 0.1em;
+  }
+}
+
+.userBio {
+  padding: 10px;
+  font-size: 0.85em;
+}
+
+.artistList {
+  padding: 10px;
+
+  img {
+    border-radius: 10px;
+    width: 200px;
+    height: 200px;
+  }
+
+  .artist {
+    //background-size: contain;
+    //border-radius: 10px;
+    width: 200px;
+    height: 200px;
+    float: left;
+    margin: 0 0.1em;
+    p a {
+      color: $text-color-default;
+    }
+  }
+
+  .active {
+    background-color: #2a0c12;
+  }
+}

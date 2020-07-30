@@ -35,7 +35,7 @@ class PlaylistsPage extends Component {
 
   clickCreator(creator_id, e) {
      e.preventDefault();
-     route('/library/' + creator_id);
+     route('/user/' + creator_id);
   }
 
   isUserOwner() {
