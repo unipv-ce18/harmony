@@ -330,7 +330,8 @@ class Orchestrator:
         :rtype: bool
         """
         return self.get_number_of_consumers() < (self.get_number_of_transcode_pending_song()
-                                                 + self.get_number_of_modified_pending_song())
+                                                 + self.get_number_of_modified_pending_song()
+                                                 + self.get_number_of_analyzing_pending_song())
 
     def song_is_already_transcoded(self, id):
         """Check if the song is already transcoded.

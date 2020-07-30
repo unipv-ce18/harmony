@@ -112,7 +112,7 @@ class SongOpsMixin:
     def put_song_data_analysis(self, song_id: str, data: Any):
         res = self.artists.update_one(
             {c.INDEX_SONG_ID: ObjectId(song_id)},
-            {'$push': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}.$[s].{c.SONG_ANALYSIS_DATA}': data}},
+            {'$set': {f'{c.ARTIST_RELEASES}.$.{c.RELEASE_SONGS}.$[s].{c.SONG_ANALYSIS_DATA}': data}},
             array_filters=[{f's.{c.SONG_ID}': ObjectId(song_id)}])
         if res.matched_count != 1:
             raise ValueError('The given song_id does not exist')

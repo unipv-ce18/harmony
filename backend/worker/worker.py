@@ -94,6 +94,7 @@ class Worker:
     def analysis_callback(self, ch, method, properties, message):
         song_id = message['song_id']
 
+        log.debug('(%s) received (%s) for %s job', self.consumer_tag, song_id, jobs.ANALYSIS)
         self.db.bind_consumer_to_song(self.consumer_tag, song_id)
         self.analyze_song.analyze_song(song_id)
 

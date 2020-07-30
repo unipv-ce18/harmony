@@ -96,6 +96,7 @@ def song_projection(include_ref=True, this_name=f'${c.ARTIST_RELEASES}.{c.RELEAS
         c.SONG_COUNTER: f'{this_name}.{c.SONG_COUNTER}',
         c.SONG_VERSIONS: f'{this_name}.{c.SONG_VERSIONS}',
         c.SONG_REPRESENTATION_DATA: f'{this_name}.{c.SONG_REPRESENTATION_DATA}',
+        c.SONG_ANALYSIS_DATA: f'{this_name}.{c.SONG_ANALYSIS_DATA}',
     }
     if include_ref:
         projection[c.SONG_ARTIST_REF] = _ARTIST_REF_PROJECTION

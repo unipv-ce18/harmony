@@ -40,7 +40,8 @@ _SONG_DOCUMENT_BINDINGS = {
     'lyrics': c.SONG_LYRICS,
     'counter': c.SONG_COUNTER,
     'versions': c.SONG_VERSIONS,
-    'repr_data': c.SONG_REPRESENTATION_DATA
+    'repr_data': c.SONG_REPRESENTATION_DATA,
+    'anal_data': c.SONG_ANALYSIS_DATA
 }
 
 # Fields that may cause trouble if inserted in a document bypassing checks

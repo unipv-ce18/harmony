@@ -4,8 +4,10 @@ from bson import ObjectId
 from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
-from . import api_blueprint, db
+from . import api_blueprint, db, amqp_client
 from ..util import security
+from ..ws.notification_worker import NotificationWorker
+import common.messaging.jobs as jobs
 from common.database.contracts import artist_contract as c
 from common.database.codecs import song_from_document
 
@@ -93,6 +95,9 @@ class SongUpload(Resource):
 
         db.put_song(release_id, song_from_document(data), False)
         db.remove_content(song_id)
+
+        td = NotificationWorker({'song_id': song_id, 'type': jobs.ANALYSIS}, amqp_client)
+        td.start()
 
         return {'message': 'Upload completed'}, HTTPStatus.OK
 

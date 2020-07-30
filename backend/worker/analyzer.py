@@ -43,7 +43,7 @@ class Analyzer:
 
         :param str song_id: id of the song to analyze
         """
-        in_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}'
+        in_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}.flac'
         out_file = f'{_tmp_folder}/{_tmp_subfolder}/{song_id}.mid'
 
         log.info('%s: Analyzing job started', song_id)
@@ -57,7 +57,8 @@ class Analyzer:
                 log.exception('%s(%s)', type(e).__name__, e)
             finally:
                 try:
-                    self.clear_tmp_files(song_id, in_file, out_file)
+                    pass
+                    # self.clear_tmp_files(song_id, in_file, out_file)
                 except FileNotFoundError:
                     pass
         else:
@@ -116,7 +117,7 @@ class Analyzer:
         for index, entry in enumerate(camelot[key.mode]):
             if entry[0] == key.tonic.name:
                 prev = camelot[key.mode][index - 1][1]
-                next = camelot[key.mode][index + 1][1] if index < len(camelot[key.mode]) else camelot[key.mode][0][1]
+                next = camelot[key.mode][index + 1][1] if index < len(camelot[key.mode])-1 else camelot[key.mode][0][1]
                 same = camelot["minor"][index][1] if key.mode == "major" else camelot["major"][index][1]
                 mycamelot = {"camelot": entry[1],
                              "adjacency": [prev, next, same]}
@@ -171,6 +172,7 @@ class Analyzer:
         mid.save(out_file)
         score = music21.converter.parse(out_file)
         key = score.analyze('key')
+        key.tonic.name = key.tonic.name.replace("-", "")
         key.camelot = self.key_to_camelot(key)
         return key
 
@@ -192,7 +194,10 @@ class Analyzer:
         :return: True if song is downloaded, False otherwise
         :rtype: bool
         """
-        return self.st.download_file(worker_config.STORAGE_BUCKET_REFERENCE, song_id, f'{_tmp_folder}/{_tmp_subfolder}')
+        result = self.st.download_file(worker_config.STORAGE_BUCKET_REFERENCE, song_id, f'{_tmp_folder}/{_tmp_subfolder}')
+        if result:
+            os.rename(f'{_tmp_folder}/{_tmp_subfolder}/{song_id}', f'{_tmp_folder}/{_tmp_subfolder}/{song_id}.flac')
+        return result
 
     def remove_pending_song(self, id):
         """Remove the id of the pending song in RabbitMQ queue from database.
@@ -214,4 +219,5 @@ class Analyzer:
                     'mode': key.mode,
                     'camelot': key.camelot}
         }
+        log.info(f'song {song_id} tagged with tempo {tempo}BPM, key {key.tonic.name} {key.mode}')
         self.db.put_song_data_analysis(song_id, data)
