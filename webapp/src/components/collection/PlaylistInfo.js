@@ -20,7 +20,7 @@ class PlaylistInfo extends Component {
 
   clickCreator(e) {
     e.preventDefault();
-    route('/library/' + this.props.collection.creator.id);
+    route('/user/' + this.props.collection.creator.id);
   }
 
   changePolicy() {

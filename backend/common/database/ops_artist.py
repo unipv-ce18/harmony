@@ -72,3 +72,9 @@ class ArtistOpsMixin:
             {c.ARTIST_ID: ObjectId(artist_id)},
             {'$inc': {c.ARTIST_COUNTER: count}}
         ).matched_count
+
+    def get_user_artists(self, user_id):
+        result = self.artists.find(
+            {c.ARTIST_CREATOR: ObjectId(user_id)},
+            artist_projection())
+        return [artist_from_document(res) for res in result]

@@ -6,6 +6,7 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
+from ._conversions import create_artist_result
 from common.database.contracts import user_contract as uc
 from common.database.contracts import playlist_contract as c
 
@@ -59,7 +60,12 @@ class UserOptions(Resource):
 
         if user is None:
             return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
-        return user.to_dict(), HTTPStatus.OK
+        user = user.to_dict()
+
+        if db.get_user_type(user_id) == 'creator':
+            user['artists'] = [create_artist_result(artist) for artist in db.get_user_artists(user_id)]
+
+        return user, HTTPStatus.OK
 
     def patch(self, user_id):
         """Update a user

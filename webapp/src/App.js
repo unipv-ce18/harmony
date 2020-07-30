@@ -11,6 +11,7 @@ import CollectionPage from "./components/collection/CollectionPage";
 import LibraryPage from "./components/library/LibraryPage";
 import ErrorPage from "./components/error/ErrorPage";
 import MediaPlayerWrapper from './player/components/MediaPlayerWrapper';
+import UserPage from "./components/user/UserPage";
 
 import {session, mediaPlayer} from './Harmony';
 import styles from './App.scss';
@@ -44,6 +45,7 @@ class App extends Component {
         {session.error ? <ErrorPage path="/release/:id"/> : <CollectionPage path="/release/:id"/>}
         {session.error ? <ErrorPage path="/playlist/:id"/> : <CollectionPage path="/playlist/:id"/>}
         {session.error ? <ErrorPage path="/library/:id"/> : <LibraryPage path="/library/:id"/>}
+        {session.error ? <ErrorPage path="/user/:id"/> : <UserPage path="/user/:id"/>}
         <Redirect default to="/"/>
       </Router>
     ) : (

@@ -79,6 +79,38 @@ export function getUserInfo(token, user_id) {
   });
 }
 
+export function changeUserType(token) {
+  return fetch(API_USER_URL + 'type', {
+    method: 'POST',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
+  });
+}
+
+export function changeUserTier(token) {
+  return fetch(API_USER_URL + 'tier', {
+    method: 'POST',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
+  });
+}
+
+export function patchUser(token, user_id, bio) {
+  const data = {bio};
+  return fetch(API_USER_URL + user_id, {
+    method: 'PATCH',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
+  });
+}
+
 export function getReleasePlaylist(type_collection, collection_id, with_song, token) {
   // with_song == true includes the songs in the result
   let query;
@@ -166,4 +198,3 @@ export function updateSongInPlaylist(type_method, playlist_id, song_id, token) {
     return 'song added successfully';
   });
 }
-
