@@ -49,10 +49,10 @@ class Analyzer:
         log.info('%s: Analyzing job started', song_id)
         if self.download_song_from_storage_server(song_id):
             try:
-                tempo = round(self.compute_tempo(in_file), 2)
+                tempo, duration = self.compute_tempo(in_file)
                 key = self.compute_key(in_file, out_file)
-                self.upload_song_data(song_id, tempo, key)
-                log.info(f'{song_id}: {tempo} BPM, {key.tonic.name}{key.mode}, {key.camelot}')
+                self.upload_song_data(song_id, tempo, key, duration)
+                log.info(f'{song_id}: Analysis done, updating database entry...')
             except Exception as e:
                 log.exception('%s(%s)', type(e).__name__, e)
             finally:
@@ -93,11 +93,12 @@ class Analyzer:
                 # the song is too short to recognize a tempo
                 return 0
             bpms = 60. / np.diff(beats)
-            bpm_est = np.median(bpms)
+            bpm_est = round(np.median(bpms), 2)
         else:
             # too few beats to recognize a tempo
             return 0
-        return bpm_est
+        duration = int(total_frames / samplerate * 1000)
+        return bpm_est, duration
 
     @staticmethod
     def key_to_camelot(key: music21.key.Key):
@@ -205,7 +206,7 @@ class Analyzer:
         """
         self.db.remove_analyzer_pending_song(id)
 
-    def upload_song_data(self, song_id, tempo, key):
+    def upload_song_data(self, song_id, tempo, key, duration):
         """Upload data of the song analyzed in the database.
 
         :param str song_id: id of the song changed
@@ -216,7 +217,11 @@ class Analyzer:
             'tempo': tempo,
             'key': {'name': key.tonic.name,
                     'mode': key.mode,
+                    'confidency': round(key.correlationCoefficient, 3)*100,
                     'camelot': key.camelot}
         }
-        log.info(f'song {song_id} tagged with tempo {tempo}BPM, key {key.tonic.name} {key.mode}')
+        log.info(f'song {song_id} ({duration}ms) tagged with tempo {tempo} BPM, '
+                 f'key {key.tonic.name} {key.mode} ({key.camelot})')
         self.db.put_song_data_analysis(song_id, data)
+        self.db.update_song(song_id, {'length': duration})
+        log.info(f'song {song_id}: updated length to {duration}ms')
