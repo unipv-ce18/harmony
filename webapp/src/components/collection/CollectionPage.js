@@ -1,11 +1,11 @@
 import {route} from 'preact-router';
 import {Component} from 'preact';
 
-import {getReleasePlaylist} from "../../core/apiCalls";
+import {getReleasePlaylist, deleteRelease} from "../../core/apiCalls";
 import {catalog, mediaPlayer, session} from "../../Harmony"
 import styles from './CollectionPage.scss';
 import CollectionSongsTable from './CollectionSongsTable';
-import ModalBox from './ModalBox';
+import ModalBox from '../ModalBox';
 import IconButton from '../IconButton';
 import {
   IconQueue,
@@ -18,6 +18,7 @@ import ReleaseInfo from './ReleaseInfo';
 import PlaylistInfo from './PlaylistInfo';
 
 const MODALBOX_PLAYLIST_DELETE = 'modalbox_playlist_delete';
+const MODALBOX_RELEASE_DELETE = 'modalbox_release_delete';
 const MODAL_BOX_SUCCESS = 'modalbox_success';
 
 class CollectionPage extends Component {
@@ -35,6 +36,7 @@ class CollectionPage extends Component {
     }
 
     this.addSongsToQueue = this.addSongsToQueue.bind(this);
+    this.deleteReleasePage = this.deleteReleasePage.bind(this);
   }
 
   componentDidMount() {
@@ -87,6 +89,11 @@ class CollectionPage extends Component {
     return this.state.collectionType === 'releases';
   }
 
+  userOwnRelease() {
+    if (this.state.collectionType === 'releases')
+      return session.getOwnData().id === this.state.collection.artist.creator;
+  }
+
   createSong(song) {
     if(this.isRelease())
       return new MediaItemInfo(song.id, {
@@ -105,6 +112,17 @@ class CollectionPage extends Component {
     mediaPlayer.play(arrayMediaInfo, PlayStartModes.APPEND_QUEUE);
     this.handleModalBox(MODAL_BOX_SUCCESS, 'Songs added to queue.');
     setTimeout(()=>this.handleModalBox('', ''),2000)
+  }
+
+  deleteReleasePage() {
+    session.getAccessToken()
+      .then (token => {
+        deleteRelease(this.state.collection.id, token)
+          .then(result => {
+            route('/artist/' + this.state.collection.artist.id);
+          })
+          .catch( () => session.error = true);
+      })
   }
 
   render() {
@@ -142,9 +160,14 @@ class CollectionPage extends Component {
               <button
                 onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST_DELETE, this.state.collection.id)}>Delete
               </button>}
+              {this.state.stateUpdated && this.userOwnRelease() &&
+                <button
+                  onClick={this.handleModalBox.bind(this, MODALBOX_RELEASE_DELETE, this.state.collection.id)}>Delete
+                </button>}
           </div>
           <ModalBox
             handleModalBox={this.handleModalBox.bind(this)}
+            removeRelease={this.deleteReleasePage.bind(this)}
             type={this.state.modalBox.type}
             message={this.state.modalBox.message}/>
         </div>

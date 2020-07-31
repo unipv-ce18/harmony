@@ -5,7 +5,7 @@ import styles from './LibraryPage.scss';
 import {route} from 'preact-router';
 import image from '../collection/image.jpg';
 import {catalog, session} from '../../Harmony';
-import ModalBox from '../collection/ModalBox';
+import ModalBox from '../ModalBox';
 import PlaylistImage from '../collection/PlaylistImage';
 
 const MODALBOX_PLAYLIST = 'modalbox_playlist';

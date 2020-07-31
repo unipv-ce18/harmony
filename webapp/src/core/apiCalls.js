@@ -152,6 +152,38 @@ export function createArtist(name, token) {
   });
 }
 
+export function deleteArtist(artist_id, token) {
+  return fetch(API_ARTIST_URL + '/' + artist_id, {
+    method: 'DELETE',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
+  });
+}
+
+export function createRelease(artist_id, name, token) {
+  const data = {artist_id, name};
+  return fetch(API_RELEASE_URL, {
+    method: 'POST',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return response.json();
+  });
+}
+
+export function deleteRelease(release_id, token) {
+  return fetch(API_RELEASE_URL + '/' + release_id, {
+    method: 'DELETE',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
+  });
+}
+
 export function getLibrary(user_id, token, full) {
   let query = API_USER_URL + user_id + '/library'
   if (full) query += '?full=1';
