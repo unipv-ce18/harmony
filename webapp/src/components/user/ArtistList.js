@@ -18,7 +18,7 @@ class ArtistList extends Component {
         {this.props.artists.map(artist =>
           <div class={styles.artist}>
             <a href='#' onClick={this.handleClickArtist.bind(this, artist.id)}>
-              <img src={artist.image ? artist.image : null} alt={artist.name}/>
+              <img src={artist.image ? artist.image : null} alt={""}/>
             </a>
             <p><a href='#' onClick={this.handleClickArtist.bind(this, artist.id)}>{artist.name}</a></p>
           </div>)

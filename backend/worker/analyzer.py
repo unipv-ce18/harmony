@@ -107,10 +107,10 @@ class Analyzer:
         :param str key: song key estimated
         :return str mycamelot: input key converted to camelot notation
         """
-        camelot = {"major": [('B', '1B'), ('F#', '2B'), ('Db', '3B'), ('Ab', '4B'),
+        camelot = {'major': [('B', '1B'), ('F#', '2B'), ('Db', '3B'), ('Ab', '4B'),
                              ('Eb', '5B'), ('Bb', '6B'), ('F', '7B'), ('C', '8B'),
                              ('G', '9B'), ('D', '10B'), ('A', '11B'), ('E', '12B')],
-                   "minor": [('Ab', '1A'), ('Eb', '2A'), ('Bb', '3A'), ('F', '4A'),
+                   'minor': [('Ab', '1A'), ('Eb', '2A'), ('Bb', '3A'), ('F', '4A'),
                              ('C', '5A'), ('G', '6A'), ('D', '7A'), ('A', '8A'),
                              ('E', '9A'), ('B', '10A'), ('F#', '11A'), ('Db', '12A')]}
 
@@ -118,9 +118,9 @@ class Analyzer:
             if entry[0] == key.tonic.name:
                 prev = camelot[key.mode][index - 1][1]
                 next = camelot[key.mode][index + 1][1] if index < len(camelot[key.mode])-1 else camelot[key.mode][0][1]
-                same = camelot["minor"][index][1] if key.mode == "major" else camelot["major"][index][1]
-                mycamelot = {"camelot": entry[1],
-                             "adjacency": [prev, next, same]}
+                same = camelot['minor'][index][1] if key.mode == 'major' else camelot['major'][index][1]
+                mycamelot = {'camelot': entry[1],
+                             'adjacency': [prev, next, same]}
                 return mycamelot
 
     @staticmethod
@@ -144,7 +144,7 @@ class Analyzer:
 
         s = aubio.source(in_file, samplerate, hop_s)
         samplerate = s.samplerate
-        notes_o = aubio.notes("default", win_s, hop_s, samplerate)
+        notes_o = aubio.notes('default', win_s, hop_s, samplerate)
         # convert the track to midi with everything on a single track
         mid = MidiFile()
         track = MidiTrack()
@@ -172,7 +172,7 @@ class Analyzer:
         mid.save(out_file)
         score = music21.converter.parse(out_file)
         key = score.analyze('key')
-        key.tonic.name = key.tonic.name.replace("-", "")
+        key.tonic.name = key.tonic.name.replace('-', '')
         key.camelot = self.key_to_camelot(key)
         return key
 

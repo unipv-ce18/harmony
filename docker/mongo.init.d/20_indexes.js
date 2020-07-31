@@ -17,3 +17,6 @@ db.transcoder.createIndex({'exp': 1}, {expireAfterSeconds: 60})
 
 // Song alteration jobs TTL
 db.modified.createIndex({'exp': 1}, {expireAfterSeconds: 180})
+
+// Song analysis jobs TTL
+db.analyzer.createIndex({'exp': 1}, {expireAfterSeconds: 180})

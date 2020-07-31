@@ -10,7 +10,7 @@ class OrchestratorOpsMixin:
         self.transcoder = db_connection['transcoder']
         self.modified = db_connection['modified']
         self.consumers = db_connection['consumers']
-        self.analyzer = db_connection["analyzer"]
+        self.analyzer = db_connection['analyzer']
 
     def put_transcoder_pending_song(self, song_id):
         self.transcoder.insert_one({
