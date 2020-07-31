@@ -14,6 +14,8 @@ class Config:
 
     UPDATE_COUNTER = 1000     # update the database after this value of new listening
 
+    PREFETCH_COUNT = 100    # number of unacknowledged messages on channel (or connection) when consuming
+
     # --- Parameters for the 'docker' worker driver ---
 
     # Location of the controlling docker socket
@@ -37,6 +39,7 @@ class Config:
 class DevelopmentConfig(Config, BackendConfigDev):
 
     UPDATE_COUNTER = 2
+    PREFETCH_COUNT = 25
     DOCKER_AUTO_REMOVE = False
 
 

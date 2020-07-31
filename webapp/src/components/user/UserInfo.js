@@ -1,16 +1,25 @@
 import {Component} from 'preact';
-import {route} from 'preact-router';
+
 import styles from './UserPage.scss';
+import {route} from 'preact-router';
 import {session} from '../../Harmony';
+import {changeUserType, changeUserTier, patchUser, createArtist} from '../../core/apiCalls';
 import ArtistList from './ArtistList';
-import {changeUserType, changeUserTier, patchUser} from '../../core/apiCalls';
+import ModalBox from './ModalBox';
 import {DEFAULT_USER_IMAGE_URL} from '../../assets/defaults';
+import image from './plus.jpg';
+
+const MODALBOX_ARTIST = 'modalbox_artist';
+const MODAL_BOX_SUCCESS = 'modalbox_success';
 
 class UserInfo extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {update : false};
+    this.state = {
+      update : false,
+      modalBox : {type:'', message:''}
+    };
 
     this.changeType = this.changeType.bind(this);
     this.changeTier = this.changeTier.bind(this);
@@ -42,6 +51,7 @@ class UserInfo extends Component {
           .then(() => {
             this.setState({type: 'creator'});
           })
+          .catch( () => session.error = true);
       })
   }
 
@@ -52,11 +62,19 @@ class UserInfo extends Component {
           .then(result => {
             this.setState({tier: 'pro'});
           })
+          .catch( () => session.error = true);
       })
   }
 
-  createArtist() {
-
+  createNewArtist(artist_name) {
+    session.getAccessToken()
+      .then (token => {
+        createArtist(artist_name, token)
+          .then(result => {
+            route('/artist/' + result['artist_id']);
+          })
+          .catch( () => session.error = true);
+      })
   }
 
   updatePage() {
@@ -68,7 +86,7 @@ class UserInfo extends Component {
       .then (token => {
         patchUser(token, this.props.user.id, this.state.bio)
           .then( () => {
-
+            this.setState({bio: 'hey'});
           })
           .catch( () => session.error = true);
       })
@@ -90,51 +108,80 @@ class UserInfo extends Component {
     return session.getOwnData().id === this.props.user.id;
   }
 
+  handleModalBox(modalbox_type, message, e) {
+    e.preventDefault();
+    this.setState({modalBox: {type: modalbox_type, message: message}});
+  }
+
   render() {
     const user = this.props.user;
 
     return(
       <div>
         <div class={styles.userInfo}>
-          <div><img src={user.avatar_url ? user.avatar_url : DEFAULT_USER_IMAGE_URL} alt={""}/></div>
-          <h2 class={styles.name}>{user.username}</h2>
-          <div>email: {user.email}</div>
-          <div>
-            type: {this.state.type}
-            {this.state.type !== 'creator' && <button onClick={this.changeType}>become creator</button>}
-            {this.state.type === 'creator' && this.isUserOwner() &&
-              <button onClick={this.createArtist}>create an artist</button>}
-          </div>
-          <div>
-            tier: {this.state.tier}
-            {this.state.tier !== 'pro' && <button onClick={this.changeTier}>become pro</button>}
-          </div>
-          {(user.bio && !this.state.update)
-            ? <div className={styles.userBio}>bio: {user.bio}</div>
-            : this.state.update
-              ? <form>
-                  <input
-                    type="text"
-                    name="bio"
-                    placeholder="Enter your new bio"
-                    onChange={this.handleChange}
-                  />
-                  <button onClick={this.confirmModification}>Update!</button>
-                </form>
-              : null
-            }
-          {!this.isUserOwner() &&
-            <a href="#" onClick={this.clickLibrary}>{user.username} library</a>}
-          {user.artists && user.artists.length > 0 &&
+          <div class={styles.userTop}>
             <div>
-              Artists: <ArtistList artists={user.artists}/>
+              <img src={user.avatar_url ? user.avatar_url : DEFAULT_USER_IMAGE_URL} alt={""}/>
+            </div>
+            <div>
+              <h2 class={styles.name}>{user.username}</h2>
+              {(user.bio && !this.state.update)
+                ? <div className={styles.userBio}>{user.bio}</div>
+                : this.state.update
+                  ? <form>
+                      <input
+                        type="text"
+                        name="bio"
+                        value={this.state.bio}
+                        placeholder="Enter your new bio"
+                        onChange={this.handleChange}
+                      />
+                      <button onClick={this.confirmModification}>Update!</button>
+                    </form>
+                  : null
+              }
+            </div>
+          </div>
+          <div class={styles.userCenter}>
+            <p>Account info</p>
+            <div>E-mail: {user.email}</div>
+            <div>Type: {this.state.type}</div>
+            <div>Tier: {this.state.tier}</div>
+          </div>
+          <div>
+            {this.state.type !== 'creator' && this.isUserOwner()
+              && <button onClick={this.changeType}>Become a creator!</button>}
+              {this.state.tier !== 'pro' && this.isUserOwner() &&
+                <button onClick={this.changeTier}>Become a pro user!</button>}
+            {this.isUserOwner() && !this.state.update &&
+            <button onClick={this.updatePage}>Modify your personal info</button>}
+          </div>
+          {!this.isUserOwner() &&
+            <a href="#" onClick={this.clickLibrary}>Go to {user.username} library</a>}
+          {this.state.type === 'creator' &&
+            <div class={styles.artists}>
+              Artists
+              {user.artists && user.artists.length > 0 &&
+                <ArtistList artists={user.artists}/>
+              }
+              {this.isUserOwner() &&
+                <div class={styles.artistList}>
+                  <div class={styles.artist}>
+                    <a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_ARTIST, '')}>
+                      <img src={image} alt={""}/>
+                    </a>
+                    <p><a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_ARTIST, '')}>New Artist</a></p>
+                  </div>
+              </div>
+              }
             </div>
           }
-          <div>
-            {this.isUserOwner() && !this.state.update &&
-            <button onClick={this.updatePage}>modify your personal info</button>}
-          </div>
         </div>
+        <ModalBox
+          handleModalBox={this.handleModalBox.bind(this)}
+          newArtist={this.createNewArtist.bind(this)}
+          type={this.state.modalBox.type}
+          message={this.state.modalBox.message}/>
       </div>
     );
   }

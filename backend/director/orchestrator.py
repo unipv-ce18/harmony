@@ -30,7 +30,7 @@ class Orchestrator:
 
     def consume(self):
         """Wait for messages from api servers and publish them filtered to transcoding exchange."""
-        self.channel.basic_qos(prefetch_count=25)
+        self.channel.basic_qos(prefetch_count=director_config.PREFETCH_COUNT)
 
         self.channel.basic_consume(
             queue=director_config.MESSAGING_QUEUE_JOBS,
@@ -129,7 +129,6 @@ class Orchestrator:
         else:
             self.notify_api_server(song_id)
             log.debug('%s: Already analyzed, notification sent', song_id)
-        pass
 
     def counter_callback(self, ch, method, properties, message):
         """Counter callback."""

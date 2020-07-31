@@ -140,6 +140,18 @@ export function getArtist(artist_id, with_releases, token) {
     })
 }
 
+export function createArtist(name, token) {
+  const data = {name};
+  return fetch(API_ARTIST_URL, {
+    method: 'POST',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return response.json();
+  });
+}
+
 export function getLibrary(user_id, token, full) {
   let query = API_USER_URL + user_id + '/library'
   if (full) query += '?full=1';
