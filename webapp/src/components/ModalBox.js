@@ -24,9 +24,7 @@ class ModalBox extends Component {
 
     this.state = {
       updated: true,
-      newPlaylistName : '',
-      newArtistName : '',
-      newReleaseName : ''
+      newName : ''
     }
 
     this.handleChange = this.handleChange.bind(this);
@@ -44,13 +42,11 @@ class ModalBox extends Component {
   }
 
   handleChange(e) {
-    this.setState({newPlaylistName : e.target.value});
-    this.setState({newArtistName : e.target.value});
-    this.setState({newReleaseName : e.target.value});
+    this.setState({newName : e.target.value});
   }
 
   addNewPlaylist() {
-    let playlist_name = this.state.newPlaylistName;
+    let playlist_name = this.state.newName;
     if (!playlist_name) playlist_name = 'New Playlist';
     this.props.newPlaylist(playlist_name);
   }
@@ -62,7 +58,7 @@ class ModalBox extends Component {
   }
 
   addNewArtist() {
-    let artist_name = this.state.newArtistName;
+    let artist_name = this.state.newName;
     if (!artist_name) artist_name = 'New Artist';
     this.props.newArtist(artist_name);
   }
@@ -72,7 +68,7 @@ class ModalBox extends Component {
   }
 
   addNewRelease() {
-    let release_name = this.state.newReleaseName;
+    let release_name = this.state.newName;
     if (!release_name) release_name = 'New Release';
     this.props.newRelease(release_name);
   }
