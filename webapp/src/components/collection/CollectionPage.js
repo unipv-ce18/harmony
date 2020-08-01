@@ -92,6 +92,7 @@ class CollectionPage extends Component {
   userOwnRelease() {
     if (this.state.collectionType === 'releases')
       return session.getOwnData().id === this.state.collection.artist.creator;
+    return false;
   }
 
   createSong(song) {

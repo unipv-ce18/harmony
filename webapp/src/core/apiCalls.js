@@ -6,6 +6,7 @@ const API_REFRESH_URL = API_BASE_URL + '/auth/refresh';
 const API_RELEASE_URL = API_BASE_URL + '/release';
 const API_PLAYLIST_URL = API_BASE_URL + '/playlist';
 const API_ARTIST_URL = API_BASE_URL + '/artist';
+const API_SONG_URL = API_BASE_URL + '/song';
 const API_USER_URL = API_BASE_URL + '/user/';
 
 export class ApiError extends Error {
@@ -176,6 +177,16 @@ export function createRelease(artist_id, name, token) {
 
 export function deleteRelease(release_id, token) {
   return fetch(API_RELEASE_URL + '/' + release_id, {
+    method: 'DELETE',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
+  });
+}
+
+export function deleteSong(song_id, token) {
+  return fetch(API_SONG_URL + '/' + song_id, {
     method: 'DELETE',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
   }).then(response => {

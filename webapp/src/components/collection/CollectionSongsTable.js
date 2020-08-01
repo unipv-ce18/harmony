@@ -3,7 +3,7 @@ import {Component} from 'preact';
 import {mediaPlayer, catalog, session} from "../../Harmony"
 import {MediaItemInfo, PlayStartModes} from "../../player/MediaPlayer";
 import styles from './CollectionSongsTable.scss';
-import {getUserPlaylists} from '../../core/apiCalls';
+import {getUserPlaylists, deleteSong} from '../../core/apiCalls';
 import ModalBox from '../ModalBox';
 import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconArrowRight, IconPause} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
@@ -16,6 +16,7 @@ const SONGS_TYPE = 'songs';
 const FIRST_MENU = 'first';
 const SECOND_MENU = 'second';
 const MODALBOX_PLAYLIST = 'modalbox_playlist';
+const MODALBOX_SONG_DELETE = 'modalbox_song_delete'
 const MODAL_BOX_ERROR = 'modalbox_error';
 const MODAL_BOX_SUCCESS = 'modalbox_success';
 
@@ -31,6 +32,7 @@ class CollectionSongsTable extends Component {
     }
     this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
     this.removeSongFromPlaylist = this.removeSongFromPlaylist.bind(this);
+    this.removeSongFromRelease = this.removeSongFromRelease.bind(this);
     this.onPlayerAvailable = this.onPlayerAvailable.bind(this);
     this.onPlayerChangeSong = this.onPlayerChangeSong.bind(this);
     this.onPlayerChangeState = this.onPlayerChangeState.bind(this);
@@ -104,6 +106,12 @@ class CollectionSongsTable extends Component {
     return false;
   }
 
+  userOwnRelease() {
+    if (this.props.isRelease)
+      return session.getOwnData().id === this.props.collection.artist.creator;
+    return false;
+  }
+
   handleMenu(menu_window) {
     this.setState({menuWindow: menu_window});
   }
@@ -147,6 +155,17 @@ class CollectionSongsTable extends Component {
   removeSongFromPlaylist() {
     catalog.updateSongInPlaylist('DELETE', this.props.collection.id, this.state.elementId)
       .then(this.setState( prevState => ({ songs: prevState.songs.filter(obj => obj.id !== prevState.elementId)})))
+  }
+
+  removeSongFromRelease() {
+    session.getAccessToken()
+      .then (token => {
+        deleteSong(this.state.elementId, token)
+          .then(result => {
+            this.setState( prevState => ({ songs: prevState.songs.filter(obj => obj.id !== prevState.elementId)}));
+          })
+          .catch( () => session.error = true);
+      })
   }
 
   clickArtist(artist_id, e) {
@@ -299,6 +318,8 @@ class CollectionSongsTable extends Component {
                           <hr/>
                           {this.isUserOwner() &&
                           <button onClick={this.removeSongFromPlaylist}>Remove From Playlist</button>}
+                          {this.userOwnRelease() &&
+                            <button onClick={this.handleModalBox.bind(this, MODALBOX_SONG_DELETE, this.state.elementId)}>Remove From Release</button>}
                             <a href='#'
                                onClick={this.props.isRelease
                                  ? this.clickArtist.bind(this, this.props.collection.artist.id)
@@ -324,6 +345,7 @@ class CollectionSongsTable extends Component {
           <ModalBox
             handleModalBox={this.handleModalBox.bind(this)}
             newPlaylist={this.newPlaylist.bind(this)}
+            removeSong={this.removeSongFromRelease.bind(this)}
             type={this.state.modalBox.type}
             message={this.state.modalBox.message}/>
         </div>}
