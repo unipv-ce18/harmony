@@ -277,7 +277,15 @@ class PlaylistOptions(Resource):
             if song is None:
                 return {'message': 'Song ID not found'}, HTTPStatus.BAD_REQUEST
 
-            response = operation(playlist_id, song_id, song.release.get('cover'))
+            cover = song.release.get('cover')
+
+            release_id = song.release.get('id')
+            release = db.get_release(release_id, True)
+            for s in release.songs:
+                if s.id != song_id and db.song_in_playlist(playlist_id, s.id):
+                    cover = None
+
+            response = operation(playlist_id, song_id, cover)
 
             if response:
                 return None, HTTPStatus.NO_CONTENT
