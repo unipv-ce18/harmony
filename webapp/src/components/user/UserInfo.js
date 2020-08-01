@@ -81,16 +81,16 @@ class UserInfo extends Component {
     this.setState({update : true});
   }
 
-  confirmModification() {
+  confirmModification(e) {
+    e.preventDefault()
     session.getAccessToken()
       .then (token => {
         patchUser(token, this.props.user.id, this.state.bio)
           .then( () => {
-            this.setState({bio: 'hey'});
+            this.setState({update : false});
           })
           .catch( () => session.error = true);
       })
-    this.setState({update : false});
   }
 
   handleChange({target}) {
@@ -126,7 +126,7 @@ class UserInfo extends Component {
             <div>
               <h2 class={styles.name}>{user.username}</h2>
               {(user.bio && !this.state.update)
-                ? <div className={styles.userBio}>{user.bio}</div>
+                ? <div className={styles.userBio}>{this.state.bio}</div>
                 : this.state.update
                   ? <form>
                       <input

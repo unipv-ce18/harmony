@@ -17,15 +17,24 @@ class PlaylistsPage extends Component {
 
     this.state = {
       playlists : {
-        personal : {},
-        others : {}
+        joined: []
       },
       modalBox : {type:'', message:''}
     }
   }
 
   componentDidMount() {
-    this.setState({playlists : this.props.playlists});
+    if (this.isUserOwner()) this.setState({playlists : this.props.playlists});
+    else this.setState(
+      {playlists : { joined : [...this.props.playlists.personal,...this.props.playlists.others]}});
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.playlists !== prevProps.playlists || this.props.user.id !== prevProps.user.id) {
+      if (this.isUserOwner()) this.setState({playlists: this.props.playlists});
+      else this.setState(
+        {playlists: { joined: [...this.props.playlists.personal, ...this.props.playlists.others]}});
+    }
   }
 
   clickPlaylist(playlist_id, e) {
@@ -64,15 +73,16 @@ class PlaylistsPage extends Component {
   }
 
   render() {
+    let playlists = this.state.playlists;
     return (
-      <div className={styles.libraryCommon}>
-        {Object.entries(this.state.playlists).map(([type, arrays]) => (
-          <div>
+      <div>
+        {(this.isUserOwner() || !this.isUserOwner() && playlists.joined.length) > 0 && <div>
+        {Object.entries(playlists).map(([type, arrays]) => (
+          <div className={styles.libraryCommon}>
             {this.isUserOwner()
               ? type === 'others'
                 ? arrays.length > 0 && <div><hr/><p>Playlists you like</p></div>
-                : [
-                  <div><hr/><p>Realized by you</p></div>,
+                : [<div><hr/><p>Realized by you</p></div>,
                   <span>
                   <a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST, '')}>
                     <img src={image} alt={""}/>
@@ -94,6 +104,7 @@ class PlaylistsPage extends Component {
             </span>)}
           </div>)
           )}
+        </div>}
         <ModalBox
           handleModalBox={this.handleModalBox.bind(this)}
           newPlaylist={this.newPlaylist.bind(this)}

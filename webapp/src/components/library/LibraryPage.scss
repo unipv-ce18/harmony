@@ -17,22 +17,19 @@
 
 .libraryCommon {
   margin: 50px auto;
-  > div {
-    > div >div {
-      > hr {
-        width: 95%;
-        margin-top: 100px;
-        height: 1px;
-        border-color: transparent;
-        background: linear-gradient(to right,
-          rgba(255,255,255, 0),
-          white,
-          rgba(255,255,255, 0)
-        );
-      }
-      p {
-        font-size: large;
-      }
+  >div {
+    > hr {
+      width: 95%;
+      height: 1px;
+      border-color: transparent;
+      background: linear-gradient(to right,
+        rgba(255,255,255, 0),
+        white,
+        rgba(255,255,255, 0)
+      );
+    }
+    p {
+      font-size: large;
     }
   }
   span {

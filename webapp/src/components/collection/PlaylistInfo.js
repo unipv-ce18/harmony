@@ -2,7 +2,7 @@ import {Component} from 'preact';
 import IconButton from '../IconButton';
 import {IconLockClose, IconLockOpen} from '../../assets/icons/icons';
 import {route} from 'preact-router';
-import {catalog} from '../../Harmony';
+import {catalog, session} from '../../Harmony';
 import PlaylistImage from './PlaylistImage';
 
 class PlaylistInfo extends Component {
@@ -23,6 +23,10 @@ class PlaylistInfo extends Component {
     route('/user/' + this.props.collection.creator.id);
   }
 
+  isUserOwner() {
+    return session.getOwnData().id === this.props.collection.creator.id;
+  }
+
   changePolicy() {
     catalog.updateSongInPlaylist('PATCH', this.props.collection.id)
       .then(()=> {
@@ -40,13 +44,13 @@ class PlaylistInfo extends Component {
           <p>Playlist</p>
           <p>{this.props.collection.name}</p>
           <p><a href='#' onClick={this.clickCreator}>{this.props.collection.creator.username}</a></p>
-          <p>{
-            [this.state.policy,
+          <p>{this.state.policy}
+            {this.isUserOwner() &&
               <IconButton
                 size={22}
                 name={this.state.policy === 'public' ? "Make it private" : "Make it public"}
                 icon={this.state.policy === 'public' ? IconLockOpen : IconLockClose}
-                onClick={this.changePolicy}/>]}
+                onClick={this.changePolicy}/>}
           </p>
         </div>
       </div>
