@@ -87,7 +87,8 @@ class CreateRelease(Resource):
         if artist.creator != user_id:
             return {'message': 'You are not authorized'}, HTTPStatus.UNAUTHORIZED
 
-        release_id = db.put_release(artist_id, release_from_document(data))
+        data[c.RELEASE_SONGS] = []
+        release_id = db.put_release(artist_id, release_from_document(data), False)
 
         return {'release_id': release_id}, HTTPStatus.CREATED
 

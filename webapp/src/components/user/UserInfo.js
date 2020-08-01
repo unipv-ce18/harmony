@@ -5,7 +5,7 @@ import {route} from 'preact-router';
 import {session} from '../../Harmony';
 import {changeUserType, changeUserTier, patchUser, createArtist} from '../../core/apiCalls';
 import ArtistList from './ArtistList';
-import ModalBox from './ModalBox';
+import ModalBox from '../ModalBox';
 import {DEFAULT_USER_IMAGE_URL} from '../../assets/defaults';
 import image from './plus.jpg';
 
@@ -149,12 +149,12 @@ class UserInfo extends Component {
             <div>Tier: {this.state.tier}</div>
           </div>
           <div>
-            {this.state.type !== 'creator' && this.isUserOwner()
-              && <button onClick={this.changeType}>Become a creator!</button>}
-              {this.state.tier !== 'pro' && this.isUserOwner() &&
-                <button onClick={this.changeTier}>Become a pro user!</button>}
+            {this.state.type !== 'creator' && this.isUserOwner() &&
+              <button onClick={this.changeType}>Become a creator!</button>}
+            {this.state.tier !== 'pro' && this.isUserOwner() &&
+              <button onClick={this.changeTier}>Become a pro user!</button>}
             {this.isUserOwner() && !this.state.update &&
-            <button onClick={this.updatePage}>Modify your personal info</button>}
+              <button onClick={this.updatePage}>Modify your personal info</button>}
           </div>
           {!this.isUserOwner() &&
             <a href="#" onClick={this.clickLibrary}>Go to {user.username} library</a>}
@@ -162,8 +162,7 @@ class UserInfo extends Component {
             <div class={styles.artists}>
               Artists
               {user.artists && user.artists.length > 0 &&
-                <ArtistList artists={user.artists}/>
-              }
+                <ArtistList artists={user.artists}/>}
               {this.isUserOwner() &&
                 <div class={styles.artistList}>
                   <div class={styles.artist}>
@@ -172,8 +171,7 @@ class UserInfo extends Component {
                     </a>
                     <p><a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_ARTIST, '')}>New Artist</a></p>
                   </div>
-              </div>
-              }
+              </div>}
             </div>
           }
         </div>

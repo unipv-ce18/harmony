@@ -23,10 +23,10 @@ class ReleaseOpsMixin:
         super().__init__(db_connection)
         self.artists = db_connection[c.COLLECTION_NAME]
 
-    def put_release(self, artist_id: str, release: Release) -> str:
+    def put_release(self, artist_id: str, release: Release, strip_unsafe=True) -> str:
         """Insert a release into the database and returns its ID"""
         release_id = ObjectId()
-        release_data = release_to_document(release, strip_unsafe=True)
+        release_data = release_to_document(release, strip_unsafe=strip_unsafe)
 
         res = self.artists.update_one(
             {c.ARTIST_ID: ObjectId(artist_id)},

@@ -148,9 +148,11 @@ def release_to_document(release: Release, strip_unsafe=True) -> dict:
     doc[c.RELEASE_COUNTER] = 0 if release.counter is None else release.counter
 
     if not strip_unsafe:
-        doc[c.RELEASE_ID] = ObjectId(release.id)
+        if release.id is not None:
+            doc[c.RELEASE_ID] = ObjectId(release.id)
         doc[c.RELEASE_SONGS] = [song_to_document(s) for s in release.songs]
-        doc[c.RELEASE_ARTIST_REF] = _artist_ref_to_document(release.artist)
+        if release.artist is not None:
+            doc[c.RELEASE_ARTIST_REF] = _artist_ref_to_document(release.artist)
     return doc
 
 

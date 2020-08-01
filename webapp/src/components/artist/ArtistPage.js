@@ -1,14 +1,29 @@
 import {Component} from 'preact';
 
+import {route} from 'preact-router';
 import styles from './ArtistPage.scss';
 import ArtistInfo from "./ArtistInfo";
 import ReleaseList from "./ReleaseList";
+import ModalBox from '../ModalBox';
 import {session} from '../../Harmony';
-import {getArtist} from '../../core/apiCalls';
+import {getArtist, deleteArtist, createRelease} from '../../core/apiCalls';
+import image from '../user/plus.jpg';
 
+const MODALBOX_RELEASE = 'modalbox_release';
+const MODALBOX_ARTIST_DELETE = 'modalbox_artist_delete';
 
 class ArtistPage extends Component {
+  constructor(props) {
+    super(props);
 
+    this.state = {
+      update : false,
+      modalBox : {type:'', message:''}
+    };
+    this.updatePage = this.updatePage.bind(this);
+    this.deleteArtistPage = this.deleteArtistPage.bind(this);
+    this.createReleasePage = this.createReleasePage.bind(this);
+  }
 
   componentDidMount() {
     session.getAccessToken()
@@ -21,17 +36,71 @@ class ArtistPage extends Component {
       })
   }
 
+  isUserOwner() {
+    return session.getOwnData().id === this.state.artist.creator;
+  }
+
+  updatePage() {
+    this.setState({update : true});
+  }
+
+  deleteArtistPage() {
+    session.getAccessToken()
+      .then (token => {
+        deleteArtist(this.props.id, token)
+          .then(result => {
+            route('/user/' + session.getOwnData().id);
+          })
+          .catch( () => session.error = true);
+      })
+  }
+
+  createReleasePage(release_name) {
+    session.getAccessToken()
+      .then (token => {
+        createRelease(this.props.id, release_name, token)
+          .then(result => {
+            route('/release/' + result['release_id']);
+          })
+          .catch( () => session.error = true);
+      })
+  }
+
+  handleModalBox(modalbox_type, message, e) {
+    e.preventDefault();
+    this.setState({modalBox: {type: modalbox_type, message: message}});
+  }
+
   render({id}) {
     return (
       <div class={styles.artistPage}>
         {this.state.artist &&
           <div class={styles.artistPageContent}>
+            {this.isUserOwner() &&
+              <button onClick={this.updatePage}>Modify your artist page</button>}
             <ArtistInfo artist={this.state.artist}/>
             {/*<Songs list = {songTest}/>*/}
             {this.state.artist.releases ? <ReleaseList list={this.state.artist.releases}/> : null}
+            {this.isUserOwner() &&
+              <div class={styles.releaseList}>
+                <div class={styles.release}>
+                  <a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_RELEASE, '')}>
+                    <img src={image} alt={""}/>
+                  </a>
+                  <p><a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_RELEASE, '')}>New Release</a></p>
+                </div>
+              </div>}
             {/*<SimilarArtists />*/}
+            {this.isUserOwner() &&
+              <button onClick={this.handleModalBox.bind(this, MODALBOX_ARTIST_DELETE, '')}>Delete your artist page</button>}
           </div>
         }
+        <ModalBox
+          handleModalBox={this.handleModalBox.bind(this)}
+          removeArtist={this.deleteArtistPage.bind(this)}
+          newRelease={this.createReleasePage.bind(this)}
+          type={this.state.modalBox.type}
+          message={this.state.modalBox.message}/>
       </div>);
   }
 }

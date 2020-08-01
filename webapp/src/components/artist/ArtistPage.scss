@@ -46,27 +46,32 @@
 }
 
 .releaseList {
-  padding: 10px;
 
   .sort {
     padding: 5px;
   }
 
   img {
+    margin-top: 10px;
     border-radius: 10px;
     width: 200px;
     height: 200px;
   }
 
   .release {
-    //background-size: contain;
-    //border-radius: 10px;
+    margin-top: 10px;
     width: 200px;
     height: 200px;
     float: left;
-    margin: 0 0.1em;
+    margin: 0.5em;
+
     p a {
-      color: $text-color-default;
+      margin: 0.5em;
+      color: $panel-text-color;
+      text-decoration: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
 

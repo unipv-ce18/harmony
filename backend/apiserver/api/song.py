@@ -17,7 +17,6 @@ api = Api(api_blueprint, prefix='/song')
 _arg_parser_upload = RequestParser()\
     .add_argument('song_id', required=True)\
     .add_argument('title', required=True)\
-    .add_argument('length', type=int, required=True)\
     .add_argument('lyrics')
 
 _arg_parser_patch = RequestParser()\
@@ -43,11 +42,10 @@ class SongUpload(Resource):
                 properties:
                   song_id: {type: string, description: Song ID}
                   title: {type: string, description: Song title}
-                  length: {type: int, description: Song length}
                   lyrics: {type: string, description: Song lyrics}
-                required: [song_id, title, length]
+                required: [song_id, title]
               examples:
-                0: {summary: 'Song', value: {'song_id': 'SONG_ID', 'title': 'SONG_TITLE', 'length': 123, 'lyrics': ''}}
+                0: {summary: 'Song', value: {'song_id': 'SONG_ID', 'title': 'SONG_TITLE', 'lyrics': ''}}
         responses:
           200:
             description: Song uploaded successfully

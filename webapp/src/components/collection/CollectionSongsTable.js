@@ -4,7 +4,7 @@ import {mediaPlayer, catalog, session} from "../../Harmony"
 import {MediaItemInfo, PlayStartModes} from "../../player/MediaPlayer";
 import styles from './CollectionSongsTable.scss';
 import {getUserPlaylists} from '../../core/apiCalls';
-import ModalBox from './ModalBox';
+import ModalBox from '../ModalBox';
 import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconArrowRight, IconPause} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 import {route} from 'preact-router';

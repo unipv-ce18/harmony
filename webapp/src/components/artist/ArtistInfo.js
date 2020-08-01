@@ -1,7 +1,7 @@
-import {Component} from "preact";
+import {Component} from 'preact';
 import styles from './ArtistPage.scss';
-import Tags from "./Tags";
-import Links from "./Links";
+import Tags from './Tags';
+import Links from './Links';
 import IconButton from '../IconButton';
 import {IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
 import {catalog, session} from '../../Harmony';
