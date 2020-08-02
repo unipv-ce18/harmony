@@ -13,6 +13,9 @@ from common.database.contracts import playlist_contract as c
 
 api = Api(api_blueprint, prefix='/user')
 
+_arg_parser_get = RequestParser()\
+    .add_argument('artists')
+
 _arg_parser_patch = RequestParser()\
     .add_argument('bio')\
     .add_argument('prefs', type=dict)
@@ -34,6 +37,12 @@ class UserOptions(Resource):
             required: true
             description: The ID of the user or `me` for the currently logged in user
             example: me
+          - in: query
+            name: artists
+            schema:
+              type: boolean
+            required: false
+            description: Whenever to include artists references in the returned user
         responses:
           200:
             description: Successful user retrieve
@@ -62,7 +71,13 @@ class UserOptions(Resource):
             return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
         user = user.to_dict()
 
-        if db.get_user_type(user_id) == 'creator':
+        if user[uc.USER_PREFS]['private']['email'] and user_id != security.get_jwt_identity():
+            user[uc.USER_EMAIL] = None
+
+        data = _arg_parser_get.parse_args()
+        include_artists = data['artists'] in ['1', 'true', 'yes']
+
+        if include_artists and db.get_user_type(user_id) == uc.USER_TYPE_CREATOR:
             user['artists'] = [create_artist_result(artist) for artist in db.get_user_artists(user_id)]
 
         return user, HTTPStatus.OK

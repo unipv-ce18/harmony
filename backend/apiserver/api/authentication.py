@@ -68,6 +68,7 @@ class AuthRegister(Resource):
                 data[c.USER_TYPE] = c.USER_TYPE_BASIC
                 data[c.USER_TIER] = c.USER_TIER_FREE
                 data[c.USER_LIBRARY] = {}
+                data[c.USER_PREFS] = {'private': {'email': False}}
                 if db.put_user(user_from_document(data)):
                     return {'message': 'User created'}, HTTPStatus.CREATED
                 else:

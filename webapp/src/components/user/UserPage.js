@@ -12,7 +12,7 @@ class UserPage extends Component {
   componentDidMount() {
     session.getAccessToken()
       .then (token => {
-        getUserInfo(token, this.props.id)
+        getUserInfo(token, this.props.id, true)
           .then(result => {
             this.setState({user: result});
           })

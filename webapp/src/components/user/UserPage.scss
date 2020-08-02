@@ -14,11 +14,15 @@
   background-color: $panel-color;
   color: $panel-text-color;
   overflow: hidden;
+
+  button {
+    margin: 5px;
+  }
 }
 
 .userInfo {
-  background-repeat: no-repeat;
   padding: 0.5em;
+
   .name {
     margin: 0;
     padding: 10px;
@@ -32,6 +36,9 @@
 
   input {
     border-style: dashed;
+    padding: 10px;
+    font-size: 0.85em;
+    width: 100%;
   }
 
   a {
@@ -48,6 +55,18 @@
   display: flex;
   justify-content: left;
   align-items: center;
+}
+
+.image {
+
+  button {
+    border: 0;
+    background: transparent;
+  }
+}
+
+.top {
+  display: flex;
 }
 
 .userCenter {

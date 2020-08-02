@@ -70,8 +70,10 @@ export function execSearch(token, type, query) {
   });
 }
 
-export function getUserInfo(token, user_id) {
-  return fetch(API_USER_URL + user_id, {
+export function getUserInfo(token, user_id, include_artists = false) {
+  let query = API_USER_URL + user_id;
+  if (include_artists) query += '?artists=1';
+  return fetch(query, {
     method: 'GET',
     headers: new Headers({'Accept': 'application/json', 'Authorization':'Bearer ' + token})
   }).then(response => {
@@ -100,8 +102,8 @@ export function changeUserTier(token) {
   });
 }
 
-export function patchUser(token, user_id, bio) {
-  const data = {bio};
+export function patchUser(token, user_id, bio, prefs) {
+  const data = {bio, prefs};
   return fetch(API_USER_URL + user_id, {
     method: 'PATCH',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
