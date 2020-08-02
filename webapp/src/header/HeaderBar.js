@@ -1,6 +1,7 @@
 import {Component} from 'preact';
 
 import {classList} from '../core/utils';
+import {session} from '../Harmony';
 import HarmonyLogo from '../components/HarmonyLogo';
 import SearchForm from '../components/search/form/SearchForm';
 import {DEFAULT_USER_IMAGE_URL} from '../assets/defaults';
@@ -38,15 +39,15 @@ class HeaderBar extends Component {
     }
   }
 
-  clickCreator(creator_id, e) {
+  clickCreator(e) {
      e.preventDefault();
-     route('/user/' + creator_id);
+     route('/user/me');
   }
 
   clickUser(e) {
     this.setState(prevState => ({ dropDownMenu: !prevState.dropDownMenu}));
-    console.log(e);
-    e.target.style('background-color: black; transition: background-color 200ms');
+    //console.log(e);
+    //e.target.style = 'background-color: black; transition: background-color 200ms';
   }
 
 
@@ -81,7 +82,7 @@ class HeaderBar extends Component {
                 <img src={DEFAULT_USER_IMAGE_URL} alt="" />
               </div>
               <div>
-                <div title="User Page" onClick={this.clickCreator.bind(this, session.getOwnData().id)}>User page</div>
+                <div title="User Page" onClick={this.clickCreator.bind(this)}>User page</div>
                 <div title="Logout" onClick={() => session.doLogout()}>Log out</div>
               </div>
             </div>

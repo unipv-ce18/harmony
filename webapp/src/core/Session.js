@@ -170,7 +170,9 @@ export class Session {
   }
 
   getOwnData() {
-    return JSON.parse(window.localStorage.getItem(USER_STORE_KEY)).user_data;
+    if (window.localStorage.getItem(USER_STORE_KEY))
+      return JSON.parse(window.localStorage.getItem(USER_STORE_KEY)).user_data;
+    return false;
   }
 
   /**
