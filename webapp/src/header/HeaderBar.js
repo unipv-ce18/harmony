@@ -82,7 +82,7 @@ class HeaderBar extends Component {
               </div>
               <div>
                 <div title="User Page" onClick={this.clickCreator.bind(this, session.getOwnData().id)}>User page</div>
-                <div>Log out</div>
+                <div title="Logout" onClick={() => session.doLogout()}>Log out</div>
               </div>
             </div>
           </div>
