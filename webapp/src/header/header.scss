@@ -102,25 +102,52 @@ header {
     margin: -6px;
     padding: 4px;
 
-    display: flex;
+    display: inline-block;
     align-items: center;
     cursor: pointer;
 
     border-radius: 16px;
-    transition: background-color $transition-len-short-ms;
+    transition: background-color $transition-len-ms;
 
     &:hover {
       background-color: rgba(0, 0, 0, .5);
     }
 
-    span {
-      font-size: 75%;
+    span, div {
+      font-size: 85%;
       letter-spacing: .6px;
       margin: 0 8px;
     }
+    span {
+      display: inline-block;
+      vertical-align: middle;
+    }
 
     img {
+      display: inline-block;
+      vertical-align: middle;
       height: 30px;
+    }
+
+    > div:nth-of-type(2) {
+      transition: max-height $transition-len-ms ease-in;
+      max-height: 0;
+      overflow: hidden;
+      > div:nth-of-type(1) {
+        padding: 13px 0 3px;
+      }
+      > div:nth-of-type(2) {
+        padding: 3px 0;
+      }
+    }
+  }
+
+  &:global(.drop-down) > div {
+    background-color: rgba(0, 0, 0, 1);
+
+    > div:nth-of-type(2) {
+      transition: max-height $transition-len-ms;
+      max-height: 600px;
     }
   }
 }

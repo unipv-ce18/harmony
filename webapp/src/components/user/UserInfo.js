@@ -125,7 +125,7 @@ class UserInfo extends Component {
             </div>
             <div>
               <h2 class={styles.name}>{user.username}</h2>
-              {(user.bio && !this.state.update)
+              {(this.state.bio && !this.state.update)
                 ? <div className={styles.userBio}>{this.state.bio}</div>
                 : this.state.update
                   ? <form>
