@@ -40,7 +40,7 @@ class Terminator:
 
                 n_killed = len(contents)
                 if n_killed:
-                    log.info('Removed %s pending uploads', n_killed)
+                    log.info('Removed %s pending contents', n_killed)
 
             except Exception as e:
                 log.error('Closing terminator due to error %s(%s)', type(e).__name__, e)
