@@ -7,6 +7,7 @@ from flask_restful.reqparse import RequestParser
 from . import api_blueprint, db
 from ..util import security
 from ._conversions import create_artist_result, create_sort_name
+from ._deletion import delete_artist
 from common.database.contracts import artist_contract as c
 from common.database.codecs import artist_from_document
 
@@ -300,27 +301,7 @@ class ArtistOptions(Resource):
         if artist.creator != user_id:
             return {'message': 'No authorized to remove this artist'}, HTTPStatus.UNAUTHORIZED
 
-        db.remove_artist_from_libraries(artist_id)
-
-        if artist.image is not None:
-            db.put_content(None, None, 'image/_', artist.image)
-
-        if artist.releases:
-            for release in artist.releases:
-                r = db.get_release(release.id, True)
-
-                db.remove_release_from_libraries(release.id)
-
-                if release.cover is not None:
-                    db.remove_image_from_playlists(release.cover)
-                    db.put_content(None, None, 'image/_', release.cover)
-
-                if r.songs:
-                    for song in r.songs:
-                        db.remove_song_from_playlists(song.id)
-                        db.remove_song_from_libraries(song.id)
-                        db.put_content(None, None, 'audio/flac', song.id)
-
+        delete_artist(artist)
         db.remove_artist(artist_id)
 
         return None, HTTPStatus.NO_CONTENT

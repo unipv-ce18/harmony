@@ -7,6 +7,7 @@ from flask_restful.reqparse import RequestParser
 from . import api_blueprint, db
 from ..util import security
 from ._conversions import create_artist_result
+from ._deletion import delete_user
 from common.database.contracts import user_contract as uc
 from common.database.contracts import playlist_contract as c
 
@@ -147,6 +148,64 @@ class UserOptions(Resource):
         if db.update_user(user_id, patch_user):
             return None, HTTPStatus.NO_CONTENT
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+
+    def delete(self, user_id):
+        """Delete a user
+        ---
+        tags: [user]
+        parameters:
+          - in: path
+            name: user_id
+            schema:
+              type: string
+            required: true
+            description: The ID of the user or `me` for the currently logged in user
+            example: me
+        tags: [user]
+        parameters:
+          - in: path
+            name: user_id
+            schema:
+              type: string
+            required: true
+            description: The ID of the user or `me` for the currently logged in user
+            example: me
+        responses:
+          204:  # No Content
+            description: User deleted correctly
+            content: {}
+          400:
+            $ref: '#components/responses/InvalidId'
+          401:
+            description: The user logged in is not authorized to delete this user
+            content:
+              application/json:
+                example: {'message': 'No authorized to delete this user'}
+          404:
+            description: User not found
+            content:
+              application/json:
+                example: {'message': 'User not found'}
+        """
+        data = _arg_parser_patch.parse_args()
+
+        if user_id == 'me':
+            user_id = security.get_jwt_identity()
+
+        if user_id != security.get_jwt_identity():
+            return {'message': 'No authorized to delete this user'}, HTTPStatus.UNAUTHORIZED
+
+        if not ObjectId.is_valid(user_id):
+            return {'message': 'ID not valid'}, HTTPStatus.BAD_REQUEST
+
+        user = db.get_user(user_id)
+        if user is None:
+            return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+
+        delete_user(user)
+        db.remove_user(user_id)
+
+        return None, HTTPStatus.NO_CONTENT
 
 
 @api.resource('/playlist')

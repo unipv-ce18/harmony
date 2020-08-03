@@ -7,6 +7,7 @@ from flask_restful.reqparse import RequestParser
 from . import api_blueprint, db
 from ..util import security
 from ._conversions import create_release_result
+from ._deletion import delete_release
 from common.database.contracts import artist_contract as c
 from common.database.codecs import release_from_document
 
@@ -268,16 +269,6 @@ class ReleaseOptions(Resource):
             return {'message': 'No authorized to remove this release'}, HTTPStatus.UNAUTHORIZED
 
         db.remove_release(release_id)
-        db.remove_release_from_libraries(release_id)
-
-        if release.cover is not None:
-            db.remove_image_from_playlists(release.cover)
-            db.put_content(None, None, 'image/_', release.cover)
-
-        if release.songs:
-            for song in release.songs:
-                db.remove_song_from_playlists(song.id)
-                db.remove_song_from_libraries(song.id)
-                db.put_content(None, None, 'audio/flac', song.id)
+        delete_release(release)
 
         return None, HTTPStatus.NO_CONTENT

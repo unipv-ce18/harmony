@@ -22,6 +22,10 @@ class UserOpsMixin:
         """Inserts more users at once"""
         return [self.put_user(users[i]) for i in range(len(users))]
 
+    def remove_user(self, user_id):
+        query = {c.USER_ID: ObjectId(user_id)}
+        self.users.remove(query)
+
     def get_user(self, user_id):
         user_doc = self.users.find_one(
             {c.USER_ID: ObjectId(user_id)},

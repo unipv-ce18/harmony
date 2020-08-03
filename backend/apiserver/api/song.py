@@ -6,6 +6,7 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db, amqp_client
 from ..util import security
+from ._deletion import delete_song
 from ..ws.notification_worker import NotificationWorker
 import common.messaging.jobs as jobs
 from common.database.contracts import artist_contract as c
@@ -216,9 +217,6 @@ class UpdateSong(Resource):
             return {'message': 'No authorized to remove this song'}, HTTPStatus.UNAUTHORIZED
 
         db.remove_song(song_id)
-        db.remove_song_from_playlists(song_id)
-        db.remove_song_from_libraries(song_id)
-
-        db.put_content(None, None, 'audio/flac', song_id)   # take advantage of the terminator to remove the song from storage
+        delete_song(song)
 
         return None, HTTPStatus.NO_CONTENT
