@@ -3,11 +3,11 @@ import {Component} from 'preact';
 import styles from './UserPage.scss';
 import {route} from 'preact-router';
 import {session} from '../../Harmony';
-import {changeUserType, changeUserTier, patchUser, createArtist} from '../../core/apiCalls';
+import {changeUserType, changeUserTier, patchUser, deleteUser, createArtist} from '../../core/apiCalls';
 import ArtistList from './ArtistList';
 import ModalBox from '../ModalBox';
 import IconButton from '../IconButton';
-import {IconLockClose, IconLockOpen} from '../../assets/icons/icons';
+import {IconLockClose, IconLockOpen, IconSettings} from '../../assets/icons/icons';
 import {DEFAULT_USER_IMAGE_URL} from '../../assets/defaults';
 import image from './plus.jpg';
 
@@ -31,11 +31,12 @@ class UserInfo extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.clickLibrary = this.clickLibrary.bind(this);
     this.changeEmailPrefs = this.changeEmailPrefs.bind(this);
+    this.removeUser = this.removeUser.bind(this);
     this.imageChange = this.imageChange.bind(this);
   }
 
   componentDidMount() {
-    this.setState({email : this.props.user.prefs.private.email})
+    this.setState({email : this.props.user.prefs.private.email});
     this.setState({type : this.props.user.type});
     this.setState({tier : this.props.user.tier});
     this.setState({bio : this.props.user.bio});
@@ -50,6 +51,10 @@ class UserInfo extends Component {
       this.setState({tier: [...this.props.user.tier]});
     if (this.props.user.bio !== prevProps.user.bio)
       this.setState({bio: [...this.props.user.bio]});
+  }
+
+  componentWillUnmount() {
+
   }
 
   changeType() {
@@ -118,6 +123,17 @@ class UserInfo extends Component {
       })
   }
 
+  removeUser() {
+    session.getAccessToken()
+      .then (token => {
+        deleteUser(token, this.props.user.id)
+          .then( () => {
+            route('/login');
+          })
+          .catch( () => session.error = true);
+      })
+  }
+
   handleChange({target}) {
     this.setState({
       [target.name]: target.value
@@ -160,7 +176,13 @@ class UserInfo extends Component {
               <div class={styles.top}>
                 <h2 class={styles.name}>{user.username}</h2>
                 {this.isUserOwner() && !this.state.update &&
-                  <button onClick={this.updatePage}>Modify your personal info</button>}
+                  <div>
+                    <button onClick={this.updatePage}>Modify your personal info</button>
+                    <IconButton
+                      size={30}
+                      name={"Settings"}
+                      icon={IconSettings}/>
+                  </div>}
               </div>
               {(this.state.bio && !this.state.update)
                 ? <div className={styles.userBio}>{this.state.bio}</div>

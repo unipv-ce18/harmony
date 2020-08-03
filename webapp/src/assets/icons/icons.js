@@ -33,9 +33,11 @@ export const IconLockClose = (props) => <Icon mod={require('./lock-24px.svg')} {
 export const IconLockOpen = (props) => <Icon mod={require('./lock_open-24px.svg')} {...props}/>;
 export const IconQueue = (props) => <Icon mod={require('./queue-24px.svg')} {...props}/>;
 
-
 // CollectionSongsTable
 export const IconMore = (props) => <Icon mod={require('./more_vert-24px.svg')} {...props}/>;
 export const IconStarEmpty = (props) => <Icon mod={require('./star_outline-24px.svg')} {...props}/>;
 export const IconStarFull = (props) => <Icon mod={require('./star-24px.svg')} {...props}/>;
 export const IconArrowRight = (props) => <Icon mod={require('./arrow_right-24px.svg')} {...props}/>;
+
+// User
+export const IconSettings = (props) => <Icon mod={require('./settings-24px.svg')} {...props}/>;

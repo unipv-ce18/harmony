@@ -10,6 +10,15 @@ class UserPage extends Component {
 
 
   componentDidMount() {
+    this.loadUser();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.id !== prevProps.id)
+      this.loadUser();
+  }
+
+  loadUser() {
     session.getAccessToken()
       .then (token => {
         getUserInfo(token, this.props.id, true)

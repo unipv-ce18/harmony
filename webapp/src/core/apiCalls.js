@@ -114,6 +114,16 @@ export function patchUser(token, user_id, bio, prefs) {
   });
 }
 
+export function deleteUser(token, user_id) {
+  return fetch(API_USER_URL + user_id, {
+    method: 'DELETE',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
+  });
+}
+
 export function getReleasePlaylist(type_collection, collection_id, with_song, token) {
   // with_song == true includes the songs in the result
   let query;
