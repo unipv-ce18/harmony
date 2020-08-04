@@ -83,6 +83,7 @@ def release_projection_search_result():
         '_id': f'${c.ARTIST_RELEASES}.{c.RELEASE_ID}',
         'name': f'${c.ARTIST_RELEASES}.{c.RELEASE_NAME}',
         'artist': _ARTIST_REF_PROJECTION,
+        'date': f'${c.ARTIST_RELEASES}.{c.RELEASE_DATE}',
         'cover': f'${c.ARTIST_RELEASES}.{c.RELEASE_COVER}'
     }
 

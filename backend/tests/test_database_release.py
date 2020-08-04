@@ -50,6 +50,7 @@ class ReleaseDatabaseTest(DatabaseTest):
             '_id': self.release_ids[3],
             'name': self.artist_in.releases[3].name,
             'artist': make_artist_ref(self.artist_id, self.artist_in),
+            'date': self.artist_in.releases[3].date,
             'cover': self.artist_in.releases[3].cover
         })
         self.assertDictEqual(asdict(expected_result), asdict(search_result[0]),
