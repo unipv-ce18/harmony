@@ -2,14 +2,11 @@ import {Component} from 'preact';
 import PropTypes from 'prop-types';
 
 import {catalog} from '../../Harmony';
-import {SearchTypes} from '../../core/MediaCatalog';
 import {classList} from '../../core/utils';
-import SongResult from "./SongResult";
-import ReleaseResult from "./ReleaseResult";
-import ArtistResult from "./ArtistResult";
+import {fromSearchUrlData} from './queryParams';
+import {ArtistResult, ReleaseResult, SongResult} from './searchResults';
 
 import style from './SearchPage.scss';
-import {fromSearchUrlData} from './queryParams';
 
 class SearchPage extends Component {
 

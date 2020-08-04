@@ -2,6 +2,8 @@
 @import '../IconButton';
 
 .searchPage {
+  margin: 0 5vw;
+
   transition: opacity $transition-len-ms;
 
   &.updating {
@@ -26,7 +28,7 @@
   > div {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: space-evenly;
     > * {
       flex-basis: 0;  // To make them have the same weight
       flex-grow: 1;
@@ -34,19 +36,16 @@
   }
 }
 
-.artistResult {
-  min-width: 300px;
-  max-width: 400px;
-  height: 200px;
-  margin: 10px;
-  position: relative;
+%resultElementBase {
+  color: #eee;
+  text-decoration: none;
+}
 
+%resultImageBg {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-
-  color: #eee;
-  text-decoration: none;
 
   &::before {
     content: "";
@@ -57,107 +56,27 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: var(--artist-img);
+
     background-size: cover;
-    background-position: 50% 20%;  // Thanks, last.fm
-    box-shadow: 0 0 30px 27px $application-background inset;
 
     transition: transform $transition-len-ms, opacity $transition-len-ms;
-    transform: scale(0.9);
-    transform-origin: 50% 75%;
     opacity: .8;
   }
+}
 
-  > div {
-    text-align: center;
-    background-color: rgba(10, 10, 10, .5);
-    padding: 10px;
-    box-sizing: border-box;
-    border-radius: 30px;
+// Artist and release controls with height transition
+%appearingControls {
+  height: 0;
+  overflow: hidden;
+  transition: height $transition-len-ms;
 
-    > * {
-      display: block;
-    }
-
-    // Name
-    > :nth-child(1) {
-      font-weight: 700;
-      letter-spacing: .8px;
-      font-size: 120%;
-      font-variant: small-caps;
-
-      margin-bottom: 4px;
-    }
-
-    // Genres
-    > :nth-child(2) {
-      font-size: 70%;
-      font-style: italic;
-      opacity: .6;
-      text-transform: lowercase;
-    }
-
-    // Controls
-    > :nth-child(3) {
-      height: 0;
-      overflow: hidden;
-      transition: height $transition-len-ms;
-
-      > span {
-        @include button-color(#eee);
-        margin: 2px 6px;
-        transition: background-color $transition-len-ms;
-        background-color: transparent;
-        &:hover {
-          background-color: rgba(255, 255, 255, .2);
-        }
-      }
-    }
-  }
-
-  &:hover {
-    &::before {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    > div > :nth-child(3) {
-      height: 26px;
+  > span {
+    @include button-color(#eee);
+    margin: 2px 6px;
+    transition: background-color $transition-len-short-ms, opacity $transition-len-short-ms;
+    background-color: transparent;
+    &:hover {
+      background-color: rgba(255, 255, 255, .2);
     }
   }
 }
-
-.releaseResult {
-  .release a {
-    text-decoration: none;
-  }
-
-  .artistRelease a {
-    text-decoration: none;
-    font-size: 0.8em;
-  }
-}
-
-.songResult {
-  .song a {
-    text-decoration: none;
-  }
-
-  .artistSong a {
-    text-decoration: none;
-    font-size: 0.8em;
-  }
-}
-
-.songImage {
-  background-repeat: no-repeat;
-  background-size: contain;
-  width: 50px;
-  height: 50px;
-  float: left;
-}
-.image {
-  width: 50px;
-  float: left;
-}
-
