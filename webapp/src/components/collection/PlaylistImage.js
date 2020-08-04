@@ -1,30 +1,20 @@
-import {Component} from 'preact';
-
-import styles from './PlaylistImage.scss';
-import image from '../library/image.jpg';
 import {classList} from '../../core/utils';
+import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 
-class PlaylistImage extends Component {
+import style from './PlaylistImage.scss';
 
-  constructor(props) {
-    super(props);
-  }
+const getDivStyle = images =>
+  (images == null || images.length <= 1) ? style.singleimage :
+    images.length === 2 && style.twoimages ||
+    images.length === 3 && style.threeimages ||
+    style.fourimages;
 
-  render() {
-    const images = this.props.images;
-    const size = this.props.size;
-    let divStyle;
-    if (images.length === 2) divStyle = styles.twoimages;
-    else if (images.length === 3) divStyle = styles.threeimages;
-    else if (images.length >= 4) divStyle = styles.fourimages;
-    else divStyle = styles.singleimage;
-
-    return (
-      <div className ={classList(styles.divImage, divStyle)} style={size && {width: size, height: size}}>
-        {images.length === 0 ? <div><img src={image} alt={""}/></div> :
-          images.map(item => {return <div><img src={item} alt={""}/></div>})}
-      </div>);
-  }
-}
+const PlaylistImage = ({images, size}) => (
+  <div class={classList(style.divImage, getDivStyle(images))} style={size && {width: size, height: size}}>
+    {images == null || images.length === 0
+      ? <div><img src={DEFAULT_ALBUMART_URL} alt=""/></div>
+      : images.map(item => <div><img src={item} alt=""/></div>)}
+  </div>
+);
 
 export default PlaylistImage;

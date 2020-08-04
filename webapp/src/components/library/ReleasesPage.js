@@ -1,5 +1,4 @@
 import {Component} from 'preact';
-import image from '../collection/image.jpg'
 import styles from './LibraryPage.scss';
 import {route} from 'preact-router';
 
