@@ -7,7 +7,8 @@ header {
   width: 100%;
   height: $navbar-height;
   z-index: 9999;
-  background-color: rgba($application-background, .5);
+  background-color: rgba($application-background, .9);
+  backdrop-filter: blur(10px);  // Only Chrome for now :(
 
   padding: 16px 20px;
   box-sizing: border-box;
