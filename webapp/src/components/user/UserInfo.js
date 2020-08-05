@@ -3,12 +3,12 @@ import {Component} from 'preact';
 import styles from './UserPage.scss';
 import {route} from 'preact-router';
 import {session} from '../../Harmony';
-import {changeUserType, changeUserTier, patchUser, deleteUser, createArtist} from '../../core/apiCalls';
+import {changeUserType, changeUserTier, createArtist} from '../../core/apiCalls';
+import UserHeader from './UserHeader';
 import ArtistList from './ArtistList';
 import ModalBox from '../ModalBox';
 import IconButton from '../IconButton';
-import {IconLockClose, IconLockOpen, IconSettings} from '../../assets/icons/icons';
-import {DEFAULT_USER_IMAGE_URL} from '../../assets/defaults';
+import {IconLockClose, IconLockOpen} from '../../assets/icons/icons';
 import image from './plus.jpg';
 
 const MODALBOX_ARTIST = 'modalbox_artist';
@@ -18,28 +18,18 @@ class UserInfo extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      update : false,
-      modalBox : {type:'', message:''}
-    };
+    this.state = {modalBox : {type:'', message:''}};
 
     this.changeType = this.changeType.bind(this);
     this.changeTier = this.changeTier.bind(this);
-    this.updatePage = this.updatePage.bind(this);
-    this.confirmModification = this.confirmModification.bind(this);
-    this.cancelModification = this.cancelModification.bind(this);
-    this.handleChange = this.handleChange.bind(this);
     this.clickLibrary = this.clickLibrary.bind(this);
     this.changeEmailPrefs = this.changeEmailPrefs.bind(this);
-    this.removeUser = this.removeUser.bind(this);
-    this.imageChange = this.imageChange.bind(this);
   }
 
   componentDidMount() {
     this.setState({email : this.props.user.prefs.private.email});
     this.setState({type : this.props.user.type});
     this.setState({tier : this.props.user.tier});
-    this.setState({bio : this.props.user.bio});
   }
 
   componentDidUpdate(prevProps) {
@@ -49,8 +39,6 @@ class UserInfo extends Component {
       this.setState({type: [...this.props.user.type]});
     if (this.props.user.tier !== prevProps.user.tier)
       this.setState({tier: [...this.props.user.tier]});
-    if (this.props.user.bio !== prevProps.user.bio)
-      this.setState({bio: [...this.props.user.bio]});
   }
 
   componentWillUnmount() {
@@ -90,26 +78,6 @@ class UserInfo extends Component {
       })
   }
 
-  updatePage() {
-    this.setState({update : true});
-  }
-
-  cancelModification() {
-    this.setState({update : false});
-  }
-
-  confirmModification(e) {
-    e.preventDefault()
-    session.getAccessToken()
-      .then (token => {
-        patchUser(token, this.props.user.id, this.state.bio, null)
-          .then( () => {
-            this.setState({update : false});
-          })
-          .catch( () => session.error = true);
-      })
-  }
-
   changeEmailPrefs() {
     session.getAccessToken()
       .then (token => {
@@ -121,23 +89,6 @@ class UserInfo extends Component {
           })
           .catch( () => session.error = true);
       })
-  }
-
-  removeUser() {
-    session.getAccessToken()
-      .then (token => {
-        deleteUser(token, this.props.user.id)
-          .then( () => {
-            route('/login');
-          })
-          .catch( () => session.error = true);
-      })
-  }
-
-  handleChange({target}) {
-    this.setState({
-      [target.name]: target.value
-    });
   }
 
   clickLibrary(e) {
@@ -154,54 +105,13 @@ class UserInfo extends Component {
     this.setState({modalBox: {type: modalbox_type, message: message}});
   }
 
-  imageChange() {
-    alert('image upload coming soon');
-  }
-
   render() {
     const user = this.props.user;
 
     return(
       <div>
         <div class={styles.userInfo}>
-          <div class={styles.userTop}>
-            <div class={styles.image}>
-            {this.isUserOwner()
-             ? <button onClick={this.imageChange}>
-                 <img src={user.avatar_url ? user.avatar_url : DEFAULT_USER_IMAGE_URL} alt={""}/>
-               </button>
-             : <img src={user.avatar_url ? user.avatar_url : DEFAULT_USER_IMAGE_URL} alt={""}/>}
-            </div>
-            <div>
-              <div class={styles.top}>
-                <h2 class={styles.name}>{user.username}</h2>
-                {this.isUserOwner() && !this.state.update &&
-                  <div>
-                    <button onClick={this.updatePage}>Modify your personal info</button>
-                    <IconButton
-                      size={30}
-                      name={"Settings"}
-                      icon={IconSettings}/>
-                  </div>}
-              </div>
-              {(this.state.bio && !this.state.update)
-                ? <div className={styles.userBio}>{this.state.bio}</div>
-                : this.state.update
-                  ? <form>
-                      <input
-                        type="text"
-                        name="bio"
-                        value={this.state.bio}
-                        placeholder="Enter your new bio"
-                        onChange={this.handleChange}
-                      />
-                      <button onClick={this.cancelModification}>Cancel</button>
-                      <button onClick={this.confirmModification}>Update!</button>
-                    </form>
-                  : null
-              }
-            </div>
-          </div>
+          <UserHeader user={user}/>
           <div class={styles.userCenter}>
             <p>Account info</p>
             {user.email &&
