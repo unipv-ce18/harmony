@@ -4,6 +4,7 @@ import styles from './UserPage.scss';
 import {route} from 'preact-router';
 import {session} from '../../Harmony';
 import {patchUser, deleteUser} from '../../core/apiCalls';
+import SettingsModal from './SettingsModal'
 import IconButton from '../IconButton';
 import {IconSettings} from '../../assets/icons/icons';
 import {DEFAULT_USER_IMAGE_URL} from '../../assets/defaults';
@@ -12,13 +13,15 @@ class UserHeader extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {update : false};
+    this.state = {
+      update : false,
+      settingsModal : {open: false}
+    };
 
     this.updatePage = this.updatePage.bind(this);
     this.confirmModification = this.confirmModification.bind(this);
     this.cancelModification = this.cancelModification.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.removeUser = this.removeUser.bind(this);
     this.imageChange = this.imageChange.bind(this);
   }
 
@@ -76,6 +79,11 @@ class UserHeader extends Component {
     alert('image upload coming soon');
   }
 
+  handleSettingsModal(isOpen, e) {
+    e.preventDefault();
+    this.setState({settingsModal: {open: isOpen}});
+  }
+
   render() {
     const user = this.props.user;
 
@@ -97,7 +105,8 @@ class UserHeader extends Component {
                 <IconButton
                   size={30}
                   name="Settings"
-                  icon={IconSettings}/>
+                  icon={IconSettings}
+                  onClick={this.handleSettingsModal.bind(this, true)}/>
               </div>}
           </div>
           {(this.state.bio && !this.state.update)
@@ -117,6 +126,11 @@ class UserHeader extends Component {
               : null
           }
         </div>
+        <SettingsModal
+          handleSettingsModal={this.handleSettingsModal.bind(this)}
+          open={this.state.settingsModal.open}
+          removeUser={this.removeUser.bind(this)}
+          logout={() => session.doLogout()}/>
       </div>
     );
   }

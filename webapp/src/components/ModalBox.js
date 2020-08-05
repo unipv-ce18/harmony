@@ -16,6 +16,8 @@ const MODALBOX_RELEASE_DELETE = 'modalbox_release_delete';
 
 const MODALBOX_SONG_DELETE = 'modalbox_song_delete'
 
+const MODALBOX_USER_DELETE = 'modalbox_user_delete'
+
 const MODAL_BOX_ERROR = 'modalbox_error';
 const MODAL_BOX_SUCCESS = 'modalbox_success';
 
@@ -37,6 +39,7 @@ class ModalBox extends Component {
     this.addNewRelease = this.addNewRelease.bind(this);
     this.removeReleasePage = this.removeReleasePage.bind(this);
     this.deleteSongFromRelease = this.deleteSongFromRelease.bind(this);
+    this.removeUser = this.removeUser.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -82,6 +85,10 @@ class ModalBox extends Component {
 
   deleteSongFromRelease(e) {
     this.props.removeSong();
+  }
+
+  removeUser() {
+    this.props.removeUser();
   }
 
   render() {
@@ -143,6 +150,12 @@ class ModalBox extends Component {
               <p>Do you really want to delete this song?</p>
               <button onClick={this.props.handleModalBox.bind(this, '', '')}>Cancel</button>
               <button onClick={this.deleteSongFromRelease}>Delete</button>
+            </div>}
+            {this.props.type === MODALBOX_USER_DELETE &&
+            <div>
+              <p>Do you really want to delete your account?</p>
+              <button onClick={this.props.handleModalBox.bind(this, '', '')}>Cancel</button>
+              <button onClick={this.removeUser}>Delete</button>
             </div>}
           </div>}
         </div>}
