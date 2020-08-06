@@ -37,13 +37,14 @@ class PlaylistInfo extends Component {
   }
 
   render() {
+    let collection = this.props.collection
     return (
       <div>
-        <PlaylistImage images={this.props.collection.images}/>
+        <PlaylistImage images={collection.images}/>
         <div>
           <p>Playlist</p>
-          <p>{this.props.collection.name}</p>
-          <p><a href='#' onClick={this.clickCreator}>{this.props.collection.creator.username}</a></p>
+          <p>{collection.name}</p>
+          <p><a href='#' onClick={this.clickCreator}>{collection.creator.username}</a></p>
           <p>{this.state.policy}
             {this.isUserOwner() &&
               <IconButton

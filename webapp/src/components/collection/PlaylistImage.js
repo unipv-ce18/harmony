@@ -1,7 +1,7 @@
 import {Component} from 'preact';
 
 import styles from './PlaylistImage.scss';
-import image from '../library/image.jpg';
+import emptyImage from '../library/image.jpg';
 import {classList} from '../../core/utils';
 
 class PlaylistImage extends Component {
@@ -21,7 +21,7 @@ class PlaylistImage extends Component {
 
     return (
       <div className ={classList(styles.divImage, divStyle)} style={size && {width: size, height: size}}>
-        {images.length === 0 ? <div><img src={image} alt={""}/></div> :
+        {images.length === 0 ? <div><img src={emptyImage} alt={""}/></div> :
           images.map(item => {return <div><img src={item} alt={""}/></div>})}
       </div>);
   }
