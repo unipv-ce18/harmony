@@ -21,6 +21,7 @@ class ArtistPage extends Component {
       modalBox : {type:'', message:''}
     };
     this.updatePage = this.updatePage.bind(this);
+    this.scrollLoop = this.scrollLoop.bind(this);
     this.deleteArtistPage = this.deleteArtistPage.bind(this);
     this.createReleasePage = this.createReleasePage.bind(this);
   }
@@ -34,6 +35,16 @@ class ArtistPage extends Component {
           })
           .catch( () => session.error = true);
       })
+
+    window.addEventListener("scroll", this.scrollLoop);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("scroll", this.scrollLoop);
+  }
+
+  scrollLoop() {
+    this.setState({offset: window.scrollY});
   }
 
   isUserOwner() {
@@ -76,10 +87,11 @@ class ArtistPage extends Component {
       <div class={styles.artistPage}>
         {this.state.artist &&
           <div class={styles.artistPageContent}>
+            <img src={this.state.artist.image} alt=''
+               style={{transform: `translate(-50%, -50%) translateY(${this.state.offset * 0.5}px)`}}/>
             {this.isUserOwner() &&
               <button onClick={this.updatePage}>Modify your artist page</button>}
             <ArtistInfo artist={this.state.artist}/>
-            {/*<Songs list = {songTest}/>*/}
             {this.state.artist.releases ? <ReleaseList list={this.state.artist.releases}/> : null}
             {this.isUserOwner() &&
               <div class={styles.releaseList}>

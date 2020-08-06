@@ -33,37 +33,34 @@ class ArtistInfo extends Component {
     const artist = this.props.artist;
 
     return(
-      <div>
-        <div class={styles.artistInfo} style = {{backgroundImage: "url('" + artist.image + "')"}}>
+      <div class={styles.artistInfo}>
+        <div>
           <h2 class={styles.name}>{artist.name}</h2>
-          {artist.genres ? <Tags list = {artist.genres}/> : null}
           {this.state.stateUpdated && this.initialArtistLikeState()
             ? <IconButton size={24} name="Dislike" icon={IconStarFull}
                           onClick={this.likeArtist.bind(this, 'DELETE')}/>
             : <IconButton size={24} name="Like" icon={IconStarEmpty}
                           onClick={this.likeArtist.bind(this, 'PUT')}/>}
         </div>
-        {artist.bio ? <div className={styles.artistBio}>{artist.bio}</div> : null}
-        {this.state.additional ?
-        <div className={styles.additionalInfo}>
-          {artist.life_span &&
+        {artist.genres ? <Tags list = {artist.genres}/> : null}
+        {artist.bio ?
+          artist.bio.split(' ').length > 50 && !this.state.additional
+            ? <div className={styles.artistBio}>{artist.bio.split(' ').slice(0, 50).join(' ') + '...'}</div>
+            : <div className={styles.artistBio}>{artist.bio}</div> : null}
+        {this.state.additional &&
+          <div className={styles.additionalInfo}>
+            {artist.life_span &&
             <span>
-              {artist.life_span.begin} - {artist.life_span.end == null
-                ? "Still Active"
-                : artist.life_span.end}
+              {artist.life_span.begin} - {artist.life_span.end === null ? "Still Active" : artist.life_span.end}
             </span>}
-          {artist.members && artist.members.length > 1 &&
+            {artist.members && artist.members.length > 1 &&
             <ul>
               {artist.members.map(item => <li className={styles.member}>{item.name} - {item.role}</li>)}}
             </ul>}
-          <div>
-        {artist.links && Object.keys(artist.links).length > 0 ? <Links links = {artist.links}/> : null}
+              {artist.links && Object.keys(artist.links).length > 0 ? <Links links = {artist.links}/> : null}
           </div>
-            <button onClick={this.handleAdditional}>Collapse</button>
-          </div>
-        :
-          <button onClick={this.handleAdditional}>...</button>
         }
+        <span><button onClick={this.handleAdditional}>{this.state.additional ? 'Read less' : 'Read more'} </button></span>
       </div>
     );
   }

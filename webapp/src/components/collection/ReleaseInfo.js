@@ -1,5 +1,6 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
+import emptyImage from './image.jpg';
 
 class ReleaseInfo extends Component {
 
@@ -14,14 +15,15 @@ class ReleaseInfo extends Component {
   }
 
   render() {
+    let collection = this.props.collection;
     return (
       <div>
-        <div><img src={this.props.collection.cover} alt={""}/></div>
+        <div><img src={collection.cover ? collection.cover : emptyImage} alt={""}/></div>
         <div>
-          <p>{this.props.collection.type}</p>
-          <p>{this.props.collection.name}</p>
-          <p><a href='#' onClick={this.clickArtist}>{this.props.collection.artist.name}</a></p>
-          <p>{this.props.collection.date}</p>
+          <p>{collection.type}</p>
+          <p>{collection.name}</p>
+          <p><a href='#' onClick={this.clickArtist}>{collection.artist.name}</a></p>
+          <p>{collection.date}</p>
         </div>
       </div>
     );

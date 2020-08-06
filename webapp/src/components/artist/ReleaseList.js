@@ -1,6 +1,9 @@
 import {Component} from "preact";
 import styles from './ArtistPage.scss';
 import {route} from "preact-router";
+import {IconExpand, IconStarFull} from '../../assets/icons/icons';
+import IconButton from '../IconButton';
+import emptyImage from '../library/image.jpg'
 
 class ReleaseList extends Component {
   constructor(props) {
@@ -39,23 +42,28 @@ class ReleaseList extends Component {
 
     return(
       <div class={styles.releaseList}>
-        <div className={styles.sort}>
-          Sort by:
-          <select value={this.state.order} onChange={this.handleChangeOrder} class={styles.sortSelect}>
-            <option value='az'>AZ</option>
-            <option value='za'>ZA</option>
-            <option value='type'>TYPE</option>
-            <option value='date' selected>DATE</option>
-          </select>
+        <div>
+          <span className={styles.sectionTitle}>Releases</span>
+          <span className={styles.sort}>
+            Sort by:
+            <select value={this.state.order} onChange={this.handleChangeOrder}>
+              <option value='az'>AZ</option>
+              <option value='za'>ZA</option>
+              <option value='type'>TYPE</option>
+              <option value='date' selected>DATE</option>
+            </select>
+            <IconButton size={24} name="Sort Releases By" icon={IconExpand}/>
+          </span>
         </div>
+        <div class = {styles.releasesList}>
         {list.map(release =>
           <div class = {styles.release}>
             <a href='#' onClick={this.handleClickRelease.bind(this, release.id)}>
-              <img src={release.cover} alt={release.name}/>
+              <img src={release.cover ? release.cover : emptyImage} alt={release.name}/>
             </a>
             <p><a href='#' onClick={this.handleClickRelease.bind(this, release.id)}>{release.name}</a></p>
           </div>)
-        }
+        }</div>
       </div>
     );
   }
