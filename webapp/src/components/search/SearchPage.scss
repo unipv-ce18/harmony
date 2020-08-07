@@ -2,7 +2,7 @@
 @import '../IconButton';
 
 .searchPage {
-  margin: 0 5vw;
+  margin: 0 5vw 20vh;
 
   transition: opacity $transition-len-ms;
 
@@ -41,6 +41,7 @@
   text-decoration: none;
 }
 
+// Result elements with an image background
 %resultImageBg {
   position: relative;
   display: flex;
@@ -61,6 +62,25 @@
 
     transition: transform $transition-len-ms, opacity $transition-len-ms;
     opacity: .8;
+  }
+}
+
+// Result elements with a fade-in color background on hover
+%resultColorBg {
+  transition: background-color $transition-len-short-ms;
+  border-radius: 4px;
+
+  &:hover, &:focus {
+    background-color: rgba(#eee, .1);
+  }
+}
+
+// Inner links to related entities, inherit color and show underline only on mouse over
+%resultInnerLink {
+  color: inherit;
+  text-decoration: none;
+  &:hover, &:focus {
+    text-decoration: underline;
   }
 }
 

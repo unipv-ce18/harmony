@@ -1,16 +1,28 @@
 import {mediaPlayer} from '../../Harmony';
 import {PlayStartModes} from '../../player/MediaPlayer';
-import {artistLink, createMediaItemInfo, releaseLink} from '../../core/links';
+import {artistLink, releaseLink, playlistLink, userLink, createMediaItemInfo} from '../../core/links';
 import {IconPlay, IconStarEmpty} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 
 import aStyle from './ArtistResult.scss';
 import rStyle from './ReleaseResult.scss';
 import sStyle from './SongResult.scss';
+import pStyle from './PlaylistResult.scss';
 
 import play from '../../assets/play.png';
+import PlaylistImage from '../collection/PlaylistImage';
 
 const GENRES_LIST_LENGTH = 2;
+
+function onSongClick(song, e) {
+  e.preventDefault();  // Avoids scroll to top
+
+  // Dirty hack to avoid starting playback if user pressed on the artist link
+  if (e.target.nodeName === 'A' && e.target.textContent === song.artist.name) return;
+
+  mediaPlayer.play(createMediaItemInfo(song), PlayStartModes.APPEND_QUEUE_AND_PLAY);
+
+}
 
 export const ArtistResult = ({content: artist}) => (
   <a class={aStyle.artistResult} style={{'--artist-img': `url(${artist.image})`}} href={artistLink(artist.id)}>
@@ -42,31 +54,37 @@ export const ReleaseResult = ({content: release}) => (
   </a>
 );
 
-export const SongResult = ({content: song}) => {
-  return (
-    <a class={sStyle.songResult} href="#" onClick={onSongClick.bind(null, song)} title="Play Song">
-      <div class={sStyle.songArt}>
-        <img src={song.release.cover} alt=""/>
-        <IconPlay/>
+export const SongResult = ({content: song}) => (
+  <a class={sStyle.songResult} href="#" onClick={onSongClick.bind(null, song)}>
+    <div class={sStyle.songArt} title="Play Song">
+      <img src={song.release.cover} alt=""/>
+      <IconPlay title="bla"/>
+    </div>
+    <div class={sStyle.songDetail}>
+      {/*Put name also in title attribute to show full name on mouse hover in case of overflow*/}
+      <span title={song.title}>{song.title}</span>
+      <a href={artistLink(song.artist.id)}>{song.artist.name}</a>
+      <div>
+        <IconButton name="Mark as favorite" size={24} icon={IconStarEmpty} onClick={null}/>
       </div>
-      <div class={sStyle.songDetail}>
-        {/*Put name also in title attribute to show full name on mouse hover in case of overflow*/}
-        <span title={song.title}>{song.title}</span>
-        <a href={artistLink(song.artist.id)}>{song.artist.name}</a>
-        <div>
-          <IconButton name="Mark as favorite" size={24} icon={IconStarEmpty} onClick={null}/>
-        </div>
+    </div>
+  </a>
+);
+
+export const PlaylistResult = ({content: playlist}) => (
+  <a class={pStyle.playlistResult} href={playlistLink(playlist.id)} title={playlist.name}>
+    <div class={pStyle.imgWrap}>
+      <PlaylistImage images={playlist.images}/>
+    </div>
+    <div class={pStyle.titlePane}>
+      <span>{playlist.name}</span>
+      <div>
+        <IconButton name="Play all" size={24} icon={IconPlay} onClick={null}/>
+        <IconButton name="Mark as favorite" size={24} icon={IconStarEmpty} onClick={null}/>
       </div>
-    </a>
-  );
-}
-
-function onSongClick(song, e) {
-  e.preventDefault();  // Avoids scroll to top
-
-  // Dirty hack to avoid starting playback if user pressed on the artist link
-  if (e.target.nodeName === 'A' && e.target.textContent === song.artist.name) return;
-
-  mediaPlayer.play(createMediaItemInfo(song), PlayStartModes.APPEND_QUEUE_AND_PLAY);
-
-}
+    </div>
+    <div className={pStyle.byLink}>
+      by <a href={userLink(playlist.creator.id)}>{playlist.creator.username}</a>
+    </div>
+  </a>
+);

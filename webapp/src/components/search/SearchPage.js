@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {catalog} from '../../Harmony';
 import {classList} from '../../core/utils';
 import {fromSearchUrlData} from './queryParams';
-import {ArtistResult, ReleaseResult, SongResult} from './searchResults';
+import {ArtistResult, ReleaseResult, SongResult, PlaylistResult} from './searchResults';
 
 import style from './SearchPage.scss';
 
@@ -35,7 +35,7 @@ class SearchPage extends Component {
           <ResultGroup name="Artists" type='artists' elementView={ArtistResult} results={results}/>
           <ResultGroup name="Releases" type='releases' elementView={ReleaseResult} results={results}/>
           <ResultGroup name="Songs" type='songs' elementView={SongResult} results={results}/>
-          {/*<ResultGroup name="Playlists" type='playlists' elementView={TO DO} results={results}/>*/}
+          <ResultGroup name="Playlists" type='playlists' elementView={PlaylistResult} results={results}/>
         </div>
         {/*//<Footer />*/}
       </div>
