@@ -1,7 +1,7 @@
 import {Component} from 'preact';
 
 import styles from './PlaylistImage.scss';
-import emptyImage from './image.jpg';
+import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 import {classList} from '../../core/utils';
 
 class PlaylistImage extends Component {
@@ -21,7 +21,7 @@ class PlaylistImage extends Component {
 
     return (
       <div className ={classList(styles.divImage, divStyle)} style={size && {width: size, height: size}}>
-        {images.length === 0 ? <div><img src={emptyImage} alt={""}/></div> :
+        {images.length === 0 ? <div><img src={DEFAULT_ALBUMART_URL} alt={""}/></div> :
           images.map(item => {return <div><img src={item} alt={""}/></div>})}
       </div>);
   }

@@ -1,7 +1,7 @@
 import {Component} from 'preact';
 import styles from './LibraryPage.scss';
 import {route} from 'preact-router';
-import emptyImage from '../../assets/defaults/albumart.jpg';
+import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 
 class ReleasesPage extends Component {
   constructor(props) {
@@ -30,7 +30,7 @@ class ReleasesPage extends Component {
           {this.state.clicked && this.props.releases.map(release =>
             <span>
               <a href='#' onClick={this.clickRelease.bind(this, release.id)}>
-                <img src={release.cover ? release.cover : emptyImage} alt={""}/></a>
+                <img src={release.cover ? release.cover : DEFAULT_ALBUMART_URL} alt={""}/></a>
               <p><a href='#' onClick={this.clickRelease.bind(this, release.id)}>{release.name}</a></p>
               <p>By <a href='#' onClick={this.clickArtist.bind(this, release.artist.id)}>{release.artist.name}</a></p>
             </span>)}

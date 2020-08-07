@@ -3,7 +3,7 @@ import styles from './ArtistPage.scss';
 import {route} from 'preact-router';
 import {IconExpand, IconStarFull} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
-import emptyImage from '../../assets/defaults/albumart.jpg';
+import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 import ModalBox from '../ModalBox';
 import {createRelease} from '../../core/apiCalls';
 import image from '../../assets/plus.jpg';
@@ -88,7 +88,7 @@ class ReleaseList extends Component {
           {list.map(release =>
             <div class = {styles.release}>
               <a href='#' onClick={this.handleClickRelease.bind(this, release.id)}>
-                <img src={release.cover ? release.cover : emptyImage} alt={release.name}/>
+                <img src={release.cover ? release.cover : DEFAULT_ALBUMART_URL} alt={release.name}/>
               </a>
               <p><a href='#' onClick={this.handleClickRelease.bind(this, release.id)}>{release.name}</a></p>
             </div>)}
