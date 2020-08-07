@@ -1,14 +1,14 @@
-@import "../../styledefs";
+@import "../styledefs";
 
 .settingsModal {
   position: fixed;
-  z-index: 1;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
 
   display: flex;
   justify-content: center;
@@ -23,7 +23,7 @@
   background-color: $panel-color;
 
   button {
-    padding: 5px;
+    padding: 10px;
     background: transparent;
     border: none;
     cursor: pointer;

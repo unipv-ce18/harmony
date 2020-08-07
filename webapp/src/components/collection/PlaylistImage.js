@@ -1,7 +1,7 @@
 import {Component} from 'preact';
 
 import styles from './PlaylistImage.scss';
-import emptyImage from '../library/image.jpg';
+import emptyImage from './image.jpg';
 import {classList} from '../../core/utils';
 
 class PlaylistImage extends Component {

@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
-import emptyImage from './image.jpg';
+import emptyImage from '../../assets/defaults/albumart.jpg';
 
 class ReleaseInfo extends Component {
 

@@ -1,7 +1,7 @@
 import {Component} from 'preact';
 import styles from './LibraryPage.scss';
 import {route} from 'preact-router';
-import emptyImage from './image.jpg'
+import emptyImage from '../../assets/defaults/albumart.jpg';
 
 class ReleasesPage extends Component {
   constructor(props) {

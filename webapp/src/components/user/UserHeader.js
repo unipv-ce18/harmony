@@ -4,7 +4,7 @@ import styles from './UserPage.scss';
 import {route} from 'preact-router';
 import {session} from '../../Harmony';
 import {patchUser, deleteUser} from '../../core/apiCalls';
-import SettingsModal from './SettingsModal'
+import SettingsModal from '../SettingsModal'
 import IconButton from '../IconButton';
 import {IconSettings} from '../../assets/icons/icons';
 import {DEFAULT_USER_IMAGE_URL} from '../../assets/defaults';
@@ -129,6 +129,7 @@ class UserHeader extends Component {
         <SettingsModal
           handleSettingsModal={this.handleSettingsModal.bind(this)}
           open={this.state.settingsModal.open}
+          type="user"
           removeUser={this.removeUser.bind(this)}
           logout={() => session.doLogout()}/>
       </div>

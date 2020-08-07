@@ -9,7 +9,7 @@ import ArtistList from './ArtistList';
 import ModalBox from '../ModalBox';
 import IconButton from '../IconButton';
 import {IconLockClose, IconLockOpen} from '../../assets/icons/icons';
-import image from './plus.jpg';
+import image from '../../assets/plus.jpg';
 
 const MODALBOX_ARTIST = 'modalbox_artist';
 const MODAL_BOX_SUCCESS = 'modalbox_success';
