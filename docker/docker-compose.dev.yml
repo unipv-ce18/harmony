@@ -16,7 +16,7 @@ services:
     depends_on:
       - mongodb
     ports:
-      - '4321:1234'
+      - '1234:1234'
     environment:
       CONN_NAME: Harmony
       HOST: 0.0.0.0
