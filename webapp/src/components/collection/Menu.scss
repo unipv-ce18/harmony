@@ -1,0 +1,84 @@
+@import "../../styledefs";
+
+.dropdownMenu {
+  position: absolute;
+  > div:first-of-type {
+    position: relative;
+    padding: 10px;
+    bottom: 10px;
+
+    > div {
+      border: solid 1px $panel-text-color-test;
+      color: $panel-text-color-test;
+      background-color: $application-background;
+      font-size: 14px;
+
+      hr {
+        margin: 0;
+      }
+
+      > div {
+        margin: 5px 0;
+        padding: 2px 5px;
+
+        &:hover {
+          color: $application-background;
+          background-color: $panel-text-color-test;
+          > span {
+            fill: $application-background;
+          }
+        }
+
+        > span {
+          position: relative;
+          float: right;
+          bottom: 3px;
+          background-color: transparent;
+          fill: $panel-text-color-test;
+        }
+        > span:nth-of-type(2) {
+          width: 100%;
+        }
+
+        > div {
+          position: absolute;
+          left: 70px;
+
+          > div {
+            position: relative;
+            padding: 10px;
+            bottom: 10px;
+
+            > div {
+              border: solid 1px $panel-text-color-test;
+              color: $panel-text-color-test;
+              background-color: $application-background;
+              font-size: 14px;
+
+            }
+          }
+        }
+      }
+
+      button {
+        border: none;
+        width: 100%;
+      }
+
+      button, a {
+        display: block;
+        margin: 5px 0;
+        padding: 2px 5px;
+        text-align: left;
+        white-space: nowrap;
+        color: $panel-text-color-test;
+        background-color: $application-background;
+        cursor: pointer;
+        &:hover {
+          color: $application-background;
+          background-color: $panel-text-color-test;
+        }
+      }
+    }
+  }
+}

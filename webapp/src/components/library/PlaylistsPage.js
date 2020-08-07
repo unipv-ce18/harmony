@@ -6,11 +6,8 @@ import {route} from 'preact-router';
 import plusImage from '../user/plus.jpg';
 
 import {catalog, session} from '../../Harmony';
-import ModalBox from '../ModalBox';
+import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import PlaylistImage from '../collection/PlaylistImage';
-
-const MODALBOX_PLAYLIST = 'modalbox_playlist';
-const MODAL_BOX_SUCCESS = 'modalbox_success';
 
 class PlaylistsPage extends Component {
   constructor(props) {
@@ -52,18 +49,21 @@ class PlaylistsPage extends Component {
     return session.getOwnData().id === this.props.user.id;
   }
 
-  handleModalBox(modalbox_type, message, e) {
-    e.preventDefault();
+  handleModalBox(modalbox_type, message) {
     this.setState({modalBox: {type: modalbox_type, message: message}});
   }
 
-  newPlaylist(playlist_name) {
+  newPlaylist(temp_playlist_name) {
+    let playlist_name = temp_playlist_name;
+    if (!playlist_name) playlist_name = 'New Playlist';
     catalog.createPlaylist(playlist_name)
       .then(playlist_id => {
         const newPlaylist = {id: playlist_id, name: playlist_name, policiy: 'public', images: []}
         let personalPlaylists = [...this.state.playlists['personal']];
         personalPlaylists.push(newPlaylist);
-        this.setState({modalBox: {type: MODAL_BOX_SUCCESS, message: 'Playlist created successfully.'}})
+        this.setState({modalBox: {
+          type: ModalBoxTypes.MODALBOX_SUCCESS,
+          message: 'Playlist created successfully.'}})
         setTimeout(()=>this.setState({modalBox: {type: '', message: ''}}),2000);
         this.setState(
     {playlists: {
@@ -75,6 +75,7 @@ class PlaylistsPage extends Component {
 
   render() {
     let playlists = this.state.playlists;
+    let modalBox = this.state.modalBox;
     return (
       <div>
         {(this.isUserOwner() || !this.isUserOwner() && playlists.joined.length) > 0 && <div>
@@ -85,10 +86,13 @@ class PlaylistsPage extends Component {
                 ? arrays.length > 0 && <div><hr/><p>Playlists you like</p></div>
                 : [<div><hr/><p>Realized by you</p></div>,
                   <span>
-                  <a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST, '')}>
+                  <a href='#'
+                     onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Playlist')}>
                     <img src={plusImage} alt={""}/>
                   </a>
-                  <p><a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST, '')}>New Playlist</a></p>
+                  <p><a href='#'
+                        onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Playlist')}>
+                    New Playlist</a></p>
                 </span>]
               : <div><hr/><p>Playlists {this.props.user.username} likes</p></div>}
             {
@@ -106,11 +110,13 @@ class PlaylistsPage extends Component {
           </div>)
           )}
         </div>}
+        {modalBox.type &&
         <ModalBox
-          handleModalBox={this.handleModalBox.bind(this)}
-          newPlaylist={this.newPlaylist.bind(this)}
-          type={this.state.modalBox.type}
-          message={this.state.modalBox.message}/>
+          type={modalBox.type}
+          message={modalBox.message}
+          placeholder={modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? 'Playlist Name' : ''}
+          handleCancel={()=>this.handleModalBox('', '')}
+          handleSubmit={this.newPlaylist.bind(this)}/>}
       </div>
     );
   }

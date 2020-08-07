@@ -5,14 +5,11 @@ import {route} from 'preact-router';
 import {session} from '../../Harmony';
 import {changeUserType, changeUserTier, patchUser, deleteUser, createArtist} from '../../core/apiCalls';
 import ArtistList from './ArtistList';
-import ModalBox from '../ModalBox';
+import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import IconButton from '../IconButton';
 import {IconLockClose, IconLockOpen, IconSettings} from '../../assets/icons/icons';
 import {DEFAULT_USER_IMAGE_URL} from '../../assets/defaults';
 import image from './plus.jpg';
-
-const MODALBOX_ARTIST = 'modalbox_artist';
-const MODAL_BOX_SUCCESS = 'modalbox_success';
 
 class UserInfo extends Component {
   constructor(props) {
@@ -72,14 +69,16 @@ class UserInfo extends Component {
     session.getAccessToken()
       .then (token => {
         changeUserTier(token)
-          .then(result => {
+          .then(() => {
             this.setState({tier: 'pro'});
           })
           .catch( () => session.error = true);
       })
   }
 
-  createNewArtist(artist_name) {
+  createNewArtist(temp_artist_name) {
+    let artist_name = temp_artist_name;
+    if (!artist_name) artist_name = 'New Artist';
     session.getAccessToken()
       .then (token => {
         createArtist(artist_name, token)
@@ -160,6 +159,7 @@ class UserInfo extends Component {
 
   render() {
     const user = this.props.user;
+    const modalBox = this.state.modalBox;
 
     return(
       <div>
@@ -233,19 +233,28 @@ class UserInfo extends Component {
               {this.isUserOwner() &&
                 <div class={styles.artistList}>
                   <div class={styles.artist}>
-                    <a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_ARTIST, '')}>
+                    <a href='#'
+                       onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Artist')}>
                       <img src={image} alt={""}/>
                     </a>
-                    <p><a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_ARTIST, '')}>New Artist</a></p>
+                    <p><a href='#'
+                          onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Artist')}>
+                      New Artist
+                    </a></p>
                   </div>
               </div>}
             </div>}
         </div>
+
+        {modalBox.type &&
         <ModalBox
-          handleModalBox={this.handleModalBox.bind(this)}
-          newArtist={this.createNewArtist.bind(this)}
-          type={this.state.modalBox.type}
-          message={this.state.modalBox.message}/>
+          type={modalBox.type}
+          message={modalBox.message}
+          placeholder={modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? 'Artist Name' : ''}
+          handleCancel={()=>this.handleModalBox('', '')}
+          handleSubmit={
+            modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? this.createNewArtist.bind(this) : null}
+          />}
       </div>
     );
   }

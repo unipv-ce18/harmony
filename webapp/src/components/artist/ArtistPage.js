@@ -4,13 +4,10 @@ import {route} from 'preact-router';
 import styles from './ArtistPage.scss';
 import ArtistInfo from "./ArtistInfo";
 import ReleaseList from "./ReleaseList";
-import ModalBox from '../ModalBox';
+import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import {session} from '../../Harmony';
 import {getArtist, deleteArtist, createRelease} from '../../core/apiCalls';
 import image from '../user/plus.jpg';
-
-const MODALBOX_RELEASE = 'modalbox_release';
-const MODALBOX_ARTIST_DELETE = 'modalbox_artist_delete';
 
 class ArtistPage extends Component {
   constructor(props) {
@@ -59,14 +56,16 @@ class ArtistPage extends Component {
     session.getAccessToken()
       .then (token => {
         deleteArtist(this.props.id, token)
-          .then(result => {
+          .then(() => {
             route('/user/' + session.getOwnData().id);
           })
           .catch( () => session.error = true);
       })
   }
 
-  createReleasePage(release_name) {
+  createReleasePage(temp_release_name) {
+    let release_name = temp_release_name;
+    if (!release_name) release_name = 'New Release';
     session.getAccessToken()
       .then (token => {
         createRelease(this.props.id, release_name, token)
@@ -83,6 +82,8 @@ class ArtistPage extends Component {
   }
 
   render({id}) {
+    let modalBox = this.state.modalBox;
+
     return (
       <div class={styles.artistPage}>
         {this.state.artist &&
@@ -96,23 +97,33 @@ class ArtistPage extends Component {
             {this.isUserOwner() &&
               <div class={styles.releaseList}>
                 <div class={styles.release}>
-                  <a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_RELEASE, '')}>
+                  <a href='#' onClick={this.handleModalBox.bind(this,
+                    ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Release')}>
                     <img src={image} alt={""}/>
                   </a>
-                  <p><a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_RELEASE, '')}>New Release</a></p>
+                  <p><a href='#' onClick={this.handleModalBox.bind(this,
+                    ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Release')}>
+                    New Release</a></p>
                 </div>
               </div>}
             {/*<SimilarArtists />*/}
             {this.isUserOwner() &&
-              <button onClick={this.handleModalBox.bind(this, MODALBOX_ARTIST_DELETE, '')}>Delete your artist page</button>}
+              <button onClick={this.handleModalBox.bind(this,
+                ModalBoxTypes.MODALBOX_CONFIRM_DELETE, 'Do you really want to delete this artist?')}>
+                Delete your artist page
+              </button>}
           </div>
         }
-        <ModalBox
-          handleModalBox={this.handleModalBox.bind(this)}
-          removeArtist={this.deleteArtistPage.bind(this)}
-          newRelease={this.createReleasePage.bind(this)}
-          type={this.state.modalBox.type}
-          message={this.state.modalBox.message}/>
+          {modalBox.type &&
+          <ModalBox
+            type={modalBox.type}
+            message={modalBox.message}
+            placeholder={modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? 'Release Name' : ''}
+            handleCancel={()=>this.handleModalBox('', '')}
+            handleSubmit={
+              modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? this.createReleasePage.bind(this) :
+              modalBox.type === ModalBoxTypes.MODALBOX_CONFIRM_DELETE ? this.deleteArtistPage.bind(this) : null}
+          />}
       </div>);
   }
 }

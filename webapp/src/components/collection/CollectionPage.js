@@ -5,7 +5,6 @@ import {getReleasePlaylist, deleteRelease} from "../../core/apiCalls";
 import {catalog, mediaPlayer, session} from "../../Harmony"
 import styles from './CollectionPage.scss';
 import CollectionSongsTable from './CollectionSongsTable';
-import ModalBox from '../ModalBox';
 import IconButton from '../IconButton';
 import {
   IconQueue,
@@ -16,10 +15,8 @@ import {createMediaItemInfo} from '../../core/links';
 import {MediaItemInfo, PlayStartModes} from '../../player/MediaPlayer';
 import ReleaseInfo from './ReleaseInfo';
 import PlaylistInfo from './PlaylistInfo';
-
-const MODALBOX_PLAYLIST_DELETE = 'modalbox_playlist_delete';
-const MODALBOX_RELEASE_DELETE = 'modalbox_release_delete';
-const MODAL_BOX_SUCCESS = 'modalbox_success';
+import ModalBox from '../modalbox/ModalBox';
+import {ModalBoxTypes} from '../modalbox/ModalBox';
 
 class CollectionPage extends Component {
 
@@ -36,7 +33,8 @@ class CollectionPage extends Component {
     }
 
     this.addSongsToQueue = this.addSongsToQueue.bind(this);
-    this.deleteReleasePage = this.deleteReleasePage.bind(this);
+    this.handleConfirmDelete = this.handleConfirmDelete.bind(this);
+    this.handleClickDelete = this.handleClickDelete.bind(this);
   }
 
   componentDidMount() {
@@ -111,8 +109,19 @@ class CollectionPage extends Component {
       console.log(song.title);
       return this.createSong(song)});
     mediaPlayer.play(arrayMediaInfo, PlayStartModes.APPEND_QUEUE);
-    this.handleModalBox(MODAL_BOX_SUCCESS, 'Songs added to queue.');
+    this.handleModalBox(ModalBoxTypes.MODALBOX_SUCCESS, 'Songs added to queue.');
     setTimeout(()=>this.handleModalBox('', ''),2000)
+  }
+
+  handleClickDelete() {
+    let text = '';
+    if(this.isRelease()) text = 'release?'; else text = 'playlist?';
+    this.handleModalBox(ModalBoxTypes.MODALBOX_CONFIRM_DELETE, 'Do you really want to delete this ' + text);
+  }
+
+  handleConfirmDelete() {
+    if(this.isRelease()) this.deleteReleasePage(); else this.deletePlaylistPage();
+    this.handleModalBox('', '');
   }
 
   deleteReleasePage() {
@@ -126,16 +135,24 @@ class CollectionPage extends Component {
       })
   }
 
+  deletePlaylistPage() {
+    catalog.favorite('DELETE', 'personal_playlists', this.state.collection.id)
+      .then(() => route('/library/me'))
+      .catch( () => session.error = true);
+  }
+
   render() {
+    let modalBox = this.state.modalBox;
+    let collection = this.state.collection;
     return (
       <div>
-        {this.state.collection &&
+        {collection &&
         <div className={styles.collectionPage}>
           <div>
             <div className={styles.collectionInfo}>
               {this.isRelease()
-              ? <ReleaseInfo collection={this.state.collection}/>
-              : <PlaylistInfo collection={this.state.collection}/>}
+              ? <ReleaseInfo collection={collection}/>
+              : <PlaylistInfo collection={collection}/>}
               <div>
                 {this.state.stateUpdated && !this.userLikeOwnPlaylist() &&
                   (this.initialCollectionLikeState()
@@ -154,23 +171,21 @@ class CollectionPage extends Component {
             <hr/>
             </div>
             <CollectionSongsTable
-              collection={this.state.collection}
+              collection={collection}
               isRelease={this.isRelease()}
             />
-            {this.state.stateUpdated && this.userLikeOwnPlaylist() &&
+            {this.state.stateUpdated && (this.userLikeOwnPlaylist()  || this.userOwnRelease()) &&
               <button
-                onClick={this.handleModalBox.bind(this, MODALBOX_PLAYLIST_DELETE, this.state.collection.id)}>Delete
+                onClick={this.handleClickDelete}>Delete
               </button>}
-              {this.state.stateUpdated && this.userOwnRelease() &&
-                <button
-                  onClick={this.handleModalBox.bind(this, MODALBOX_RELEASE_DELETE, this.state.collection.id)}>Delete
-                </button>}
           </div>
+          {modalBox.type &&
           <ModalBox
-            handleModalBox={this.handleModalBox.bind(this)}
-            removeRelease={this.deleteReleasePage.bind(this)}
-            type={this.state.modalBox.type}
-            message={this.state.modalBox.message}/>
+            type={modalBox.type}
+            message={modalBox.message}
+            placeholder={''}
+            handleCancel={()=>this.handleModalBox('', '')}
+            handleSubmit={this.handleConfirmDelete}/>}
         </div>
         }
       </div>);
