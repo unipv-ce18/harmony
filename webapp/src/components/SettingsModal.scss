@@ -1,0 +1,31 @@
+@import "../styledefs";
+
+.settingsModal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.settingsButton {
+  padding: 10px;
+  border-color: $application-background;
+  border-radius: 16px;
+  text-align: center;
+  background-color: $panel-color;
+
+  button {
+    padding: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+}

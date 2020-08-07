@@ -1,5 +1,5 @@
 import {Component} from 'preact';
-import styles from "./ArtistPage.scss";
+import styles from './ArtistPage.scss';
 
 class Tags extends Component {
   render({list}) {

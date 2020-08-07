@@ -2,10 +2,11 @@ import {Component} from 'preact';
 
 import {route} from 'preact-router';
 import styles from './ArtistPage.scss';
-import ArtistInfo from "./ArtistInfo";
-import ReleaseList from "./ReleaseList";
-import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
+import ArtistInfo from './ArtistInfo';
+import ReleaseList from './ReleaseList';
 import {session} from '../../Harmony';
+import {getArtist} from '../../core/apiCalls';
+
 import {getArtist, deleteArtist, createRelease} from '../../core/apiCalls';
 import image from '../user/plus.jpg';
 
@@ -108,22 +109,15 @@ class ArtistPage extends Component {
               </div>}
             {/*<SimilarArtists />*/}
             {this.isUserOwner() &&
-              <button onClick={this.handleModalBox.bind(this,
-                ModalBoxTypes.MODALBOX_CONFIRM_DELETE, 'Do you really want to delete this artist?')}>
-                Delete your artist page
-              </button>}
+              <button onClick={this.handleModalBox.bind(this, MODALBOX_ARTIST_DELETE, '')}>Delete your artist page</button>}
           </div>
         }
-          {modalBox.type &&
-          <ModalBox
-            type={modalBox.type}
-            message={modalBox.message}
-            placeholder={modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? 'Release Name' : ''}
-            handleCancel={()=>this.handleModalBox('', '')}
-            handleSubmit={
-              modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? this.createReleasePage.bind(this) :
-              modalBox.type === ModalBoxTypes.MODALBOX_CONFIRM_DELETE ? this.deleteArtistPage.bind(this) : null}
-          />}
+        <ModalBox
+          handleModalBox={this.handleModalBox.bind(this)}
+          removeArtist={this.deleteArtistPage.bind(this)}
+          newRelease={this.createReleasePage.bind(this)}
+          type={this.state.modalBox.type}
+          message={this.state.modalBox.message}/>
       </div>);
   }
 }

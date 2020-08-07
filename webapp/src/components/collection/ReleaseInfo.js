@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
-import emptyImage from './image.jpg';
+import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 
 class ReleaseInfo extends Component {
 
@@ -18,7 +18,7 @@ class ReleaseInfo extends Component {
     let collection = this.props.collection;
     return (
       <div>
-        <div><img src={collection.cover ? collection.cover : emptyImage} alt={""}/></div>
+        <div><img src={collection.cover ? collection.cover : DEFAULT_ALBUMART_URL} alt={""}/></div>
         <div>
           <p>{collection.type}</p>
           <p>{collection.name}</p>

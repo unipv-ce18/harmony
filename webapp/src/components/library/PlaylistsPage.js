@@ -3,7 +3,7 @@ import {Component} from 'preact';
 import styles from './LibraryPage.scss';
 
 import {route} from 'preact-router';
-import plusImage from '../user/plus.jpg';
+import plusImage from '../../assets/plus.jpg';
 
 import {catalog, session} from '../../Harmony';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
