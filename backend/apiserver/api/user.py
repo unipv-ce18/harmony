@@ -187,7 +187,6 @@ class UserOptions(Resource):
               application/json:
                 example: {'message': 'User not found'}
         """
-        data = _arg_parser_patch.parse_args()
 
         if user_id == 'me':
             user_id = security.get_jwt_identity()

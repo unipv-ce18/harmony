@@ -59,7 +59,7 @@ class UserHeader extends Component {
       .then (token => {
         deleteUser(token, this.props.user.id)
           .then( () => {
-            route('/login');
+            session.doLogout();
           })
           .catch( () => session.error = true);
       })
