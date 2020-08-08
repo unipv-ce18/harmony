@@ -87,7 +87,7 @@ class ModInput extends Component {
    * Load this input state from external data
    */
   loadData({text, modifiers}) {
-    this.#update({text, modifiers: modifiers.map(m => ({...m, id: ++this.lastModId}))})
+    this.setState({text, modifiers: modifiers.map(m => ({...m, id: ++this.lastModId}))})
   }
 
   #findModifier(text) {

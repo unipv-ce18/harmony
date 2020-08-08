@@ -17,6 +17,7 @@ class SearchForm extends Component {
 
   #input = createRef();
   #searchTimeout = null;
+  #lastQuery = null;  // To debounce input.loadData
 
   constructor() {
     super();
@@ -24,11 +25,15 @@ class SearchForm extends Component {
     this.onInputEnter = this.onInputEnter.bind(this);
   }
 
-  componentDidMount() {
+  componentWillUpdate(nextProps, nextState, nextContext) {
     // Restore state from header if we landed on search page
     const [_, search, query] = window.location.pathname.split('/', 3);
-    if (search === 'search')
-      this.#input.current.loadData(fromSearchUrlData(query));
+    if (search === 'search' && query !== this.#lastQuery) {
+      this.#lastQuery = query;
+      const queryData = fromSearchUrlData(query);
+      this.#input.current.loadData(queryData);
+      this.setState({hintVisible: isQueryEmpty(queryData)});
+    }
   }
 
   render(_, {hintVisible}) {
@@ -48,7 +53,7 @@ class SearchForm extends Component {
     this.#searchTimeout && clearTimeout(this.#searchTimeout);
     this.#searchTimeout = null;
 
-    const queryEmpty = isQueryEmpty(text, modifiers);
+    const queryEmpty = isQueryEmpty({text, modifiers});
     this.setState({hintVisible: queryEmpty});
 
     // Will trigger search if query not empty and not waiting to insert a modifier

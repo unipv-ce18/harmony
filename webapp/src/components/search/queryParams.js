@@ -3,7 +3,7 @@ import {route} from 'preact-router';
 const inputToUrl = text => text.replace(/[^a-z0-9]/gi, ' ').replace(/ /g, '+');
 const inputFromUrl = text => text.replace(/\+/g, ' ');
 
-export const isQueryEmpty = (text, modifiers) => text === '' && modifiers.length === 0;
+export const isQueryEmpty = ({text, modifiers}) => text === '' && modifiers.length === 0;
 
 export function toSearchUrlData(text, modifiers) {
   const modStrings = modifiers.map(m => m.key + (m.value != null ? `=${inputToUrl(m.value)}` : ''));
