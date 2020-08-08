@@ -51,6 +51,14 @@ To stop it (add `-v` at the end to also remove all the data):
 You can also access MongoDB with an alternative client at `localhost:27017` and load the OpenAPI specification at
 http://localhost/api/v1/spec in your REST client of choice.
 
+> If you are using Docker for Windows with the WSL 2 backend there is a
+> [known issue](https://github.com/docker/for-win/issues/3171) with Windows HNS reserving random ports on start and
+> preventing the services from booting properly.
+>
+> Run `netsh int ipv4 set dynamic tcp start=49152 num=1638` for saner defaults or
+> `reg add HKLM\SYSTEM\CurrentControlSet\Services\hns\State /v EnableExcludedPortRange /d 0 /f` for disabling port
+> reservation completely.
+
 #### Using Python directly
 
 You need to run your own instances of MinIO, RabbitMQ and MongoDB. Look at `docker/rabbitmq/definitions.json` and

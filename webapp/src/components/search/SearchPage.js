@@ -2,20 +2,27 @@ import {Component} from 'preact';
 import PropTypes from 'prop-types';
 
 import {catalog} from '../../Harmony';
-import {SearchTypes} from '../../core/MediaCatalog';
 import {classList} from '../../core/utils';
-import SongResult from "./SongResult";
-import ReleaseResult from "./ReleaseResult";
-import ArtistResult from "./ArtistResult";
+import {fromSearchUrlData, routeSearch} from './queryParams';
+import {ArtistResult, ReleaseResult, SongResult, PlaylistResult} from './searchResults';
 
 import style from './SearchPage.scss';
-import {fromSearchUrlData} from './queryParams';
+
+const CATEGORY_CONFIG = Object.freeze({
+  artists: {view: ArtistResult, previewSize: 3},
+  releases: {view: ReleaseResult, previewSize: 5},
+  songs: {view: SongResult, previewSize: 12},
+  playlists: {view: PlaylistResult, previewSize: 4}
+});
+
+function routeSingleSearchCategory(currentQuery, targetCategory) {
+  const {text, modifiers} = fromSearchUrlData(currentQuery);
+  routeSearch(text, [{key: `${targetCategory}-only`}, ...modifiers]);
+}
 
 class SearchPage extends Component {
 
   static PropTypes = {
-    /** Type of search */
-    type: PropTypes.string.isRequired,
     /** Search query to perform */
     query: PropTypes.string.isRequired
   }
@@ -31,16 +38,23 @@ class SearchPage extends Component {
   }
 
   render(props, {query, results, updatingQuery}) {
+    const singleCategory = results != null && Object.keys(results).length === 1 && Object.keys(results)[0];
+    const commonProps = {query, results};
+
     return results && (
       <div class={classList(style.searchPage, updatingQuery && style.updating)}>
-        {/*<div>{SearchTypes[type].name} results for: "{query}"</div>*/}
-        <div>
-          <ResultGroup name="Artists" type='artists' elementView={ArtistResult} results={results}/>
-          <ResultGroup name="Releases" type='releases' elementView={ReleaseResult} results={results}/>
-          <ResultGroup name="Songs" type='songs' elementView={SongResult} results={results}/>
-          {/*<ResultGroup name="Playlists" type='playlists' elementView={TO DO} results={results}/>*/}
-        </div>
-        {/*//<Footer />*/}
+        {singleCategory !== false ? (
+          <div>
+            <ResultGroup {...commonProps} category={singleCategory}/>
+          </div>
+        ) : (
+          <div>
+            <ResultGroup {...commonProps} preview category="artists" name="Artists"/>
+            <ResultGroup {...commonProps} preview category="releases" name="Releases"/>
+            <ResultGroup {...commonProps} preview category="songs" name="Songs"/>
+            <ResultGroup {...commonProps} preview category="playlists" name="Playlists"/>
+          </div>
+        )}
       </div>
     );
   }
@@ -63,15 +77,22 @@ class SearchPage extends Component {
   }
 }
 
-const ResultGroup = ({name, type, results, elementView: ElView}) => {
-  return results[type] && results[type].length > 0 && (
-    <div class={style.resultGroup}>
-      <h3>{name}</h3>
+const ResultGroup = ({query, results, preview, category, name}) => {
+  const data = results[category];
+  const ResultView = CATEGORY_CONFIG[category].view;
+
+  return data != null && data.length > 0 && (
+    <div className={style.resultGroup}>
+      {name && <h3>{name}</h3>}
       <div>
-        {results[type].map(item => <ElView key={item.id} content={item}/>)}
+        {data
+          .sort((a, b) => b.weight - a.weight)
+          .slice(0, preview ? CATEGORY_CONFIG[category].previewSize : undefined)
+          .map(r => <ResultView key={r.id} content={r}/>)}
       </div>
+      {preview && <span onClick={() => routeSingleSearchCategory(query, category)}>more {name}</span>}
     </div>
-  )
-}
+  );
+};
 
 export default SearchPage;

@@ -1,0 +1,93 @@
+@import '../../styledefs';
+@import '../IconButton';
+@import './SearchPage';
+
+.songResult {
+  @extend %resultElementBase;
+  @extend %resultColorBg;
+
+  margin: 16px;
+
+  display: flex;
+  min-width: 200px;
+  max-width: 260px;
+  height: 66px;
+
+
+  .songArt {
+    flex-shrink: 0;
+
+    width: 56px;
+    height: 56px;
+    margin: 5px;
+
+    position: relative;
+
+    > * {
+      position: absolute;
+    }
+
+    > img {
+      border-radius: 2px;
+      width: 100%;
+      height: 100%;
+      transition: filter $transition-len-short-ms;
+    }
+
+    > svg {
+      fill: white;
+      opacity: 0;
+      transition: opacity $transition-len-short-ms;
+    }
+  }
+
+  .songDetail {
+    display: flex;
+    flex-direction: column;
+
+    margin: 4px;
+    line-height: 130%;
+    font-size: 90%;
+
+    overflow: hidden;
+
+    > * {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    // Artist
+    > a {
+      @extend %resultInnerLink;
+      opacity: .8;
+      font-size: 0.8em;
+    }
+
+    // Controls
+    > :nth-child(3) {
+      transition: opacity $transition-len-short-ms;
+      opacity: 0;
+
+      > span {
+        @include button-color(#eee);
+        background-color: transparent;
+      }
+    }
+  }
+
+  &:hover, &:focus {
+
+    .songArt {
+      > img {
+        filter: brightness(.7) contrast(1);
+      }
+      > svg {
+        opacity: 1;
+      }
+    }
+    .songDetail > :nth-child(3) {
+      opacity: 1;
+    }
+  }
+}

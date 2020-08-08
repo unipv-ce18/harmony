@@ -39,7 +39,8 @@
   // Size transition only when not resizing manually
   &:not(.sizing) {
     transition: width $player-transition-len-ms,
-    height $player-transition-len-ms;
+                height $player-transition-len-ms,
+                box-shadow $player-transition-len-short-ms;
   }
 
   // The main page view in flexbox fills all remaining space

@@ -18,7 +18,7 @@ _arg_parser_search = RequestParser()\
 
 
 _SEARCH_FIELDS_ARTIST = ['id', 'name', 'image', 'genres']
-_SEARCH_FIELDS_RELEASE = ['id', 'name', 'artist', 'cover']
+_SEARCH_FIELDS_RELEASE = ['id', 'name', 'artist', 'date', 'cover']
 _SEARCH_FIELDS_SONG = ['id', 'title', 'artist', 'release']
 _SEARCH_FIELDS_PLAYLIST = ['id', 'name', 'creator', 'images']
 

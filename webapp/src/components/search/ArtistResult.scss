@@ -1,0 +1,72 @@
+@import '../../styledefs';
+@import './SearchPage';
+
+.artistResult {
+  @extend %resultElementBase;
+  @extend %resultImageBg;
+  margin: 4px;
+
+  min-width: 300px;
+  max-width: 400px;
+  height: 200px;
+
+  &::before {
+    background-image: var(--artist-img);
+    background-position: 50% 20%;  // Thanks, last.fm
+    box-shadow: 0 0 30px 27px $application-background inset;
+
+    transform: scale(0.9);
+    transform-origin: 50% 75%;
+  }
+
+  > div {
+    text-align: center;
+    background-color: rgba(10, 10, 10, .5);
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 30px;
+
+    transition: background-color $transition-len-ms;
+
+    > * {
+      display: block;
+    }
+
+    // Name
+    > :nth-child(1) {
+      font-weight: 700;
+      letter-spacing: .8px;
+      font-size: 120%;
+      font-variant: small-caps;
+
+      margin-bottom: 4px;
+    }
+
+    // Genres
+    > :nth-child(2) {
+      font-size: 70%;
+      font-style: italic;
+      opacity: .6;
+      text-transform: lowercase;
+    }
+
+    // Controls
+    > :nth-child(3) {
+      @extend %appearingControls;
+    }
+  }
+
+  &:hover, &:focus {
+    &::before {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    > div {
+      background-color: rgba(10, 10, 10, .8);
+      > :nth-child(3) {
+        height: 26px;
+      }
+    }
+  }
+}
