@@ -97,6 +97,10 @@
     transition: transform $transition-len-ms, opacity $transition-len-ms;
     opacity: .8;
   }
+
+  &:global(.loading)::before {
+    opacity: 0;
+  }
 }
 
 // Result elements with a fade-in color background on hover
