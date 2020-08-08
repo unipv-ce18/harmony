@@ -171,9 +171,9 @@ class Menu extends Component {
             }
             </div>
             <hr/>
-            {this.isUserOwner &&
+            {this.isUserOwner() &&
             <button onClick={this.removeSongFromPlaylist}>Remove From Playlist</button>}
-            {this.userOwnRelease &&
+            {this.userOwnRelease() &&
             <button onClick={()=>this.handleModalBox(this,
               ModalBoxTypes.MODALBOX_CONFIRM_DELETE, 'Do you really want to delete this song?')}>
               Remove From Release
@@ -189,7 +189,7 @@ class Menu extends Component {
               Go To Release
             </a>}
             <hr/>
-            {this.isUserOwner &&
+            {this.isUserOwner() &&
             <button onClick={this.addToQueue.bind(this, this.props.song)}>
               Add To Queue
             </button>}
