@@ -40,7 +40,7 @@ export const ArtistResult = ({content: artist}) => {
        style={{'--artist-img': `url(${artist.image})`}} href={artistLink(artist.id)}>
       <div>
         <span>{artist.name}</span>
-        <span>{artist.genres.slice(0, GENRES_LIST_LENGTH).join(', ')}</span>
+        <span>{artist.genres && artist.genres.slice(0, GENRES_LIST_LENGTH).join(', ')}</span>
         <div>
           <IconButton name="Play all" size={24} icon={IconPlay} onClick={null}/>
           <IconButton name="Mark as favorite" size={24} icon={IconStarEmpty} onClick={null}/>
@@ -60,7 +60,7 @@ export const ReleaseResult = ({content: release}) => {
         <div>
           <span>{release.name}</span>
           <span>
-           <a href={artistLink(release.artist.id)}>{release.artist.name}</a>, {release.date}
+           <a href={artistLink(release.artist.id)}>{release.artist.name}</a>{release.date && `, ${release.date}`}
         </span>
           <div>
             <IconButton name="Play all" size={24} icon={IconPlay} onClick={null}/>
