@@ -12,10 +12,16 @@
 }
 
 .resultGroup {
+  text-align: center;
+
+  margin-top: 80px;
+  &:first-child {
+    margin-top: 40px;
+  }
+
   // Group name
   > h3 {
-    text-align: center;
-    margin: 40px 0 20px;
+    margin-bottom: 20px;
 
     text-transform: uppercase;
     font-size: 90%;
@@ -34,11 +40,39 @@
       flex-grow: 1;
     }
   }
+
+  // "show more" button
+  > span {
+    display: inline-block;
+    margin-top: 20px;
+    width: 50vw;
+
+    font-size: 70%;
+    font-style: italic;
+    cursor: pointer;
+    text-transform: lowercase;
+
+    background: radial-gradient(ellipse at top, rgba(#000, .5) 0%, transparent 70%);
+
+    transition-property: padding, color, opacity;
+    transition-duration: $transition-len-short-ms;
+    padding-top: 6px;
+    color: rgba(#eee, .8);
+    opacity: .6;
+
+    &:hover {
+      opacity: 1;
+      padding-top: 12px;
+      color: rgba(#eee, .9);
+    }
+  }
 }
 
 %resultElementBase {
+  outline: none;
   color: #eee;
   text-decoration: none;
+  text-align: left;
 }
 
 // Result elements with an image background
