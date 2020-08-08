@@ -3,7 +3,7 @@ import {Component} from 'preact';
 import styles from './UserPage.scss';
 import {route} from 'preact-router';
 import {session} from '../../Harmony';
-import {changeUserType, changeUserTier, createArtist} from '../../core/apiCalls';
+import {changeUserType, changeUserTier, createArtist, patchUser} from '../../core/apiCalls';
 import UserHeader from './UserHeader';
 import ArtistList from './ArtistList';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
@@ -36,10 +36,6 @@ class UserInfo extends Component {
       this.setState({type: [...this.props.user.type]});
     if (this.props.user.tier !== prevProps.user.tier)
       this.setState({tier: [...this.props.user.tier]});
-  }
-
-  componentWillUnmount() {
-
   }
 
   changeType() {

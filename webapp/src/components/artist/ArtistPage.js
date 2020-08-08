@@ -75,16 +75,9 @@ class ArtistPage extends Component {
           <div class={styles.artistPageContent}>
             <img src={this.state.artist.image} alt=''
                style={{transform: `translate(-50%, -50%) translateY(${this.state.offset * 0.5}px)`}}/>
-            {this.isUserOwner() &&
-              <button onClick={this.updatePage}>Modify your artist page</button>}
             <ArtistInfo artist={this.state.artist}/>
             <ReleaseList artist={this.state.artist}/>
             {/*<SimilarArtists />*/}
-            {this.isUserOwner() &&
-              <button onClick={this.handleModalBox.bind(this,
-                ModalBoxTypes.MODALBOX_CONFIRM_DELETE, 'Do you really want to delete this artist?')}>
-                Delete your artist page
-              </button>}
           </div>
         }
         {modalBox.type &&
