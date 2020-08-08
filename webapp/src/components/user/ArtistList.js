@@ -1,6 +1,7 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
 import styles from './UserPage.scss';
+import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 
 class ArtistList extends Component {
   constructor(props) {
@@ -18,7 +19,7 @@ class ArtistList extends Component {
         {this.props.artists.map(artist =>
           <div class={styles.artist}>
             <a href='#' onClick={this.handleClickArtist.bind(this, artist.id)}>
-              <img src={artist.image ? artist.image : null} alt={""}/>
+              <img src={artist.image ? artist.image : DEFAULT_ALBUMART_URL} alt={""}/>
             </a>
             <p><a href='#' onClick={this.handleClickArtist.bind(this, artist.id)}>{artist.name}</a></p>
           </div>)

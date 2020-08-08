@@ -1,12 +1,11 @@
 import {Component} from 'preact';
 import styles from './ArtistPage.scss';
 import {route} from 'preact-router';
-import {IconExpand, IconStarFull} from '../../assets/icons/icons';
+import {IconExpand} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
-import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
-import ModalBox from '../ModalBox';
+import {DEFAULT_ALBUMART_URL, DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
+import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox'
 import {createRelease} from '../../core/apiCalls';
-import image from '../../assets/plus.jpg';
 
 const MODALBOX_RELEASE = 'modalbox_release';
 
@@ -48,13 +47,13 @@ class ReleaseList extends Component {
       })
   }
 
-  handleModalBox(modalbox_type, message, e) {
-    e.preventDefault();
+  handleModalBox(modalbox_type, message) {
     this.setState({modalBox: {type: modalbox_type, message: message}});
   }
 
   render() {
     const order = this.state.order;
+    let modalBox = this.state.modalBox;
     let list = this.props.artist.releases ? this.props.artist.releases : [];
 
     list.sort(function (a, b) {
@@ -94,17 +93,23 @@ class ReleaseList extends Component {
             </div>)}
           {this.isUserOwner() &&
             <div class = {styles.release}>
-                <a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_RELEASE, '')}>
-                  <img src={image} alt={""}/>
+                <a href='#' onClick={this.handleModalBox.bind(this,
+                  ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Release')}>
+                  <img src={DEFAULT_NEW_CONTENT_IMAGE_URL} alt={""}/>
                 </a>
-                <p><a href='#' onClick={this.handleModalBox.bind(this, MODALBOX_RELEASE, '')}>New Release</a></p>
+                <p><a href='#' onClick={this.handleModalBox.bind(this,
+                  ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Release')}>New Release</a></p>
             </div>}
         </div>
+        {modalBox.type &&
         <ModalBox
-          handleModalBox={this.handleModalBox.bind(this)}
-          newRelease={this.createReleasePage.bind(this)}
-          type={this.state.modalBox.type}
-          message={this.state.modalBox.message}/>
+          type={modalBox.type}
+          message={modalBox.message}
+          placeholder={modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? 'Release Name' : ''}
+          handleCancel={()=>this.handleModalBox('', '')}
+          handleSubmit={
+            modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? this.createReleasePage.bind(this) : null}
+          />}
       </div>
     );
   }

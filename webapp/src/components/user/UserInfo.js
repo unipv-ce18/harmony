@@ -9,7 +9,7 @@ import ArtistList from './ArtistList';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import IconButton from '../IconButton';
 import {IconLockClose, IconLockOpen} from '../../assets/icons/icons';
-import image from '../../assets/plus.jpg';
+import {DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
 
 class UserInfo extends Component {
   constructor(props) {
@@ -145,7 +145,7 @@ class UserInfo extends Component {
                   <div class={styles.artist}>
                     <a href='#'
                        onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Artist')}>
-                      <img src={image} alt={""}/>
+                      <img src={DEFAULT_NEW_CONTENT_IMAGE_URL} alt={""}/>
                     </a>
                     <p><a href='#'
                           onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Artist')}>

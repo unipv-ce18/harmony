@@ -7,6 +7,7 @@ import IconButton from '../IconButton';
 import {IconStarEmpty, IconStarFull, IconSettings} from '../../assets/icons/icons';
 import {catalog, session} from '../../Harmony';
 import {deleteArtist} from '../../core/apiCalls';
+import {route} from 'preact-router';
 
 class ArtistInfo extends Component {
   constructor(props) {
@@ -14,7 +15,7 @@ class ArtistInfo extends Component {
     this.state = {
       additional: false,
       stateUpdated: true,
-      settingsModal: {open: false}
+      settingsModal: false
     };
 
     this.handleAdditional = this.handleAdditional.bind(this);
@@ -41,16 +42,15 @@ class ArtistInfo extends Component {
     session.getAccessToken()
       .then (token => {
         deleteArtist(this.props.artist.id, token)
-          .then(result => {
+          .then(() => {
             route('/user/' + session.getOwnData().id);
           })
           .catch( () => session.error = true);
       })
   }
 
-  handleSettingsModal(isOpen, e) {
-    e.preventDefault();
-    this.setState({settingsModal: {open: isOpen}});
+  handleSettingsModal(isOpen) {
+    this.setState({settingsModal: isOpen});
   }
 
   render() {
@@ -88,11 +88,11 @@ class ArtistInfo extends Component {
           </div>
         }
         <span><button onClick={this.handleAdditional}>{this.state.additional ? 'Read less' : 'Read more'} </button></span>
+        {this.state.settingsModal &&
         <SettingsModal
           handleSettingsModal={this.handleSettingsModal.bind(this)}
-          open={this.state.settingsModal.open}
           type="artist"
-          removeArtist={this.deleteArtistPage.bind(this)}/>
+          removeArtist={this.deleteArtistPage.bind(this)}/>}
       </div>
     );
   }

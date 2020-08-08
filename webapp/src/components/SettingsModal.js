@@ -1,7 +1,8 @@
 import {Component} from 'preact';
 
 import styles from './SettingsModal.scss';
-import ModalBox from './ModalBox'
+import ModalBox from './modalbox/ModalBox'
+import {ModalBoxTypes} from './modalbox/ModalBox';
 
 const MODALBOX_ARTIST_DELETE = 'modalbox_artist_delete'
 const MODALBOX_USER_DELETE = 'modalbox_user_delete'
@@ -14,6 +15,8 @@ class SettingsModal extends Component {
     this.state = {modalBox : {type:'', message:''}};
 
     this.logout = this.logout.bind(this);
+    this.removeUser = this.removeUser.bind(this);
+    this.deleteArtistPage = this.deleteArtistPage.bind(this);
   }
 
   removeUser() {
@@ -28,36 +31,45 @@ class SettingsModal extends Component {
     this.props.removeArtist();
   }
 
-  handleModalBox(modalbox_type, message, e) {
-    e.preventDefault();
+  handleModalBox(modalbox_type, message) {
     this.setState({modalBox: {type: modalbox_type, message: message}});
   }
 
   render() {
+    let modalBox = this.state.modalBox;
     return (
       <div>
-        {this.props.open && this.props.type === 'user' &&
+        {this.props.type === 'user' &&
           <div class={styles.settingsModal}>
             <div class={styles.settingsButton}>
-              <div><button onClick={this.handleModalBox.bind(this, MODALBOX_USER_DELETE, '')}>Delete your account</button></div>
+              <div><button onClick={this.handleModalBox.bind(this,
+                MODALBOX_USER_DELETE, 'Do you really want to delete your account?')}>
+                Delete your account
+              </button></div>
               <div><button onClick={this.logout}>Log out</button></div>
               <div><button onClick={this.props.handleSettingsModal.bind(this, false)}>Cancel</button></div>
             </div>
           </div>}
-        {this.props.open && this.props.type === 'artist' &&
+        {this.props.type === 'artist' &&
           <div class={styles.settingsModal}>
             <div class={styles.settingsButton}>
               <div><button onClick={this.props.handleSettingsModal.bind(this, false)}>Modify your page</button></div>
-              <div><button onClick={this.handleModalBox.bind(this, MODALBOX_ARTIST_DELETE, '')}>Delete your page</button></div>
+              <div><button onClick={this.handleModalBox.bind(this,
+                MODALBOX_ARTIST_DELETE, 'Do you really want to delete this artist?')}>
+                Delete your page
+              </button></div>
               <div><button onClick={this.props.handleSettingsModal.bind(this, false)}>Cancel</button></div>
             </div>
           </div>}
-        <ModalBox
-          handleModalBox={this.handleModalBox.bind(this)}
-          removeUser={this.removeUser.bind(this)}
-          removeArtist={this.deleteArtistPage.bind(this)}
-          type={this.state.modalBox.type}
-          message={this.state.modalBox.message}/>
+        {modalBox.type &&
+          <ModalBox
+            type={ModalBoxTypes.MODALBOX_CONFIRM_DELETE}
+            message={modalBox.message}
+            handleCancel={()=>{this.handleModalBox('', '')}}
+            handleSubmit={
+              modalBox.type === MODALBOX_USER_DELETE ? this.removeUser.bind(this) :
+              modalBox.type === MODALBOX_ARTIST_DELETE ? this.deleteArtistPage.bind(this) : null}
+            />}
       </div>
     );
   }

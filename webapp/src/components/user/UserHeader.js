@@ -15,7 +15,7 @@ class UserHeader extends Component {
 
     this.state = {
       update : false,
-      settingsModal : {open: false}
+      settingsModal : false
     };
 
     this.updatePage = this.updatePage.bind(this);
@@ -79,9 +79,8 @@ class UserHeader extends Component {
     alert('image upload coming soon');
   }
 
-  handleSettingsModal(isOpen, e) {
-    e.preventDefault();
-    this.setState({settingsModal: {open: isOpen}});
+  handleSettingsModal(isOpen) {
+    this.setState({settingsModal: isOpen});
   }
 
   render() {
@@ -126,12 +125,12 @@ class UserHeader extends Component {
               : null
           }
         </div>
+        {this.state.settingsModal &&
         <SettingsModal
           handleSettingsModal={this.handleSettingsModal.bind(this)}
-          open={this.state.settingsModal.open}
           type="user"
           removeUser={this.removeUser.bind(this)}
-          logout={() => session.doLogout()}/>
+          logout={() => session.doLogout()}/>}
       </div>
     );
   }

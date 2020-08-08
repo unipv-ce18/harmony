@@ -3,7 +3,7 @@ import {Component} from 'preact';
 import styles from './LibraryPage.scss';
 
 import {route} from 'preact-router';
-import plusImage from '../../assets/plus.jpg';
+import {DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
 
 import {catalog, session} from '../../Harmony';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
@@ -88,7 +88,7 @@ class PlaylistsPage extends Component {
                   <span>
                   <a href='#'
                      onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Playlist')}>
-                    <img src={plusImage} alt={""}/>
+                    <img src={DEFAULT_NEW_CONTENT_IMAGE_URL} alt={""}/>
                   </a>
                   <p><a href='#'
                         onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Playlist')}>

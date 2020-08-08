@@ -8,7 +8,7 @@ import ArtistsPage from './ArtistsPage';
 import ReleasesPage from './ReleasesPage';
 import {getUserInfo} from '../../core/apiCalls';
 import CollectionSongsTable from '../collection/CollectionSongsTable';
-import {IconCollapse, IconExpand, IconStarEmpty} from '../../assets/icons/icons';
+import {IconCollapse, IconExpand} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 
 const ARTISTS_TYPE = 'artists';

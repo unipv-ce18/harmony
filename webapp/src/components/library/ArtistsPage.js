@@ -3,7 +3,7 @@ import {Component} from 'preact';
 import styles from './LibraryPage.scss';
 
 import {route} from 'preact-router';
-import emptyImage from './image.jpg';
+import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 
 class ArtistsPage extends Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class ArtistsPage extends Component {
             {this.props.artists.map(artist =>
               <span>
                 <a href='#' onClick={this.clickArtist.bind(this, artist.id)}>
-                  <img src={artist.image? artist.image : emptyImage} alt={""}/>
+                  <img src={artist.image? artist.image : DEFAULT_ALBUMART_URL} alt={""}/>
                 </a>
                 <p><a href='#' onClick={this.clickArtist.bind(this, artist.id)}>
                   {artist.name}
