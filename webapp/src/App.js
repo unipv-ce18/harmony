@@ -40,7 +40,7 @@ class App extends Component {
     const router = session.loggedIn ? (
       <Router onChange={this.handleRoute}>
         <HomePage path="/"/>
-        <SearchPage path="/search/:type/:query"/>
+        <SearchPage path="/search/:query"/>
         {session.error ? <ErrorPage path="/artist/:id"/> : <ArtistPage path="/artist/:id"/>}
         {session.error ? <ErrorPage path="/release/:id"/> : <CollectionPage path="/release/:id"/>}
         {session.error ? <ErrorPage path="/playlist/:id"/> : <CollectionPage path="/playlist/:id"/>}
