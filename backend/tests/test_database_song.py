@@ -74,7 +74,7 @@ class SongDatabaseTest(DatabaseTest):
                 song_out = asdict(rich_release_out.songs[j])
                 song_out['id'] = None
                 song_out['counter'] = None  # defaults to 0
-                song_out_data['versions'] = None
+                song_out['versions'] = None
                 self.assertDictEqual(song_in, song_out)
 
     def test_db_song_search(self):
