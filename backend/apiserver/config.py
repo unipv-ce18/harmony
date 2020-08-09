@@ -18,9 +18,12 @@ class Config:
 
     S3_WEBHOOK_SECRET = os.environ.get('S3_WEBHOOK_SECRET', 'ivitelloniinbouvette')
 
+    TRANSCODING_ON_UPLOAD = True
+
 
 class DevelopmentConfig(Config, BackendConfigDev):
     DEBUG = True
+    TRANSCODING_ON_UPLOAD = False
 
 
 class ProductionConfig(Config, BackendConfigProd):

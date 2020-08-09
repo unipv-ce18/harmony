@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 from bson import ObjectId
+from flask import current_app
 from flask_restful import Resource, Api
 from flask_restful.reqparse import RequestParser
 
@@ -97,6 +98,10 @@ class SongUpload(Resource):
 
         td = NotificationWorker({'song_id': song_id, 'type': jobs.ANALYSIS}, amqp_client)
         td.start()
+
+        if current_app.config['TRANSCODING_ON_UPLOAD']:
+            td = NotificationWorker({'song_id': song_id, 'type': jobs.TRANSCODE}, amqp_client)
+            td.start()
 
         return {'message': 'Upload completed'}, HTTPStatus.OK
 
