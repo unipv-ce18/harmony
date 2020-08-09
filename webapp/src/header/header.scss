@@ -74,7 +74,7 @@ header {
   }
 
   // Search bar wrapper
-  > div > div {
+  > div{
     margin: -4px auto 0;
     transition: transform $transition-len-ms;
     transition-timing-function: cubic-bezier(.65, .05, .36, 1);  // "cubic"
@@ -91,7 +91,7 @@ header {
       transition-duration: $transition-len-ms;
       transition-delay: $transition-len-short-ms;
     }
-    > div > div {
+    > div {
       transform: translateY(25vh);
     }
   }

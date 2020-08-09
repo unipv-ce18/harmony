@@ -86,7 +86,7 @@ const ResultGroup = ({query, results, preview, category, name}) => {
       {name && <h3>{name}</h3>}
       <div>
         {data
-          .sort((a, b) => b.weight - a.weight)
+          .sort(resultSorter)
           .slice(0, preview ? CATEGORY_CONFIG[category].previewSize : undefined)
           .map(r => <ResultView key={r.id} content={r}/>)}
       </div>
@@ -94,5 +94,11 @@ const ResultGroup = ({query, results, preview, category, name}) => {
     </div>
   );
 };
+
+const resultSorter = (a, b) => {
+  const diff = b.weight - a.weight;
+  return diff !== 0 ? diff :
+    (a.name || a.title).localeCompare(b.name || b.title);
+}
 
 export default SearchPage;

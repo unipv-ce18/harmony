@@ -1,6 +1,6 @@
 import {Component, createRef} from 'preact';
 
-import ModInput, {MODIFIER_START_CHAR} from './ModInput';
+import ModInput, {MODIFIER_START_CHAR, ModValueTypes} from './ModInput';
 import {classList} from '../../../core/utils';
 import {SEARCH_MODIFIERS} from './filters';
 
@@ -12,7 +12,8 @@ const INPUT_SEARCH_DELAY = 500;
 class SearchForm extends Component {
 
   state = {
-    hintVisible: true
+    hintVisible: true,
+    popupVisible: false
   }
 
   #input = createRef();
@@ -36,15 +37,17 @@ class SearchForm extends Component {
     }
   }
 
-  render(_, {hintVisible}) {
+  render(_, {hintVisible, popupVisible}) {
     return (
-      <div class={style.main}>
-        <div class={classList(style.hintFrame, !hintVisible && 'hidden')}>
-          <span>{`Search for music...`}</span>
-          <span>Start with an hyphen to trigger advanced search</span>
-        </div>
+      <div class={classList(style.main, popupVisible && 'popupVisible')}>
+        <EmptyHint visible={hintVisible}/>
         <ModInput ref={this.#input} modTypes={SEARCH_MODIFIERS}
                   onChange={this.onInputChange} onEnter={this.onInputEnter}/>
+        <PopupLegend onElementClick={modifier => {
+          this.#input.current.handleChangeValue({target: {value: `-${modifier.input} `}});
+          // Focus back main input from click if modifier has no "autofocus" value"
+          if (modifier.valueType === ModValueTypes.NONE) this.#input.current.inputRef.current.focus();
+        }}/>
       </div>
     )
   }
@@ -54,10 +57,10 @@ class SearchForm extends Component {
     this.#searchTimeout = null;
 
     const queryEmpty = isQueryEmpty({text, modifiers});
-    this.setState({hintVisible: queryEmpty});
+    this.setState({hintVisible: queryEmpty, popupVisible: text === MODIFIER_START_CHAR});
 
     // Will trigger search if query not empty and not waiting to insert a modifier
-    if (!queryEmpty && text !== MODIFIER_START_CHAR)
+    if (!queryEmpty && !text.startsWith(MODIFIER_START_CHAR))
       this.#searchTimeout = setTimeout(() => routeSearch(text, modifiers), INPUT_SEARCH_DELAY);
   }
 
@@ -70,5 +73,24 @@ class SearchForm extends Component {
 
 }
 
+const EmptyHint = ({visible}) => (
+  <div className={classList(style.hintFrame, !visible && 'hidden')}>
+    <span>Search for music...</span>
+    <span>Start with an hyphen to trigger advanced search</span>
+  </div>
+)
+
+const PopupLegend = ({onElementClick}) => (
+  <div className={style.popup}>
+    <table>
+      {SEARCH_MODIFIERS.map(m => (
+        <tr style={{'--mod-color': m.color}} onClick={onElementClick.bind(null, m)}>
+          <td>-{m.input}</td>
+          <td>{m.description}</td>
+        </tr>
+      ))}
+    </table>
+  </div>
+);
 
 export default SearchForm;
