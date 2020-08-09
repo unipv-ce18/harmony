@@ -78,7 +78,7 @@ class UserInfo extends Component {
       .then (token => {
         let prefs = this.props.user.prefs;
         prefs['private']['email'] = !this.state.email;
-        patchUser(token, this.props.user.id, null, prefs)
+        patchUser(token, this.props.user.id, {prefs})
           .then( () => {
             this.setState({email : !this.state.email});
           })

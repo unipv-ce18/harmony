@@ -100,10 +100,10 @@ export class MediaCatalog {
       })
   }
 
-  patchPlaylist(playlist_id, name, policy) {
+  patchPlaylist(playlist_id, patch) {
     return this.session.getAccessToken()
       .then (token => {
-        return patchPlaylist(token, playlist_id, name, policy)
+        return patchPlaylist(token, playlist_id, patch)
           .then (() => { })
           .catch(e => console.log(e));
       })

@@ -26,11 +26,11 @@ class PlaylistInfo extends Component {
   isUserOwner() {
     return session.getOwnData().id === this.props.collection.creator.id;
   }
-  
+
   changePolicy() {
-    catalog.patchPlaylist(this.props.collection.id, null, this.state.policy)
+    const policy = this.state.policy;
+    catalog.patchPlaylist(this.props.collection.id, {policy})
       .then(()=> {
-        const policy = this.state.policy;
         if (policy === 'public') this.setState({policy : 'private'});
         else  this.setState({policy : 'public'});
       })
