@@ -6,6 +6,7 @@ from .ops_song import SongOpsMixin
 from .ops_orchestrator import OrchestratorOpsMixin
 from .ops_playlist import PlaylistOpsMixin
 from .ops_upload import UploadOpsMixin
+from .ops_delete import DeleteOpsMixin
 
 
 class _DbBase(object):
@@ -22,6 +23,7 @@ class Database(
         OrchestratorOpsMixin,
         PlaylistOpsMixin,
         UploadOpsMixin,
+        DeleteOpsMixin,
         _DbBase):
 
     def __init__(self, db_connection):
