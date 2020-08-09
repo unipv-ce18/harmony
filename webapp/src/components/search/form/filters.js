@@ -5,7 +5,7 @@ export const SEARCH_MODIFIERS = Object.freeze([
     key: 'artists-only',
     input: 'a',
     displayName: 'Artists',
-    description: 'Restrict search to artists only',
+    description: 'Search for artists only',
     valueType: ModValueTypes.NONE,
     color: '255,167,37'
   },
@@ -13,7 +13,7 @@ export const SEARCH_MODIFIERS = Object.freeze([
     key: 'releases-only',
     input: 'r',
     displayName: 'Releases',
-    description: 'Restrict search to releases only',
+    description: 'Search for releases only',
     valueType: ModValueTypes.NONE,
     color: '41,182,246'
   },
@@ -21,7 +21,7 @@ export const SEARCH_MODIFIERS = Object.freeze([
     key: 'songs-only',
     input: 's',
     displayName: 'Songs',
-    description: 'Restrict search to songs only',
+    description: 'Search for songs only',
     valueType: ModValueTypes.NONE,
     color: '156,204,10'
   },

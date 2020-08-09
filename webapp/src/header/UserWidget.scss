@@ -1,0 +1,75 @@
+@import '../styledefs';
+
+.userWidget {
+  padding: 4px;
+
+  display: inline-block;
+  align-items: center;
+  user-select: none;
+
+  border-radius: 16px;
+  transition: background-color $transition-len-short-ms;
+
+  span, div {
+    font-size: 85%;
+    letter-spacing: .6px;
+    margin: 0 8px;
+  }
+
+  span {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  img {
+    display: inline-block;
+    vertical-align: middle;
+    height: 30px;
+  }
+
+  // Dropdown
+  > div:nth-of-type(2) {
+    overflow: hidden;
+
+    transition-property: max-height, opacity, transform;
+    transition-duration: $transition-len-short-ms;
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+
+    // Link wrapper
+    div {
+      padding-bottom: 4px;
+    }
+
+    a {
+      padding: 6px 12px;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      font-size: 90%;
+
+      transition: color $transition-len-short-ms, transform $transition-len-short-ms;
+
+      &:hover {
+        color: #fff;
+        // Logout button
+        &:last-of-type {
+          color: orangered;
+        }
+
+        transform: translateX(5px);
+      }
+    }
+  }
+}
+
+.userWidget:global(.drop-down) {
+  background-color: rgba(#111, .8);
+
+  > div:nth-of-type(2) {
+    opacity: 1;
+    max-height: var(--dd-height, 400px);
+    transform: none;
+  }
+}

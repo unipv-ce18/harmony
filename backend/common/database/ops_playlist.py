@@ -81,6 +81,12 @@ class PlaylistOpsMixin:
             {'$set': {c.PLAYLIST_POLICY: policy}}
         ).matched_count)
 
+    def update_playlist(self, playlist_id, patch):
+        return self.playlists.update_one(
+            {c.PLAYLIST_ID: ObjectId(playlist_id)},
+            {'$set': patch}
+        ).matched_count
+
     def get_creator_playlists(self, creator):
         result = self.playlists.find(
             {f'{c.PLAYLIST_CREATOR}.{c.PLAYLIST_CREATOR_ID}': creator},

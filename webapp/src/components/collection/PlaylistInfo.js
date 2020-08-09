@@ -45,9 +45,9 @@ class PlaylistInfo extends Component {
   }
 
   changePolicy() {
-    catalog.updateSongInPlaylist('PATCH', this.props.collection.id)
+    const policy = this.state.policy;
+    catalog.patchPlaylist(this.props.collection.id, {policy})
       .then(()=> {
-        const policy = this.state.policy;
         if (policy === 'public') this.setState({policy : 'private'});
         else  this.setState({policy : 'public'});
       })

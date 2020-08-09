@@ -1,13 +1,11 @@
 import {Component} from 'preact';
 
 import {classList} from '../core/utils';
-import {session} from '../Harmony';
 import HarmonyLogo from '../components/HarmonyLogo';
 import SearchForm from '../components/search/form/SearchForm';
-import {DEFAULT_USER_IMAGE_URL} from '../assets/defaults';
+import UserWidget from './UserWidget';
 
 import style from './header.scss';
-import {route} from 'preact-router';
 
 const LOGO_COLLAPSE_DELAY_MS = 500;
 
@@ -21,7 +19,6 @@ class HeaderBar extends Component {
   constructor() {
     super();
     this.onLogoMouseEvent = this.onLogoMouseEvent.bind(this);
-    this.clickUser = this.clickUser.bind(this);
   }
 
   componentDidUpdate(previousProps, previousState, snapshot) {
@@ -38,19 +35,6 @@ class HeaderBar extends Component {
         this.base.querySelector('input[type=text]').focus();
     }
   }
-
-  clickCreator(e) {
-     e.preventDefault();
-     route('/user/me');
-  }
-
-  clickUser(e) {
-    this.setState(prevState => ({ dropDownMenu: !prevState.dropDownMenu}));
-    //console.log(e);
-    //e.target.style = 'background-color: black; transition: background-color 200ms';
-  }
-
-
 
   render({page}, {logoCollapsed}) {
     const onHome = isHomePage(page);
@@ -75,17 +59,8 @@ class HeaderBar extends Component {
 
         {/* Right side - user */}
         {!onLogin && (
-          <div className={classList(style.right, this.state.dropDownMenu && `drop-down`)}>
-            <div title="User" onClick={this.clickUser}>
-              <div>
-                <span>{session.getOwnData().username}</span>
-                <img src={DEFAULT_USER_IMAGE_URL} alt="" />
-              </div>
-              <div>
-                <div title="User Page" onClick={this.clickCreator.bind(this)}>User page</div>
-                <div title="Logout" onClick={() => session.doLogout()}>Log out</div>
-              </div>
-            </div>
+          <div className={style.right}>
+            <UserWidget/>
           </div>
         )}
       </header>

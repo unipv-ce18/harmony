@@ -42,10 +42,11 @@ class UserHeader extends Component {
   }
 
   confirmModification(e) {
-    e.preventDefault()
+    e.preventDefault();
+    let bio = this.state.bio;
     session.getAccessToken()
       .then (token => {
-        patchUser(token, this.props.user.id, this.state.bio, null)
+        patchUser(token, this.props.user.id, {bio})
           .then( () => {
             this.setState({update : false});
           })

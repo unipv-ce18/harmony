@@ -102,12 +102,11 @@ export function changeUserTier(token) {
   });
 }
 
-export function patchUser(token, user_id, bio, prefs) {
-  const data = {bio, prefs};
+export function patchUser(token, user_id, patch) {
   return fetch(API_USER_URL + user_id, {
     method: 'PATCH',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
-    body: JSON.stringify(data)
+    body: JSON.stringify(patch)
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
     return;

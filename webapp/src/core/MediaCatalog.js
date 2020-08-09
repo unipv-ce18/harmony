@@ -1,4 +1,4 @@
-import {updateSongInPlaylist, createPlaylist, getLibrary, setLike, execSearch} from "./apiCalls";
+import {updateSongInPlaylist, createPlaylist, patchPlaylist, getLibrary, setLike, execSearch} from './apiCalls';
 import library from '../components/library/testLibrary';
 
 const LIBRARY_STORE_KEY = 'library';
@@ -96,6 +96,15 @@ export class MediaCatalog {
             this.#storeLibrary = obj;
             return playlist_id;
           })
+          .catch(e => console.log(e));
+      })
+  }
+
+  patchPlaylist(playlist_id, patch) {
+    return this.session.getAccessToken()
+      .then (token => {
+        return patchPlaylist(token, playlist_id, patch)
+          .then (() => { })
           .catch(e => console.log(e));
       })
   }
