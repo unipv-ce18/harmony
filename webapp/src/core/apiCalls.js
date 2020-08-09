@@ -175,6 +175,19 @@ export function deleteArtist(artist_id, token) {
   });
 }
 
+export function patchArtist(token, artist_id, name, country, life_span, genres, bio, members, links) {
+
+  const data = {name, country, life_span, genres, bio, members, links};
+  return fetch(API_ARTIST_URL + '/' + artist_id, {
+    method: 'PATCH',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
+  });
+}
+
 export function createRelease(artist_id, name, token) {
   const data = {artist_id, name};
   return fetch(API_RELEASE_URL, {
@@ -191,6 +204,18 @@ export function deleteRelease(release_id, token) {
   return fetch(API_RELEASE_URL + '/' + release_id, {
     method: 'DELETE',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
+  });
+}
+
+export function patchRelease(token, release_id, name, date, type) {
+  const data = {name, date, type};
+  return fetch(API_RELEASE_URL + '/' + release_id, {
+    method: 'PATCH',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
     return;
@@ -250,6 +275,18 @@ export function createPlaylist(name, token) {
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
     return response.json();
+  });
+}
+
+export function patchPlaylist(token, playlist_id, name, policy) {
+  const data = {name, policy};
+  return fetch(API_PLAYLIST_URL + '/' + playlist_id, {
+    method: 'PATCH',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
   });
 }
 

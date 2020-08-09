@@ -1,7 +1,6 @@
 import {Component} from 'preact';
 
 import styles from './UserPage.scss';
-import {route} from 'preact-router';
 import {session} from '../../Harmony';
 import {patchUser, deleteUser} from '../../core/apiCalls';
 import SettingsModal from '../SettingsModal'

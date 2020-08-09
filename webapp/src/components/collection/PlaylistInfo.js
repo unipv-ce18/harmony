@@ -4,18 +4,31 @@ import {IconLockClose, IconLockOpen} from '../../assets/icons/icons';
 import {route} from 'preact-router';
 import {catalog, session} from '../../Harmony';
 import PlaylistImage from './PlaylistImage';
+import styles from './CollectionInfo.scss';
 
 class PlaylistInfo extends Component {
 
   constructor(props) {
     super(props);
 
+    this.state = {
+      name : ""
+    }
+
     this.clickCreator = this.clickCreator.bind(this);
-    this.changePolicy = this.changePolicy.bind(this)
+    this.changePolicy = this.changePolicy.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
     this.setState({policy : this.props.collection.policy})
+    this.setState({name : this.props.collection.name});
+  }
+
+  componentDidUpdate(prevProps) {
+    if(this.props.pageUpdated && !prevProps.pageUpdated) {
+      this.handleUpdate();
+    }
   }
 
   clickCreator(e) {
@@ -27,6 +40,10 @@ class PlaylistInfo extends Component {
     return session.getOwnData().id === this.props.collection.creator.id;
   }
 
+  handleChange({target}) {
+    this.setState({[target.name]: target.value});
+  }
+
   changePolicy() {
     catalog.updateSongInPlaylist('PATCH', this.props.collection.id)
       .then(()=> {
@@ -36,14 +53,26 @@ class PlaylistInfo extends Component {
       })
   }
 
+  handleUpdate() {
+    let name=null;
+    if ((this.state.name !== this.props.name) && this.state.name !== '') name = this.state.name;
+    this.props.updatePlaylistInfo(name);
+  }
+
+
   render() {
     let collection = this.props.collection
     return (
-      <div>
+      <div class={styles.playlist}>
         <PlaylistImage images={collection.images}/>
-        <div>
+        <div class={!this.props.inUpdate ? styles.playlistInfo : styles.playlistUpdatingInfo}>
           <p>Playlist</p>
-          <p>{collection.name}</p>
+          {!this.props.inUpdate
+            ? <p>{collection.name}</p>
+            : <p>
+                <p>Change name:</p>
+                <input type="text" value={collection.name ? collection.name : 'Playlist name'}/>
+              </p>}
           <p><a href='#' onClick={this.clickCreator}>{collection.creator.username}</a></p>
           <p>{this.state.policy}
             {this.isUserOwner() &&

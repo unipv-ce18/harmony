@@ -1,7 +1,7 @@
 import {route} from 'preact-router';
 import {Component} from 'preact';
 
-import {getReleasePlaylist, deleteRelease} from "../../core/apiCalls";
+import {getReleasePlaylist, deleteRelease, patchUser, patchRelease, patchPlaylist} from "../../core/apiCalls";
 import {catalog, mediaPlayer, session} from "../../Harmony"
 import styles from './CollectionPage.scss';
 import CollectionSongsTable from './CollectionSongsTable';
@@ -29,20 +29,26 @@ class CollectionPage extends Component {
       modalBox : {type:'', message:''},
       songPlayed : '',
       playlistPolicy : '',
-      stateUpdated : true
+      inUpdate : false,
+      pageUpdated : false
     }
 
     this.addSongsToQueue = this.addSongsToQueue.bind(this);
     this.handleConfirmDelete = this.handleConfirmDelete.bind(this);
     this.handleClickDelete = this.handleClickDelete.bind(this);
+    this.pageUpdated = this.pageUpdated.bind(this);
   }
 
   componentDidMount() {
     this.getCollection();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevStates) {
     if (this.props.id !== prevProps.id) this.getCollection();
+    else if (this.state.update && !prevStates.update) {
+      this.getCollection();
+      this.setState({pageUpdated : false});
+    }
   }
 
   getCollection() {
@@ -113,6 +119,40 @@ class CollectionPage extends Component {
     setTimeout(()=>this.handleModalBox('', ''),2000)
   }
 
+  inUpdate(bool) {
+    this.setState({inUpdate : bool});
+  }
+
+  pageUpdated() {
+    this.setState({pageUpdated : true});
+  }
+
+  updateReleaseInfo(type, name, date) {
+    session.getAccessToken()
+      .then (token => {
+        patchRelease(token, this.state.collection.id, name, date, type)
+          .then( () => {
+            this.setState({pageUpdated : false});
+            this.setState({inUpdate : false});
+            this.getCollection();
+          })
+          .catch( () => session.error = true);
+      })
+  }
+
+  updatePlaylistInfo(name) {
+    session.getAccessToken()
+      .then (token => {
+        patchPlaylist(token, this.state.collection.id, name, null)
+          .then( () => {
+            this.setState({pageUpdated : false});
+            this.setState({inUpdate : false});
+            this.getCollection();
+          })
+          .catch( () => session.error = true);
+      })
+  }
+
   handleClickDelete() {
     let text = '';
     if(this.isRelease()) text = 'release?'; else text = 'playlist?';
@@ -151,10 +191,18 @@ class CollectionPage extends Component {
           <div>
             <div className={styles.collectionInfo}>
               {this.isRelease()
-              ? <ReleaseInfo collection={collection}/>
-              : <PlaylistInfo collection={collection}/>}
+              ? <ReleaseInfo
+                  collection={collection}
+                  inUpdate={this.state.inUpdate}
+                  pageUpdated={this.state.pageUpdated}
+                  updateReleaseInfo={this.updateReleaseInfo.bind(this)} />
+              : <PlaylistInfo
+                  collection={collection}
+                  inUpdate={this.state.inUpdate}
+                  pageUpdated={this.state.pageUpdated}
+                  updatePlaylistInfo={this.updatePlaylistInfo.bind(this)}/>}
               <div>
-                {this.state.stateUpdated && !this.userLikeOwnPlaylist() &&
+                {!this.userLikeOwnPlaylist() &&
                   (this.initialCollectionLikeState()
                     ? <IconButton size={24} name="Dislike" icon={IconStarFull}
                                   onClick={this.likeCollection.bind(this, 'DELETE')}/>
@@ -174,16 +222,17 @@ class CollectionPage extends Component {
               collection={collection}
               isRelease={this.isRelease()}
             />
-            {this.state.stateUpdated && (this.userLikeOwnPlaylist()  || this.userOwnRelease()) &&
-              <button
-                onClick={this.handleClickDelete}>Delete
-              </button>}
+            {!this.state.inUpdate && (this.userLikeOwnPlaylist()  || this.userOwnRelease()) &&
+              <button onClick={()=>this.inUpdate(true)}>Modify</button>}
+            {this.state.inUpdate && (this.userLikeOwnPlaylist()  || this.userOwnRelease()) &&
+              [<button onClick={this.handleClickDelete}>Delete</button>,
+              <button onClick={()=>this.inUpdate(false)}>Cancel</button>,
+              <button onClick={this.pageUpdated}>Update</button>]}
           </div>
           {modalBox.type &&
           <ModalBox
             type={modalBox.type}
             message={modalBox.message}
-            placeholder={''}
             handleCancel={()=>this.handleModalBox('', '')}
             handleSubmit={this.handleConfirmDelete}/>}
         </div>
