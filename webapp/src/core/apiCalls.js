@@ -253,6 +253,18 @@ export function createPlaylist(name, token) {
   });
 }
 
+export function patchPlaylist(token, playlist_id, name, policy) {
+  const data = {name, policy};
+  return fetch(API_PLAYLIST_URL + '/' + playlist_id, {
+    method: 'PATCH',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return;
+  });
+}
+
 export function updateSongInPlaylist(type_method, playlist_id, song_id, token) {
   let data;
   if (song_id !== null) data = {song_id};

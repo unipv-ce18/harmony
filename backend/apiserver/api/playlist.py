@@ -18,6 +18,10 @@ api = Api(api_blueprint, prefix='/playlist')
 _arg_parser_create = RequestParser()\
     .add_argument('name', required=True)
 
+_arg_parser_patch = RequestParser()\
+    .add_argument('name')\
+    .add_argument('policy')
+
 _arg_parser_update = RequestParser()\
     .add_argument('song_id', required=True)
 
@@ -124,7 +128,7 @@ class PlaylistOptions(Resource):
         return create_playlist_result(playlist, True), HTTPStatus.OK
 
     def patch(self, playlist_id):
-        """Modify playlist policy
+        """Modify playlist
         ---
         tags: [metadata]
         parameters:
@@ -133,7 +137,19 @@ class PlaylistOptions(Resource):
             schema:
               $ref: '#components/schemas/ObjectId'
             required: true
-            description: ID of the playlist to modify the policy
+            description: ID of the playlist to modify
+        requestBody:
+          description: Modify the playlist
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name: {type: string, description: The playlist name}
+                  policy: {type: string, description: The playlist policy}
+              examples:
+                0: {summary: 'Modify playlist info', value: {'name': 'NEW NAME', 'policy': 'private'}}
         responses:
           204:  # No Content
             description: Policy modified correctly
@@ -148,6 +164,8 @@ class PlaylistOptions(Resource):
           404:  # Not Found
             $ref: '#components/responses/LibraryUpdateNoUser'
         """
+        data = _arg_parser_patch.parse_args()
+
         user_id = security.get_jwt_identity()
 
         if not ObjectId.is_valid(user_id):
@@ -155,14 +173,22 @@ class PlaylistOptions(Resource):
         if not ObjectId.is_valid(playlist_id):
             return {'message': 'Playlist ID not valid'}, HTTPStatus.BAD_REQUEST
 
-        if user_id == db.get_playlist_creator(playlist_id):
+        name = data['name']
+        policy = data['policy']
+
+        patch_playlist = {}
+
+        if name is not None:
+            patch_playlist[c.PLAYLIST_NAME] = name
+        if policy is not None:
             current_policy = db.get_policy(playlist_id)
             new_policy = c.PLAYLIST_POLICY_PUBLIC if current_policy == c.PLAYLIST_POLICY_PRIVATE \
                 else c.PLAYLIST_POLICY_PRIVATE
+            patch_playlist[c.PLAYLIST_POLICY] = new_policy
 
-            if db.set_policy(playlist_id, new_policy):
+        if user_id == db.get_playlist_creator(playlist_id):
+            if db.update_playlist(playlist_id, patch_playlist):
                 return None, HTTPStatus.NO_CONTENT
-            return {'message': 'Playlist not found'}, HTTPStatus.NOT_FOUND
         return {'message': 'You are not authorized to modify this playlist'}, HTTPStatus.UNAUTHORIZED
 
     def put(self, playlist_id):
