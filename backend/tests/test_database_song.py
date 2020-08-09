@@ -54,6 +54,7 @@ class SongDatabaseTest(DatabaseTest):
                 song_out_data['artist'] = None
                 song_out_data['release'] = None
                 song_out_data['counter'] = None  # defaults to 0
+                song_out_data['versions'] = None
                 self.assertDictEqual(song_in_data, song_out_data,
                                      'Extracted release content should match inserted')
 
