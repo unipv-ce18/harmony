@@ -80,6 +80,8 @@ export class MediaCatalog {
             .then ((bool) => {return bool})
             .catch(e => console.log(e));
       })
+    } else {
+      return Promise.resolve(false);
     }
   }
 

@@ -1,10 +1,10 @@
 import {useState} from 'preact/hooks';
 
-import {mediaPlayer} from '../../Harmony';
+import {catalog, mediaPlayer} from '../../Harmony';
 import {PlayStartModes} from '../../player/MediaPlayer';
 import {classList} from '../../core/utils';
 import {artistLink, releaseLink, playlistLink, userLink, createMediaItemInfo} from '../../core/links';
-import {IconPlay, IconStarEmpty} from '../../assets/icons/icons';
+import {IconPlay, IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
 import PlaylistImage from '../collection/PlaylistImage';
 import IconButton from '../IconButton';
 
@@ -22,7 +22,6 @@ function onSongClick(song, e) {
   if (e.target.nodeName === 'A' && e.target.textContent === song.artist.name) return;
 
   mediaPlayer.play(createMediaItemInfo(song), PlayStartModes.APPEND_QUEUE_AND_PLAY);
-
 }
 
 function onImageLoad(src, callback) {
@@ -31,7 +30,29 @@ function onImageLoad(src, callback) {
   img.src = src;
 }
 
-export const ArtistResult = ({content: artist}) => {
+function withLibrary(mediaType) {
+  return Component => props => {
+    const [inLibrary, setInLibraryState] = useState(catalog.inLibrary(mediaType, props.content.id));
+    const setInLibrary = inLibrary => {
+      catalog.favorite(inLibrary ? 'PUT' : 'DELETE', mediaType, props.content.id)
+        .then(() => setInLibraryState(inLibrary));
+    };
+    return (<Component inLibrary={inLibrary} setInLibrary={setInLibrary} {...props}/>);
+  };
+}
+
+const LibraryButton = ({inLibrary, setInLibrary}) => (
+  <IconButton size={24}
+              name={inLibrary ? 'Remove from library' : 'Add to library'}
+              icon={inLibrary ? IconStarFull : IconStarEmpty}
+              onClick={e => {
+                e.preventDefault();  // Prevents <a> routing
+                e.stopPropagation();  // Prevents router routing
+                setInLibrary(!inLibrary);
+              }}/>
+);
+
+const ArtistResultView = ({content: artist, ...props}) => {
   const [loading, setLoading] = useState(true);
   onImageLoad(artist.image, () => setLoading(false));
 
@@ -42,15 +63,15 @@ export const ArtistResult = ({content: artist}) => {
         <span>{artist.name}</span>
         <span>{artist.genres && artist.genres.slice(0, GENRES_LIST_LENGTH).join(', ')}</span>
         <div>
-          <IconButton name="Play all" size={24} icon={IconPlay} onClick={null}/>
-          <IconButton name="Mark as favorite" size={24} icon={IconStarEmpty} onClick={null}/>
+          {/*<IconButton name="Play all" size={24} onClick={null} icon={IconPlay}/>*/}
+          <LibraryButton {...props}/>
         </div>
       </div>
     </a>
   );
 }
 
-export const ReleaseResult = ({content: release}) => {
+const ReleaseResultView = ({content: release, ...props}) => {
   const [loading, setLoading] = useState(true);
   onImageLoad(release.cover, () => setLoading(false));
 
@@ -64,7 +85,7 @@ export const ReleaseResult = ({content: release}) => {
         </span>
           <div>
             <IconButton name="Play all" size={24} icon={IconPlay} onClick={null}/>
-            <IconButton name="Mark as favorite" size={24} icon={IconStarEmpty} onClick={null}/>
+            <LibraryButton {...props}/>
           </div>
         </div>
       </div>
@@ -72,7 +93,7 @@ export const ReleaseResult = ({content: release}) => {
   );
 }
 
-export const SongResult = ({content: song}) => {
+const SongResultView = ({content: song, ...props}) => {
   const [loading, setLoading] = useState(true);
 
   return (
@@ -86,14 +107,14 @@ export const SongResult = ({content: song}) => {
         <span title={song.title}>{song.title}</span>
         <a href={artistLink(song.artist.id)}>{song.artist.name}</a>
         <div>
-          <IconButton name="Mark as favorite" size={24} icon={IconStarEmpty} onClick={null}/>
+          <LibraryButton {...props}/>
         </div>
       </div>
     </a>
   );
 }
 
-export const PlaylistResult = ({content: playlist}) => (
+const PlaylistResultView = ({content: playlist, ...props}) => (
   <a class={pStyle.playlistResult} href={playlistLink(playlist.id)} title={playlist.name}>
     <div class={pStyle.imgWrap}>
       <PlaylistImage images={playlist.images}/>
@@ -102,7 +123,7 @@ export const PlaylistResult = ({content: playlist}) => (
       <span>{playlist.name}</span>
       <div>
         <IconButton name="Play all" size={24} icon={IconPlay} onClick={null}/>
-        <IconButton name="Mark as favorite" size={24} icon={IconStarEmpty} onClick={null}/>
+        <LibraryButton {...props}/>
       </div>
     </div>
     <div className={pStyle.byLink}>
@@ -110,3 +131,8 @@ export const PlaylistResult = ({content: playlist}) => (
     </div>
   </a>
 );
+
+export const ArtistResult = withLibrary('artists')(ArtistResultView);
+export const ReleaseResult = withLibrary('releases')(ReleaseResultView);
+export const SongResult = withLibrary('songs')(SongResultView);
+export const PlaylistResult = withLibrary('playlists')(PlaylistResultView);
