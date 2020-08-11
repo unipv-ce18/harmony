@@ -174,10 +174,8 @@ class Menu extends Component {
             {this.isUserOwner() &&
             <button onClick={this.removeSongFromPlaylist}>Remove From Playlist</button>}
             {this.userOwnRelease() &&
-            <button onClick={()=>this.handleModalBox(this,
-              ModalBoxTypes.MODALBOX_CONFIRM_DELETE, 'Do you really want to delete this song?')}>
-              Remove From Release
-            </button>}
+            <button onClick={()=>this.handleModalBox(ModalBoxTypes.MODALBOX_CONFIRM_DELETE,
+              'Do you really want to delete this song?')}>Remove From Release</button>}
             <a href='#'
                onClick={this.props.isRelease
                  ? this.clickArtist.bind(this, this.props.collection.artist.id)
