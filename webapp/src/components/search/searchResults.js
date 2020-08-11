@@ -4,6 +4,7 @@ import {catalog, mediaPlayer} from '../../Harmony';
 import {PlayStartModes} from '../../player/MediaPlayer';
 import {classList} from '../../core/utils';
 import {artistLink, releaseLink, playlistLink, userLink, createMediaItemInfo} from '../../core/links';
+import {getReleasePlaylist} from '../../core/apiCalls';
 import {IconPlay, IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
 import PlaylistImage from '../collection/PlaylistImage';
 import IconButton from '../IconButton';
@@ -52,6 +53,22 @@ const LibraryButton = ({inLibrary, setInLibrary}) => (
               }}/>
 );
 
+const PlayCollectionButton = ({id, type}) => (
+  <IconButton name="Play all" size={24} icon={IconPlay} onClick={e => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    session.getAccessToken()
+      .then(token => getReleasePlaylist(type, id, true, token))
+      .then(collection => collection.songs.map(song =>
+        type === 'release'
+          ? createMediaItemInfo(song, collection, collection.artist)  // Pass release/artist reference
+          : createMediaItemInfo(song))  // Song has embedded references
+      )
+      .then(mediaItems => mediaPlayer.play(mediaItems, PlayStartModes.APPEND_QUEUE_AND_PLAY));
+  }}/>
+)
+
 const ArtistResultView = ({content: artist, ...props}) => {
   const [loading, setLoading] = useState(true);
   onImageLoad(artist.image, () => setLoading(false));
@@ -84,7 +101,7 @@ const ReleaseResultView = ({content: release, ...props}) => {
            <a href={artistLink(release.artist.id)}>{release.artist.name}</a>{release.date && `, ${release.date}`}
         </span>
           <div>
-            <IconButton name="Play all" size={24} icon={IconPlay} onClick={null}/>
+            <PlayCollectionButton id={release.id} type="release"/>
             <LibraryButton {...props}/>
           </div>
         </div>
@@ -122,7 +139,7 @@ const PlaylistResultView = ({content: playlist, ...props}) => (
     <div class={pStyle.titlePane}>
       <span>{playlist.name}</span>
       <div>
-        <IconButton name="Play all" size={24} icon={IconPlay} onClick={null}/>
+        <PlayCollectionButton id={playlist.id} type="getReleasePlaylist does not care"/>
         <LibraryButton {...props}/>
       </div>
     </div>
