@@ -60,11 +60,8 @@ const PlayCollectionButton = ({id, type}) => (
 
     session.getAccessToken()
       .then(token => getReleasePlaylist(type, id, true, token))
-      .then(collection => collection.songs.map(song =>
-        type === 'release'
-          ? createMediaItemInfo(song, collection, collection.artist)  // Pass release/artist reference
-          : createMediaItemInfo(song))  // Song has embedded references
-      )
+      .then(collection => // Pass release when song does not have release/artist reference
+        collection.songs.map(song => createMediaItemInfo(song, type === 'release' ? collection : null)))
       .then(mediaItems => mediaPlayer.play(mediaItems, PlayStartModes.APPEND_QUEUE_AND_PLAY));
   }}/>
 )

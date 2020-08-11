@@ -94,9 +94,7 @@ class CollectionPage extends Component {
   }
 
   createSong(song) {
-    return this.isRelease()
-      ? createMediaItemInfo(song, this.state.collection, this.state.collection.artist)
-      : createMediaItemInfo(song);
+    return createMediaItemInfo(song, this.isRelease() ? this.state.collection : null);
   }
 
   addSongsToQueue() {

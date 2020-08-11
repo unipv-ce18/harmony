@@ -115,14 +115,7 @@ class Menu extends Component {
   }
 
   createMediaInfo(song) {
-    if (this.props.isRelease)
-      return new MediaItemInfo(song.id, {
-        [MediaItemInfo.TAG_TITLE]: song.title,
-        [MediaItemInfo.TAG_RELEASE]: this.props.collection.name,
-        [MediaItemInfo.TAG_ARTIST]: this.props.collection.artist.name,
-        [MediaItemInfo.TAG_ALBUMART_URL]: this.props.collection.cover
-      });
-    return createMediaItemInfo(song);
+    return createMediaItemInfo(song, this.isRelease() ? this.state.collection : null);
   }
 
   addToQueue(song) {
