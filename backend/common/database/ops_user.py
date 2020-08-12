@@ -108,6 +108,12 @@ class UserOpsMixin:
             {c.USER_ID: 0, c.USER_USERNAME: 1})
         return result[c.USER_USERNAME]
 
+    def get_user_password(self, user_id):
+        result = self.users.find_one(
+            {c.USER_ID: ObjectId(user_id)},
+            {c.USER_ID: 0, c.USER_PASSWORD: 1})
+        return result[c.USER_PASSWORD]
+
     def update_avatar_url(self, user_id, image_link):
         return self.users.update_one(
             {c.USER_ID: ObjectId(user_id)},
