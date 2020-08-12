@@ -187,8 +187,9 @@ class PlaylistOptions(Resource):
             patch_playlist[c.PLAYLIST_POLICY] = new_policy
 
         if user_id == db.get_playlist_creator(playlist_id):
-            if db.update_playlist(playlist_id, patch_playlist):
-                return None, HTTPStatus.NO_CONTENT
+            if patch_playlist:
+                if db.update_playlist(playlist_id, patch_playlist):
+                    return None, HTTPStatus.NO_CONTENT
         return {'message': 'You are not authorized to modify this playlist'}, HTTPStatus.UNAUTHORIZED
 
     def put(self, playlist_id):

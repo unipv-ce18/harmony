@@ -222,8 +222,8 @@ class ReleaseOptions(Resource):
         if type is not None:
             patch_release[c.RELEASE_TYPE] = type
 
-        db.update_release(release_id, patch_release)
-
+        if patch_release:
+            db.update_release(release_id, patch_release)
         return None, HTTPStatus.NO_CONTENT
 
     def delete(self, release_id):

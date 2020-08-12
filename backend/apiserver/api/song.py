@@ -175,8 +175,8 @@ class UpdateSong(Resource):
         if lyrics is not None:
             patch_song[c.SONG_LYRICS] = lyrics
 
-        db.update_song(song_id, patch_song)
-
+        if patch_song:
+            db.update_song(song_id, patch_song)
         return None, HTTPStatus.NO_CONTENT
 
     def delete(self, song_id):
