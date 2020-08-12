@@ -50,25 +50,23 @@ class HeaderBar extends Component {
     const fromHome = isHomePage(this.#previousPage);
 
     return (
-      <header>
+      <header class={classList(onLogin && 'on-login')}>
         {/* Left side - navigation */}
-        <ul className={style.left}>
-          {!onLogin && [
-            <li><NavLink page={page} target='/'>Home</NavLink></li>,
-            <li><NavLink page={page} target='/library/me'>Library</NavLink></li>
-          ]}
+        <ul class={style.left}>
+          <li><NavLink page={page} target='/'>Home</NavLink></li>
+          <li><NavLink page={page} target='/library/me'>Library</NavLink></li>
         </ul>
 
         {/* Center - logo, search */}
-        <div className={classList(style.middle, fromHome && 'from-home', onHome && `on-home`, onSearch && 'on-search')}>
+        <div class={classList(style.middle, fromHome && 'from-home', onHome && `on-home`, onSearch && 'on-search')}>
           {!onLogin && <div><SearchForm/></div>}
           <HarmonyLogo color="#ddd" collapse={logoCollapsed}
                        onMouseEnter={this.onLogoMouseEvent} onMouseLeave={this.onLogoMouseEvent}/>
         </div>
 
         {/* Right side - user */}
-        <div className={style.right}>
-          {!onLogin && (<UserWidget/>)}
+        <div class={style.right}>
+          <UserWidget/>
         </div>
       </header>
     );

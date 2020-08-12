@@ -167,12 +167,13 @@ export class Session {
     this.getAccessToken()
       .then(token => execLogout(token));
     this.#store = null;
+    window.localStorage.removeItem(USER_STORE_KEY);
   }
 
   getOwnData() {
     if (window.localStorage.getItem(USER_STORE_KEY))
       return JSON.parse(window.localStorage.getItem(USER_STORE_KEY)).user_data;
-    return false;
+    return null;
   }
 
   /**

@@ -43,6 +43,9 @@ header {
     text-transform: uppercase;
     text-decoration: none;
 
+    outline: none;
+    user-select: none;
+
     opacity: .5;
     transition: opacity $transition-len-short-ms;
 
@@ -113,6 +116,27 @@ header {
   > div {
     float: right;
     margin: -6px;
+  }
+}
+
+.right, .left li {
+  transition-property: opacity, transform;
+  transition-duration: $transition-len-ms;
+  transition-delay: 600ms;  // Appear when the main logo is shrinking
+}
+.left li:nth-child(2) {
+  transition-delay: 700ms;
+}
+
+header:global(.on-login) {
+  .right, .left li {
+    transition-delay: 0s;
+    transition-duration: $transition-len-short-ms;
+    opacity: 0;
+  }
+
+  .right {
+    transform: translateX(16px);
   }
 }
 
