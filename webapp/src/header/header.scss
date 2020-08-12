@@ -73,13 +73,22 @@ header {
     transition-duration: $transition-len-short-ms;
   }
 
-  // Search bar wrapper
-  > div {
-    transition: transform $transition-len-ms;
-    transition-timing-function: cubic-bezier(.65, .05, .36, 1);  // "cubic"
+  // Search bar margins
+  > div > div {
+    margin: -4px auto 0;
+  }
 
+  // Search bar wrapper - do not animate on landing
+  &:global(.from-home) > div:global {
+    animation: .6s search-bar-fade;
+  }
+
+  // Moving transition between home and search pages
+  &:global(.on-home), &:global(.on-search) {
     > div {
-      margin: -4px auto 0;
+      animation: none;
+      transition: transform $transition-len-ms;
+      transition-timing-function: cubic-bezier(.65, .05, .36, 1);  // "cubic"
     }
   }
 
@@ -105,4 +114,17 @@ header {
     float: right;
     margin: -6px;
   }
+}
+
+@keyframes :global(search-bar-fade) {
+  0% {
+    transform: translateY(25vh);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(22vh);
+    opacity: 0;
+  }
+  80% { opacity: 0 }
+  100% { opacity: 1 }
 }

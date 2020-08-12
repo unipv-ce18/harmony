@@ -16,9 +16,16 @@ class HeaderBar extends Component {
     dropDownMenu: false
   }
 
+  #previousPage = null;
+
   constructor() {
     super();
     this.onLogoMouseEvent = this.onLogoMouseEvent.bind(this);
+  }
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    if (nextProps.page !== this.props.page)
+      this.#previousPage = this.props.page;
   }
 
   componentDidUpdate(previousProps, previousState, snapshot) {
@@ -38,31 +45,31 @@ class HeaderBar extends Component {
 
   render({page}, {logoCollapsed}) {
     const onHome = isHomePage(page);
+    const onSearch = isSearchPage(page);
     const onLogin = isLoginPage(page);
+    const fromHome = isHomePage(this.#previousPage);
 
     return (
       <header>
         {/* Left side - navigation */}
-        {!onLogin && (
-          <ul className={style.left}>
-            <li><NavLink page={page} target='/'>Home</NavLink></li>
+        <ul className={style.left}>
+          {!onLogin && [
+            <li><NavLink page={page} target='/'>Home</NavLink></li>,
             <li><NavLink page={page} target='/library/me'>Library</NavLink></li>
-          </ul>
-        )}
+          ]}
+        </ul>
 
         {/* Center - logo, search */}
-        <div className={classList(style.middle, onHome && `on-home`)}>
+        <div className={classList(style.middle, fromHome && 'from-home', onHome && `on-home`, onSearch && 'on-search')}>
           {!onLogin && <div><SearchForm/></div>}
           <HarmonyLogo color="#ddd" collapse={logoCollapsed}
                        onMouseEnter={this.onLogoMouseEvent} onMouseLeave={this.onLogoMouseEvent}/>
         </div>
 
         {/* Right side - user */}
-        {!onLogin && (
-          <div className={style.right}>
-            <UserWidget/>
-          </div>
-        )}
+        <div className={style.right}>
+          {!onLogin && (<UserWidget/>)}
+        </div>
       </header>
     );
   }
