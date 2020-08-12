@@ -1,16 +1,11 @@
 import {route} from 'preact-router';
-import {Component} from 'preact';
 
-import {getReleasePlaylist, deleteRelease} from "../../core/apiCalls";
-import {catalog, mediaPlayer, session} from "../../Harmony"
-import styles from './CollectionPage.scss';
+import {catalog, mediaPlayer, session} from '../../Harmony'
+import HarmonyPage from '../HarmonyPage';
+import {getReleasePlaylist, deleteRelease} from '../../core/apiCalls';
 import CollectionSongsTable from './CollectionSongsTable';
 import IconButton from '../IconButton';
-import {
-  IconQueue,
-  IconStarEmpty,
-  IconStarFull
-} from '../../assets/icons/icons';
+import {IconQueue, IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
 import {createMediaItemInfo} from '../../core/links';
 import {PlayStartModes} from '../../player/MediaPlayer';
 import ReleaseInfo from './ReleaseInfo';
@@ -18,7 +13,9 @@ import PlaylistInfo from './PlaylistInfo';
 import ModalBox from '../modalbox/ModalBox';
 import {ModalBoxTypes} from '../modalbox/ModalBox';
 
-class CollectionPage extends Component {
+import styles from './CollectionPage.scss';
+
+class CollectionPage extends HarmonyPage {
 
   constructor(props) {
     super(props);

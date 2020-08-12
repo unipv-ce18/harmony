@@ -1,6 +1,12 @@
 @import './styledefs';
 @import './assets/fonts/fonts.css';
 
+$page-transition-len: 200;
+
+:export {
+  pageTransitionLen: $page-transition-len;
+}
+
 :global {
   :root {
     height: 100%;
@@ -34,4 +40,20 @@
 
 .content {
   padding-top: $navbar-height;
+
+  // Transition router
+  > span {
+    // To allow absolute positioning of children
+    position: relative;
+    display: block;
+
+    // Page leaving style
+    > div.pageLeaving {
+      position: absolute;
+      top: 0;
+
+      transition: opacity $page-transition-len + 0ms;
+      opacity: 0;
+    }
+  }
 }
