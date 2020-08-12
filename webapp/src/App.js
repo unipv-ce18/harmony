@@ -38,8 +38,8 @@ class App extends Component {
     });
   }
 
-  handleRoute = e => {
-    this.setState({currentPath: e.url});
+  handleRoute = _ => {
+    this.setState({currentPath: window.location.pathname});
     session.error = false;
   }
 
