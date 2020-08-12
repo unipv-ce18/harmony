@@ -2,7 +2,8 @@
 @import '../IconButton';
 
 .searchPage {
-  margin: 0 5vw 20vh;
+  padding: 0 5vw 20vh;
+  box-sizing: border-box;  // So we are ok when page leaves
 
   transition: opacity $transition-len-ms;
 
