@@ -33,7 +33,7 @@ class Terminator:
                     bucket = {
                         'image': director_config.STORAGE_BUCKET_IMAGES,
                         'audio': director_config.STORAGE_BUCKET_REFERENCE
-                    }.get(c['mimetype'].split('/')[0])
+                    }.get(u['mimetype'].split('/')[0])
 
                     self.st.delete_file(bucket, str(u['_id']))
                     self.db.remove_content(str(u['_id']))
