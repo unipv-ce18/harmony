@@ -1,4 +1,4 @@
-@import "../styledefs";
+@import '../styledefs';
 
 .settingsModal {
   position: fixed;
@@ -22,10 +22,16 @@
   text-align: center;
   background-color: $panel-color;
 
-  button {
+  button, label {
+    font-size: 15px;
     padding: 10px;
     background: transparent;
     border: none;
     cursor: pointer;
+  }
+
+  label {
+    display: block;
+    padding-top: 10px;
   }
 }

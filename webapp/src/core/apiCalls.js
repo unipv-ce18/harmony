@@ -8,6 +8,7 @@ const API_PLAYLIST_URL = API_BASE_URL + '/playlist';
 const API_ARTIST_URL = API_BASE_URL + '/artist';
 const API_SONG_URL = API_BASE_URL + '/song';
 const API_USER_URL = API_BASE_URL + '/user/';
+const API_UPLOAD_URL = API_BASE_URL + '/upload';
 
 export class ApiError extends Error {
   constructor(response) {
@@ -273,5 +274,29 @@ export function updateSongInPlaylist(type_method, playlist_id, song_id, token) {
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
     return 'song added successfully';
+  });
+}
+
+export function uploadContent(category, category_id, mimetype, size, token) {
+  const data = {category, category_id, mimetype, size};
+  return fetch(API_UPLOAD_URL, {
+    method: 'POST',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return response.json();
+  });
+}
+
+export function uploadToStorage(presigned_post_data, filename) {
+  let bucket_url = presigned_post_data[0];
+  let data = presigned_post_data[1];
+  data.file = filename;
+
+  return fetch(bucket_url, {
+    method: 'POST',
+    headers: new Headers({'Content-Type': 'multipart/form-data'}),
+    body: JSON.stringify(data)
   });
 }
