@@ -7,6 +7,10 @@ export const catalog = new MediaCatalog(session);
 export const mediaPlayer = new MediaPlayer();
 
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/' + SERVICE_WORKER_PATH));
+}
+
 function printConsoleWelcome(body, bodyStyle) {
   console.log('%cWelcome to %cHarmony\n%c' + body,
     'font-size: 2em; font-family: sans-serif; color: #ccc',
