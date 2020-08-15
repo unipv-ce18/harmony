@@ -17,14 +17,21 @@ module.exports = {
       {
         test: /\.(ttf|otf|eot|woff(2)?|png|jpg|mp4)$/,
         loader: 'file-loader',
-        options: {
-          name: 'assets/[hash].[ext]'
-        }
+        options: {name: 'assets/[hash].[ext]'}
       },
       {
         test: /\.svg$/,
+        include: [path.resolve(__dirname, "src/assets/icons")],
         use: [
           {loader: 'svg-sprite-loader', options: {extract: true}},
+          'svgo-loader'
+        ]
+      },
+      {
+        test: /\.svg$/,
+        exclude: [path.resolve(__dirname, "src/assets/icons")],
+        use: [
+          {loader: 'file-loader', options: {name: 'assets/[hash].[ext]'}},
           'svgo-loader'
         ]
       },
