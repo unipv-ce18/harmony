@@ -114,6 +114,7 @@ def artist_to_document(artist: Artist, strip_unsafe=True) -> dict:
     doc[c.ARTIST_COUNTER] = 0 if artist.counter is None else artist.counter
     doc[c.ARTIST_GENRES] = [] if artist.genres is None else artist.genres
     doc[c.ARTIST_MEMBERS] = [] if artist.members is None else artist.members
+    doc[c.ARTIST_LINKS] = {} if artist.links is None else artist.links
 
     if not strip_unsafe:
         doc[c.ARTIST_ID] = ObjectId(artist.id)
