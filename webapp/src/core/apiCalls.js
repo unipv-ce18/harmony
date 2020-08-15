@@ -277,8 +277,8 @@ export function updateSongInPlaylist(type_method, playlist_id, song_id, token) {
   });
 }
 
-export function uploadContent(category, category_id, mimetype, size, token) {
-  const data = {category, category_id, mimetype, size};
+export function uploadContent(category, categoryId, mimeType, size, token) {
+  const data = {category, category_id: categoryId, mimetype: mimeType, size};
   return fetch(API_UPLOAD_URL, {
     method: 'POST',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
@@ -289,14 +289,12 @@ export function uploadContent(category, category_id, mimetype, size, token) {
   });
 }
 
-export function uploadToStorage(presigned_post_data, filename) {
-  let bucket_url = presigned_post_data[0];
-  let data = presigned_post_data[1];
-  data.file = filename;
+export function uploadToStorage(uploadContentResult, file) {
+  const [bucket_url, data] = uploadContentResult;
+  const body = new FormData();
 
-  return fetch(bucket_url, {
-    method: 'POST',
-    headers: new Headers({'Content-Type': 'multipart/form-data'}),
-    body: JSON.stringify(data)
-  });
+  for (const [k, v] of Object.entries(data)) body.append(k, v);
+  body.append('file', file);
+
+  return fetch(bucket_url, {method: 'POST', body});
 }

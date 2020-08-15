@@ -1,9 +1,8 @@
 import {Component} from 'preact';
 
 import styles from './UserPage.scss';
-import {route} from 'preact-router';
-import {session} from '../../Harmony';
-import {patchUser, deleteUser, uploadContent, uploadToStorage} from '../../core/apiCalls';
+import {currentUser, session} from '../../Harmony';
+import {patchUser, deleteUser} from '../../core/apiCalls';
 import SettingsModal from '../SettingsModal'
 import IconButton from '../IconButton';
 import {IconSettings} from '../../assets/icons/icons';
@@ -76,16 +75,10 @@ class UserHeader extends Component {
     return session.getOwnData().id === this.props.user.id;
   }
 
-  uploadUserImage(mimetype, size, filename) {
-    session.getAccessToken()
-      .then (token => {
-        uploadContent('user', 'me', mimetype, size, token)
-          .then(result => {
-            uploadToStorage(result, filename);
-            this.setState({settingsModal : false});
-          })
-          .catch( () => session.error = true);
-      })
+  uploadUserImage(file) {
+    currentUser.updateImage(file)
+      .then(() => this.setState({settingsModal: false}))
+      .catch(() => session.error = true);
   }
 
   handleSettingsModal(isOpen, type) {
@@ -93,10 +86,8 @@ class UserHeader extends Component {
     this.setState({settingsType: type});
   }
 
-  render() {
-    const user = this.props.user;
-
-    return(
+  render({user}, {bio, update, settingsModal, settingsType}) {
+    return (
       <div class={styles.userTop}>
         <div class={styles.image}>
         {this.isUserOwner()
@@ -108,7 +99,7 @@ class UserHeader extends Component {
         <div>
           <div class={styles.top}>
             <h2 class={styles.name}>{user.username}</h2>
-            {this.isUserOwner() && !this.state.update &&
+            {this.isUserOwner() && !update &&
               <div>
                 <button onClick={this.updatePage}>Modify your personal info</button>
                 <IconButton
@@ -118,14 +109,14 @@ class UserHeader extends Component {
                   onClick={this.handleSettingsModal.bind(this, true, 'user')}/>
               </div>}
           </div>
-          {(this.state.bio && !this.state.update)
-            ? <div className={styles.userBio}>{this.state.bio}</div>
+          {(this.state.bio && !update)
+            ? <div className={styles.userBio}>{bio}</div>
             : this.state.update
               ? <form>
                   <input
                     type="text"
                     name="bio"
-                    value={this.state.bio}
+                    value={bio}
                     placeholder="Enter your new bio"
                     onChange={this.handleChange}
                   />
@@ -135,10 +126,10 @@ class UserHeader extends Component {
               : null
           }
         </div>
-        {this.state.settingsModal &&
+        {settingsModal &&
         <SettingsModal
           handleSettingsModal={this.handleSettingsModal.bind(this)}
-          type={this.state.settingsType}
+          type={settingsType}
           removeUser={this.removeUser.bind(this)}
           uploadImage={this.uploadUserImage.bind(this)}
           logout={() => session.doLogout()}/>}
