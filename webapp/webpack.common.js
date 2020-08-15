@@ -52,6 +52,13 @@ module.exports = {
         //exclude: /(node_modules|bower_components)/,
         type: 'javascript/auto',
         use: 'babel-loader'
+      },
+      {
+        test: /\.webmanifest$/,
+        use: [
+          {loader: 'file-loader', options: {name: '[name].[ext]'}},
+          'app-manifest-loader'
+        ]
       }
     ]
   },

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 113.39 113.39">
+    <defs>
+        <radialGradient id="bg_grad" cx="56.69" cy="56.69" r="56.69" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#373737"/>
+            <stop offset="1" stop-color="#171717"/>
+        </radialGradient>
+    </defs>
+    <rect style="fill: url(#bg_grad)" width="113.39" height="113.39" rx="28.35"/>
+    <g style="fill:none;stroke:#fff;stroke-width:3px;">
+        <line class="cls-2" x1="18.3" y1="77.84" x2="18.3" y2="35.32"/>
+        <line class="cls-2" x1="48.35" y1="77.84" x2="48.35" y2="35.32"/>
+        <line class="cls-2" x1="18.3" y1="56.3" x2="48.06" y2="56.3"/>
+        <polyline class="cls-3" points="78.55 78.06 78.55 61.45 62.24 35.47"/>
+        <line class="cls-3" x1="95.09" y1="35.62" x2="78.66" y2="61.56"/>
+    </g>
+</svg>
