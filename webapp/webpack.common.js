@@ -8,7 +8,7 @@ const webpack = require('webpack');
 require('dotenv').config()
 const HarmonyConf = require('./harmony-webapp.conf');
 
-module.exports = {
+module.exports = (env, config) => ({
 
   entry: './src/main.js',
 
@@ -69,11 +69,12 @@ module.exports = {
 
   plugins: [
     new CleanWebpackPlugin(),
+    new webpack.ProgressPlugin(),
     new webpack.DefinePlugin({
       APP_NAME: JSON.stringify(HarmonyConf.APPLICATION_NAME),
       API_BASE_URL: JSON.stringify(HarmonyConf.API_BASE_URL),
       PLAYER_SOCKET_URL: JSON.stringify(HarmonyConf.PLAYER_SOCKET_URL),
-      SERVICE_WORKER_PATH: JSON.stringify(HarmonyConf.SERVICE_WORKER_PATH)
+      SERVICE_WORKER_PATH: JSON.stringify(env && env.sw ? HarmonyConf.SERVICE_WORKER_PATH : null)
     }),
     new webpack.ProvidePlugin({
       __h: ['preact', 'h']
@@ -90,12 +91,12 @@ module.exports = {
         preserveLineBreaks: false
       }
     }),
-    new WorkboxPlugin.InjectManifest({
+    ...(env && env.sw ? [new WorkboxPlugin.InjectManifest({
       swSrc: './src/sw.js',
       swDest: HarmonyConf.SERVICE_WORKER_PATH,
-      exclude: [/\.map$/, /stats\.json$/],
-      //maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
-    })
+      maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+      exclude: [/\.map$/, /stats\.json$/]
+    })] : [])
   ],
 
   output: {
@@ -104,4 +105,4 @@ module.exports = {
     publicPath: '/'
   }
 
-};
+});

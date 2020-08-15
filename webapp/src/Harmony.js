@@ -7,7 +7,7 @@ export const catalog = new MediaCatalog(session);
 export const mediaPlayer = new MediaPlayer();
 
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && SERVICE_WORKER_PATH != null) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/' + SERVICE_WORKER_PATH));
 }
 
