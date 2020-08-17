@@ -40,7 +40,7 @@ class UploadOpsMixin:
             }
         )
 
-    def get_contents_to_remove(self, since):
+    def get_uploads_to_remove(self, since):
         result = self.upload.find({
             'timestamp': {'$lt': (datetime.utcnow() - timedelta(seconds=since))}
         }, {'_id': 1, 'mimetype': 1})

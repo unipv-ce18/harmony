@@ -36,7 +36,9 @@ class ReleaseList extends Component {
     return session.getOwnData().id === this.props.artist.creator;
   }
 
-  createReleasePage(release_name) {
+  createReleasePage(temp_release_name) {
+    let release_name = temp_release_name;
+    if (!release_name) release_name = 'New Release';
     session.getAccessToken()
       .then (token => {
         createRelease(this.props.artist.id, release_name, token)

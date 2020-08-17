@@ -255,8 +255,8 @@ class ArtistOptions(Resource):
         if links is not None:
             patch_artist[c.ARTIST_LINKS] = links
 
-        db.update_artist(artist_id, patch_artist)
-
+        if patch_artist:
+            db.update_artist(artist_id, patch_artist)
         return None, HTTPStatus.NO_CONTENT
 
     def delete(self, artist_id):

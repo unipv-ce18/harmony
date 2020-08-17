@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import re
 
 from flask import current_app
 from flask_restful import Resource, Api
@@ -20,6 +21,11 @@ _arg_parser_register = RequestParser()\
 _arg_parser_login = RequestParser()\
     .add_argument('identity', help='Required, can be either username or email', required=True)\
     .add_argument('password', help='This field cannot be blank', required=True)
+
+
+EMAIL_VALIDATION = '^[a-zA-Z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,}$'
+USERNAME_VALIDATION = '^[a-zA-Z1-9]{1,20}$'
+PASSWORD_VALIDATION = '^[a-zA-Z0-9!$%@]{5,25}$'
 
 
 @api.resource('/register')
@@ -50,6 +56,14 @@ class AuthRegister(Resource):
             content:
               application/json:
                 example: {'message': 'User created'}
+          400:
+            description: Value not valid
+            content:
+              application/json:
+                examples:
+                  0-username: {summary: 'Not valid username', value: {'message': 'Username not valid'}}
+                  1-mail: {summary: 'Not valid email address', value: {'message': 'Email not valid'}}
+                  2-password: {summary: 'Not valid password', value: {'message': 'Password not valid'}}
           409:
             description: A matching user already exists
             content:
@@ -61,6 +75,13 @@ class AuthRegister(Resource):
         data = _arg_parser_register.parse_args()
         username = data['username']
         email = data['email']
+
+        if not re.search(EMAIL_VALIDATION, email):
+            return {'message': 'Email not valid'}, HTTPStatus.BAD_REQUEST
+        if not re.search(USERNAME_VALIDATION, username):
+            return {'message': 'Username not valid'}, HTTPStatus.BAD_REQUEST
+        if not re.search(PASSWORD_VALIDATION, data['password']):
+            return {'message': 'Password not valid'}, HTTPStatus.BAD_REQUEST
 
         if db.get_user_by_mail(email) is None:
             if db.get_user_by_name(username) is None:

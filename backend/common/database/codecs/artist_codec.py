@@ -112,6 +112,9 @@ def artist_to_document(artist: Artist, strip_unsafe=True) -> dict:
            if doc_field not in _UNSAFE_ARTIST_FIELDS}
     doc[c.ARTIST_CREATOR] = ObjectId(artist.creator) if artist.creator is not None else None
     doc[c.ARTIST_COUNTER] = 0 if artist.counter is None else artist.counter
+    doc[c.ARTIST_GENRES] = [] if artist.genres is None else artist.genres
+    doc[c.ARTIST_MEMBERS] = [] if artist.members is None else artist.members
+    doc[c.ARTIST_LINKS] = {} if artist.links is None else artist.links
 
     if not strip_unsafe:
         doc[c.ARTIST_ID] = ObjectId(artist.id)
@@ -181,6 +184,7 @@ def song_to_document(song: Song, strip_unsafe=True) -> dict:
            for model_property, doc_field in _SONG_DOCUMENT_BINDINGS.items()
            if doc_field not in _UNSAFE_SONG_FIELDS}
     doc[c.SONG_COUNTER] = 0 if song.counter is None else song.counter
+    doc[c.SONG_VERSIONS] = [] if song.versions is None else song.versions
 
     if not strip_unsafe:
         doc[c.SONG_ID] = ObjectId(song.id)

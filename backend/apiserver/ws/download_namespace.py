@@ -57,26 +57,36 @@ class DownloadNamespace(Namespace):
             self.protocol.send_error(song_id, MediaDeliveryProtocol.ERROR_NOT_FOUND)
             return
 
-        message = {
-            'song_id': song_id,
-            'semitones': semitones,
-            'output_format': output_format,
-            'split': split,
-            'type': jobs.MODIFY_SONG
-        }
+        filename = _file_to_download(song_id)
+        if filename is not None:
+            self.protocol.send_url_modified_song(filename)
+            log.debug('Song (%s): Sent url for requested version', song_id)
+        else:
+            message = {
+                'song_id': song_id,
+                'semitones': semitones,
+                'output_format': output_format,
+                'split': split,
+                'type': jobs.MODIFY_SONG
+            }
+            td = NotificationWorker(message, self.amqp_client, self._modify_song_callback)
+            td.start()
 
-        td = NotificationWorker(message, self.amqp_client, self._modify_song_callback)
-        td.start()
-
-    def _modify_song_callback(self, notification_body):
-        song_id = notification_body
-
+    def _file_to_download(self, song_id):
         song = self.db_interface.get_song(song_id)
         if song.versions is not None:
             for v in song.versions:
                 if v['semitones'] == semitones and v['output_format'] == output_format and v['split'] == split:
-                    log.debug('Song (%s): modify song job complete, forwarding to client', song_id)
-                    self.protocol.send_url_modified_song(v['filename'])
+                    return v['filename']
+        return None
+
+    def _modify_song_callback(self, notification_body):
+        song_id = notification_body
+
+        filename = _file_to_download(song_id)
+        if filename is not None:
+            log.debug('Song (%s): modify song job complete, forwarding to client', song_id)
+            self.protocol.send_url_modified_song(filename)
 
         log.error('Song (%s): something went wrong during the modifying process, signaling to client', song_id)
         self.protocol.send_error(song_id, MediaDeliveryProtocol.ERR_JOB_FAILURE)

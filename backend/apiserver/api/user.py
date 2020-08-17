@@ -18,6 +18,8 @@ _arg_parser_get = RequestParser()\
     .add_argument('artists')
 
 _arg_parser_patch = RequestParser()\
+    .add_argument('new_password')\
+    .add_argument('current_password')\
     .add_argument('bio')\
     .add_argument('prefs', type=dict)
 
@@ -103,10 +105,12 @@ class UserOptions(Resource):
               schema:
                 type: object
                 properties:
+                  new_password: {type: string, description: The user new password}
+                  current_password: {type: string, description: The user current password}
                   bio: {type: string, description: The user bio}
                   prefs: {type: dict, description: The user preferencies}
               examples:
-                0: {summary: 'Modify user info', value: {'bio': 'BIO', 'prefs': {'private': {'email': true, 'name': false}}}}
+                0: {summary: 'Modify user info', value: {'new_password': 'NEW_PWD', 'current_password': 'OLD_PWD', 'bio': 'BIO', 'prefs': {'private': {'email': true}}}}
         responses:
           204:  # No Content
             description: User info modified correctly
@@ -132,6 +136,8 @@ class UserOptions(Resource):
         if user_id != security.get_jwt_identity():
             return {'message': 'No authorized to modify this user'}, HTTPStatus.UNAUTHORIZED
 
+        new_password = data['new_password']
+        current_password = data['current_password']
         bio = data['bio']
         prefs = data['prefs']
 
@@ -140,13 +146,24 @@ class UserOptions(Resource):
 
         patch_user = {}
 
+        if new_password is not None:
+            if current_password is None:
+                return {'message': 'You have to provide your current password'}, HTTPStatus.BAD_REQUEST
+
+            user_password = db.get_user_password(user_id)
+            if not security.verify_password(user_password, current_password):
+                return {'message': 'Wrong password'}, HTTPStatus.BAD_REQUEST
+
+            patch_user[uc.USER_PASSWORD] = security.hash_password(new_password)
         if bio is not None:
             patch_user[uc.USER_BIO] = bio
         if prefs is not None:
-            patch_user[uc.USER_PREFS] = prefs
+            if isinstance(prefs['private']['email'], bool):
+                patch_user[uc.USER_PREFS] = prefs
 
-        if db.update_user(user_id, patch_user):
-            return None, HTTPStatus.NO_CONTENT
+        if patch_user:
+            if db.update_user(user_id, patch_user):
+                return None, HTTPStatus.NO_CONTENT
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
 
     def delete(self, user_id):

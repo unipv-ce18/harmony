@@ -44,14 +44,14 @@ class Storage:
         buckets = self.minio_client.list_buckets()
         return [(bucket.name, bucket.creation_date) for bucket in buckets]
 
-    def list_files(self, bucket):
+    def list_files(self, bucket, prefix=None):
         """List the files inside a bucket.
 
         :param str bucket: name of the bucket
         :return: names of the files inside a bucket
         :rtype: list
         """
-        objects = self.minio_client.list_objects(bucket, recursive=True)
+        objects = self.minio_client.list_objects(bucket, prefix=prefix, recursive=True)
         return [obj.object_name.encode('utf-8') for obj in objects]
 
     def check_bucket_exist(self, bucket):

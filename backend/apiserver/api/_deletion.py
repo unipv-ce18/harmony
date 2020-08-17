@@ -6,7 +6,16 @@ from common.database.contracts import user_contract as c
 def delete_song(song: Song):
     db.remove_song_from_playlists(song.id)
     db.remove_song_from_libraries(song.id)
-    db.put_content(None, None, 'audio/flac', song.id)   # take advantage of the terminator to remove the song from storage
+    db.put_content_to_delete('song', song.id)
+
+    if song.versions is not None:
+        for v in song.versions:
+            filename = f'{song.id}_{v["semitones"]}.{v["output_format"]}' if not v['split']\
+                else f'{song.id}_{v["semitones"]}_{v["output_format"]}.zip'
+            db.put_content_to_delete('modified', filename)
+
+    if song.repr_data is not None:
+        db.put_content_to_delete('compressed', song.id)
 
 
 def delete_release(release: Release):
@@ -14,7 +23,7 @@ def delete_release(release: Release):
 
     if release.cover is not None:
         db.remove_image_from_playlists(release.cover)
-        db.put_content(None, None, 'image/_', release.cover)
+        db.put_content_to_delete('image', release.cover)
 
     if release.songs:
         for song in release.songs:
@@ -25,7 +34,7 @@ def delete_artist(artist: Artist):
     db.remove_artist_from_libraries(artist.id)
 
     if artist.image is not None:
-        db.put_content(None, None, 'image/_', artist.image)
+        db.put_content_to_delete('image', artist.image)
 
     if artist.releases:
         for r in artist.releases:
@@ -45,4 +54,4 @@ def delete_user(user: User):
                 db.remove_artist(artist.id)
 
     if user[c.USER_AVATAR_URL] is not None:
-        db.put_content(None, None, 'image/_', user[c.USER_AVATAR_URL])
+        db.put_content_to_delete('image', user[c.USER_AVATAR_URL])

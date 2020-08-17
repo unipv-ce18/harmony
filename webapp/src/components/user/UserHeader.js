@@ -2,7 +2,7 @@ import {Component} from 'preact';
 
 import styles from './UserPage.scss';
 import {session} from '../../Harmony';
-import {patchUser, deleteUser} from '../../core/apiCalls';
+import {patchUser, deleteUser, uploadContent, uploadToStorage} from '../../core/apiCalls';
 import SettingsModal from '../SettingsModal'
 import IconButton from '../IconButton';
 import {IconSettings} from '../../assets/icons/icons';
@@ -14,14 +14,14 @@ class UserHeader extends Component {
 
     this.state = {
       update : false,
-      settingsModal : false
+      settingsModal : false,
+      settingsType: ''
     };
 
     this.updatePage = this.updatePage.bind(this);
     this.confirmModification = this.confirmModification.bind(this);
     this.cancelModification = this.cancelModification.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.imageChange = this.imageChange.bind(this);
   }
 
   componentDidMount() {
@@ -75,12 +75,21 @@ class UserHeader extends Component {
     return session.getOwnData().id === this.props.user.id;
   }
 
-  imageChange() {
-    alert('image upload coming soon');
+  uploadUserImage(mimetype, size, filename) {
+    session.getAccessToken()
+      .then (token => {
+        uploadContent('user', 'me', mimetype, size, token)
+          .then(result => {
+            uploadToStorage(result, filename);
+            this.setState({settingsModal : false});
+          })
+          .catch( () => session.error = true);
+      })
   }
 
-  handleSettingsModal(isOpen) {
+  handleSettingsModal(isOpen, type) {
     this.setState({settingsModal: isOpen});
+    this.setState({settingsType: type});
   }
 
   render() {
@@ -90,7 +99,7 @@ class UserHeader extends Component {
       <div class={styles.userTop}>
         <div class={styles.image}>
         {this.isUserOwner()
-         ? <button onClick={this.imageChange}>
+         ? <button onClick={this.handleSettingsModal.bind(this, true, 'image')}>
              <img src={user.avatar_url ? user.avatar_url : DEFAULT_USER_IMAGE_URL} alt={""}/>
            </button>
          : <img src={user.avatar_url ? user.avatar_url : DEFAULT_USER_IMAGE_URL} alt={""}/>}
@@ -105,7 +114,7 @@ class UserHeader extends Component {
                   size={30}
                   name="Settings"
                   icon={IconSettings}
-                  onClick={this.handleSettingsModal.bind(this, true)}/>
+                  onClick={this.handleSettingsModal.bind(this, true, 'user')}/>
               </div>}
           </div>
           {(this.state.bio && !this.state.update)
@@ -128,8 +137,9 @@ class UserHeader extends Component {
         {this.state.settingsModal &&
         <SettingsModal
           handleSettingsModal={this.handleSettingsModal.bind(this)}
-          type="user"
+          type={this.state.settingsType}
           removeUser={this.removeUser.bind(this)}
+          uploadImage={this.uploadUserImage.bind(this)}
           logout={() => session.doLogout()}/>}
       </div>
     );

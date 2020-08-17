@@ -1,9 +1,10 @@
 import {Component} from 'preact';
 
-import {mediaPlayer, catalog, session} from "../../Harmony"
-import {PlayStartModes} from "../../player/MediaPlayer";
+import {mediaPlayer, catalog, session} from '../../Harmony';
+import {MediaItemInfo, PlayStartModes} from '../../player/MediaPlayer';
 import styles from './CollectionSongsTable.scss';
 import {getUserPlaylists} from '../../core/apiCalls';
+import {createMediaItemInfo} from '../../core/links';
 import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconPause} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 import {route} from 'preact-router';
@@ -111,6 +112,10 @@ class CollectionSongsTable extends Component {
   clickRelease(release_id, e) {
      e.preventDefault();
      route('/release/' + release_id);
+  }
+
+  createMediaInfo(song) {
+    return createMediaItemInfo(song, this.isRelease() ? this.state.collection : null);
   }
 
   playSong(song) {

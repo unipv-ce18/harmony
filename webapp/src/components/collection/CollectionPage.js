@@ -12,7 +12,7 @@ import {
   IconStarFull
 } from '../../assets/icons/icons';
 import {createMediaItemInfo} from '../../core/links';
-import {MediaItemInfo, PlayStartModes} from '../../player/MediaPlayer';
+import {PlayStartModes} from '../../player/MediaPlayer';
 import ReleaseInfo from './ReleaseInfo';
 import PlaylistInfo from './PlaylistInfo';
 import ModalBox from '../modalbox/ModalBox';
@@ -100,14 +100,7 @@ class CollectionPage extends Component {
   }
 
   createSong(song) {
-    if(this.isRelease())
-      return new MediaItemInfo(song.id, {
-          [MediaItemInfo.TAG_TITLE]: song.title,
-          [MediaItemInfo.TAG_RELEASE]: this.state.collection.name,
-          [MediaItemInfo.TAG_ARTIST]: this.state.collection.artist.name,
-          [MediaItemInfo.TAG_ALBUMART_URL]: this.state.collection.cover
-        })
-    return createMediaItemInfo(song);
+    return createMediaItemInfo(song, this.isRelease() ? this.state.collection : null);
   }
 
   addSongsToQueue() {

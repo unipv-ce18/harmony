@@ -9,7 +9,8 @@ class Config:
     WORKER_DRIVER = os.environ.get('WORKER_DRIVER', None)                # Auto-detect, can be 'process' or 'docker'
 
     TERMINATOR_IDLE_REMOVAL_CONSUMERS = 300       # On each run, remove workers that stayed idle for more than this (in seconds)
-    TERMINATOR_IDLE_REMOVAL_CONTENTS = 1800       # On each run, remove uploads that stayed penidng for more than this (in seconds)
+    TERMINATOR_IDLE_REMOVAL_UPLOADS = 1800       # On each run, remove uploads that stayed pending for more than this (in seconds)
+    TERMINATOR_IDLE_REMOVAL_CONTENTS = 1       # On each run, remove contents that have to be eliminated for more than this (in seconds)
     TERMINATOR_POLLING_CYCLE = 300      # Amount of time between idle worker termination runs (in seconds)
 
     UPDATE_COUNTER = 1000     # update the database after this value of new listening

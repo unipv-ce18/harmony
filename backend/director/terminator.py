@@ -28,19 +28,40 @@ class Terminator:
                 if n_killed:
                     log.info('Reaped %s idle workers', n_killed)
 
+                uploads = self.db.get_uploads_to_remove(director_config.TERMINATOR_IDLE_REMOVAL_UPLOADS)
+                for u in uploads:
+                    bucket = {
+                        'image': director_config.STORAGE_BUCKET_IMAGES,
+                        'audio': director_config.STORAGE_BUCKET_REFERENCE
+                    }.get(u['mimetype'].split('/')[0])
+
+                    self.st.delete_file(bucket, str(u['_id']))
+                    self.db.remove_content(str(u['_id']))
+
+                n_killed = len(uploads)
+                if n_killed:
+                    log.info('Removed %s pending uploads', n_killed)
+
                 contents = self.db.get_contents_to_remove(director_config.TERMINATOR_IDLE_REMOVAL_CONTENTS)
                 for c in contents:
                     bucket = {
                         'image': director_config.STORAGE_BUCKET_IMAGES,
-                        'audio': director_config.STORAGE_BUCKET_REFERENCE
-                    }.get(c['mimetype'].split('/')[0])
+                        'song': director_config.STORAGE_BUCKET_REFERENCE,
+                        'compressed': director_config.STORAGE_BUCKET_TRANSCODED,
+                        'modified': director_config.STORAGE_BUCKET_MODIFIED
+                    }.get(c['type'])
 
-                    self.st.delete_file(bucket, str(c['_id']))
-                    self.db.remove_content(str(c['_id']))
+                    if c['type'] == 'compressed':
+                        files = self.st.list_files(bucket, c['filename'])
+                        for f in files:
+                            self.st.delete_file(bucket, f)
+                    else:
+                        self.st.delete_file(bucket, c['filename'])
+                    self.db.remove_content_to_delete(str(c['_id']))
 
                 n_killed = len(contents)
                 if n_killed:
-                    log.info('Removed %s pending contents', n_killed)
+                    log.info('Removed %s contents', n_killed)
 
             except Exception as e:
                 log.error('Closing terminator due to error %s(%s)', type(e).__name__, e)
