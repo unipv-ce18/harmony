@@ -5,6 +5,7 @@ import {route} from 'preact-router';
 import {catalog, session} from '../../Harmony';
 import PlaylistImage from './PlaylistImage';
 import styles from './CollectionInfo.scss';
+import {patchPlaylist} from '../../core/apiCalls';
 
 class PlaylistInfo extends Component {
 
@@ -54,9 +55,19 @@ class PlaylistInfo extends Component {
   }
 
   handleUpdate() {
-    let name=null;
-    if ((this.state.name !== this.props.name) && this.state.name !== '') name = this.state.name;
-    this.props.updatePlaylistInfo(name);
+    let name = null;
+      if ((this.state.name !== this.props.name) && this.state.name !== '') name = this.state.name;
+      if (name !== null){
+      session.getAccessToken()
+      .then (token => {
+        patchPlaylist(token, this.props.collection.id, {name})
+          .then( () => {
+            this.props.infoCollectionUpdated(true);
+          })
+          .catch( () => session.error = true);
+      })
+    }
+    this.props.infoCollectionUpdated(false);
   }
 
 
@@ -71,7 +82,8 @@ class PlaylistInfo extends Component {
             ? <p>{collection.name}</p>
             : <p>
                 <p>Change name:</p>
-                <input type="text" value={collection.name ? collection.name : 'Playlist name'}/>
+                <input type="text" name="name" value={this.state.name ? this.state.name : 'Playlist name'}
+                       onChange={this.handleChange}/>
               </p>}
           <p><a href='#' onClick={this.clickCreator}>{collection.creator.username}</a></p>
           <p>{this.state.policy}

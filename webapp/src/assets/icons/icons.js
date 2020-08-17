@@ -39,5 +39,9 @@ export const IconStarEmpty = (props) => <Icon mod={require('./star_outline-24px.
 export const IconStarFull = (props) => <Icon mod={require('./star-24px.svg')} {...props}/>;
 export const IconArrowRight = (props) => <Icon mod={require('./arrow_right-24px.svg')} {...props}/>;
 
+// ArtistInfo
+export const IconAdd = (props) => <Icon mod={require('./add_circle_outline-24px.svg')} {...props}/>;
+export const IconRemove = (props) => <Icon mod={require('./remove_circle_outline-24px.svg')} {...props}/>;
+
 // User
 export const IconSettings = (props) => <Icon mod={require('./settings-24px.svg')} {...props}/>;

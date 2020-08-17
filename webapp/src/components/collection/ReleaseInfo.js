@@ -2,8 +2,8 @@ import {Component} from 'preact';
 import {route} from 'preact-router';
 import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 import styles from './CollectionInfo.scss';
-import IconButton from '../IconButton';
-import {IconExpand} from '../../assets/icons/icons';
+import {session} from '../../Harmony';
+import {patchRelease} from '../../core/apiCalls';
 
 class ReleaseInfo extends Component {
 
@@ -47,17 +47,33 @@ class ReleaseInfo extends Component {
   }
 
   handleUpdate() {
-    let type=null, name=null, date=null;
-    if ((this.state.type !== this.props.type) && this.state.type !== '') type = this.state.type;
-    if ((this.state.name !== this.props.name) && this.state.name !== '') name = this.state.name;
-    if ((this.state.date !== this.props.date) && this.state.date !== '') {
-      date = this.state.date;
-      if (this.state.checkBox) {
-        const d = new Date(this.state.date);
-        if ( !!d.valueOf() ) date = d.getFullYear();
-      }
+    const coll = this.props.collection;
+    let name=false, type=false, date=false, d=this.state.date;
+    if ((this.state.name !== coll.name) && this.state.name !== '') name = true;
+    if ((this.state.type !== coll.type) && this.state.type !== '') type = true;
+    if (this.state.checkBox) {
+      d = new Date(d).getFullYear().toString();
     }
-    this.props.updateReleaseInfo(type, name, date);
+    if(d !== '' && (coll.date.length !== d.length ||
+        (coll.date.length === d.length && coll.date !== d))) date = true;
+
+
+    let patch = {
+        ...(name) && {name: this.state.name},
+        ...(type) && {type: this.state.type},
+        ...(date) && {date: d}};
+
+    if (Object.keys(patch).length !== 0) {
+      session.getAccessToken()
+        .then (token => {
+          patchRelease(token, this.props.collection.id, patch)
+            .then( () => {
+              this.props.infoCollectionUpdated(true);
+            })
+            .catch( () => session.error = true);
+        })
+    }
+    this.props.infoCollectionUpdated(false);
   }
 
   render() {

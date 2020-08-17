@@ -53,7 +53,8 @@ class SettingsModal extends Component {
         {this.props.type === 'artist' &&
           <div class={styles.settingsModal}>
             <div class={styles.settingsButton}>
-              <div><button onClick={this.props.handleSettingsModal.bind(this, false)}>Modify your page</button></div>
+              <div><button onClick={()=>{this.props.modifyPage(true); this.props.handleSettingsModal(false)}}>
+                Modify your page</button></div>
               <div><button onClick={this.handleModalBox.bind(this,
                 MODALBOX_ARTIST_DELETE, 'Do you really want to delete this artist?')}>
                 Delete your page

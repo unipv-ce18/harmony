@@ -14,29 +14,33 @@ class ArtistPage extends Component {
     super(props);
 
     this.state = {
-      update : false,
       modalBox : {type:'', message:''}
     };
-    this.updatePage = this.updatePage.bind(this);
     this.scrollLoop = this.scrollLoop.bind(this);
     this.deleteArtistPage = this.deleteArtistPage.bind(this);
+    this.getArtist = this.getArtist.bind(this);
   }
 
   componentDidMount() {
+    this.getArtist();
+  }
+
+  getArtist() {
     session.getAccessToken()
       .then (token => {
         getArtist(this.props.id, true, token)
           .then(result => {
             this.setState({artist: result});
+            if(result.cover)
+              window.addEventListener("scroll", this.scrollLoop);
           })
           .catch( () => session.error = true);
       })
-
-    window.addEventListener("scroll", this.scrollLoop);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("scroll", this.scrollLoop);
+    if(this.state.artist && this.state.artist.cover)
+      window.removeEventListener("scroll", this.scrollLoop);
   }
 
   scrollLoop() {
@@ -45,10 +49,6 @@ class ArtistPage extends Component {
 
   isUserOwner() {
     return session.getOwnData().id === this.state.artist.creator;
-  }
-
-  updatePage() {
-    this.setState({update : true});
   }
 
   deleteArtistPage() {
@@ -66,6 +66,12 @@ class ArtistPage extends Component {
     this.setState({modalBox: {type: modalbox_type, message: message}});
   }
 
+
+  infoArtistUpdated(bool) {
+    if (bool) this.getArtist();
+  }
+
+
   render({id}) {
     let modalBox = this.state.modalBox;
 
@@ -75,7 +81,7 @@ class ArtistPage extends Component {
           <div class={styles.artistPageContent}>
             <img src={this.state.artist.image} alt=''
                style={{transform: `translate(-50%, -50%) translateY(${this.state.offset * 0.5}px)`}}/>
-            <ArtistInfo artist={this.state.artist}/>
+            <ArtistInfo artist={this.state.artist} infoArtistUpdated={this.infoArtistUpdated.bind(this)}/>
             <ReleaseList artist={this.state.artist}/>
             {/*<SimilarArtists />*/}
           </div>

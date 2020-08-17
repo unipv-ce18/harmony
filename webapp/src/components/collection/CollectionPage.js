@@ -36,7 +36,7 @@ class CollectionPage extends Component {
     this.addSongsToQueue = this.addSongsToQueue.bind(this);
     this.handleConfirmDelete = this.handleConfirmDelete.bind(this);
     this.handleClickDelete = this.handleClickDelete.bind(this);
-    this.pageUpdated = this.pageUpdated.bind(this);
+    this.handleClickUpdate = this.handleClickUpdate.bind(this);
   }
 
   componentDidMount() {
@@ -123,34 +123,15 @@ class CollectionPage extends Component {
     this.setState({inUpdate : bool});
   }
 
-  pageUpdated() {
+  handleClickUpdate() {
     this.setState({pageUpdated : true});
   }
 
-  updateReleaseInfo(type, name, date) {
-    session.getAccessToken()
-      .then (token => {
-        patchRelease(token, this.state.collection.id, name, date, type)
-          .then( () => {
-            this.setState({pageUpdated : false});
-            this.setState({inUpdate : false});
-            this.getCollection();
-          })
-          .catch( () => session.error = true);
-      })
-  }
-
-  updatePlaylistInfo(name) {
-    session.getAccessToken()
-      .then (token => {
-        patchPlaylist(token, this.state.collection.id, name, null)
-          .then( () => {
-            this.setState({pageUpdated : false});
-            this.setState({inUpdate : false});
-            this.getCollection();
-          })
-          .catch( () => session.error = true);
-      })
+  infoCollectionUpdated(bool) {
+    this.setState({pageUpdated : false});
+    this.setState({inUpdate : false});
+    if (bool)
+      this.getCollection();
   }
 
   handleClickDelete() {
@@ -195,12 +176,12 @@ class CollectionPage extends Component {
                   collection={collection}
                   inUpdate={this.state.inUpdate}
                   pageUpdated={this.state.pageUpdated}
-                  updateReleaseInfo={this.updateReleaseInfo.bind(this)} />
+                  infoCollectionUpdated={this.infoCollectionUpdated.bind(this)} />
               : <PlaylistInfo
                   collection={collection}
                   inUpdate={this.state.inUpdate}
                   pageUpdated={this.state.pageUpdated}
-                  updatePlaylistInfo={this.updatePlaylistInfo.bind(this)}/>}
+                  infoCollectionUpdated={this.infoCollectionUpdated.bind(this)}/>}
               <div>
                 {!this.userLikeOwnPlaylist() &&
                   (this.initialCollectionLikeState()
@@ -227,7 +208,7 @@ class CollectionPage extends Component {
             {this.state.inUpdate && (this.userLikeOwnPlaylist()  || this.userOwnRelease()) &&
               [<button onClick={this.handleClickDelete}>Delete</button>,
               <button onClick={()=>this.inUpdate(false)}>Cancel</button>,
-              <button onClick={this.pageUpdated}>Update</button>]}
+              <button onClick={this.handleClickUpdate}>Update</button>]}
           </div>
           {modalBox.type &&
           <ModalBox

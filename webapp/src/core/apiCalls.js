@@ -174,13 +174,11 @@ export function deleteArtist(artist_id, token) {
   });
 }
 
-export function patchArtist(token, artist_id, name, country, life_span, genres, bio, members, links) {
-
-  const data = {name, country, life_span, genres, bio, members, links};
+export function patchArtist(token, artist_id, patch) {
   return fetch(API_ARTIST_URL + '/' + artist_id, {
     method: 'PATCH',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
-    body: JSON.stringify(data)
+    body: JSON.stringify(patch)
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
     return;
@@ -209,12 +207,11 @@ export function deleteRelease(release_id, token) {
   });
 }
 
-export function patchRelease(token, release_id, name, date, type) {
-  const data = {name, date, type};
+export function patchRelease(token, release_id, patch) {
   return fetch(API_RELEASE_URL + '/' + release_id, {
     method: 'PATCH',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
-    body: JSON.stringify(data)
+    body: JSON.stringify(patch)
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
     return;
@@ -277,12 +274,11 @@ export function createPlaylist(name, token) {
   });
 }
 
-export function patchPlaylist(token, playlist_id, name, policy) {
-  const data = {name, policy};
+export function patchPlaylist(token, playlist_id, patch) {
   return fetch(API_PLAYLIST_URL + '/' + playlist_id, {
     method: 'PATCH',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
-    body: JSON.stringify(data)
+    body: JSON.stringify(patch)
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
     return;

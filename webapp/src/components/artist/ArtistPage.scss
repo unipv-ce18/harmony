@@ -29,24 +29,29 @@
 
 .artistInfo {
   position: relative;
-  padding: 1.5em 1.5em 1em 1.5em;
+  padding: 1.5em 1.5em 0.5em 1.5em;
   border-radius: 16px 16px 0 0;
   background-color: rgba(256, 256, 256, 0.7);
   color: $application-background;
 
   .name {
-    display: inline-block;
-    margin: 5px 20px 5px 0;
+    h2 {
+      display: inline-block;
+      margin: 5px 20px 5px 0;
+    }
+    span {
+      margin: 0 5px;
+      color: $application-background;
+      fill: $application-background;
+    }
   }
 
   > div:first-of-type > span {
-    top: 4px;
-    border: solid 2px;
-    background-color: rgba(224, 224, 224, 0.6);
+    top: 6px;
   }
 
   .tagsList {
-    margin-top: 20px;
+    margin: 20px 0;
     text-align: left;
     .tag {
       border-radius: 5px;
@@ -58,10 +63,30 @@
   }
 
   .artistBio, .additionalInfo {
-    padding: 20px;
     font-size: 0.85em;
     text-align: justify;
   }
+
+  .artistBio {
+    padding: 0 20px 20px 20px;
+  }
+
+  .additionalInfo {
+    >ul, >div {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px 0;
+    }
+    >div {
+      &:first-of-type {
+        margin-top: 0;
+      }
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+    }
+  }
+
 
   .links {
     a {
@@ -74,10 +99,49 @@
     }
   }
 
-  button {
+  >div >span button {
     background: transparent;
     border: none;
     cursor: pointer;
+  }
+}
+
+.artistUpdatingInfo {
+  >div {
+    > p {
+      margin-bottom: 3px;
+    }
+
+    span {
+      background: transparent;
+      vertical-align: middle;
+      svg {
+        position: relative;
+      }
+    }
+
+     >div {
+      font-size: small;
+    }
+
+    >input, >div input{
+      border-style: dashed;
+      border-radius: 5px;
+      padding-left: 10px;
+      margin: 3px;
+    }
+
+    select {
+      width: 115px;
+    }
+  }
+
+  > button {
+    margin-top: 20px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+
   }
 }
 
