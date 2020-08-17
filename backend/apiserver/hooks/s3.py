@@ -25,11 +25,18 @@ def get_bucket_notification():
         category = content['category']
         category_id = content['category_id']
 
-        result = {
-            'user': db.update_avatar_url,
-            'artist': db.update_artist_image,
-            'release': db.update_release_cover
-        }.get(category)(category_id, content_id)
+        if category == 'user':
+            old_pic = (db.get_user(category_id).to_dict())['avatar_url']
+            db.update_avatar_url(category_id, content_id)
+        if category == 'artist':
+            old_pic = (db.get_artist(category_id)).image
+            db.update_artist_image(category_id, content_id)
+        if category == 'release':
+            old_pic = (db.get_release(category_id)).cover
+            db.update_release_cover(category_id, content_id)
+
+        if old_pic is not None:
+            db.put_content_to_delete('image', old_pic)
 
         db.remove_content(content_id)
 
