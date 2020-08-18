@@ -54,10 +54,11 @@
 
   .releaseUpdatingInfo {
     > p {
-      margin: 0 0 2px 0;
+      margin: 0 0 5px 0;
+      font-size: small;
     }
     > input, > select {
-      margin: 0 auto 13px;
+      margin: 0 auto 18px;
       padding: 2px;
       border-radius: 5px;
       color: $panel-color-test;
@@ -75,7 +76,7 @@
     }
 
     > input:last-of-type {
-      margin: 2px auto;
+      margin: 0 auto 2px auto;
     }
     > div {
       > input, > label {

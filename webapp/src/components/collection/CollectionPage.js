@@ -7,7 +7,7 @@ import styles from './CollectionPage.scss';
 import CollectionSongsTable from './CollectionSongsTable';
 import IconButton from '../IconButton';
 import {
-  IconQueue,
+  IconQueue, IconSettings,
   IconStarEmpty,
   IconStarFull
 } from '../../assets/icons/icons';
@@ -15,8 +15,8 @@ import {createMediaItemInfo} from '../../core/links';
 import {PlayStartModes} from '../../player/MediaPlayer';
 import ReleaseInfo from './ReleaseInfo';
 import PlaylistInfo from './PlaylistInfo';
-import ModalBox from '../modalbox/ModalBox';
 import {ModalBoxTypes} from '../modalbox/ModalBox';
+import CollectionSettingsModal from './CollectionSettingsModal';
 
 class CollectionPage extends Component {
 
@@ -26,11 +26,11 @@ class CollectionPage extends Component {
     this.state = {
       userPlaylists: {},
       collectionType: '',
-      modalBox : {type:'', message:''},
       songPlayed : '',
       playlistPolicy : '',
       inUpdate : false,
-      pageUpdated : false
+      pageUpdated : false,
+      settingsModal: false
     }
 
     this.addSongsToQueue = this.addSongsToQueue.bind(this);
@@ -105,14 +105,13 @@ class CollectionPage extends Component {
 
   addSongsToQueue() {
     let arrayMediaInfo = this.state.collection.songs.map(song => {
-      console.log(song.title);
       return this.createSong(song)});
     mediaPlayer.play(arrayMediaInfo, PlayStartModes.APPEND_QUEUE);
     this.handleModalBox(ModalBoxTypes.MODALBOX_SUCCESS, 'Songs added to queue.');
     setTimeout(()=>this.handleModalBox('', ''),2000)
   }
 
-  inUpdate(bool) {
+  modifyPage(bool) {
     this.setState({inUpdate : bool});
   }
 
@@ -136,6 +135,10 @@ class CollectionPage extends Component {
   handleConfirmDelete() {
     if(this.isRelease()) this.deleteReleasePage(); else this.deletePlaylistPage();
     this.handleModalBox('', '');
+  }
+
+  handleSettingsModal(isOpen) {
+    this.setState({settingsModal: isOpen});
   }
 
   deleteReleasePage() {
@@ -176,19 +179,29 @@ class CollectionPage extends Component {
                   pageUpdated={this.state.pageUpdated}
                   infoCollectionUpdated={this.infoCollectionUpdated.bind(this)}/>}
               <div>
-                {!this.userLikeOwnPlaylist() &&
-                  (this.initialCollectionLikeState()
-                    ? <IconButton size={24} name="Dislike" icon={IconStarFull}
-                                  onClick={this.likeCollection.bind(this, 'DELETE')}/>
-                    : <IconButton size={24} name="Like" icon={IconStarEmpty}
-                                  onClick={this.likeCollection.bind(this, 'PUT')}/>
-                  )
-                }
-                <IconButton
-                  size={22}
-                  name={"Add To Queue"}
-                  icon={IconQueue}
-                  onClick={this.addSongsToQueue}/>
+
+                {this.state.inUpdate ?
+                <div>
+                  <button onClick={()=>this.modifyPage(false)}>Cancel</button>
+                  <button onClick={this.handleClickUpdate}>Update</button>
+                </div>
+                :
+                <div>
+                {(this.userLikeOwnPlaylist() || this.userOwnRelease()) &&
+                  <IconButton size={24} name="Settings" icon={IconSettings}
+                      onClick={this.handleSettingsModal.bind(this, true)}/>}
+                {(this.isRelease() || !this.userLikeOwnPlaylist()) &&
+                (this.initialCollectionLikeState()
+                  ? <IconButton size={24} name="Dislike" icon={IconStarFull}
+                                onClick={this.likeCollection.bind(this, 'DELETE')}/>
+                  : <IconButton size={24} name="Like" icon={IconStarEmpty}
+                                onClick={this.likeCollection.bind(this, 'PUT')}/>)}
+                  <IconButton
+                    size={22}
+                    name={"Add To Queue"}
+                    icon={IconQueue}
+                    onClick={this.addSongsToQueue}/>
+                </div>}
               </div>
             <hr/>
             </div>
@@ -196,20 +209,16 @@ class CollectionPage extends Component {
               collection={collection}
               isRelease={this.isRelease()}
             />
-            {!this.state.inUpdate && (this.userLikeOwnPlaylist()  || this.userOwnRelease()) &&
-              <button onClick={()=>this.inUpdate(true)}>Modify</button>}
-            {this.state.inUpdate && (this.userLikeOwnPlaylist()  || this.userOwnRelease()) &&
-              [<button onClick={this.handleClickDelete}>Delete</button>,
-              <button onClick={()=>this.inUpdate(false)}>Cancel</button>,
-              <button onClick={this.handleClickUpdate}>Update</button>]}
           </div>
-          {modalBox.type &&
-          <ModalBox
-            type={modalBox.type}
-            message={modalBox.message}
-            handleCancel={()=>this.handleModalBox('', '')}
-            handleSubmit={this.handleConfirmDelete}/>}
+          {this.state.settingsModal &&
+          <CollectionSettingsModal
+            handleSettingsModal={this.handleSettingsModal.bind(this)}
+            type={this.isRelease() ? 'release' : 'playlist'}
+            modifyPage={this.modifyPage.bind(this)}
+            removeCollection={this.isRelease() ?
+              this.deleteReleasePage.bind(this) : this.deletePlaylistPage.bind(this)}/>}
         </div>
+
         }
       </div>);
   }

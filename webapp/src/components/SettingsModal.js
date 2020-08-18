@@ -71,7 +71,7 @@ class SettingsModal extends Component {
             <div class={styles.settingsModal}>
               <div class={styles.settingsButton}>
                 <div>
-                  <label for="upload">Upload image
+                  <label htmlFor="upload">Upload image
                     <input type="file" id="upload" style="display:none"
                       onChange={(event)=> {
                         this.openFile(event.target.files);

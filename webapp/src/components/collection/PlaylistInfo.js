@@ -12,10 +12,6 @@ class PlaylistInfo extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      name : ""
-    }
-
     this.clickCreator = this.clickCreator.bind(this);
     this.changePolicy = this.changePolicy.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -55,19 +51,17 @@ class PlaylistInfo extends Component {
   }
 
   handleUpdate() {
-    let name = null;
-      if ((this.state.name !== this.props.name) && this.state.name !== '') name = this.state.name;
-      if (name !== null){
+    if ((this.state.name !== this.props.collection.name) && this.state.name !== '') {
       session.getAccessToken()
       .then (token => {
-        patchPlaylist(token, this.props.collection.id, {name})
+        patchPlaylist(token, this.props.collection.id, {name: this.state.name})
           .then( () => {
             this.props.infoCollectionUpdated(true);
           })
           .catch( () => session.error = true);
       })
     }
-    this.props.infoCollectionUpdated(false);
+    else this.props.infoCollectionUpdated(false);
   }
 
 
@@ -81,7 +75,7 @@ class PlaylistInfo extends Component {
           {!this.props.inUpdate
             ? <p>{collection.name}</p>
             : <p>
-                <p>Change name:</p>
+                <p>Playlist name:</p>
                 <input type="text" name="name" value={this.state.name ? this.state.name : 'Playlist name'}
                        onChange={this.handleChange}/>
               </p>}

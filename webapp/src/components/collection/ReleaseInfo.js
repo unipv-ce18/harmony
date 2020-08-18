@@ -11,9 +11,6 @@ class ReleaseInfo extends Component {
     super(props);
 
     this.state = {
-      type : "",
-      name : "",
-      date : "",
       checkBox : false
     }
     this.clickArtist = this.clickArtist.bind(this);
@@ -54,8 +51,8 @@ class ReleaseInfo extends Component {
     if (this.state.checkBox) {
       d = new Date(d).getFullYear().toString();
     }
-    if(d !== '' && (coll.date.length !== d.length ||
-        (coll.date.length === d.length && coll.date !== d))) date = true;
+    if(d && (!coll.date || (coll.date.length !== d.length ||
+        (coll.date.length === d.length && coll.date !== d)))) date = true;
 
 
     let patch = {
@@ -99,7 +96,7 @@ class ReleaseInfo extends Component {
             <option value='live'>live</option>
             <option value='remix'>remix</option>
           </select>
-          <p>Change name:</p>
+          <p>Release name:</p>
           <input
             type="text"
             name="name"

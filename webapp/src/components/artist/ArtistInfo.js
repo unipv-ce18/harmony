@@ -148,7 +148,8 @@ class ArtistInfo extends Component {
     if (this.state.country !== artist.country) country = true;
     if (this.state.life_span_end !== '') temp_life_span_end = this.state.life_span_end;
     if (!artist.life_span || artist.life_span &&
-      ((this.state.life_span_begin !== artist.life_span.begin) || (temp_life_span_end !== artist.life_span.end)))
+      ((this.state.life_span_begin !== artist.life_span.begin) || (temp_life_span_end !== artist.life_span.end) &&
+      (temp_life_span_end === null || temp_life_span_end >= this.state.life_span_begin)))
         life_span = true;
     if (this.state.genres !== artist.genres) genres = true;
     if (this.state.bio !== artist.bio) bio = true;
