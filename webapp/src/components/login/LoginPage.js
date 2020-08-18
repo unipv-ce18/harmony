@@ -1,14 +1,11 @@
-import {Component} from 'preact';
-
+import HarmonyPage from '../HarmonyPage';
 import HarmonyLogo from '../HarmonyLogo';
 import LoginForm from './LoginForm';
 import LoginFooter from './LoginFooter'
 
 import styles from './LoginPage.scss';
 
-class LoginPage extends Component {
-
-  state = {registration: false};
+class LoginPage extends HarmonyPage {
 
   render({registration}) {
     return (
@@ -19,6 +16,7 @@ class LoginPage extends Component {
       </div>
     );
   }
+
 }
 
 export default LoginPage;

@@ -43,6 +43,9 @@ header {
     text-transform: uppercase;
     text-decoration: none;
 
+    outline: none;
+    user-select: none;
+
     opacity: .5;
     transition: opacity $transition-len-short-ms;
 
@@ -73,13 +76,22 @@ header {
     transition-duration: $transition-len-short-ms;
   }
 
-  // Search bar wrapper
-  > div {
-    transition: transform $transition-len-ms;
-    transition-timing-function: cubic-bezier(.65, .05, .36, 1);  // "cubic"
+  // Search bar margins
+  > div > div {
+    margin: -4px auto 0;
+  }
 
+  // Search bar wrapper - do not animate on landing
+  &:global(.from-home) > div:global {
+    animation: .6s search-bar-fade;
+  }
+
+  // Moving transition between home and search pages
+  &:global(.on-home), &:global(.on-search) {
     > div {
-      margin: -4px auto 0;
+      animation: none;
+      transition: transform $transition-len-ms;
+      transition-timing-function: cubic-bezier(.65, .05, .36, 1);  // "cubic"
     }
   }
 
@@ -105,4 +117,38 @@ header {
     float: right;
     margin: -6px;
   }
+}
+
+.right, .left li {
+  transition-property: opacity, transform;
+  transition-duration: $transition-len-ms;
+  transition-delay: 600ms;  // Appear when the main logo is shrinking
+}
+.left li:nth-child(2) {
+  transition-delay: 700ms;
+}
+
+header:global(.on-login) {
+  .right, .left li {
+    transition-delay: 0s;
+    transition-duration: $transition-len-short-ms;
+    opacity: 0;
+  }
+
+  .right {
+    transform: translateX(16px);
+  }
+}
+
+@keyframes :global(search-bar-fade) {
+  0% {
+    transform: translateY(25vh);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(22vh);
+    opacity: 0;
+  }
+  80% { opacity: 0 }
+  100% { opacity: 1 }
 }

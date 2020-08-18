@@ -1,8 +1,8 @@
-import {Component} from 'preact';
+import HarmonyPage from '../HarmonyPage';
 
 import style from './HomePage.scss';
 
-class HomePage extends Component {
+class HomePage extends HarmonyPage {
   render(props, state, context) {
     // Behold the almighty home page of Harmony!
     return (

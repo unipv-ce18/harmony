@@ -17,6 +17,7 @@ class UserWidget extends Component {
   }
 
   state = {
+    userData: null,
     dropdown: false,
     dropdownHeight: 0
   }
@@ -28,12 +29,17 @@ class UserWidget extends Component {
     this.setState({dropdownHeight: this.#navRef.current.clientHeight + 'px'});
   }
 
-  render(props, {dropdown, dropdownHeight}) {
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    const userData = session.getOwnData();
+    if (userData) this.setState({userData})
+  }
+
+  render(props, {userData, dropdown, dropdownHeight}) {
     return (
       <div className={classList(style.userWidget, dropdown && `drop-down`)} style={{'--dd-height': dropdownHeight}}
            onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
         <div>
-          <span>{session.getOwnData().username}</span>
+          <span>{userData?.username}</span>
           <img src={DEFAULT_USER_IMAGE_URL} alt=""/>
         </div>
         <div>

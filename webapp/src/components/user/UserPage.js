@@ -1,12 +1,11 @@
-import {Component} from 'preact';
+import {session} from '../../Harmony';
+import HarmonyPage from '../HarmonyPage';
+import {getUserInfo} from '../../core/apiCalls';
+import UserInfo from './UserInfo';
 
 import styles from './UserPage.scss';
-import UserInfo from './UserInfo';
-import {session} from '../../Harmony';
-import {getUserInfo} from '../../core/apiCalls';
 
-
-class UserPage extends Component {
+class UserPage extends HarmonyPage {
 
 
   componentDidMount() {
@@ -32,11 +31,9 @@ class UserPage extends Component {
   render({id}) {
     return (
       <div class={styles.userPage}>
-        {this.state.user &&
-          <div class={styles.userPageContent}>
-            <UserInfo user={this.state.user}/>
-          </div>
-        }
+        <div class={styles.userPageContent}>
+          {this.state.user && <UserInfo user={this.state.user}/>}
+        </div>
       </div>);
   }
 }
