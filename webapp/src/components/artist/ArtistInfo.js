@@ -11,7 +11,7 @@ import {
   IconAdd, IconRemove
 } from '../../assets/icons/icons';
 import {catalog, session} from '../../Harmony';
-import {deleteArtist, patchArtist} from '../../core/apiCalls';
+import {deleteArtist, patchArtist, uploadContent, uploadToStorage} from '../../core/apiCalls';
 import {route} from 'preact-router';
 
 class ArtistInfo extends Component {
@@ -105,6 +105,18 @@ class ArtistInfo extends Component {
 
   handleChange({target}) {
     this.setState({[target.name]: target.value});
+  }
+
+  uploadArtistImage(file) {
+    session.getAccessToken()
+      .then (token => {
+        uploadContent('artist', this.props.artist.id, file.type, file.size, token)
+          .then(presignedData => {
+            uploadToStorage(presignedData, file);
+            this.setState({settingsModal : false});
+          })
+          .catch( () => session.error = true);
+      })
   }
 
   removeMember(index) {
@@ -329,6 +341,7 @@ class ArtistInfo extends Component {
         <SettingsModal
           handleSettingsModal={this.handleSettingsModal.bind(this)}
           type="artist"
+          uploadImage={this.uploadArtistImage.bind(this)}
           modifyPage={this.modifyPage.bind(this)}
           removeArtist={this.deleteArtistPage.bind(this)}/>}
       </div>

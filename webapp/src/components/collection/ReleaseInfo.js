@@ -1,9 +1,10 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
 import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
+import SettingsModal from '../SettingsModal'
 import styles from './CollectionInfo.scss';
 import {session} from '../../Harmony';
-import {patchRelease} from '../../core/apiCalls';
+import {patchRelease, uploadContent, uploadToStorage} from '../../core/apiCalls';
 
 class ReleaseInfo extends Component {
 
@@ -11,7 +12,9 @@ class ReleaseInfo extends Component {
     super(props);
 
     this.state = {
-      checkBox : false
+      checkBox : false,
+      settingsModal : false,
+      settingsType: ''
     }
     this.clickArtist = this.clickArtist.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -28,6 +31,27 @@ class ReleaseInfo extends Component {
     if(this.props.pageUpdated && !prevProps.pageUpdated) {
       this.handleUpdate();
     }
+  }
+
+  userOwnRelease() {
+    return session.getOwnData().id === this.props.collection.artist.creator;
+  }
+
+  handleSettingsModal(isOpen, type) {
+    this.setState({settingsModal: isOpen});
+    this.setState({settingsType: type});
+  }
+
+  uploadReleaseCover(file) {
+    session.getAccessToken()
+      .then (token => {
+        uploadContent('release', this.props.collection.id, file.type, file.size, token)
+          .then(presignedData => {
+            uploadToStorage(presignedData, file);
+            this.setState({settingsModal : false});
+          })
+          .catch( () => session.error = true);
+      })
   }
 
   clickArtist(e) {
@@ -77,7 +101,11 @@ class ReleaseInfo extends Component {
     let collection = this.props.collection;
     return (
       <div class={styles.release}>
-        <div><img src={collection.cover ? collection.cover : DEFAULT_ALBUMART_URL} alt={""}/></div>
+        {this.userOwnRelease()
+         ? <div><button onClick={this.handleSettingsModal.bind(this, true, 'image')}>
+             <img src={collection.cover ? collection.cover : DEFAULT_ALBUMART_URL} alt={""}/>
+           </button></div>
+         : <div><img src={collection.cover ? collection.cover : DEFAULT_ALBUMART_URL} alt={""}/></div>}
         {!this.props.inUpdate ?
         <div  class={styles.releaseInfo}>
           <p>{collection.type}</p>
@@ -111,6 +139,12 @@ class ReleaseInfo extends Component {
             <label htmlFor="checkBox">Show only year</label>
           </div>
         </div>}
+        {this.state.settingsModal &&
+          <SettingsModal
+            handleSettingsModal={this.handleSettingsModal.bind(this)}
+            type={this.state.settingsType}
+            uploadImage={this.uploadReleaseCover.bind(this)}
+          />}
       </div>
     );
   }

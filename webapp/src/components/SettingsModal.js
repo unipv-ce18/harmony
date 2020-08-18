@@ -68,6 +68,13 @@ class SettingsModal extends Component {
         {type === 'artist' &&
           <div class={styles.settingsModal}>
             <div class={styles.settingsButton}>
+            <div>
+              <label htmlFor="upload">Upload image
+                <input type="file" id="upload" style="display:none"
+                  onChange={e => uploadImage(e.target.files[0])}
+                />
+              </label>
+            </div>
               <div><button onClick={()=>{this.props.modifyPage(true); this.props.handleSettingsModal(false)}}>
                 Modify your page</button></div>
               <div><button onClick={this.handleModalBox.bind(this,

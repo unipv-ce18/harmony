@@ -23,8 +23,10 @@
 
   >div {
     button, label {
+      padding: 5px;
+      color: #444;
       font-size: 15px;
-      margin: 10px 0;
+      margin: 10px;
       background: transparent;
       border: none;
       cursor: pointer;
@@ -39,12 +41,11 @@
 
     &:hover {
       background-color: rgba(#ccc, .7);
-
     }
   }
 
   label {
     display: block;
-    padding-top: 10px;
+    padding-top: 5px;
   }
 }
