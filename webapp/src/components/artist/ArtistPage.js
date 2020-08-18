@@ -25,7 +25,7 @@ class ArtistPage extends Component {
         getArtist(this.props.id, true, token)
           .then(result => {
             this.setState({artist: result});
-            if(result.cover)
+            if(result.image)
               window.addEventListener("scroll", this.scrollLoop);
           })
           .catch( () => session.error = true);
@@ -33,7 +33,7 @@ class ArtistPage extends Component {
   }
 
   componentWillUnmount() {
-    if(this.state.artist && this.state.artist.cover)
+    if(this.state.artist && this.state.artist.image)
       window.removeEventListener("scroll", this.scrollLoop);
   }
 
