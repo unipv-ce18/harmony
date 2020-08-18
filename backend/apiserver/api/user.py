@@ -6,7 +6,7 @@ from flask_restful.reqparse import RequestParser
 
 from . import api_blueprint, db
 from ..util import security
-from ._conversions import create_artist_result
+from ._conversions import create_artist_result, _get_image_url
 from ._deletion import delete_user
 from common.database.contracts import user_contract as uc
 from common.database.contracts import playlist_contract as c
@@ -73,6 +73,7 @@ class UserOptions(Resource):
         if user is None:
             return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
         user = user.to_dict()
+        user['avatar_url'] = _get_image_url(user['avatar_url']) if user.get('avatar_url') is not None else None
 
         if user[uc.USER_PREFS]['private']['email'] and user_id != security.get_jwt_identity():
             user[uc.USER_EMAIL] = None

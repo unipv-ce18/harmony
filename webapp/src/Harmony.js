@@ -1,10 +1,12 @@
 import {Session} from './core/Session';
 import {MediaCatalog} from './core/MediaCatalog';
 import {MediaPlayer, MediaItemInfo, PlayStartModes} from './player/MediaPlayer';
+import {User} from './core/User';
 
 export const session = new Session();
 export const catalog = new MediaCatalog(session);
 export const mediaPlayer = new MediaPlayer();
+export const currentUser = new User(session, 'me');
 
 
 function printConsoleWelcome(body, bodyStyle) {
@@ -17,12 +19,13 @@ function printConsoleWelcome(body, bodyStyle) {
 switch (process.env.NODE_ENV) {
   case 'development':
     printConsoleWelcome(
-      'Player, session and catalog APIs are available here in the console for you to play with...',
+      'Player, session, current user and catalog APIs are available here in the console for you to play with...',
       'color: #eee');
     Object.defineProperties(window, {
       session: { value: session },
       catalog: { value: catalog },
       player: { value: mediaPlayer },
+      currentUser: { value: currentUser },
       MediaItemInfo: { value: MediaItemInfo },
       PlayStartModes: { value: PlayStartModes }
     });

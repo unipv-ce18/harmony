@@ -1,3 +1,5 @@
-export class Session {
+export interface Session {
     getAccessToken(): Promise<string>
+
+    online: boolean
 }

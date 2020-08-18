@@ -20,8 +20,6 @@ class SettingsModal extends Component {
     this.logout = this.logout.bind(this);
     this.removeUser = this.removeUser.bind(this);
     this.deleteArtistPage = this.deleteArtistPage.bind(this);
-    this.openFile = this.openFile.bind(this);
-    this.uploadImage = this.uploadImage.bind(this);
   }
 
   removeUser() {
@@ -36,27 +34,14 @@ class SettingsModal extends Component {
     this.props.removeArtist();
   }
 
-  uploadImage() {
-    let f = this.state.file;
-    this.props.uploadImage(f.type, f.size, f.name);
-  }
-
-  openFile(file) {
-    this.setState({file: file[0]}, () => {
-        this.uploadImage();
-      }
-    );
-  }
-
   handleModalBox(modalbox_type, message) {
     this.setState({modalBox: {type: modalbox_type, message: message}});
   }
 
-  render() {
-    let modalBox = this.state.modalBox;
+  render({type, handleSettingsModal, uploadImage}, {modalBox}) {
     return (
       <div>
-        {this.props.type === 'user' &&
+        {type === 'user' &&
           <div class={styles.settingsModal}>
             <div class={styles.settingsButton}>
               <div><button onClick={this.handleModalBox.bind(this,
@@ -64,25 +49,23 @@ class SettingsModal extends Component {
                 Delete your account
               </button></div>
               <div><button onClick={this.logout}>Log out</button></div>
-              <div><button onClick={this.props.handleSettingsModal.bind(this, false)}>Cancel</button></div>
+              <div><button onClick={handleSettingsModal.bind(this, false)}>Cancel</button></div>
             </div>
           </div>}
-          {this.props.type === 'image' &&
+          {type === 'image' &&
             <div class={styles.settingsModal}>
               <div class={styles.settingsButton}>
                 <div>
                   <label htmlFor="upload">Upload image
                     <input type="file" id="upload" style="display:none"
-                      onChange={(event)=> {
-                        this.openFile(event.target.files);
-                      }}
+                      onChange={e => uploadImage(e.target.files[0])}
                     />
                   </label>
                 </div>
-                <div><button onClick={this.props.handleSettingsModal.bind(this, false)}>Cancel</button></div>
+                <div><button onClick={handleSettingsModal.bind(this, false)}>Cancel</button></div>
               </div>
             </div>}
-        {this.props.type === 'artist' &&
+        {type === 'artist' &&
           <div class={styles.settingsModal}>
             <div class={styles.settingsButton}>
               <div><button onClick={()=>{this.props.modifyPage(true); this.props.handleSettingsModal(false)}}>
@@ -91,7 +74,7 @@ class SettingsModal extends Component {
                 MODALBOX_ARTIST_DELETE, 'Do you really want to delete this artist?')}>
                 Delete your page
               </button></div>
-              <div><button onClick={this.props.handleSettingsModal.bind(this, false)}>Cancel</button></div>
+              <div><button onClick={handleSettingsModal.bind(this, false)}>Cancel</button></div>
             </div>
           </div>}
         {modalBox.type &&
