@@ -1,7 +1,7 @@
 import {route} from 'preact-router';
 import {Component} from 'preact';
 
-import {getReleasePlaylist, deleteRelease, patchUser, patchRelease, patchPlaylist} from "../../core/apiCalls";
+import {getReleasePlaylist, deleteRelease} from "../../core/apiCalls";
 import {catalog, mediaPlayer, session} from "../../Harmony"
 import styles from './CollectionPage.scss';
 import CollectionSongsTable from './CollectionSongsTable';

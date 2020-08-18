@@ -1,6 +1,5 @@
 import {Component} from 'preact';
 
-import {route} from 'preact-router';
 import styles from './ArtistPage.scss';
 import ArtistInfo from './ArtistInfo';
 import ReleaseList from './ReleaseList';

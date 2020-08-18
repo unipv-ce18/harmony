@@ -1,5 +1,4 @@
 import {Component} from 'preact';
-import {route} from 'preact-router';
 
 import styles from './ModalBox.scss';
 import PropTypes from 'prop-types';

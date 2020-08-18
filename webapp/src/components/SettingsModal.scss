@@ -16,18 +16,31 @@
 }
 
 .settingsButton {
-  padding: 10px;
   border-color: $application-background;
   border-radius: 16px;
   text-align: center;
   background-color: $panel-color;
 
-  button, label {
-    font-size: 15px;
-    padding: 10px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
+  >div {
+    button, label {
+      font-size: 15px;
+      margin: 10px 0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    &:first-of-type {
+      border-radius: 16px 16px 0 0;
+    }
+    &:last-of-type {
+      border-radius: 0 0 16px 16px;
+    }
+
+    &:hover {
+      background-color: rgba(#ccc, .7);
+
+    }
   }
 
   label {
