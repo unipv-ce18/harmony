@@ -20,7 +20,8 @@ class UserWidget extends Component {
   state = {
     user: null,
     dropdown: false,
-    dropdownHeight: 0
+    dropdownHeight: 0,
+    imageLoaded: false
   }
 
   #leaveTimeout = null;
@@ -35,13 +36,16 @@ class UserWidget extends Component {
     if (user) this.setState({user})
   }
 
-  render(props, {user, dropdown, dropdownHeight}) {
+  render(props, {user, dropdown, dropdownHeight, imageLoaded}) {
     return (
       <div className={classList(style.userWidget, dropdown && `drop-down`)} style={{'--dd-height': dropdownHeight}}
            onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
         <div>
-          <span>{user?.username}</span>
-          <img src={DEFAULT_USER_IMAGE_URL} alt=""/>
+          {user && [
+            <span>{user.username}</span>,
+            <img src={user.image || DEFAULT_USER_IMAGE_URL} alt=""
+                 style={!imageLoaded && {opacity: 0}} onload={() => this.setState({imageLoaded: true})}/>
+          ]}
         </div>
         <div>
           <div ref={this.#navRef} onClick={() => this.setState({dropdown: false})}>
