@@ -37,13 +37,13 @@ class Menu extends Component {
 
   isUserOwner() {
     if(this.props.collection.creator)
-      return session.getOwnData().id === this.props.collection.creator.id;
+      return session.currentUser?.id === this.props.collection.creator.id;
     return false;
   }
 
   userOwnRelease() {
     if (this.props.isRelease)
-      return session.getOwnData().id === this.props.collection.artist.creator;
+      return session.currentUser?.id === this.props.collection.artist.creator;
     return false;
   }
 

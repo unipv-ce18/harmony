@@ -33,7 +33,7 @@ class ReleaseList extends Component {
   }
 
   isUserOwner() {
-    return session.getOwnData().id === this.props.artist.creator;
+    return session.currentUser?.id === this.props.artist.creator;
   }
 
   createReleasePage(temp_release_name) {

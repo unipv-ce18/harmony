@@ -1,5 +1,9 @@
 import {Component} from 'preact';
-import styles from './ArtistPage.scss';
+import {route} from 'preact-router';
+
+import {catalog, session} from '../../Harmony';
+import {userLink} from '../../core/links';
+import {deleteArtist, patchArtist, uploadContent, uploadToStorage} from '../../core/apiCalls';
 import SettingsModal from '../SettingsModal'
 import Tags from './Tags';
 import Links from './Links';
@@ -10,9 +14,8 @@ import {
   IconSettings,
   IconAdd, IconRemove
 } from '../../assets/icons/icons';
-import {catalog, session} from '../../Harmony';
-import {deleteArtist, patchArtist, uploadContent, uploadToStorage} from '../../core/apiCalls';
-import {route} from 'preact-router';
+
+import styles from './ArtistPage.scss';
 
 class ArtistInfo extends Component {
   constructor(props) {
@@ -81,7 +84,7 @@ class ArtistInfo extends Component {
   }
 
   isUserOwner() {
-    return session.getOwnData().id === this.props.artist.creator;
+    return session.currentUser?.id === this.props.artist.creator;
   }
 
   deleteArtistPage() {
@@ -89,7 +92,7 @@ class ArtistInfo extends Component {
       .then (token => {
         deleteArtist(this.props.artist.id, token)
           .then(() => {
-            route('/user/' + session.getOwnData().id);
+            route(userLink(session.currentUser?.id));
           })
           .catch( () => session.error = true);
       })

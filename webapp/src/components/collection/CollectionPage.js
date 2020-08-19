@@ -71,7 +71,7 @@ class CollectionPage extends HarmonyPage {
     let media_type = this.state.collectionType;
       if (function_type === 'PUT' &&
         media_type === 'playlists' &&
-        session.getOwnData().id === this.state.collection.creator.id)
+        session.currentUser?.id === this.state.collection.creator.id)
           media_type = 'personal_playlists';
 
       catalog.favorite(function_type, media_type, this.state.collection.id)
@@ -92,7 +92,7 @@ class CollectionPage extends HarmonyPage {
 
   userOwnRelease() {
     if (this.state.collectionType === 'releases')
-      return session.getOwnData().id === this.state.collection.artist.creator;
+      return session.currentUser?.id === this.state.collection.artist.creator;
     return false;
   }
 

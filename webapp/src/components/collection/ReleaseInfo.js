@@ -34,7 +34,7 @@ class ReleaseInfo extends Component {
   }
 
   userOwnRelease() {
-    return session.getOwnData().id === this.props.collection.artist.creator;
+    return session.currentUser?.id === this.props.collection.artist.creator;
   }
 
   handleSettingsModal(isOpen, type) {
