@@ -7,6 +7,9 @@ export class MediaCatalog {
 
   constructor(session) {
     this.session = session;
+    session.addStatusListener(() => {
+      if (session.loggedIn && !session.error) this.setCachedLibrary();
+    })
   }
 
   get #storeLibrary() {

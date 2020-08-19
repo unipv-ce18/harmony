@@ -1,12 +1,10 @@
 import {Session} from './core/Session';
 import {MediaCatalog} from './core/MediaCatalog';
 import {MediaPlayer, MediaItemInfo, PlayStartModes} from './player/MediaPlayer';
-import {User} from './core/User';
 
 export const session = new Session();
 export const catalog = new MediaCatalog(session);
 export const mediaPlayer = new MediaPlayer();
-export const currentUser = new User(session, 'me');
 
 
 if ('serviceWorker' in navigator && SERVICE_WORKER_PATH != null) {
@@ -29,7 +27,6 @@ switch (process.env.NODE_ENV) {
       session: { value: session },
       catalog: { value: catalog },
       player: { value: mediaPlayer },
-      currentUser: { value: currentUser },
       MediaItemInfo: { value: MediaItemInfo },
       PlayStartModes: { value: PlayStartModes }
     });

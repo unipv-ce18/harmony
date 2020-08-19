@@ -8,6 +8,8 @@ export const playlistLink = id => `/playlist/${id}`;
 
 export const userLink = id => `/user/${id}`;
 
+export const userLibraryLink = id => `/library/${id}`;
+
 // Not really a link but allows "linking" to the player given a song model
 /**
  * Creates a {@link MediaItemInfo} object for playback given a song model

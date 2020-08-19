@@ -3,7 +3,8 @@ import {Component} from 'preact';
 import styles from './UserPage.scss';
 import {route} from 'preact-router';
 import {session} from '../../Harmony';
-import {changeUserType, changeUserTier, createArtist, patchUser} from '../../core/apiCalls';
+import {artistLink, userLibraryLink} from '../../core/links';
+import {createArtist} from '../../core/apiCalls';
 import UserHeader from './UserHeader';
 import ArtistList from './ArtistList';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
@@ -24,75 +25,64 @@ class UserInfo extends Component {
   }
 
   componentDidMount() {
-    this.setState({email : this.props.user.prefs.private.email});
-    this.setState({type : this.props.user.type});
-    this.setState({tier : this.props.user.tier});
+    const {user} = this.props;
+    this.setState({
+      email: user.preferences.private.email,
+      type: user.type,
+      tier: user.tier
+    })
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.user.prefs.private.email !== prevProps.user.prefs.private.email)
-      this.setState({email: [...this.props.user.prefs.private.email]});
-    if (this.props.user.type !== prevProps.user.type)
+    const {user} = this.props;
+    if (user.preferences.private.email !== prevProps.user.preferences.private.email)
+      this.setState({email: [...this.props.user.preferences.private.email]});
+    if (user.type !== prevProps.user.type)
       this.setState({type: [...this.props.user.type]});
-    if (this.props.user.tier !== prevProps.user.tier)
+    if (user.tier !== prevProps.user.tier)
       this.setState({tier: [...this.props.user.tier]});
   }
 
   changeType() {
-    session.getAccessToken()
-      .then (token => {
-        changeUserType(token)
-          .then(() => {
-            this.setState({type: 'creator'});
-          })
-          .catch( () => session.error = true);
-      })
+    this.props.user.upgradeType()
+      .then(() => this.setState({type: 'creator'}))
+      .catch(() => session.error = true);
   }
 
   changeTier() {
-    session.getAccessToken()
-      .then (token => {
-        changeUserTier(token)
-          .then(() => {
-            this.setState({tier: 'pro'});
-          })
-          .catch( () => session.error = true);
-      })
+    this.props.user.upgradeTier()
+      .then(() => this.setState({tier: 'pro'}))
+      .catch(() => session.error = true);
   }
 
   createNewArtist(temp_artist_name) {
     let artist_name = temp_artist_name;
     if (!artist_name) artist_name = 'New Artist';
     session.getAccessToken()
-      .then (token => {
+      .then(token => {
         createArtist(artist_name, token)
-          .then(result => {
-            route('/artist/' + result['artist_id']);
-          })
-          .catch( () => session.error = true);
-      })
+          .then(result => route(artistLink(result['artist_id'])))
+          .catch(() => session.error = true);
+      });
   }
 
   changeEmailPrefs() {
-    session.getAccessToken()
-      .then (token => {
-        let prefs = this.props.user.prefs;
-        prefs['private']['email'] = !this.state.email;
-        patchUser(token, this.props.user.id, {prefs})
-          .then( () => {
-            this.setState({email : !this.state.email});
-          })
-          .catch( () => session.error = true);
-      })
+    const prefs = this.props.user.preferences;
+    const newEmail = !this.state.email;
+    prefs.private.email = newEmail;  // Ehm this also changes current props, nevermind
+
+    this.props.user.updatePreferences(prefs)
+      .then(() => this.setState({email: newEmail}))
+      .catch(() => session.error = true);
   }
 
   clickLibrary(e) {
      e.preventDefault();
-     route('/library/' + this.props.user.id);
+     route(userLibraryLink(this.props.user.id));
   }
 
   isUserOwner() {
-    return session.getOwnData().id === this.props.user.id;
+    return session.currentUser?.id === this.props.user.id;
   }
 
   handleModalBox(modalbox_type, message, e) {
@@ -134,8 +124,8 @@ class UserInfo extends Component {
           {this.state.type === 'creator' &&
             <div class={styles.artists}>
               Artists
-              {user.artists && user.artists.length > 0 &&
-                <ArtistList artists={user.artists}/>}
+              {user.ownArtists && user.ownArtists.length > 0 &&
+                <ArtistList artists={user.ownArtists}/>}
               {this.isUserOwner() &&
                 <div class={styles.artistList}>
                   <div class={styles.artist}>

@@ -1,12 +1,11 @@
 import {session} from '../../Harmony';
 import HarmonyPage from '../HarmonyPage';
-import {getUserInfo} from '../../core/apiCalls';
+import {fetchUser} from '../../core/User';
 import UserInfo from './UserInfo';
 
 import styles from './UserPage.scss';
 
 class UserPage extends HarmonyPage {
-
 
   componentDidMount() {
     this.loadUser();
@@ -18,21 +17,16 @@ class UserPage extends HarmonyPage {
   }
 
   loadUser() {
-    session.getAccessToken()
-      .then (token => {
-        getUserInfo(token, this.props.id, true)
-          .then(result => {
-            this.setState({user: result});
-          })
-          .catch( () => session.error = true);
-      })
+    fetchUser(session, this.props.id)
+      .then(user => this.setState({user}))
+      .catch(() => session.error = true);
   }
 
-  render({id}) {
+  render({id}, {user}) {
     return (
       <div class={styles.userPage}>
         <div class={styles.userPageContent}>
-          {this.state.user && <UserInfo user={this.state.user}/>}
+          {user && <UserInfo user={user}/>}
         </div>
       </div>);
   }

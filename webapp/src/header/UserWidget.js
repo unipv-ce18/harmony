@@ -5,6 +5,7 @@ import {session} from '../Harmony';
 import {DEFAULT_USER_IMAGE_URL} from '../assets/defaults';
 
 import style from './UserWidget.scss';
+import {userLink} from '../core/links';
 
 const LEAVE_TIMEOUT_MS = 300;
 
@@ -17,7 +18,7 @@ class UserWidget extends Component {
   }
 
   state = {
-    userData: null,
+    user: null,
     dropdown: false,
     dropdownHeight: 0
   }
@@ -30,21 +31,21 @@ class UserWidget extends Component {
   }
 
   componentWillUpdate(nextProps, nextState, nextContext) {
-    const userData = session.getOwnData();
-    if (userData) this.setState({userData})
+    const user = session.currentUser;
+    if (user) this.setState({user})
   }
 
-  render(props, {userData, dropdown, dropdownHeight}) {
+  render(props, {user, dropdown, dropdownHeight}) {
     return (
       <div className={classList(style.userWidget, dropdown && `drop-down`)} style={{'--dd-height': dropdownHeight}}
            onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
         <div>
-          <span>{userData?.username}</span>
+          <span>{user?.username}</span>
           <img src={DEFAULT_USER_IMAGE_URL} alt=""/>
         </div>
         <div>
           <div ref={this.#navRef} onClick={() => this.setState({dropdown: false})}>
-          <a href="/user/me">My profile</a>
+          <a href={userLink(user?.id)}>My profile</a>
           <a href="#" onClick={e => {e.preventDefault(); session.doLogout();}}>Log out</a>
           </div>
         </div>
@@ -52,7 +53,7 @@ class UserWidget extends Component {
     );
   }
 
-  onMouseEnter(e) {
+  onMouseEnter(_) {
     if (this.#leaveTimeout != null) {
       clearTimeout(this.#leaveTimeout);
       this.#leaveTimeout = null;
@@ -61,7 +62,7 @@ class UserWidget extends Component {
     }
   }
 
-  onMouseLeave(e) {
+  onMouseLeave(_) {
     this.#leaveTimeout = setTimeout(() => {
       this.setState({dropdown: false});
       this.#leaveTimeout = null;
