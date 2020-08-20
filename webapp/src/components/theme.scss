@@ -12,9 +12,24 @@
 
   --th-login-form-bg: rgba(0, 0, 0, 0.1);
   --th-login-field-bg: rgba(0, 0, 0, 0.1);
-  --th-login-field-focus-bg: rgba(255, 255, 255, .05);
+  --th-login-field-bg-focus: rgba(255, 255, 255, .05);
   --th-login-submit-bg: rgba(50, 50, 50, 0.7);
   --th-login-submit-fg: white;
+
+  --th-search-category-header-opacity: 50%;
+  --th-search-more-bg: #{rgba(#000, .5)};
+  --th-search-more-fg: #{rgba(#eee, .8)};
+  --th-search-more-fg-focus: #{rgba(#eee, .9)};
+  --th-search-artist-bg: rgba(10, 10, 10, .5);
+  --th-search-release-bg: rgba(10, 10, 10, .7);
+  --th-search-bg-focus: rgba(10, 10, 10, .8);
+  --th-search-release-shadow: 0 0 10px rgba(0, 0, 0, .5);
+  --th-search-release-shadow-focus: 0 0 20px rgba(0, 0, 0, .8);
+  --th-search-song-bg-focus: #{rgba(#eee, .1)};
+  --th-search-song-img-play: white;
+  --th-search-song-img-filter: brightness(.7) contrast(1);
+  --th-search-result-fg: #eee;
+  --th-search-button-hover-bg: rgba(255, 255, 255, .2);
 }
 
 // Light theme base
@@ -29,9 +44,24 @@
 
   --th-login-form-bg: rgba(0, 0, 0, 0.03);
   --th-login-field-bg: rgba(0, 0, 0, 0.02);
-  --th-login-field-focus-bg: rgba(0, 0, 0, .1);
+  --th-login-field-bg-focus: rgba(0, 0, 0, .1);
   --th-login-submit-bg: rgba(220, 220, 220, 0.7);
   --th-login-submit-fg: black;
+
+  --th-search-category-header-opacity: 80%;
+  --th-search-more-bg: #{rgba(#000, .2)};
+  --th-search-more-fg: #{rgba(#111, .8)};
+  --th-search-more-fg-focus: #{rgba(#111, .9)};
+  --th-search-artist-bg: rgba(240, 240, 240, .5);
+  --th-search-release-bg: rgba(240, 240, 240, .7);
+  --th-search-bg-focus: rgba(240, 240, 240, .8);
+  --th-search-release-shadow: 0 0 10px rgba(0, 0, 0, .3);
+  --th-search-release-shadow-focus: 0 0 20px rgba(0, 0, 0, .5);
+  --th-search-song-bg-focus: #{rgba(#111, .1)};
+  --th-search-song-img-play: white;
+  --th-search-song-img-filter: brightness(.7) contrast(1);
+  --th-search-result-fg: #111;
+  --th-search-button-hover-bg: rgba(0, 0, 0, .1);
 }
 
 // Wine theme

@@ -28,7 +28,7 @@
     font-size: 90%;
     letter-spacing: 2px;
     font-weight: 600;
-    opacity: 50%;
+    opacity: var(--th-search-category-header-opacity);
   }
 
   // Results
@@ -53,25 +53,25 @@
     cursor: pointer;
     text-transform: lowercase;
 
-    background: radial-gradient(ellipse at top, rgba(#000, .5) 0%, transparent 70%);
+    background: radial-gradient(ellipse at top, var(--th-search-more-bg) 0%, transparent 70%);
 
     transition-property: padding, color, opacity;
     transition-duration: $transition-len-short-ms;
     padding-top: 6px;
-    color: rgba(#eee, .8);
+    color: var(--th-search-more-fg);
     opacity: .6;
 
     &:hover {
       opacity: 1;
       padding-top: 12px;
-      color: rgba(#eee, .9);
+      color: var(--th-search-more-fg-focus);
     }
   }
 }
 
 %resultElementBase {
   outline: none;
-  color: #eee;
+  color: var(--th-search-result-fg) !important;
   text-decoration: none;
   text-align: left;
 }
@@ -102,6 +102,19 @@
   &:global(.loading)::before {
     opacity: 0;
   }
+
+  &:hover, &:focus {
+    &::before {
+      opacity: 1;
+    }
+
+    > div {
+      background-color: var(--th-search-bg-focus);
+      > :nth-child(3) {
+        height: 26px;
+      }
+    }
+  }
 }
 
 // Result elements with a fade-in color background on hover
@@ -110,7 +123,7 @@
   border-radius: 4px;
 
   &:hover, &:focus {
-    background-color: rgba(#eee, .1);
+    background-color: var(--th-search-song-bg-focus);
   }
 }
 
@@ -130,12 +143,19 @@
   transition: height $transition-len-ms;
 
   > span {
-    @include button-color(#eee);
+    @extend %resultButton;
+
     margin: 2px 6px;
     transition: background-color $transition-len-short-ms, opacity $transition-len-short-ms;
-    background-color: transparent;
     &:hover {
-      background-color: rgba(255, 255, 255, .2);
+      background-color: var(--th-search-button-hover-bg);
     }
   }
+}
+
+// Results button common style
+%resultButton {
+  // replaces button-color IconButton mixin
+  background-color: transparent;
+  fill: var(--th-search-result-fg);
 }
