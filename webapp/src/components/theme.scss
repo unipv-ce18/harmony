@@ -1,0 +1,21 @@
+// Dark theme base
+.dark {
+  --th-background: #171717;
+  --th-background-header: rgba(#171717, .9);
+
+  --th-logo-color: #ddd;
+}
+
+// Light theme base
+.light {
+  --th-background: #fff;
+  --th-background-header: rgba(#fff, .9);
+
+  --th-logo-color: #444;
+}
+
+// Wine theme
+.wine {
+  --th-background: #2a0c12;
+  --th-background-header: rgba(#2a0c12, .9);
+}

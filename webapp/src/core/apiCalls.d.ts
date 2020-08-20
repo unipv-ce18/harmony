@@ -1,3 +1,5 @@
+import {ThemeId} from '../components/theme';
+
 declare namespace apiCalls {
 
     export type AccessToken = string;
@@ -24,7 +26,8 @@ declare namespace apiCalls {
     type UserType = 'basic' | 'creator';
     type UserTier = 'free' | 'pro';
     type UserPreferences = {
-        private: {email: boolean}
+        private: {email: boolean},
+        theme: ThemeId
     }
 
     type UserData = {

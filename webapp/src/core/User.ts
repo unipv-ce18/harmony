@@ -6,8 +6,8 @@ import {
     uploadContent,
     uploadToStorage,
     UserData,
-    UserId, UserPreferences,
-    UserType
+    UserId,
+    UserPreferences,
 } from './apiCalls';
 
 export function fetchUser(session: Session, userId: UserId, includeArtists: boolean = false): Promise<User> {

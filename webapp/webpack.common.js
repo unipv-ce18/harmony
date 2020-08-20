@@ -72,6 +72,7 @@ module.exports = (env, config) => ({
     new webpack.ProgressPlugin(),
     new webpack.DefinePlugin({
       APP_NAME: JSON.stringify(HarmonyConf.APPLICATION_NAME),
+      DEFAULT_THEME_ID: JSON.stringify(HarmonyConf.DEFAULT_THEME),
       API_BASE_URL: JSON.stringify(HarmonyConf.API_BASE_URL),
       PLAYER_SOCKET_URL: JSON.stringify(HarmonyConf.PLAYER_SOCKET_URL),
       SERVICE_WORKER_PATH: JSON.stringify(env && env.sw ? HarmonyConf.SERVICE_WORKER_PATH : null)
