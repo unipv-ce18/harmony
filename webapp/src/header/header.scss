@@ -34,9 +34,9 @@ header .left {
 
   a {
     display: block;
-    color: #eee;
+    color: var(--th-head-nav);
 
-    text-shadow: rgba(#fff, .5) 0 0 1px;
+    text-shadow: var(--th-head-nav-shadow);
     letter-spacing: .7px;
 
     font-weight: 600;

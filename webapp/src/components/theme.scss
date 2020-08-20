@@ -16,6 +16,16 @@
   --th-login-submit-bg: rgba(50, 50, 50, 0.7);
   --th-login-submit-fg: white;
 
+  --th-head-nav: #eee;
+  --th-head-nav-shadow: #{rgba(#fff, .5)} 0 0 1px;
+  --th-head-user-bg: #{rgba(#111, .8)};
+  --th-head-user-fg-hover: #fff;
+  --th-head-search-bg:  #{rgba(#111, .8)};
+  --th-head-search-popup-bg: #{rgba(#0a0a0a, .8)};
+  --th-head-search-hint: #{rgba(#ddd, .6)};
+  --th-head-search-selection: #{rgba(#fff, .3)};
+  --th-head-search-fg: #eee;
+
   --th-search-category-header-opacity: 50%;
   --th-search-more-bg: #{rgba(#000, .5)};
   --th-search-more-fg: #{rgba(#eee, .8)};
@@ -47,6 +57,16 @@
   --th-login-field-bg-focus: rgba(0, 0, 0, .1);
   --th-login-submit-bg: rgba(220, 220, 220, 0.7);
   --th-login-submit-fg: black;
+
+  --th-head-nav: #111;
+  --th-head-nav-shadow: #{rgba(#000, .5)} 0 0 1px;
+  --th-head-user-bg: #{rgba(#eee, .8)};
+  --th-head-user-fg-hover: #000;
+  --th-head-search-bg:  #{rgba(#eee, .8)};
+  --th-head-search-popup-bg: #{rgba(#f7f7f7, .8)};
+  --th-head-search-hint: #{rgba(#222, .6)};
+  --th-head-search-selection: #{rgba(#000, .2)};
+  --th-head-search-fg: #111;
 
   --th-search-category-header-opacity: 80%;
   --th-search-more-bg: #{rgba(#000, .2)};

@@ -2,8 +2,8 @@
 
 $input-height: 30px;
 $input-border-radius: 15px;
-$input-background: rgba(#111, .8);
-$input-background-popup: rgba(#0a0a0a, .8);
+$input-background: var(--th-head-search-bg);
+$input-background-popup: var(--th-head-search-popup-bg);
 
 .main {
   max-width: 400px;
@@ -36,7 +36,7 @@ $input-background-popup: rgba(#0a0a0a, .8);
 
     font-size: 75%;
     font-style: italic;
-    color: rgba(#ddd, .6);
+    color: var(--th-head-search-hint);
     user-select: none;
 
     transition: opacity $transition-len-ms, transform $transition-len-ms;
