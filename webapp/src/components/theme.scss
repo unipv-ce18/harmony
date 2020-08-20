@@ -1,7 +1,12 @@
+@import '../styledefs';
+
 // Dark theme base
 .dark {
-  --th-background: #171717;
-  --th-background-header: rgba(#171717, .9);
+  --th-background: #{$application-background};
+  --th-background-header: #{rgba($application-background, .9)};
+  --th-foreground: #ddd;
+  --th-foreground-link: #{$text-color-link};
+  --th-foreground-secondary: #aaa;
 
   --th-logo-color: #ddd;
 }
@@ -9,7 +14,10 @@
 // Light theme base
 .light {
   --th-background: #fff;
-  --th-background-header: rgba(#fff, .9);
+  --th-background-header: #{rgba(#fff, .9)};
+  --th-foreground: #444;
+  --th-foreground-link: #0086c6;
+  --th-foreground-secondary: #777;
 
   --th-logo-color: #444;
 }
@@ -17,5 +25,5 @@
 // Wine theme
 .wine {
   --th-background: #2a0c12;
-  --th-background-header: rgba(#2a0c12, .9);
+  --th-background-header: #{rgba(#2a0c12, .9)};
 }

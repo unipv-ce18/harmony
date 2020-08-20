@@ -59,6 +59,25 @@ $page-transition-len: 200;
   }
 }
 
+.app {
+  color: var(--th-foreground);
+
+  // To apply theme background overriding body, and without affecting z-index of layout
+  &::before {
+    content: '';
+    display: block;
+    position: fixed;
+    z-index: -1000;
+    width: 100%;
+    height: 100%;
+    background-color: var(--th-background);
+  }
+
+  a {
+    color: var(--th-foreground-link);
+  }
+}
+
 .content {
   padding-top: $navbar-height;
 
