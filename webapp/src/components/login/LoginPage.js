@@ -1,4 +1,5 @@
 import HarmonyPage from '../HarmonyPage';
+import Themeable from '../Themeable';
 import HarmonyLogo from '../HarmonyLogo';
 import LoginForm from './LoginForm';
 import LoginFooter from './LoginFooter'
@@ -10,7 +11,9 @@ class LoginPage extends HarmonyPage {
   render({registration}) {
     return (
       <div class={styles.loginPage}>
-        <HarmonyLogo color="#ddd" class={styles.logoDiv} animate/>
+        <Themeable propVariables={{color: '--th-logo-color'}}>
+          <HarmonyLogo class={styles.logoDiv} animate/>
+        </Themeable>
         <LoginForm registration={registration}/>
         <LoginFooter/>
       </div>

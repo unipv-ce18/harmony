@@ -1,6 +1,7 @@
 import {Component} from 'preact';
 
 import {classList} from '../core/utils';
+import Themeable from '../components/Themeable';
 import HarmonyLogo from '../components/HarmonyLogo';
 import SearchForm from '../components/search/form/SearchForm';
 import UserWidget from './UserWidget';
@@ -60,8 +61,10 @@ class HeaderBar extends Component {
         {/* Center - logo, search */}
         <div class={classList(style.middle, fromHome && 'from-home', onHome && `on-home`, onSearch && 'on-search')}>
           {!onLogin && <div><SearchForm/></div>}
-          <HarmonyLogo color="#ddd" collapse={logoCollapsed}
-                       onMouseEnter={this.onLogoMouseEvent} onMouseLeave={this.onLogoMouseEvent}/>
+          <Themeable propVariables={{color: '--th-logo-color'}}>
+            <HarmonyLogo collapse={logoCollapsed}
+                         onMouseEnter={this.onLogoMouseEvent} onMouseLeave={this.onLogoMouseEvent}/>
+          </Themeable>
         </div>
 
         {/* Right side - user */}
