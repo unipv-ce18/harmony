@@ -22,7 +22,7 @@ export function fromSearchUrlData(data) {
 }
 
 export function routeSearch(text, modifiers) {
-  if (!isQueryEmpty(text, modifiers)) {
+  if (!isQueryEmpty({text, modifiers})) {
     route('/search/' + toSearchUrlData(text, modifiers));
 
   } else {

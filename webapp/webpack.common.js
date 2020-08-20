@@ -2,12 +2,13 @@ const path = require('path');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const SpritePlugin = require('svg-sprite-loader/plugin');
 const HtmlPlugin = require('html-webpack-plugin');
+const WorkboxPlugin = require('workbox-webpack-plugin');
 const webpack = require('webpack');
 
 require('dotenv').config()
 const HarmonyConf = require('./harmony-webapp.conf');
 
-module.exports = {
+module.exports = (env, config) => ({
 
   entry: './src/main.js',
 
@@ -16,14 +17,21 @@ module.exports = {
       {
         test: /\.(ttf|otf|eot|woff(2)?|png|jpg|mp4)$/,
         loader: 'file-loader',
-        options: {
-          name: 'assets/[hash].[ext]'
-        }
+        options: {name: 'assets/[hash].[ext]'}
       },
       {
         test: /\.svg$/,
+        include: [path.resolve(__dirname, "src/assets/icons")],
         use: [
           {loader: 'svg-sprite-loader', options: {extract: true}},
+          'svgo-loader'
+        ]
+      },
+      {
+        test: /\.svg$/,
+        exclude: [path.resolve(__dirname, "src/assets/icons")],
+        use: [
+          {loader: 'file-loader', options: {name: 'assets/[hash].[ext]'}},
           'svgo-loader'
         ]
       },
@@ -37,9 +45,20 @@ module.exports = {
       },
       {
         test: /\.m?js$/,
+        exclude: [
+          // Disable Babel (+runtime) for worker - browsers supporting SWs should be modern to use it as is
+          path.resolve(__dirname, 'node_modules/workbox-'),
+        ],
         //exclude: /(node_modules|bower_components)/,
         type: 'javascript/auto',
         use: 'babel-loader'
+      },
+      {
+        test: /\.webmanifest$/,
+        use: [
+          {loader: 'file-loader', options: {name: '[name].[ext]'}},
+          'app-manifest-loader'
+        ]
       }
     ]
   },
@@ -50,10 +69,12 @@ module.exports = {
 
   plugins: [
     new CleanWebpackPlugin(),
+    new webpack.ProgressPlugin(),
     new webpack.DefinePlugin({
       APP_NAME: JSON.stringify(HarmonyConf.APPLICATION_NAME),
       API_BASE_URL: JSON.stringify(HarmonyConf.API_BASE_URL),
-      PLAYER_SOCKET_URL: JSON.stringify(HarmonyConf.PLAYER_SOCKET_URL)
+      PLAYER_SOCKET_URL: JSON.stringify(HarmonyConf.PLAYER_SOCKET_URL),
+      SERVICE_WORKER_PATH: JSON.stringify(env && env.sw ? HarmonyConf.SERVICE_WORKER_PATH : null)
     }),
     new webpack.ProvidePlugin({
       __h: ['preact', 'h']
@@ -69,7 +90,13 @@ module.exports = {
         removeRedundantAttributes: true,
         preserveLineBreaks: false
       }
-    })
+    }),
+    ...(env && env.sw ? [new WorkboxPlugin.InjectManifest({
+      swSrc: './src/sw.js',
+      swDest: HarmonyConf.SERVICE_WORKER_PATH,
+      maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+      exclude: [/\.map$/, /stats\.json$/]
+    })] : [])
   ],
 
   output: {
@@ -78,4 +105,4 @@ module.exports = {
     publicPath: '/'
   }
 
-};
+});

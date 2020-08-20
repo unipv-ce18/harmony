@@ -3,7 +3,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssPlugin = require('optimize-css-assets-webpack-plugin');
 
-module.exports = merge(require('./webpack.common'), {
+module.exports = (env, config) => merge(require('./webpack.common')({...env, sw: true}, config), {
   
   mode: 'production',
   devtool: 'source-map',

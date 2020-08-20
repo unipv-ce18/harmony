@@ -1,5 +1,6 @@
-import {Component, Fragment} from 'preact';
-import Router from 'preact-router';
+import {Component, Fragment, toChildArray} from 'preact';
+import Router, {route} from 'preact-router';
+import TransitionGroup from 'preact-transition-group';
 
 import Redirect from './components/Redirect';
 import HeaderBar from './header/HeaderBar';
@@ -20,51 +21,68 @@ class App extends Component {
 
   state = {currentPath: null};
 
+  #loggedIn = session.loggedIn;
+
   constructor(props) {
     super(props);
     session.addStatusListener(() => {
-      console.log('Event logged in:', session.loggedIn);
-      this.forceUpdate();
-    });
-    session.addStatusListener(() => {
-      console.log('Error occured:', session.error);
+      if (session.error) {
+        console.log('Error occurred:', session.error);
+      }
+
+      if (session.loggedIn !== this.#loggedIn) {
+        this.#loggedIn = session.loggedIn;
+        this.forceUpdate();  // (necessary) Update the router configuration before switching page
+        route(session.loggedIn ? '/' : '/login');  // Route manually to avoid Redirect breaking animations
+      }
     });
   }
 
-  handleRoute = e => {
-    this.setState({currentPath: e.url});
+  handleRoute = _ => {
+    this.setState({currentPath: window.location.pathname});
     session.error = false;
   }
 
   render(_, {currentPath}) {
-    const router = session.loggedIn ? (
-      <Router onChange={this.handleRoute}>
-        <HomePage path="/"/>
-        <SearchPage path="/search/:query"/>
-        {session.error ? <ErrorPage path="/artist/:id"/> : <ArtistPage path="/artist/:id"/>}
-        {session.error ? <ErrorPage path="/release/:id"/> : <CollectionPage path="/release/:id"/>}
-        {session.error ? <ErrorPage path="/playlist/:id"/> : <CollectionPage path="/playlist/:id"/>}
-        {session.error ? <ErrorPage path="/library/:id"/> : <LibraryPage path="/library/:id"/>}
-        {session.error ? <ErrorPage path="/user/:id"/> : <UserPage path="/user/:id"/>}
+    const router = this.#loggedIn ? (
+      <TransitionRouter onChange={this.handleRoute}>
+        <HomePage key="home" path="/"/>
+        <SearchPage key="search" path="/search/:query"/>
+        {session.error ? <ErrorPage path="/artist/:id"/> : <ArtistPage key="artist" path="/artist/:id"/>}
+        {session.error ? <ErrorPage path="/release/:id"/> : <CollectionPage key="release" path="/release/:id"/>}
+        {session.error ? <ErrorPage path="/playlist/:id"/> : <CollectionPage key="playlist" path="/playlist/:id"/>}
+        {session.error ? <ErrorPage path="/library/:id"/> : <LibraryPage key="library" path="/library/:id"/>}
+        {session.error ? <ErrorPage path="/user/:id"/> : <UserPage key="user" path="/user/:id"/>}
         <Redirect default to="/"/>
-      </Router>
+      </TransitionRouter>
     ) : (
-      <Router onChange={this.handleRoute}>
+      <TransitionRouter onChange={this.handleRoute}>
         <LoginPage key="login" registration={false} path="/login"/>
         <LoginPage key="login" registration={true} path="/signup"/>
         <Redirect default to="/login"/>
-      </Router>
+      </TransitionRouter>
     );
 
     return (
       <Fragment>
         <HeaderBar page={currentPath}/>
-        <div class={styles.content}>{
-          router
-        }</div>
-        {session.loggedIn && <MediaPlayerWrapper playerLoader={mediaPlayer}/>}
+        <div class={styles.content}>{router}</div>
+        {this.#loggedIn && <MediaPlayerWrapper playerLoader={mediaPlayer}/>}
       </Fragment>
     );
+  }
+
+}
+
+class TransitionRouter extends Router {
+
+  render(props, state) {
+    const active = this.getMatchingChildren(toChildArray(props.children), state.url, true);
+    const current = active[0] || null;
+
+    return current != null && current.type !== Redirect
+      ? (<TransitionGroup>{super.render(props, state)}</TransitionGroup>)
+      : super.render(props, state);
   }
 
 }

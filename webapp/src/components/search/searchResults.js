@@ -1,4 +1,4 @@
-import {useState} from 'preact/hooks';
+import {Component} from 'preact';
 
 import {catalog, mediaPlayer} from '../../Harmony';
 import {PlayStartModes} from '../../player/MediaPlayer';
@@ -32,14 +32,32 @@ function onImageLoad(src, callback) {
 }
 
 function withLibrary(mediaType) {
-  return Component => props => {
-    const [inLibrary, setInLibraryState] = useState(catalog.inLibrary(mediaType, props.content.id));
-    const setInLibrary = inLibrary => {
-      catalog.favorite(inLibrary ? 'PUT' : 'DELETE', mediaType, props.content.id)
-        .then(() => setInLibraryState(inLibrary));
-    };
-    return (<Component inLibrary={inLibrary} setInLibrary={setInLibrary} {...props}/>);
+  return Child => class extends Component {
+    constructor(props) {
+      super(props);
+      this.state = {inLibrary: catalog.inLibrary(mediaType, props.content.id)}
+    }
+    render(props, {inLibrary}) {
+      return (
+        <Child inLibrary={inLibrary} setInLibrary={inLibrary => {
+          catalog.favorite(inLibrary ? 'PUT' : 'DELETE', mediaType, props.content.id)
+            .then(() => this.setState({inLibrary}));
+        }} {...props}/>
+      );
+    }
   };
+}
+
+function withImageLoader(imageSource) {
+  return Child => class extends Component {
+    state = {loading: true};
+    componentDidMount() {
+      onImageLoad(imageSource(this.props.content), () => this.setState({loading: false}));
+    }
+    render(props, {loading}) {
+      return (<Child imageLoading={loading} {...props}/>);
+    }
+  }
 }
 
 const LibraryButton = ({inLibrary, setInLibrary}) => (
@@ -66,67 +84,53 @@ const PlayCollectionButton = ({id, type}) => (
   }}/>
 )
 
-const ArtistResultView = ({content: artist, ...props}) => {
-  const [loading, setLoading] = useState(true);
-  onImageLoad(artist.image, () => setLoading(false));
-
-  return (
-    <a class={classList(aStyle.artistResult, loading && 'loading')}
-       style={{'--artist-img': `url(${artist.image})`}} href={artistLink(artist.id)}>
+const ArtistResultView = ({content: artist, imageLoading, ...props}) => (
+  <a class={classList(aStyle.artistResult, imageLoading && 'loading')}
+     style={{'--artist-img': `url(${artist.image})`}} href={artistLink(artist.id)}>
+    <div>
+      <span>{artist.name}</span>
+      <span>{artist.genres && artist.genres.slice(0, GENRES_LIST_LENGTH).join(', ')}</span>
       <div>
-        <span>{artist.name}</span>
-        <span>{artist.genres && artist.genres.slice(0, GENRES_LIST_LENGTH).join(', ')}</span>
+        {/*<IconButton name="Play all" size={24} onClick={null} icon={IconPlay}/>*/}
+        <LibraryButton {...props}/>
+      </div>
+    </div>
+  </a>
+);
+
+const ReleaseResultView = ({content: release, imageLoading, ...props}) => (
+  <a class={rStyle.releaseResultWrap} style={{'--release-img': `url(${release.cover})`}} href={releaseLink(release.id)}>
+    <div class={classList(rStyle.releaseResult, imageLoading && 'loading')}>
+      <div>
+        <span>{release.name}</span>
+        <span>
+         <a href={artistLink(release.artist.id)}>{release.artist.name}</a>{release.date && `, ${release.date}`}
+      </span>
         <div>
-          {/*<IconButton name="Play all" size={24} onClick={null} icon={IconPlay}/>*/}
+          <PlayCollectionButton id={release.id} type="release"/>
           <LibraryButton {...props}/>
         </div>
       </div>
-    </a>
-  );
-}
+    </div>
+  </a>
+);
 
-const ReleaseResultView = ({content: release, ...props}) => {
-  const [loading, setLoading] = useState(true);
-  onImageLoad(release.cover, () => setLoading(false));
-
-  return (
-    <a class={rStyle.releaseResultWrap} style={{'--release-img': `url(${release.cover})`}} href={releaseLink(release.id)}>
-      <div class={classList(rStyle.releaseResult, loading && 'loading')}>
-        <div>
-          <span>{release.name}</span>
-          <span>
-           <a href={artistLink(release.artist.id)}>{release.artist.name}</a>{release.date && `, ${release.date}`}
-        </span>
-          <div>
-            <PlayCollectionButton id={release.id} type="release"/>
-            <LibraryButton {...props}/>
-          </div>
-        </div>
+const SongResultView = ({content: song, imageLoading, ...props}) => (
+  <a class={classList(sStyle.songResult, imageLoading && 'loading')} href="#" onClick={onSongClick.bind(null, song)}>
+    <div class={sStyle.songArt} title="Play Song">
+      <img src={song.release.cover} alt=""/>
+      <IconPlay title="bla"/>
+    </div>
+    <div class={sStyle.songDetail}>
+      {/*Put name also in title attribute to show full name on mouse hover in case of overflow*/}
+      <span title={song.title}>{song.title}</span>
+      <a href={artistLink(song.artist.id)}>{song.artist.name}</a>
+      <div>
+        <LibraryButton {...props}/>
       </div>
-    </a>
-  );
-}
-
-const SongResultView = ({content: song, ...props}) => {
-  const [loading, setLoading] = useState(true);
-
-  return (
-    <a class={classList(sStyle.songResult, loading && 'loading')} href="#" onClick={onSongClick.bind(null, song)}>
-      <div class={sStyle.songArt} title="Play Song">
-        <img src={song.release.cover} alt="" onLoad={() => setLoading(false)}/>
-        <IconPlay title="bla"/>
-      </div>
-      <div class={sStyle.songDetail}>
-        {/*Put name also in title attribute to show full name on mouse hover in case of overflow*/}
-        <span title={song.title}>{song.title}</span>
-        <a href={artistLink(song.artist.id)}>{song.artist.name}</a>
-        <div>
-          <LibraryButton {...props}/>
-        </div>
-      </div>
-    </a>
-  );
-}
+    </div>
+  </a>
+);
 
 const PlaylistResultView = ({content: playlist, ...props}) => (
   <a class={pStyle.playlistResult} href={playlistLink(playlist.id)} title={playlist.name}>
@@ -146,7 +150,9 @@ const PlaylistResultView = ({content: playlist, ...props}) => (
   </a>
 );
 
-export const ArtistResult = withLibrary('artists')(ArtistResultView);
-export const ReleaseResult = withLibrary('releases')(ReleaseResultView);
-export const SongResult = withLibrary('songs')(SongResultView);
+const enhance = (mediaType, imageField) => c => withLibrary(mediaPlayer)(withImageLoader(imageField)(c));
+
+export const ArtistResult = enhance('artists', c => c.image)(ArtistResultView);
+export const ReleaseResult = enhance('releases', c => c.cover)(ReleaseResultView);
+export const SongResult = enhance('songs', c => c.release.cover)(SongResultView);
 export const PlaylistResult = withLibrary('playlists')(PlaylistResultView);

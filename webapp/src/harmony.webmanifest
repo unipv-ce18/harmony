@@ -1,0 +1,21 @@
+{
+  "short_name": "Harmony",
+  "name": "Harmony",
+  "description": "A free and open source Music Streaming platform",
+  "display": "standalone",
+  "background_color": "#171717",
+  "theme_color": "#171717",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "./assets/application-icon.svg",
+      "sizes": "36x36 48x48 72x72 96x96 144x144 192x192 256x256 512x512",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "./assets/application-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,16 +1,11 @@
 import {route} from 'preact-router';
-import {Component} from 'preact';
 
-import {getReleasePlaylist, deleteRelease} from "../../core/apiCalls";
-import {catalog, mediaPlayer, session} from "../../Harmony"
-import styles from './CollectionPage.scss';
+import {catalog, mediaPlayer, session} from '../../Harmony';
+import HarmonyPage from '../HarmonyPage';
+import {getReleasePlaylist, deleteRelease} from '../../core/apiCalls';
 import CollectionSongsTable from './CollectionSongsTable';
 import IconButton from '../IconButton';
-import {
-  IconQueue, IconSettings,
-  IconStarEmpty,
-  IconStarFull
-} from '../../assets/icons/icons';
+import {IconQueue, IconSettings, IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
 import {createMediaItemInfo} from '../../core/links';
 import {PlayStartModes} from '../../player/MediaPlayer';
 import ReleaseInfo from './ReleaseInfo';
@@ -18,7 +13,9 @@ import PlaylistInfo from './PlaylistInfo';
 import {ModalBoxTypes} from '../modalbox/ModalBox';
 import CollectionSettingsModal from './CollectionSettingsModal';
 
-class CollectionPage extends Component {
+import styles from './CollectionPage.scss';
+
+class CollectionPage extends HarmonyPage {
 
   constructor(props) {
     super(props);
@@ -74,7 +71,7 @@ class CollectionPage extends Component {
     let media_type = this.state.collectionType;
       if (function_type === 'PUT' &&
         media_type === 'playlists' &&
-        session.getOwnData().id === this.state.collection.creator.id)
+        session.currentUser?.id === this.state.collection.creator.id)
           media_type = 'personal_playlists';
 
       catalog.favorite(function_type, media_type, this.state.collection.id)
@@ -95,7 +92,7 @@ class CollectionPage extends Component {
 
   userOwnRelease() {
     if (this.state.collectionType === 'releases')
-      return session.getOwnData().id === this.state.collection.artist.creator;
+      return session.currentUser?.id === this.state.collection.artist.creator;
     return false;
   }
 

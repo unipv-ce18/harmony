@@ -7,6 +7,10 @@ export const catalog = new MediaCatalog(session);
 export const mediaPlayer = new MediaPlayer();
 
 
+if ('serviceWorker' in navigator && SERVICE_WORKER_PATH != null) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/' + SERVICE_WORKER_PATH));
+}
+
 function printConsoleWelcome(body, bodyStyle) {
   console.log('%cWelcome to %cHarmony\n%c' + body,
     'font-size: 2em; font-family: sans-serif; color: #ccc',
@@ -17,7 +21,7 @@ function printConsoleWelcome(body, bodyStyle) {
 switch (process.env.NODE_ENV) {
   case 'development':
     printConsoleWelcome(
-      'Player, session and catalog APIs are available here in the console for you to play with...',
+      'Player, session, current user and catalog APIs are available here in the console for you to play with...',
       'color: #eee');
     Object.defineProperties(window, {
       session: { value: session },

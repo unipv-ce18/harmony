@@ -3,6 +3,9 @@ import {Component} from 'preact';
 import styles from './UserPage.scss';
 import {route} from 'preact-router';
 import {session} from '../../Harmony';
+import {artistLink, userLibraryLink} from '../../core/links';
+import {createArtist} from '../../core/apiCalls';
+import UserHeader from './UserHeader';
 import {
   changeUserType,
   changeUserTier,
@@ -12,6 +15,7 @@ import {
   uploadToStorage
 } from '../../core/apiCalls';
 import ArtistList from './ArtistList';
+import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import IconButton from '../IconButton';
 import {IconLockClose, IconLockOpen, IconSettings} from '../../assets/icons/icons';
 import {DEFAULT_USER_IMAGE_URL} from '../../assets/defaults';
@@ -41,71 +45,57 @@ class UserInfo extends Component {
   }
 
   componentDidMount() {
-    this.setState({email : this.props.user.prefs.private.email});
-    this.setState({type : this.props.user.type});
-    this.setState({tier : this.props.user.tier});
-    this.setState({bio : this.props.user.bio});
+    const {user} = this.props;
+    this.setState({
+      email: user.preferences.private.email,
+      type: user.type,
+      tier: user.tier,
+      bio: user.bio
+    })
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.user.prefs.private.email !== prevProps.user.prefs.private.email)
-      this.setState({email: [...this.props.user.prefs.private.email]});
-    if (this.props.user.type !== prevProps.user.type)
-      this.setState({type: [...this.props.user.type]});
-    if (this.props.user.tier !== prevProps.user.tier)
-      this.setState({tier: [...this.props.user.tier]});
-    if (this.props.user.bio !== prevProps.user.bio)
-      this.setState({bio: [...this.props.user.bio]});
+    const {user} = this.props;
+    if (user.preferences.private.email !== prevProps.user.preferences.private.email)
+      this.setState({email: [...user.preferences.private.email]});
+    if (user.type !== prevProps.user.type)
+      this.setState({type: [...user.type]});
+    if (user.tier !== prevProps.user.tier)
+      this.setState({tier: [...user.tier]});
+    if (user.bio !== prevProps.user.bio)
+      this.setState({bio: [...user.bio]});
   }
 
   changeType() {
-    session.getAccessToken()
-      .then (token => {
-        changeUserType(token)
-          .then(() => {
-            this.setState({type: 'creator'});
-          })
-          .catch( () => session.error = true);
-      })
+    this.props.user.upgradeType()
+      .then(() => this.setState({type: 'creator'}))
+      .catch(() => session.error = true);
   }
 
   changeTier() {
-    session.getAccessToken()
-      .then (token => {
-        changeUserTier(token)
-          .then(() => {
-            this.setState({tier: 'pro'});
-          })
-          .catch( () => session.error = true);
-      })
+    this.props.user.upgradeTier()
+      .then(() => this.setState({tier: 'pro'}))
+      .catch(() => session.error = true);
   }
 
   changeEmailPrefs() {
-    session.getAccessToken()
-      .then (token => {
-        let prefs = this.props.user.prefs;
-        prefs['private']['email'] = !this.state.email;
-        patchUser(token, this.props.user.id, {prefs})
-          .then( () => {
-            this.setState({email : !this.state.email});
-          })
-          .catch( () => session.error = true);
-      })
+    const prefs = this.props.user.preferences;
+    const newEmail = !this.state.email;
+    prefs.private.email = newEmail;  // Ehm this also changes current props, nevermind
+
+    this.props.user.updatePreferences(prefs)
+      .then(() => this.setState({email: newEmail}))
+      .catch(() => session.error = true);
   }
 
   clickLibrary(e) {
      e.preventDefault();
-     route('/library/' + this.props.user.id);
+     route(userLibraryLink(this.props.user.id));
   }
 
   isUserOwner() {
-    return session.getOwnData().id === this.props.user.id;
+    return session.currentUser?.id === this.props.user.id;
   }
-
-
-
-
-
 
   updatePage() {
     this.setState({update : true});
@@ -224,18 +214,28 @@ class UserInfo extends Component {
                   : null
               }
             </div>
-            {this.state.settingsModal &&
-            <SettingsModal
-              handleSettingsModal={this.handleSettingsModal.bind(this)}
-              type={this.state.settingsType}
-              updatePage={this.updatePage}
-              removeUser={this.removeUser.bind(this)}
-              uploadImage={this.uploadUserImage.bind(this)}
-              logout={() => session.doLogout()}/>}
           </div>
           {!this.isUserOwner() &&
             <a href="#" onClick={this.clickLibrary}>Go to {user.username} library</a>}
           {this.state.type === 'creator' &&
+            <div class={styles.artists}>
+              Artists
+              {user.ownArtists && user.ownArtists.length > 0 &&
+                <ArtistList artists={user.ownArtists}/>}
+              {this.isUserOwner() &&
+                <div class={styles.artistList}>
+                  <div class={styles.artist}>
+                    <a href='#'
+                       onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Artist')}>
+                      <img src={DEFAULT_NEW_CONTENT_IMAGE_URL} alt={""}/>
+                    </a>
+                    <p><a href='#'
+                          onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Artist')}>
+                      New Artist
+                    </a></p>
+                  </div>
+              </div>}
+            </div>}
             <ArtistList artists={user.artists} isUserOwner={this.isUserOwner()} />}
 
           {this.isUserOwner() &&
@@ -246,6 +246,14 @@ class UserInfo extends Component {
             <button onClick={this.changeTier}>Become a pro user!</button>}
           </div>}
         </div>
+        {this.state.settingsModal &&
+            <SettingsModal
+              handleSettingsModal={this.handleSettingsModal.bind(this)}
+              type={this.state.settingsType}
+              updatePage={this.updatePage}
+              removeUser={this.removeUser.bind(this)}
+              uploadImage={this.uploadUserImage.bind(this)}
+              logout={() => session.doLogout()}/>}
       </div>
     );
   }

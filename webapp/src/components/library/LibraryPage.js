@@ -1,8 +1,5 @@
-import {Component} from 'preact';
-
-import styles from './LibraryPage.scss';
-
 import {catalog, session} from '../../Harmony';
+import HarmonyPage from '../HarmonyPage';
 import PlaylistsPage from './PlaylistsPage';
 import ArtistsPage from './ArtistsPage';
 import ReleasesPage from './ReleasesPage';
@@ -11,12 +8,14 @@ import CollectionSongsTable from '../collection/CollectionSongsTable';
 import {IconCollapse, IconExpand} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 
+import styles from './LibraryPage.scss';
+
 const ARTISTS_TYPE = 'artists';
 const PLAYLISTS_TYPE = 'playlists';
 const RELEASES_TYPE = 'releases';
 const SONGS_TYPE = 'songs';
 
-class LibraryPage extends Component {
+class LibraryPage extends HarmonyPage {
   constructor(props) {
     super(props);
     this.state = {

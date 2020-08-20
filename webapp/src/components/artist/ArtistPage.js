@@ -1,12 +1,12 @@
-import {Component} from 'preact';
-
-import styles from './ArtistPage.scss';
-import ArtistInfo from './ArtistInfo';
-import ReleaseList from './ReleaseList';
+import HarmonyPage from '../HarmonyPage';
 import {session} from '../../Harmony';
 import {getArtist} from '../../core/apiCalls';
+import ArtistInfo from './ArtistInfo';
+import ReleaseList from './ReleaseList';
 
-class ArtistPage extends Component {
+import styles from './ArtistPage.scss';
+
+class ArtistPage extends HarmonyPage {
   constructor(props) {
     super(props);
 

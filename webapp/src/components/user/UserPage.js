@@ -1,13 +1,11 @@
-import {Component} from 'preact';
+import {session} from '../../Harmony';
+import HarmonyPage from '../HarmonyPage';
+import {fetchUser} from '../../core/User';
+import UserInfo from './UserInfo';
 
 import styles from './UserPage.scss';
-import UserInfo from './UserInfo';
-import {session} from '../../Harmony';
-import {getUserInfo} from '../../core/apiCalls';
 
-
-class UserPage extends Component {
-
+class UserPage extends HarmonyPage {
 
   componentDidMount() {
     this.loadUser();
@@ -19,24 +17,17 @@ class UserPage extends Component {
   }
 
   loadUser() {
-    session.getAccessToken()
-      .then (token => {
-        getUserInfo(token, this.props.id, true)
-          .then(result => {
-            this.setState({user: result});
-          })
-          .catch( () => session.error = true);
-      })
+    fetchUser(session, this.props.id)
+      .then(user => this.setState({user}))
+      .catch(() => session.error = true);
   }
 
-  render({id}) {
+  render({id}, {user}) {
     return (
       <div class={styles.userPage}>
-        {this.state.user &&
-          <div class={styles.userPageContent}>
-            <UserInfo user={this.state.user}/>
-          </div>
-        }
+        <div class={styles.userPageContent}>
+          {user && <UserInfo user={user}/>}
+        </div>
       </div>);
   }
 }

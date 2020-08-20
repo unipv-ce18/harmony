@@ -34,7 +34,7 @@ class PlaylistInfo extends Component {
   }
 
   isUserOwner() {
-    return session.getOwnData().id === this.props.collection.creator.id;
+    return session.currentUser?.id === this.props.collection.creator.id;
   }
 
   handleChange({target}) {

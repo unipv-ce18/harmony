@@ -52,7 +52,7 @@ export class SocketConnection {
             return Promise.resolve(this.socket);
         } else {
             return this.sessionManager.getAccessToken().then(token => {
-                this.socket = createSocket(this.socketUrl, token);
+                this.socket = createSocket(this.socketUrl, token!);
                 this.socket.on('manifest', this.handleManifestResponse.bind(this));
                 this.socket.on('media_key', this.handleMediaKeyResponse.bind(this));
                 this.socket.on('md_error', this.handleErrorResponse.bind(this));

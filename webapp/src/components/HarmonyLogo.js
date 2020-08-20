@@ -22,6 +22,7 @@ class HarmonyLogo extends Component {
   }
 
   state = {
+    logoUrl: null,
     logoElement: null,
   }
 
@@ -30,17 +31,29 @@ class HarmonyLogo extends Component {
     this.onLogoLoaded = this.onLogoLoaded.bind(this);
   }
 
+  componentDidMount() {
+    fetch(logo)
+      .then(r => r.blob())
+      .then(b => this.setState({logoUrl: URL.createObjectURL(b)}))
+  }
+
+  componentWillUnmount() {
+    URL.revokeObjectURL(this.state.logoUrl);
+  }
+
   componentDidUpdate(previousProps, previousState, snapshot) {
     if (this.state.logoElement != null) this.#updateLogo(this.state.logoElement);
   }
 
-  render({color, animate, collapse, ...props}, {logoElement}) {
-    return (<object data={logo} type="image/svg+xml" onLoad={this.onLogoLoaded}
+  render({color, animate, collapse, ...props}, {logoUrl, logoElement}) {
+    return (<object data={logoUrl} type="image/svg+xml" onLoad={this.onLogoLoaded}
                     style={logoElement == null && {opacity: 0}} {...props}/>);
   }
 
   onLogoLoaded() {
     const logoElement = this.base.contentDocument.getElementById(LOGO_ID);
+    if (this.state.logoUrl == null) return;  // Still not the real logo
+
     this.#updateLogo(logoElement, false);
 
     // Apply a "ready" class to enable animations later to avoid collapsing on load

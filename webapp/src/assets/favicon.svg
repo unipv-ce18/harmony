@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 10 93.4 93.4">
+    <defs>
+        <style>
+            g {
+                fill: none;
+                stroke: #222;
+                stroke-width: 8px;
+            }
+            @media (prefers-color-scheme: dark) {
+              g { stroke: #ddd; }
+            }
+        </style>
+    </defs>
+    <g>
+        <line class="cls-2" x1="18.3" y1="77.84" x2="18.3" y2="35.32"/>
+        <line class="cls-2" x1="48.35" y1="77.84" x2="48.35" y2="35.32"/>
+        <line class="cls-2" x1="18.3" y1="56.3" x2="48.06" y2="56.3"/>
+        <polyline class="cls-3" points="78.55 78.06 78.55 61.45 62.24 35.47"/>
+        <line class="cls-3" x1="95.09" y1="35.62" x2="78.66" y2="61.56"/>
+    </g>
+</svg>

@@ -48,14 +48,13 @@ export function execLogout(token) {
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
-    return true;
   });
 }
 
-export function execRefresh(token) {
+export function execRefresh(refreshToken) {
   return fetch(API_REFRESH_URL, {
     method: 'POST',
-    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + refreshToken}),
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
     return response.json();
@@ -71,9 +70,9 @@ export function execSearch(token, type, query) {
   });
 }
 
-export function getUserInfo(token, user_id, include_artists = false) {
-  let query = API_USER_URL + user_id;
-  if (include_artists) query += '?artists=1';
+export function getUserInfo(token, userId, includeArtists = false) {
+  let query = API_USER_URL + userId;
+  if (includeArtists) query += '?artists=1';
   return fetch(query, {
     method: 'GET',
     headers: new Headers({'Accept': 'application/json', 'Authorization':'Bearer ' + token})
@@ -83,34 +82,31 @@ export function getUserInfo(token, user_id, include_artists = false) {
   });
 }
 
-export function changeUserType(token) {
+export function upgradeUserType(token) {
   return fetch(API_USER_URL + 'type', {
     method: 'POST',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
-    return;
   });
 }
 
-export function changeUserTier(token) {
+export function upgradeUserTier(token) {
   return fetch(API_USER_URL + 'tier', {
     method: 'POST',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
-    return;
   });
 }
 
-export function patchUser(token, user_id, patch) {
-  return fetch(API_USER_URL + user_id, {
+export function patchUser(token, userId, patch) {
+  return fetch(API_USER_URL + userId, {
     method: 'PATCH',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
     body: JSON.stringify(patch)
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
-    return;
   });
 }
 
@@ -120,7 +116,6 @@ export function deleteUser(token, user_id) {
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token})
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
-    return;
   });
 }
 
@@ -299,8 +294,8 @@ export function updateSongInPlaylist(type_method, playlist_id, song_id, token) {
   });
 }
 
-export function uploadContent(category, category_id, mimetype, size, token) {
-  const data = {category, category_id, mimetype, size};
+export function uploadContent(category, categoryId, mimeType, size, token) {
+  const data = {category, category_id: categoryId, mimetype: mimeType, size};
   return fetch(API_UPLOAD_URL, {
     method: 'POST',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
@@ -311,14 +306,12 @@ export function uploadContent(category, category_id, mimetype, size, token) {
   });
 }
 
-export function uploadToStorage(presigned_post_data, filename) {
-  let bucket_url = presigned_post_data[0];
-  let data = presigned_post_data[1];
-  data.file = filename;
+export function uploadToStorage(uploadContentResult, file) {
+  const [bucket_url, data] = uploadContentResult;
+  const body = new FormData();
 
-  return fetch(bucket_url, {
-    method: 'POST',
-    headers: new Headers({'Content-Type': 'multipart/form-data'}),
-    body: JSON.stringify(data)
-  });
+  for (const [k, v] of Object.entries(data)) body.append(k, v);
+  body.append('file', file);
+
+  return fetch(bucket_url, {method: 'POST', body});
 }

@@ -46,7 +46,7 @@ class PlaylistsPage extends Component {
   }
 
   isUserOwner() {
-    return session.getOwnData().id === this.props.user.id;
+    return session.currentUser?.id === this.props.user.id;
   }
 
   handleModalBox(modalbox_type, message) {

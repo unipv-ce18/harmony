@@ -1,7 +1,7 @@
-import {Component} from 'preact';
 import PropTypes from 'prop-types';
 
 import {catalog} from '../../Harmony';
+import HarmonyPage from '../HarmonyPage';
 import {classList} from '../../core/utils';
 import {fromSearchUrlData, routeSearch} from './queryParams';
 import {ArtistResult, ReleaseResult, SongResult, PlaylistResult} from './searchResults';
@@ -20,7 +20,7 @@ function routeSingleSearchCategory(currentQuery, targetCategory) {
   routeSearch(text, [{key: `${targetCategory}-only`}, ...modifiers]);
 }
 
-class SearchPage extends Component {
+class SearchPage extends HarmonyPage {
 
   static PropTypes = {
     /** Search query to perform */
