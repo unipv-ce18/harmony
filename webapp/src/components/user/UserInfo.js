@@ -3,19 +3,14 @@ import {Component} from 'preact';
 import styles from './UserPage.scss';
 import {route} from 'preact-router';
 import {session} from '../../Harmony';
-import {artistLink, userLibraryLink} from '../../core/links';
-import {createArtist} from '../../core/apiCalls';
-import UserHeader from './UserHeader';
+import {userLibraryLink} from '../../core/links';
 import {
-  changeUserType,
-  changeUserTier,
   patchUser,
   deleteUser,
   uploadContent,
   uploadToStorage
 } from '../../core/apiCalls';
 import ArtistList from './ArtistList';
-import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import IconButton from '../IconButton';
 import {IconLockClose, IconLockOpen, IconSettings} from '../../assets/icons/icons';
 import {DEFAULT_USER_IMAGE_URL} from '../../assets/defaults';
@@ -247,13 +242,13 @@ class UserInfo extends Component {
           </div>}
         </div>
         {this.state.settingsModal &&
-            <SettingsModal
-              handleSettingsModal={this.handleSettingsModal.bind(this)}
-              type={this.state.settingsType}
-              updatePage={this.updatePage}
-              removeUser={this.removeUser.bind(this)}
-              uploadImage={this.uploadUserImage.bind(this)}
-              logout={() => session.doLogout()}/>}
+          <SettingsModal
+            handleSettingsModal={this.handleSettingsModal.bind(this)}
+            type={this.state.settingsType}
+            updatePage={this.updatePage}
+            removeUser={this.removeUser.bind(this)}
+            uploadImage={this.uploadUserImage.bind(this)}
+            logout={() => session.doLogout()}/>}
       </div>
     );
   }
