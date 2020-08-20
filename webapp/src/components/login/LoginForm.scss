@@ -19,7 +19,7 @@ $field-margin-registration: 5;
 
 .form {
   text-align: center;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: var(--th-login-form-bg);
   border-radius: 10px;
 
   > div:last-of-type {
@@ -46,18 +46,18 @@ $field-margin-registration: 5;
     border: none;
     outline: none;
 
-    background-color: rgba(0, 0, 0, .1);
-    color: #ddd;
+    background-color: var(--th-login-field-bg);
+    color: var(--th-foreground);
 
     transition: background-color .25s, margin $form-transition-len-ms;
 
     &::placeholder {
-      color: #bbb;
+      color: var(--th-foreground-secondary);
       font-style: italic;
     }
 
     &:focus {
-      background-color: rgba(255, 255, 255, .05);
+      background-color: var(--th-login-field-focus-bg);
     }
   }
 
@@ -65,8 +65,8 @@ $field-margin-registration: 5;
     margin-top: -6px;
 
     border: none;
-    background-color: rgba(92, 92, 92, 0.7);
-    color: white;
+    background-color: var(--th-login-submit-bg);
+    color: var(--th-login-submit-fg);
     cursor: pointer;
     border-radius: 2px;
 

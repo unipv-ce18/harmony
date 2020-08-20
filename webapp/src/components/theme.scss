@@ -9,6 +9,12 @@
   --th-foreground-secondary: #aaa;
 
   --th-logo-color: #ddd;
+
+  --th-login-form-bg: rgba(0, 0, 0, 0.1);
+  --th-login-field-bg: rgba(0, 0, 0, 0.1);
+  --th-login-field-focus-bg: rgba(255, 255, 255, .05);
+  --th-login-submit-bg: rgba(50, 50, 50, 0.7);
+  --th-login-submit-fg: white;
 }
 
 // Light theme base
@@ -19,7 +25,13 @@
   --th-foreground-link: #0086c6;
   --th-foreground-secondary: #777;
 
-  --th-logo-color: #444;
+  --th-logo-color: #666;
+
+  --th-login-form-bg: rgba(0, 0, 0, 0.03);
+  --th-login-field-bg: rgba(0, 0, 0, 0.02);
+  --th-login-field-focus-bg: rgba(0, 0, 0, .1);
+  --th-login-submit-bg: rgba(220, 220, 220, 0.7);
+  --th-login-submit-fg: black;
 }
 
 // Wine theme
