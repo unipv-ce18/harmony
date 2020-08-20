@@ -59,6 +59,9 @@ class SettingsModal extends Component {
         {this.props.type === 'user' &&
           <div class={styles.settingsModal}>
             <div class={styles.settingsButton}>
+              <div><button onClick={()=>{this.props.updatePage(); this.props.handleSettingsModal(false)}}>
+                Modify your info
+              </button></div>
               <div><button onClick={this.handleModalBox.bind(this,
                 MODALBOX_USER_DELETE, 'Do you really want to delete your account?')}>
                 Delete your account

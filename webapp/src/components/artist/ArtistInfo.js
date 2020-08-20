@@ -213,6 +213,7 @@ class ArtistInfo extends Component {
               {this.isUserOwner() &&
               <IconButton size={24} name="Settings" icon={IconSettings}
                           onClick={this.handleSettingsModal.bind(this, true)}/>}
+              <span title="Listeners">{artist.counter}</span>
             </div>
             {artist.genres && artist.genres.length > 0 &&
             <div>

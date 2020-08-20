@@ -1,11 +1,16 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
 import styles from './UserPage.scss';
-import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
+import {DEFAULT_ALBUMART_URL, DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
+import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
+import {session} from '../../Harmony';
+import {createArtist} from '../../core/apiCalls';
 
 class ArtistList extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {modalBox : {type:'', message:''}};
   }
 
   handleClickArtist(artist_id, e) {
@@ -13,17 +18,55 @@ class ArtistList extends Component {
     route('/artist/' + artist_id);
   }
 
+  createNewArtist(temp_artist_name) {
+    let artist_name = temp_artist_name;
+    if (!artist_name) artist_name = 'New Artist';
+    session.getAccessToken()
+      .then (token => {
+        createArtist(artist_name, token)
+          .then(result => {
+            route('/artist/' + result['artist_id']);
+          })
+          .catch( () => session.error = true);
+      })
+  }
+
+  handleModalBox(modalbox_type, message, e) {
+    this.setState({modalBox: {type: modalbox_type, message: message}});
+  }
+
   render() {
+    const modalBox = this.state.modalBox;
+
     return(
-      <div class={styles.artistList}>
-        {this.props.artists.map(artist =>
+      <div className={styles.artists}>
+        <p>Artists</p>
+        <div className={styles.artistList}>
+          {this.props.artists && this.props.artists.length > 0 && this.props.artists.map(artist =>
           <div class={styles.artist}>
             <a href='#' onClick={this.handleClickArtist.bind(this, artist.id)}>
               <img src={artist.image ? artist.image : DEFAULT_ALBUMART_URL} alt={""}/>
             </a>
             <p><a href='#' onClick={this.handleClickArtist.bind(this, artist.id)}>{artist.name}</a></p>
-          </div>)
-        }
+          </div>)}
+          {this.props.isUserOwner &&
+          <div className={styles.artist}>
+              <img src={DEFAULT_NEW_CONTENT_IMAGE_URL} alt={""}
+                   onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Artist')} />
+            <p onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Artist')}>
+              New Artist
+            </p>
+          </div>}
+        </div>
+        {modalBox.type &&
+        <ModalBox
+          type={modalBox.type}
+          message={modalBox.message}
+          placeholder={modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? 'Artist Name' : ''}
+          handleCancel={()=>this.handleModalBox('', '')}
+          handleSubmit={
+            modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? this.createNewArtist.bind(this) : null}
+          />}
       </div>
     );
   }

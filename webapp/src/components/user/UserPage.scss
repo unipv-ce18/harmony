@@ -26,6 +26,7 @@
   .name {
     margin: 0;
     padding: 10px;
+    display: inline-block;
   }
 
   img {
@@ -33,6 +34,11 @@
     width: 200px;
     height: 200px;
   }
+}
+
+.userBio {
+  padding: 10px;
+  font-size: 1.4em;
 
   input {
     border-style: dashed;
@@ -40,21 +46,14 @@
     font-size: 0.85em;
     width: 100%;
   }
-
-  a {
-    padding: 10px;
-  }
 }
 
-.userBio {
-  padding: 10px;
-  font-size: 0.85em;
+.userTop, .userBottom {
+  text-align: center;
 }
 
-.userTop {
-  display: flex;
-  justify-content: left;
-  align-items: center;
+.userBottom {
+  margin: 50px;
 }
 
 .image {
@@ -65,52 +64,79 @@
   }
 }
 
-.top {
-  display: flex;
+.top >div {
+  display: inline-block;
 }
 
 .userCenter {
   padding: 10px;
+  font-size: small;
 
   p {
     font-weight: bold;
   }
 
-  div {
-    margin-top: 10px;
-  }
-
   button {
     margin-left: 10px;
   }
+
+  .tagsList {
+    margin: 10px 0;
+    text-align: center;
+    >span {
+      display: inline-block;
+      color: $text-color-default;
+      background-color: $application-background;
+      width: 100px;
+      padding: 0.2em 0.5em;
+      margin: 0 0.1em;
+      &:first-of-type {
+        border-radius: 5px 0 0 5px;
+      }
+      &:last-of-type {
+        border-radius: 0 5px 5px 0;
+      }
+    }
+  }
+
 }
 
 .artists {
-  margin-top: 10px;
+  margin-top: 40px;
   padding: 10px;
   font-weight: bold;
+  >p {
+    margin: 0 0 0 50px;
+  }
 }
 
 .artistList {
+  text-align: center;
 
   img {
     margin-top: 10px;
     border-radius: 10px;
     width: 200px;
     height: 200px;
+    cursor: pointer;
   }
 
   .artist {
-    float: left;
-    margin: 0.5em;
-
-    p a {
-      margin: 0.5em;
-      color: $panel-text-color;
-      text-decoration: none;
+    display: inline-block;
+    margin: 15px;
+    p {
+      padding: 0.5em;
+      margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
+      cursor: pointer;
+       a {
+         text-decoration: none;
+         color: $panel-text-color;
+         padding: 0;
+         margin: 0;
+       }
     }
   }
 }
