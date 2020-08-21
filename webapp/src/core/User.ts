@@ -19,8 +19,12 @@ export function fetchUser(session: Session, userId: UserId, includeArtists: bool
 export class User {
 
     constructor(private readonly session: Session,
-                public readonly id: UserId,
+                private readonly userId: UserId,
                 private readonly data: UserData) {
+    }
+
+    get id() {
+        return this.data.id;
     }
 
     get username() {
@@ -57,18 +61,18 @@ export class User {
 
     public updateImage(newImage: File) {
         return this.getToken()
-            .then(token => uploadContent('user', this.id, newImage.type, newImage.size, token))
+            .then(token => uploadContent('user', this.userId, newImage.type, newImage.size, token))
             .then(presignedData => uploadToStorage(presignedData, newImage));
     }
 
     public updatePreferences(newPreferences: UserPreferences) {
         return this.getToken()
-            .then(token => patchUser(token, this.id, {prefs: newPreferences}));
+            .then(token => patchUser(token, this.userId, {prefs: newPreferences}));
     }
 
     public updateBiography(newBiography: string) {
         return this.getToken()
-            .then(token => patchUser(token, this.id, {bio: newBiography}));
+            .then(token => patchUser(token, this.userId, {bio: newBiography}));
     }
 
     public upgradeType() {

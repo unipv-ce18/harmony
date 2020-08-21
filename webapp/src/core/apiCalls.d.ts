@@ -28,6 +28,7 @@ declare namespace apiCalls {
     }
 
     type UserData = {
+        id: UserId,
         username: string,
         email: string,
         avatar_url?: string,
