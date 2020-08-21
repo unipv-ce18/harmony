@@ -1,5 +1,4 @@
 import {updateSongInPlaylist, createPlaylist, patchPlaylist, getLibrary, setLike, execSearch} from './apiCalls';
-import library from '../components/library/testLibrary';
 
 const LIBRARY_STORE_KEY = 'library';
 
