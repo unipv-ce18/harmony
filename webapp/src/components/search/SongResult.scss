@@ -38,7 +38,7 @@
     }
 
     > svg {
-      fill: white;
+      fill: var(--th-search-song-img-play);
       opacity: 0;
       transition: opacity $transition-len-short-ms;
     }
@@ -73,8 +73,7 @@
       opacity: 0;
 
       > span {
-        @include button-color(#eee);
-        background-color: transparent;
+        @extend %resultButton;
       }
     }
   }
@@ -83,7 +82,7 @@
 
     .songArt {
       > img {
-        filter: brightness(.7) contrast(1);
+        filter: var(--th-search-song-img-filter);
       }
       > svg {
         opacity: 1;

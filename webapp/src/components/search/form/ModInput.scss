@@ -21,10 +21,10 @@
   background-color: transparent;
   border: none;
   outline: none;
-  color: #eee;
+  color: var(--th-head-search-fg);
 
   &::selection {
-    background-color: rgba(#fff, .3);
+    background-color: var(--th-head-search-selection);
   }
 }
 

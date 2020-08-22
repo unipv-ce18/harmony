@@ -7,7 +7,7 @@ header {
   width: 100%;
   height: $navbar-height;
   z-index: 9999;
-  background-color: rgba($application-background, .9);
+  background-color: var(--th-background-header);
   backdrop-filter: blur(10px);  // Only Chrome for now :(
 
   padding: 16px 20px;
@@ -21,7 +21,7 @@ header {
   }
 }
 
-.left {
+header .left {
   list-style-type: none;
   margin: 0;
   padding: 0 4px;
@@ -34,9 +34,9 @@ header {
 
   a {
     display: block;
-    color: #eee;
+    color: var(--th-head-nav);
 
-    text-shadow: rgba(#fff, .5) 0 0 1px;
+    text-shadow: var(--th-head-nav-shadow);
     letter-spacing: .7px;
 
     font-weight: 600;
@@ -55,7 +55,7 @@ header {
   }
 }
 
-.middle {
+header .middle {
   width: 50%;
   position: relative;
 
@@ -112,19 +112,19 @@ header {
   }
 }
 
-.right {
+header .right {
   > div {
     float: right;
     margin: -6px;
   }
 }
 
-.right, .left li {
+header .right, header .left li {
   transition-property: opacity, transform;
   transition-duration: $transition-len-ms;
   transition-delay: 600ms;  // Appear when the main logo is shrinking
 }
-.left li:nth-child(2) {
+header .left li:nth-child(2) {
   transition-delay: 700ms;
 }
 

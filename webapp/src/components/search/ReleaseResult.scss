@@ -18,7 +18,7 @@
 
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 0 10px rgba(black, .5);
+  box-shadow: var(--th-search-release-shadow);
 
   transition: box-shadow $transition-len-ms;
 
@@ -28,7 +28,7 @@
   }
 
   > div {
-    background-color: rgba(10, 10, 10, .7);
+    background-color: var(--th-search-release-bg);
     padding: 10px;
     transition: background-color $transition-len-ms;
 
@@ -62,16 +62,9 @@
   }
 
   &:hover, &:focus {
-    box-shadow: 0 0 20px rgba(black, .8);
+    box-shadow: var(--th-search-release-shadow-focus);
     &::before {
       transform: scale(1.15);
-      opacity: 1;
-    }
-    > div {
-      background-color: rgba(10, 10, 10, .8);
-      > :nth-child(3) {
-        height: 26px;
-      }
     }
   }
 }

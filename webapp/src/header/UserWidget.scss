@@ -59,7 +59,7 @@
       transition: color $transition-len-short-ms, transform $transition-len-short-ms;
 
       &:hover {
-        color: #fff;
+        color: var(--th-head-user-fg-hover);
         // Logout button
         &:last-of-type {
           color: orangered;
@@ -72,7 +72,7 @@
 }
 
 .userWidget:global(.drop-down) {
-  background-color: rgba(#111, .8);
+  background-color: var(--th-head-user-bg);
 
   > div:nth-of-type(2) {
     opacity: 1;
