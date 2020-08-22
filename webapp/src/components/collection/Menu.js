@@ -115,7 +115,7 @@ class Menu extends Component {
   }
 
   createMediaInfo(song) {
-    return createMediaItemInfo(song, this.isRelease() ? this.state.collection : null);
+    return createMediaItemInfo(song, this.props.isRelease ? this.props.collection : null);
   }
 
   addToQueue(song) {
@@ -180,10 +180,9 @@ class Menu extends Component {
               Go To Release
             </a>}
             <hr/>
-            {this.isUserOwner() &&
             <button onClick={this.addToQueue.bind(this, this.props.song)}>
               Add To Queue
-            </button>}
+            </button>
           </div>
         </div>
         {modalBox.type &&

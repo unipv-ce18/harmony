@@ -6,7 +6,7 @@ import {createMediaItemInfo} from '../../core/links';
 import {PlayStartModes} from '../../player/MediaPlayer';
 import ReleaseInfo from './ReleaseInfo';
 import PlaylistInfo from './PlaylistInfo';
-import {ModalBoxTypes} from '../modalbox/ModalBox';
+import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 
 import styles from './CollectionPage.scss';
 
@@ -16,6 +16,7 @@ class CollectionPage extends HarmonyPage {
     super(props);
 
     this.state = {
+      modalBox: {type:'', message:''},
       userPlaylists: {},
       collectionType: '',
       songPlayed : '',
@@ -58,6 +59,10 @@ class CollectionPage extends HarmonyPage {
     this.getCollection();
   }
 
+  handleModalBox(modalbox_type, message) {
+    this.setState({modalBox: {type: modalbox_type, message: message}});
+  }
+
   createSong(song) {
     return createMediaItemInfo(song, this.isRelease() ? this.state.collection : null);
   }
@@ -71,6 +76,7 @@ class CollectionPage extends HarmonyPage {
   }
 
   render() {
+    let modalBox = this.state.modalBox;
     let collection = this.state.collection;
     return (
       <div>
@@ -81,20 +87,24 @@ class CollectionPage extends HarmonyPage {
               {this.isRelease()
               ? <ReleaseInfo
                   collection={collection}
-                  infoCollectionUpdated={this.infoCollectionUpdated} />
+                  infoCollectionUpdated={this.infoCollectionUpdated}
+                  addSongsToQueue={this.addSongsToQueue} />
               : <PlaylistInfo
                   collection={collection}
-                  infoCollectionUpdated={this.infoCollectionUpdated}/>}
+                  infoCollectionUpdated={this.infoCollectionUpdated}
+                  addSongsToQueue={this.addSongsToQueue}/>}
             <hr/>
             </div>
             <CollectionSongsTable
               collection={collection}
-              isRelease={this.isRelease()}
-            />
+              isRelease={this.isRelease()}/>
           </div>
-        </div>
-
-        }
+        </div>}
+        {modalBox.type &&
+          <ModalBox
+            type={modalBox.type}
+            message={modalBox.message}
+            />}
       </div>);
   }
 }

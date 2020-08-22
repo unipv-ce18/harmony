@@ -115,7 +115,7 @@ class CollectionSongsTable extends Component {
   }
 
   createMediaInfo(song) {
-    return createMediaItemInfo(song, this.isRelease() ? this.state.collection : null);
+    return createMediaItemInfo(song, this.props.isRelease ? this.props.collection : null);
   }
 
   playSong(song) {
@@ -123,7 +123,7 @@ class CollectionSongsTable extends Component {
     let arrayMediaInfo = this.state.songs
       .slice(songs.indexOf(song), songs.length)
       .map(song => this.createMediaInfo(song));
-      mediaPlayer.play(arrayMediaInfo, PlayStartModes.APPEND_QUEUE_AND_PLAY);
+      mediaPlayer.play(arrayMediaInfo, PlayStartModes.TRUNCATE_QUEUE_AND_PLAY);
   }
 
   onPlayerAvailable(playerInstance) {
@@ -148,7 +148,6 @@ class CollectionSongsTable extends Component {
   }
 
   render() {
-    let modalBox = this.state.modalBox;
     return (
       <div>
         {this.state.songs && this.state.songs.length > 0 &&
@@ -185,7 +184,7 @@ class CollectionSongsTable extends Component {
                     icon={IconPlay}
                     onClick={this.state.songPlayed === element.id && this.state.playerState === PlayStates.PAUSED
                       ? () => mediaPlayer.play()
-                      : this.playSong.bind(this, element, PlayStartModes.APPEND_QUEUE_AND_PLAY)}/>}
+                      : this.playSong.bind(this, element)}/>}
                 </td>
                 <td>
                   {this.state.updated && this.initialSongLikeState(element.id)
@@ -215,8 +214,7 @@ class CollectionSongsTable extends Component {
                       collection={this.props.collection}
                       isRelease={this.props.isRelease}
                       updateParentState={this.updateParentState.bind(this)}
-                      handleCloseMenu={this.handleCloseMenu}
-                    />}
+                      handleCloseMenu={this.handleCloseMenu}/>}
                 </td>
               </tr>
             )}

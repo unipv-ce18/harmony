@@ -158,7 +158,7 @@ class PlaylistInfo extends Component {
             size={22}
             name={"Add To Queue"}
             icon={IconQueue}
-            onClick={this.addSongsToQueue}/>
+            onClick={()=>this.props.addSongsToQueue()}/>
         </div>}
       </div>,
       this.state.settingsModal &&
