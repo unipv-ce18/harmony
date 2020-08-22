@@ -1,17 +1,12 @@
-import {route} from 'preact-router';
-
-import {catalog, mediaPlayer, session} from '../../Harmony';
+import {mediaPlayer, session} from '../../Harmony';
 import HarmonyPage from '../HarmonyPage';
-import {getReleasePlaylist, deleteRelease} from '../../core/apiCalls';
+import {getReleasePlaylist} from '../../core/apiCalls';
 import CollectionSongsTable from './CollectionSongsTable';
-import IconButton from '../IconButton';
-import {IconQueue, IconSettings, IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
 import {createMediaItemInfo} from '../../core/links';
 import {PlayStartModes} from '../../player/MediaPlayer';
 import ReleaseInfo from './ReleaseInfo';
 import PlaylistInfo from './PlaylistInfo';
 import {ModalBoxTypes} from '../modalbox/ModalBox';
-import CollectionSettingsModal from './CollectionSettingsModal';
 
 import styles from './CollectionPage.scss';
 
@@ -25,15 +20,11 @@ class CollectionPage extends HarmonyPage {
       collectionType: '',
       songPlayed : '',
       playlistPolicy : '',
-      inUpdate : false,
-      pageUpdated : false,
       settingsModal: false
     }
 
+    this.infoCollectionUpdated = this.infoCollectionUpdated.bind(this);
     this.addSongsToQueue = this.addSongsToQueue.bind(this);
-    this.handleConfirmDelete = this.handleConfirmDelete.bind(this);
-    this.handleClickDelete = this.handleClickDelete.bind(this);
-    this.handleClickUpdate = this.handleClickUpdate.bind(this);
   }
 
   componentDidMount() {
@@ -42,10 +33,6 @@ class CollectionPage extends HarmonyPage {
 
   componentDidUpdate(prevProps, prevStates) {
     if (this.props.id !== prevProps.id) this.getCollection();
-    else if (this.state.update && !prevStates.update) {
-      this.getCollection();
-      this.setState({pageUpdated : false});
-    }
   }
 
   getCollection() {
@@ -63,37 +50,12 @@ class CollectionPage extends HarmonyPage {
       })
   }
 
-  initialCollectionLikeState () {
-    return catalog.inLibrary(this.state.collectionType, this.state.collection.id);
-  };
-
-  likeCollection(function_type) {
-    let media_type = this.state.collectionType;
-      if (function_type === 'PUT' &&
-        media_type === 'playlists' &&
-        session.currentUser?.id === this.state.collection.creator.id)
-          media_type = 'personal_playlists';
-
-      catalog.favorite(function_type, media_type, this.state.collection.id)
-      this.setState({stateUpdated: true});
-  }
-
-  userLikeOwnPlaylist() {
-    return catalog.inLibrary('personal_playlists', this.state.collection.id);
-  }
-
-  handleModalBox(modalbox_type, message) {
-    this.setState({modalBox: {type: modalbox_type, message: message}});
-  }
-
   isRelease() {
     return this.state.collectionType === 'releases';
   }
 
-  userOwnRelease() {
-    if (this.state.collectionType === 'releases')
-      return session.currentUser?.id === this.state.collection.artist.creator;
-    return false;
+  infoCollectionUpdated() {
+    this.getCollection();
   }
 
   createSong(song) {
@@ -108,55 +70,7 @@ class CollectionPage extends HarmonyPage {
     setTimeout(()=>this.handleModalBox('', ''),2000)
   }
 
-  modifyPage(bool) {
-    this.setState({inUpdate : bool});
-  }
-
-  handleClickUpdate() {
-    this.setState({pageUpdated : true});
-  }
-
-  infoCollectionUpdated(bool) {
-    this.setState({pageUpdated : false});
-    this.setState({inUpdate : false});
-    if (bool)
-      this.getCollection();
-  }
-
-  handleClickDelete() {
-    let text = '';
-    if(this.isRelease()) text = 'release?'; else text = 'playlist?';
-    this.handleModalBox(ModalBoxTypes.MODALBOX_CONFIRM_DELETE, 'Do you really want to delete this ' + text);
-  }
-
-  handleConfirmDelete() {
-    if(this.isRelease()) this.deleteReleasePage(); else this.deletePlaylistPage();
-    this.handleModalBox('', '');
-  }
-
-  handleSettingsModal(isOpen) {
-    this.setState({settingsModal: isOpen});
-  }
-
-  deleteReleasePage() {
-    session.getAccessToken()
-      .then (token => {
-        deleteRelease(this.state.collection.id, token)
-          .then(result => {
-            route('/artist/' + this.state.collection.artist.id);
-          })
-          .catch( () => session.error = true);
-      })
-  }
-
-  deletePlaylistPage() {
-    catalog.favorite('DELETE', 'personal_playlists', this.state.collection.id)
-      .then(() => route('/library/me'))
-      .catch( () => session.error = true);
-  }
-
   render() {
-    let modalBox = this.state.modalBox;
     let collection = this.state.collection;
     return (
       <div>
@@ -167,39 +81,10 @@ class CollectionPage extends HarmonyPage {
               {this.isRelease()
               ? <ReleaseInfo
                   collection={collection}
-                  inUpdate={this.state.inUpdate}
-                  pageUpdated={this.state.pageUpdated}
-                  infoCollectionUpdated={this.infoCollectionUpdated.bind(this)} />
+                  infoCollectionUpdated={this.infoCollectionUpdated} />
               : <PlaylistInfo
                   collection={collection}
-                  inUpdate={this.state.inUpdate}
-                  pageUpdated={this.state.pageUpdated}
-                  infoCollectionUpdated={this.infoCollectionUpdated.bind(this)}/>}
-              <div>
-
-                {this.state.inUpdate ?
-                <div>
-                  <button onClick={()=>this.modifyPage(false)}>Cancel</button>
-                  <button onClick={this.handleClickUpdate}>Update</button>
-                </div>
-                :
-                <div>
-                {(this.userLikeOwnPlaylist() || this.userOwnRelease()) &&
-                  <IconButton size={24} name="Settings" icon={IconSettings}
-                      onClick={this.handleSettingsModal.bind(this, true)}/>}
-                {(this.isRelease() || !this.userLikeOwnPlaylist()) &&
-                (this.initialCollectionLikeState()
-                  ? <IconButton size={24} name="Dislike" icon={IconStarFull}
-                                onClick={this.likeCollection.bind(this, 'DELETE')}/>
-                  : <IconButton size={24} name="Like" icon={IconStarEmpty}
-                                onClick={this.likeCollection.bind(this, 'PUT')}/>)}
-                  <IconButton
-                    size={22}
-                    name={"Add To Queue"}
-                    icon={IconQueue}
-                    onClick={this.addSongsToQueue}/>
-                </div>}
-              </div>
+                  infoCollectionUpdated={this.infoCollectionUpdated}/>}
             <hr/>
             </div>
             <CollectionSongsTable
@@ -207,13 +92,6 @@ class CollectionPage extends HarmonyPage {
               isRelease={this.isRelease()}
             />
           </div>
-          {this.state.settingsModal &&
-          <CollectionSettingsModal
-            handleSettingsModal={this.handleSettingsModal.bind(this)}
-            type={this.isRelease() ? 'release' : 'playlist'}
-            modifyPage={this.modifyPage.bind(this)}
-            removeCollection={this.isRelease() ?
-              this.deleteReleasePage.bind(this) : this.deletePlaylistPage.bind(this)}/>}
         </div>
 
         }

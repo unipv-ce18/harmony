@@ -78,7 +78,7 @@ class PlaylistsPage extends Component {
     let modalBox = this.state.modalBox;
     return (
       <div>
-        {(this.isUserOwner() || !this.isUserOwner() && playlists.joined.length) > 0 && <div>
+        {(this.isUserOwner() || !this.isUserOwner() && playlists.joined?.length > 0) && <div>
         {Object.entries(playlists).map(([type, arrays]) => (
           <div className={styles.libraryCommon}>
             {this.isUserOwner()

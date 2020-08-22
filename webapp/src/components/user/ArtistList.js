@@ -5,6 +5,7 @@ import {DEFAULT_ALBUMART_URL, DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import {session} from '../../Harmony';
 import {createArtist} from '../../core/apiCalls';
+import {artistLink} from '../../core/links';
 
 class ArtistList extends Component {
   constructor(props) {
@@ -22,13 +23,11 @@ class ArtistList extends Component {
     let artist_name = temp_artist_name;
     if (!artist_name) artist_name = 'New Artist';
     session.getAccessToken()
-      .then (token => {
+      .then(token => {
         createArtist(artist_name, token)
-          .then(result => {
-            route('/artist/' + result['artist_id']);
-          })
-          .catch( () => session.error = true);
-      })
+          .then(result => route(artistLink(result['artist_id'])))
+          .catch(() => session.error = true);
+      });
   }
 
   handleModalBox(modalbox_type, message, e) {
@@ -36,13 +35,14 @@ class ArtistList extends Component {
   }
 
   render() {
+    const artists = this.props.artists;
     const modalBox = this.state.modalBox;
 
     return(
       <div className={styles.artists}>
         <p>Artists</p>
         <div className={styles.artistList}>
-          {this.props.artists && this.props.artists.length > 0 && this.props.artists.map(artist =>
+          {artists && artists.length > 0 && artists.map(artist =>
           <div class={styles.artist}>
             <a href='#' onClick={this.handleClickArtist.bind(this, artist.id)}>
               <img src={artist.image ? artist.image : DEFAULT_ALBUMART_URL} alt={""}/>

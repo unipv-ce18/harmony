@@ -18,6 +18,11 @@ class ArtistPage extends HarmonyPage {
     this.getArtist();
   }
 
+  componentDidUpdate(prevProps, prevStates) {
+    if (this.props.id !== prevProps.id) this.getArtist();
+  }
+
+
   getArtist() {
     session.getAccessToken()
       .then (token => {

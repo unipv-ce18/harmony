@@ -38,12 +38,6 @@ class ArtistInfo extends Component {
     this.setAttributesStates();
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.artist !== prevProps.artist) {
-      this.setAttributesStates();
-    }
-  }
-
   setAttributesStates() {
     const artist = this.props.artist;
 
@@ -104,6 +98,7 @@ class ArtistInfo extends Component {
 
   modifyPage(bool) {
     this.setState({inUpdate: bool});
+    if(!bool) this.setAttributesStates();
   }
 
   handleChange({target}) {
@@ -200,6 +195,7 @@ class ArtistInfo extends Component {
         })
     }
     this.props.infoArtistUpdated(false);
+    this.setState({inUpdate: false});
   }
 
   render() {
@@ -234,7 +230,6 @@ class ArtistInfo extends Component {
             <div>
               <Tags list = {artist.genres}/>
             </div>}
-
             {artist.bio &&
             (artist.bio.split(' ').length > 50 && !this.state.additional
               ? <div className={styles.artistBio}>{artist.bio.split(' ').slice(0, 50).join(' ') + '...'}</div>
@@ -337,9 +332,7 @@ class ArtistInfo extends Component {
               </div>
             </div>
             <button onClick={this.modifyPage.bind(this, false)}>Cancel</button>
-            <button onClick={() => {
-              this.handleUpdate();
-              this.modifyPage(false);}}>Update</button>
+            <button onClick={() => this.handleUpdate()}>Update</button>
           </div>}
         {this.state.settingsModal &&
         <SettingsModal

@@ -40,25 +40,17 @@ class UserInfo extends Component {
   }
 
   componentDidMount() {
+    this.setAttributesStates();
+  }
+
+  setAttributesStates() {
     const {user} = this.props;
     this.setState({
       email: user.preferences.private.email,
       type: user.type,
       tier: user.tier,
-      bio: user.bio
+      bio: user.biography
     })
-  }
-
-  componentDidUpdate(prevProps) {
-    const {user} = this.props;
-    if (user.preferences.private.email !== prevProps.user.preferences.private.email)
-      this.setState({email: [...user.preferences.private.email]});
-    if (user.type !== prevProps.user.type)
-      this.setState({type: [...user.type]});
-    if (user.tier !== prevProps.user.tier)
-      this.setState({tier: [...user.tier]});
-    if (user.bio !== prevProps.user.bio)
-      this.setState({bio: [...user.bio]});
   }
 
   changeType() {
@@ -74,9 +66,8 @@ class UserInfo extends Component {
   }
 
   changeEmailPrefs() {
-    const prefs = this.props.user.preferences;
     const newEmail = !this.state.email;
-    prefs.private.email = newEmail;  // Ehm this also changes current props, nevermind
+    const prefs = {private: {email: newEmail}}
 
     this.props.user.updatePreferences(prefs)
       .then(() => this.setState({email: newEmail}))
@@ -98,6 +89,7 @@ class UserInfo extends Component {
 
   cancelModification() {
     this.setState({update : false});
+    this.setAttributesStates();
   }
 
   confirmModification(e) {
@@ -108,6 +100,7 @@ class UserInfo extends Component {
         patchUser(token, this.props.user.id, {bio})
           .then( () => {
             this.setState({update : false});
+            this.props.loadUser();
           })
           .catch( () => session.error = true);
       })
@@ -192,10 +185,9 @@ class UserInfo extends Component {
                   <span>Tier: {this.state.tier}</span>
                 </div>
               </div>
-              {(this.state.bio && !this.state.update)
+              {(this.state.bio && (!this.state.update
                 ? <div className={styles.userBio}>{this.state.bio}</div>
-                : this.state.update
-                  ? <form className={styles.userBio}>
+                : <form className={styles.userBio}>
                     <input
                       type="text"
                       name="bio"
@@ -205,33 +197,14 @@ class UserInfo extends Component {
                     />
                     <button onClick={this.cancelModification}>Cancel</button>
                     <button onClick={this.confirmModification}>Update!</button>
-                  </form>
-                  : null
+                  </form>))
               }
             </div>
           </div>
           {!this.isUserOwner() &&
             <a href="#" onClick={this.clickLibrary}>Go to {user.username} library</a>}
           {this.state.type === 'creator' &&
-            <div class={styles.artists}>
-              Artists
-              {user.ownArtists && user.ownArtists.length > 0 &&
-                <ArtistList artists={user.ownArtists}/>}
-              {this.isUserOwner() &&
-                <div class={styles.artistList}>
-                  <div class={styles.artist}>
-                    <a href='#'
-                       onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Artist')}>
-                      <img src={DEFAULT_NEW_CONTENT_IMAGE_URL} alt={""}/>
-                    </a>
-                    <p><a href='#'
-                          onClick={this.handleModalBox.bind(this, ModalBoxTypes.MODALBOX_FORM_CREATE, 'New Artist')}>
-                      New Artist
-                    </a></p>
-                  </div>
-              </div>}
-            </div>}
-            <ArtistList artists={user.artists} isUserOwner={this.isUserOwner()} />}
+            <ArtistList artists={user.ownArtists} isUserOwner={this.isUserOwner()} />}
 
           {this.isUserOwner() &&
           <div className={styles.userBottom}>

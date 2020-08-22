@@ -28,6 +28,13 @@ class CollectionSettingsModal extends Component {
       <div>
         <div class={styles.settingsModal}>
           <div class={styles.settingsButton}>
+            {this.props.type === 'release' &&
+            <div>
+              <label htmlFor="upload">Upload image
+                <input type="file" id="upload" style="display:none"
+                  onChange={e => this.props.uploadImage(e.target.files[0])}/>
+              </label>
+            </div>}
             <div><button onClick={()=>{this.props.modifyPage(true); this.props.handleSettingsModal(false)}}>
               Modify your {this.props.type}</button></div>
             <div><button onClick={this.handleModalBox.bind(this,

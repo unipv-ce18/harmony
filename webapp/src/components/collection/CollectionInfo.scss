@@ -8,9 +8,15 @@
     width: 200px;
     height: 200px;
     margin-right: 10px;
+    white-space: nowrap;
     > img {
       width: 100%;
       height: 100%;
+    }
+    > label {
+      position: relative;
+      right: 28px;
+      bottom: 4px
     }
     > button {
       border: 0;

@@ -3,8 +3,11 @@ import {route} from 'preact-router';
 import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 import SettingsModal from '../SettingsModal'
 import styles from './CollectionInfo.scss';
-import {session} from '../../Harmony';
-import {patchRelease, uploadContent, uploadToStorage} from '../../core/apiCalls';
+import {catalog, session} from '../../Harmony';
+import {deleteRelease, patchRelease, uploadContent, uploadToStorage} from '../../core/apiCalls';
+import IconButton from '../IconButton';
+import {IconEdit, IconQueue, IconSettings, IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
+import CollectionSettingsModal from './CollectionSettingsModal';
 
 class ReleaseInfo extends Component {
 
@@ -12,29 +15,44 @@ class ReleaseInfo extends Component {
     super(props);
 
     this.state = {
-      checkBox : false,
-      settingsModal : false,
+      inUpdate: false,
+      checkBox: false,
+      settingsModal: false,
       settingsType: ''
     }
     this.clickArtist = this.clickArtist.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleClickCheckbox = this.handleClickCheckbox.bind(this);
+    this.handleClickUpdate = this.handleClickUpdate.bind(this);
+
   }
 
   componentDidMount() {
+    this.setAttributesStates();
+  }
+
+  setAttributesStates(){
     this.setState({type : this.props.collection.type});
     this.setState({name : this.props.collection.name});
     this.setState({date : this.props.collection.date});
   }
 
-  componentDidUpdate(prevProps) {
-    if(this.props.pageUpdated && !prevProps.pageUpdated) {
-      this.handleUpdate();
-    }
-  }
-
   userOwnRelease() {
     return session.currentUser?.id === this.props.collection.artist.creator;
+  }
+
+  initialCollectionLikeState () {
+    return catalog.inLibrary('releases', this.props.collection.id);
+  };
+
+  likeCollection(function_type) {
+    catalog.favorite(function_type, 'releases', this.props.collection.id)
+    this.setState({stateUpdated: true});
+  }
+
+  modifyPage(bool) {
+    this.setState({inUpdate : bool});
+    if(!bool) this.setAttributesStates();
   }
 
   handleSettingsModal(isOpen, type) {
@@ -67,7 +85,7 @@ class ReleaseInfo extends Component {
     this.setState(prevState => ({checkBox : !prevState.checkBox}));
   }
 
-  handleUpdate() {
+  handleClickUpdate() {
     const coll = this.props.collection;
     let name=false, type=false, date=false, d=this.state.date;
     if ((this.state.name !== coll.name) && this.state.name !== '') name = true;
@@ -89,24 +107,39 @@ class ReleaseInfo extends Component {
         .then (token => {
           patchRelease(token, this.props.collection.id, patch)
             .then( () => {
-              this.props.infoCollectionUpdated(true);
+              this.props.infoCollectionUpdated();
             })
             .catch( () => session.error = true);
         })
     }
-    this.props.infoCollectionUpdated(false);
+    this.setState({inUpdate: false});
   }
+
+  deleteReleasePage() {
+    session.getAccessToken()
+      .then (token => {
+        deleteRelease(this.props.collection.id, token)
+          .then(result => {route('/artist/' + this.props.collection.artist.id)})
+          .catch( () => session.error = true);
+      })
+  }
+
 
   render() {
     let collection = this.props.collection;
     return (
-      <div class={styles.release}>
+      [<div class={styles.release}>
         {this.userOwnRelease()
-         ? <div><button onClick={this.handleSettingsModal.bind(this, true, 'image')}>
-             <img src={collection.cover ? collection.cover : DEFAULT_ALBUMART_URL} alt={""}/>
-           </button></div>
+         ? <div>
+            <img src={collection.cover ? collection.cover : DEFAULT_ALBUMART_URL} alt={""}/>
+            <label htmlFor="upload">
+              <input type="file" id="upload" style="display:none"
+                onChange={e => this.uploadReleaseCover(e.target.files[0])}/>
+              <IconButton size={24} name="Settings" icon={IconEdit}/>
+            </label>
+           </div>
          : <div><img src={collection.cover ? collection.cover : DEFAULT_ALBUMART_URL} alt={""}/></div>}
-        {!this.props.inUpdate ?
+        {!this.state.inUpdate ?
         <div  class={styles.releaseInfo}>
           <p>{collection.type}</p>
           <p>{collection.name}</p>
@@ -139,13 +172,37 @@ class ReleaseInfo extends Component {
             <label htmlFor="checkBox">Show only year</label>
           </div>
         </div>}
-        {this.state.settingsModal &&
-          <SettingsModal
-            handleSettingsModal={this.handleSettingsModal.bind(this)}
-            type={this.state.settingsType}
-            uploadImage={this.uploadReleaseCover.bind(this)}
-          />}
-      </div>
+      </div>,
+      <div>
+        {this.state.inUpdate ?
+        <div>
+          <button onClick={()=>this.modifyPage(false)}>Cancel</button>
+          <button onClick={this.handleClickUpdate}>Update</button>
+        </div>
+        :
+        <div>
+        {this.userOwnRelease() &&
+          <IconButton size={24} name="Settings" icon={IconSettings}
+              onClick={this.handleSettingsModal.bind(this, true)}/>}
+        {this.initialCollectionLikeState()
+          ? <IconButton size={24} name="Dislike" icon={IconStarFull}
+                        onClick={this.likeCollection.bind(this, 'DELETE')}/>
+          : <IconButton size={24} name="Like" icon={IconStarEmpty}
+                        onClick={this.likeCollection.bind(this, 'PUT')}/>}
+          <IconButton
+            size={22}
+            name={"Add To Queue"}
+            icon={IconQueue}
+            onClick={this.addSongsToQueue}/>
+        </div>}
+      </div>,
+      this.state.settingsModal &&
+        <CollectionSettingsModal
+          handleSettingsModal={this.handleSettingsModal.bind(this)}
+          type='release'
+          modifyPage={this.modifyPage.bind(this)}
+          removeCollection={this.deleteReleasePage.bind(this)}
+          uploadImage={this.uploadReleaseCover.bind(this)}/>]
     );
   }
 }

@@ -17,7 +17,7 @@ class UserPage extends HarmonyPage {
   }
 
   loadUser() {
-    fetchUser(session, this.props.id)
+    fetchUser(session, this.props.id, true)
       .then(user => this.setState({user}))
       .catch(() => session.error = true);
   }
@@ -26,7 +26,7 @@ class UserPage extends HarmonyPage {
     return (
       <div class={styles.userPage}>
         <div class={styles.userPageContent}>
-          {user && <UserInfo user={user}/>}
+          {user && <UserInfo user={user} loadUser={()=>this.loadUser()}/>}
         </div>
       </div>);
   }
