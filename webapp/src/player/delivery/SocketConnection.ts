@@ -1,32 +1,9 @@
-import io from 'socket.io-client'
 import {Session} from '../../core/Session';
+import {createSocket} from '../../core/ws';
 
 type ErrorResponse = { id: string, error_code: number };
 type ManifestResponse = { id: string, manifest_url: string };
 type MediaKeyResponse = { id: string, key: string };
-
-const TAG = '[Player.SocketConnection]';
-
-function createSocket(socketUrl: string, accessToken: string) {
-    const socket = io(socketUrl, {
-        transports: ['websocket'],
-        query: {access_token: accessToken}
-    });
-
-    // On reconnection, fall back to polling
-    socket.on('reconnect_attempt', () => {
-        console.warn(TAG, 'Attempting reconnect with polling transport');
-        this.socket.io.opts.transports = ['polling', 'websocket'];
-    });
-
-    socket.on('connect', () => console.log(TAG, 'Player socket connected'));
-
-    // TODO: Handle these exceptions properly
-    socket.on('connect_error', () => console.error(TAG, 'Socket connection error'));
-    socket.on('error', () => console.error(TAG, 'Socket authentication error'));
-
-    return socket;
-}
 
 export class SocketConnection {
 

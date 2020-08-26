@@ -1,7 +1,7 @@
 import {Component} from 'preact';
 
 import styles from '../SettingsModal.scss';
-import {createSocket, requestDownload} from '../../download/Download';
+import {createDownloadSocket, requestDownload} from '../../download';
 
 class DownloadModal extends Component {
 
@@ -28,7 +28,7 @@ class DownloadModal extends Component {
 
     session.getAccessToken()
       .then (token => {
-        const socket = createSocket('http://localhost/download', token);
+        const socket = createDownloadSocket(token);
 
         requestDownload(socket, this.props.songId, this.state.semitones, this.state.outputFormat, this.state.split)
           .then(url => {

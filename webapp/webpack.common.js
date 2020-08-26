@@ -74,6 +74,7 @@ module.exports = (env, config) => ({
       APP_NAME: JSON.stringify(HarmonyConf.APPLICATION_NAME),
       API_BASE_URL: JSON.stringify(HarmonyConf.API_BASE_URL),
       PLAYER_SOCKET_URL: JSON.stringify(HarmonyConf.PLAYER_SOCKET_URL),
+      DOWNLOAD_SOCKET_URL: JSON.stringify(HarmonyConf.DOWNLOAD_SOCKET_URL),
       SERVICE_WORKER_PATH: JSON.stringify(env && env.sw ? HarmonyConf.SERVICE_WORKER_PATH : null)
     }),
     new webpack.ProvidePlugin({
