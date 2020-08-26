@@ -46,3 +46,19 @@ def verify_jwt_token(encoded_token, token_type):
         user = jwt_utils.user_loader(identity)
         if user is None:
             raise UserLoadError("user_loader returned None for {}".format(identity))
+
+
+def get_user_token(encoded_token, token_type):
+    from flask_jwt_extended.exceptions import NoAuthorizationError, UserLoadError
+    from flask_jwt_extended import utils as jwt_utils
+    from flask_jwt_extended.config import config as jwt_config
+
+    if encoded_token is None:
+        raise NoAuthorizationError('Missing "access_token" query parameter')
+
+    token_data = decode_token(encoded_token)
+    jwt_utils.verify_token_type(token_data, expected_type=token_type)
+    jwt_utils.verify_token_not_blacklisted(token_data, token_type)
+    jwt_utils.verify_token_claims(token_data)
+
+    return token_data[jwt_config.identity_claim_key]

@@ -84,5 +84,8 @@ class NotificationWorker(threading.Thread):
         data = body.decode('utf-8')
         log.debug('Received notification: %s', data)
         if self.callback_fn is not None:
-            self.callback_fn(data)
+            if self.message['type'] == jobs.MODIFY_SONG:
+                self.callback_fn(self.message)
+            else:
+                self.callback_fn(data)
         ch.basic_cancel(consumer_tag=self.consumer_tag)

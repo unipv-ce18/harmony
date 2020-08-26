@@ -38,7 +38,7 @@ class DownloadNamespace(Namespace):
     def on_modify_song(self, msg):
         song_id, semitones, output_format, split = self.protocol.recv_modify_song(msg)
 
-        user_id = security.get_jwt_identity()
+        user_id = security.get_user_token(request.args.get('access_token'), token_type='access')
 
         if not ObjectId.is_valid(user_id):
             self.protocol.send_error(user_id, MediaDeliveryProtocol.ERROR_INVALID_ID)
@@ -57,9 +57,9 @@ class DownloadNamespace(Namespace):
             self.protocol.send_error(song_id, MediaDeliveryProtocol.ERROR_NOT_FOUND)
             return
 
-        filename = _file_to_download(song_id)
+        filename = self._file_to_download(song_id, semitones, output_format, split)
         if filename is not None:
-            self.protocol.send_url_modified_song(filename)
+            self.protocol.send_url_modified_song(song_id, filename)
             log.debug('Song (%s): Sent url for requested version', song_id)
         else:
             message = {
@@ -72,7 +72,7 @@ class DownloadNamespace(Namespace):
             td = NotificationWorker(message, self.amqp_client, self._modify_song_callback)
             td.start()
 
-    def _file_to_download(self, song_id):
+    def _file_to_download(self, song_id, semitones, output_format, split):
         song = self.db_interface.get_song(song_id)
         if song.versions is not None:
             for v in song.versions:
@@ -81,12 +81,16 @@ class DownloadNamespace(Namespace):
         return None
 
     def _modify_song_callback(self, notification_body):
-        song_id = notification_body
+        song_id = notification_body['song_id']
+        semitones = notification_body['semitones']
+        output_format = notification_body['output_format']
+        split = notification_body['split']
 
-        filename = _file_to_download(song_id)
+        filename = self._file_to_download(song_id, semitones, output_format, split)
         if filename is not None:
             log.debug('Song (%s): modify song job complete, forwarding to client', song_id)
             self.protocol.send_url_modified_song(song_id, filename)
+            return
 
         log.error('Song (%s): something went wrong during the modifying process, signaling to client', song_id)
         self.protocol.send_error(song_id, MediaDeliveryProtocol.ERR_JOB_FAILURE)
