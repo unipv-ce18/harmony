@@ -40,8 +40,8 @@ class ArtistList extends Component {
 
     return(
       <div className={styles.artists}>
-        <p>Artists</p>
         <div className={styles.artistList}>
+          <p>Artists</p>
           {artists && artists.length > 0 && artists.map(artist =>
           <div class={styles.artist}>
             <a href='#' onClick={this.handleClickArtist.bind(this, artist.id)}>
