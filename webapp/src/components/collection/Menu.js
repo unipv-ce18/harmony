@@ -4,6 +4,7 @@ import {mediaPlayer, catalog, session} from "../../Harmony"
 import {MediaItemInfo, PlayStartModes} from "../../player/MediaPlayer";
 import styles from './Menu.scss';
 import {deleteSong} from '../../core/apiCalls';
+import DownloadModal from './DownloadModal';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import {IconArrowRight} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
@@ -19,7 +20,8 @@ class Menu extends Component {
     super(props);
 
     this.state = {
-      modalBox: {type:'', message:''}
+      modalBox: {type:'', message:''},
+      downloadModal : false
     }
 
     this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
@@ -45,6 +47,10 @@ class Menu extends Component {
     if (this.props.isRelease)
       return session.currentUser?.id === this.props.collection.artist.creator;
     return false;
+  }
+
+  isUserPro() {
+    return session.currentUser?.tier === 'pro';
   }
 
   newPlaylist(temp_playlist_name) {
@@ -127,6 +133,10 @@ class Menu extends Component {
     },2000)
   }
 
+  handleDownloadModal(isOpen) {
+    this.setState({downloadModal: isOpen});
+  }
+
 
   render() {
     let modalBox = this.state.modalBox;
@@ -180,6 +190,8 @@ class Menu extends Component {
               Go To Release
             </a>}
             <hr/>
+            {this.isUserPro() &&
+              <button onClick={this.handleDownloadModal.bind(this, true)}>Download song</button>}
             <button onClick={this.addToQueue.bind(this, this.props.song)}>
               Add To Queue
             </button>
@@ -195,6 +207,11 @@ class Menu extends Component {
               modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? this.newPlaylist.bind(this) :
               modalBox.type === ModalBoxTypes.MODALBOX_CONFIRM_DELETE ? this.removeSongFromRelease.bind(this) : null}
             />}
+        {this.state.downloadModal &&
+          <DownloadModal
+            handleDownloadModal={this.handleDownloadModal.bind(this)}
+            songTitle={this.props.song.title}
+            songId={this.props.song.id}/>}
       </div>
     );
   }

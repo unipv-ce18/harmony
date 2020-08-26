@@ -86,7 +86,7 @@ class DownloadNamespace(Namespace):
         filename = _file_to_download(song_id)
         if filename is not None:
             log.debug('Song (%s): modify song job complete, forwarding to client', song_id)
-            self.protocol.send_url_modified_song(filename)
+            self.protocol.send_url_modified_song(song_id, filename)
 
         log.error('Song (%s): something went wrong during the modifying process, signaling to client', song_id)
         self.protocol.send_error(song_id, MediaDeliveryProtocol.ERR_JOB_FAILURE)

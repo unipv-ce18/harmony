@@ -41,13 +41,14 @@ class MediaDeliveryProtocol:
         manifest_url = f'{self.transcoded_songs_bucket_url}/{manifest_path}'
         self.socketio.emit('manifest', {'id': song_id, 'manifest_url': manifest_url}, namespace=self.namespace)
 
-    def send_url_modified_song(self, filename):
+    def send_url_modified_song(self, song_id, filename):
         """Sends a "download" message in response to "modify_song"
 
+        :param str song_id: The ID of the song
         :param str filename: The song filename to download
         """
         song_url = f'{self.modified_songs_bucket_url}/{filename}'
-        self.socketio.emit('download', {'url': song_url}, namespace=self.namespace)
+        self.socketio.emit('download', {'id': song_id, 'url': song_url}, namespace=self.namespace)
 
     def send_media_key(self, song_id, key):
         """Sends a "media_key" message to answer "get_key"
