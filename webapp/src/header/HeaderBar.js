@@ -5,6 +5,7 @@ import Themeable from '../components/Themeable';
 import HarmonyLogo from '../components/HarmonyLogo';
 import SearchForm from '../components/search/form/SearchForm';
 import UserWidget from './UserWidget';
+import UploadWidget from '../upload/UploadWidget';
 
 import style from './header.scss';
 
@@ -70,6 +71,7 @@ class HeaderBar extends Component {
         {/* Right side - user */}
         <div class={style.right}>
           <UserWidget/>
+          {session.currentUser?.type === 'creator' && <UploadWidget/>}
         </div>
       </header>
     );

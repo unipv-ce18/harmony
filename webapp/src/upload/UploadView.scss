@@ -1,0 +1,95 @@
+@import '../styledefs';
+
+$header-height: 30px;
+
+.wrapper {
+  position: fixed;
+  top: $navbar-height + 10px;
+  right: 16px;
+
+  background-color: var(--th-upload-bg);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--th-upload-shadow);
+  border-radius: 20px;
+  overflow: hidden;
+
+  width: 500px;
+  height: 350px;
+}
+
+.uploadView {
+  height: 100%;
+
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        45deg, #000, #000 15px, #fff 15px, #fff 30px);
+
+    transition: opacity $transition-len-ms;
+    opacity: 0;
+  }
+
+  &.dragOver:before {
+    opacity: var(--th-drag-stripe-opacity);
+  }
+}
+
+.header {
+  background-color: var(--th-upload-header-bg);
+  padding: 8px 8px 8px 16px;
+
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: $header-height;
+  box-sizing: border-box;
+
+  color: var(--th-foreground-secondary);
+  user-select: none;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+
+  :not(:first-child) {
+    float: right;
+    margin-top: -5px;
+    background: transparent;
+    fill: var(--th-foreground);
+  }
+
+  // Fullscreen and expand/collapse buttons
+  :nth-child(2), :nth-child(3) {
+    margin-left: 12px;
+  }
+}
+
+.empty {
+  color: var(--th-foreground-secondary);
+
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+
+  pointer-events: none;  // TO allow drag-n-drop
+
+  svg {
+    fill: var(--th-empty-logo-color);
+    max-height: 30%;
+    max-width: 70%;
+  }
+
+  em {
+    text-align: center;
+    max-width: 60%;
+    font-size: 14px;
+    line-height: 20px;
+  }
+}

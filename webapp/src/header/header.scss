@@ -115,7 +115,16 @@ header .middle {
 header .right {
   > div {
     float: right;
+  }
+
+  // User widget
+  > div:nth-child(1) {
     margin: -6px;
+  }
+
+  // Upload widget
+  > div:nth-child(2) {
+    margin-right: 10px;
   }
 }
 

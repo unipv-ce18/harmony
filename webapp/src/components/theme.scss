@@ -40,6 +40,12 @@
   --th-search-song-img-filter: brightness(.7) contrast(1);
   --th-search-result-fg: #eee;
   --th-search-button-hover-bg: rgba(255, 255, 255, .2);
+
+  --th-upload-bg: #{rgba(#111, .8)};
+  --th-upload-shadow: 0 0 10px rgba(0, 0, 0, .4);
+  --th-upload-header-bg: #{rgba(#fff, .05)};
+  --th-empty-logo-color: #{rgba(#fff, .2)};
+  --th-drag-stripe-opacity: 0.015;
 }
 
 // Light theme base
@@ -82,6 +88,12 @@
   --th-search-song-img-filter: brightness(.7) contrast(1);
   --th-search-result-fg: #111;
   --th-search-button-hover-bg: rgba(0, 0, 0, .1);
+
+  --th-upload-bg: #{rgba(#f4f4f4, .8)};
+  --th-upload-shadow: 0 0 10px rgba(0, 0, 0, .2);
+  --th-upload-header-bg: #{rgba(#000, .03)};
+  --th-empty-logo-color: #{rgba(#000, .15)};
+  --th-drag-stripe-opacity: 0.02;
 }
 
 // Wine theme
