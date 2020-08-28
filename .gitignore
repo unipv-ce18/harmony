@@ -1,5 +1,10 @@
+# (misplaced) Python environments
 /venv/
-*.iml
 
+# IntelliJ platform
+*.iml
 /.idea/*
 !/.idea/runConfigurations
+
+# Visual Studio Code
+/.vscode/*
