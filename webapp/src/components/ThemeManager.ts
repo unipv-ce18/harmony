@@ -1,3 +1,4 @@
+import {removeArrayElement} from '../core/utils';
 import {Session} from '../core/Session';
 import {ThemeId, THEMES} from './theme';
 
@@ -80,10 +81,7 @@ class ThemeManager {
      * @param listener - The listener function to remove
      */
     public removeChangeListener(listener: ThemeChangeListener) {
-        const idx = this.changeListeners.findIndex(f => f === listener);
-        if (idx !== -1)
-            this.changeListeners.splice(idx, 1);
-        else
+        if (!removeArrayElement(this.changeListeners, listener))
             throw new Error('Listener not found');
     }
 

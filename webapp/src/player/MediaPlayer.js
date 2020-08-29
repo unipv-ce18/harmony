@@ -1,3 +1,5 @@
+import {removeArrayElement} from '../core/utils';
+
 export const PlayStartModes = Object.freeze({
   /**
    * Wipes out the queue and add the provided item(s) to it
@@ -103,10 +105,7 @@ export class MediaPlayer {
   }
 
   removeInstanceLoadObserver(observer) {
-    const idx = this.#instanceLoadObservers.findIndex(f => f === observer);
-    if (idx !== -1)
-      this.#instanceLoadObservers.splice(idx, 1);
-    else
+    if (!removeArrayElement(this.#instanceLoadObservers, observer))
       throw new Error('Observer not found');
   }
 
