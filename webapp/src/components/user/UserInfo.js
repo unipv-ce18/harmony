@@ -153,9 +153,9 @@ class UserInfo extends Component {
             <div className={styles.image}>
               {this.isUserOwner()
                 ? <button onClick={this.handleSettingsModal.bind(this, true, 'image')}>
-                  <img src={user.avatar_url ? user.avatar_url : DEFAULT_USER_IMAGE_URL} alt={""}/>
+                  <img src={user.image ? user.image : DEFAULT_USER_IMAGE_URL} alt={""}/>
                 </button>
-                : <img src={user.avatar_url ? user.avatar_url : DEFAULT_USER_IMAGE_URL} alt={""}/>}
+                : <img src={user.image ? user.image : DEFAULT_USER_IMAGE_URL} alt={""}/>}
             </div>
             <div>
               <div className={styles.top}>
@@ -181,8 +181,8 @@ class UserInfo extends Component {
                     onClick={this.changeEmailPrefs}/>}
                 </div>}
                 <div class={styles.tagsList}>
-                  <span>Type: {this.state.type}</span>
-                  <span>Tier: {this.state.tier}</span>
+                  <span title="Account type">{this.state.type}</span>
+                  <span title="Account tier">{this.state.tier}</span>
                 </div>
               </div>
               {(this.state.bio && (!this.state.update
