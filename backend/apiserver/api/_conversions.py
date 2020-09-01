@@ -113,7 +113,7 @@ def create_playlist_result(playlist: Playlist, include_songs=False):
         playlist_dict[c.PLAYLIST_IMAGES] = [_get_image_url(cover) for cover in playlist_dict[c.PLAYLIST_IMAGES][:4]]
 
     if include_songs:
-        playlist_dict[c.PLAYLIST_SONGS] = [create_song_result(db.get_song_for_library(song_id))
+        playlist_dict[c.PLAYLIST_SONGS] = [create_song_result(db.get_song(song_id))
                                             for song_id in playlist_dict[c.PLAYLIST_SONGS]]
 
     return playlist_dict

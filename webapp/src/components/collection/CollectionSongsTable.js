@@ -75,6 +75,13 @@ class CollectionSongsTable extends Component {
     return minutes + ":" + seconds;
   }
 
+  composePitch(key) {
+    if (key.mode === 'minor') {
+      return `${key.name}-`;
+    }
+    return key.name;
+  }
+
   compare(a, b) {
       if (a < b) return -1;
       else if (a > b) return 1;
@@ -89,6 +96,7 @@ class CollectionSongsTable extends Component {
       if(type === 'artist') return this.compare(a.artist.name, b.artist.name);
       if(type === 'release') return this.compare(a.release.name, b.release.name);
       if(type === 'length') return this.compare(a.length, b.length);
+      if(type === 'pitch') return this.compare(a.anal_data.key.name, b.anal_data.key.name);
     })
     this.setState({songs : orderedList});
     this.setState({actualOrder : type});
@@ -167,6 +175,7 @@ class CollectionSongsTable extends Component {
               </th>
               <th><button onClick={this.reorderList.bind(this, 'length')}>Time</button></th>
               <th/>
+              <th><button onClick={this.reorderList.bind(this, 'pitch')}>Pitch</button></th>
             </tr>
             {this.state.songs.map(element =>
               <tr onMouseLeave={this.handleCloseMenu}>
@@ -194,7 +203,7 @@ class CollectionSongsTable extends Component {
                                   onClick={this.likeSong.bind(this, 'PUT', element.id)}/>
                   }
                 </td>
-                <td><p>{element.title }</p></td>
+                <td><p>{element.title}</p></td>
                 {!this.props.isRelease ?
                   [<td>
                     <a href='#' onClick={this.clickArtist.bind(this, element.artist.id)}>{element.artist.name}</a>
@@ -204,6 +213,8 @@ class CollectionSongsTable extends Component {
                   </td>]
                   : [<td/>,<td/>]}
                 <td>{this.composeTime(element.length)}</td>
+                <td/>
+                <td>{element.anal_data ? this.composePitch(element.anal_data.key) : null}</td>
                 <td className={styles.hidenButtons}>
                   <IconButton size={24} name="Menu" icon={IconMore}
                         onClick={this.handleMenuAndElement.bind(this, element)}/>
