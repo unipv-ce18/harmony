@@ -60,6 +60,12 @@
       padding: 0.1em 0.2em;
       margin: 0 0.1em;
     }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      background: transparent;
+    }
   }
 
   .artistBio, .additionalInfo {
