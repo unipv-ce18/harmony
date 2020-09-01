@@ -1,13 +1,13 @@
 import {Component} from 'preact';
+import {route} from 'preact-router';
 
 import {mediaPlayer, catalog, session} from '../../Harmony';
 import {MediaItemInfo, PlayStartModes} from '../../player/MediaPlayer';
 import styles from './CollectionSongsTable.scss';
 import {getUserPlaylists} from '../../core/apiCalls';
-import {createMediaItemInfo} from '../../core/links';
+import {createMediaItemInfo, artistLink, releaseLink} from '../../core/links';
 import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconPause} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
-import {route} from 'preact-router';
 import PlayerEvents from '../../player/PlayerEvents';
 import PlayStates from '../../player/PlayStates';
 import Menu from './Menu';
@@ -97,6 +97,7 @@ class CollectionSongsTable extends Component {
       if(type === 'release') return this.compare(a.release.name, b.release.name);
       if(type === 'length') return this.compare(a.length, b.length);
       if(type === 'pitch') return this.compare(a.anal_data.key.name, b.anal_data.key.name);
+      if(type === 'pitch') return this.compare(a.counter, b.counter);
     })
     this.setState({songs : orderedList});
     this.setState({actualOrder : type});
@@ -114,12 +115,12 @@ class CollectionSongsTable extends Component {
 
   clickArtist(artist_id, e) {
      e.preventDefault();
-     route('/artist/' + artist_id);
+     route(artistLink(artist_id));
   }
 
   clickRelease(release_id, e) {
      e.preventDefault();
-     route('/release/' + release_id);
+     route(releaseLink(release_id));
   }
 
   createMediaInfo(song) {
@@ -176,6 +177,8 @@ class CollectionSongsTable extends Component {
               <th><button onClick={this.reorderList.bind(this, 'length')}>Time</button></th>
               <th/>
               <th><button onClick={this.reorderList.bind(this, 'pitch')}>Pitch</button></th>
+              <th/>
+              <th><button onClick={this.reorderList.bind(this, 'counter')}>Plays</button></th>
             </tr>
             {this.state.songs.map(element =>
               <tr onMouseLeave={this.handleCloseMenu}>
@@ -215,6 +218,8 @@ class CollectionSongsTable extends Component {
                 <td>{this.composeTime(element.length)}</td>
                 <td/>
                 <td>{element.anal_data ? this.composePitch(element.anal_data.key) : null}</td>
+                <td/>
+                <td>{element.counter}</td>
                 <td className={styles.hidenButtons}>
                   <IconButton size={24} name="Menu" icon={IconMore}
                         onClick={this.handleMenuAndElement.bind(this, element)}/>
