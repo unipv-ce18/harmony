@@ -1,6 +1,8 @@
 import {Component} from 'preact';
-import styles from './ArtistPage.scss';
 import {route} from 'preact-router';
+
+import styles from './ArtistPage.scss';
+import {releaseLink} from '../../core/links';
 import {IconExpand} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 import {DEFAULT_ALBUMART_URL, DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
@@ -23,7 +25,7 @@ class ReleaseList extends Component {
 
   handleClickRelease(release_id, event) {
     event.preventDefault();
-    route('/release/' + release_id);
+    route(releaseLink(release_id));
   }
 
   handleChangeOrder(event) {
@@ -43,7 +45,7 @@ class ReleaseList extends Component {
       .then (token => {
         createRelease(this.props.artist.id, release_name, token)
           .then(result => {
-            route('/release/' + result['release_id']);
+            route(releaseLink(result['release_id']));
           })
           .catch( () => session.error = true);
       })
