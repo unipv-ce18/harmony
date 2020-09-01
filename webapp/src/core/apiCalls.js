@@ -61,8 +61,8 @@ export function execRefresh(refreshToken) {
   });
 }
 
-export function execSearch(token, type, query) {
-  return fetch(`${API_SEARCH_URL}?q=${query}&t=${type}`, {
+export function execSearch(token, query) {
+  return fetch(`${API_SEARCH_URL}?query=${query}`, {
     headers: new Headers({'Authorization':'Bearer ' + token}),
   }).then(response => {
     if (!response.ok) throw new ApiError(response);

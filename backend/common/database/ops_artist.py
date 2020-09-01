@@ -41,12 +41,13 @@ class ArtistOpsMixin:
             artist_projection_search_result())
         return artist_from_document(artist_doc) if artist_doc is not None else None
 
-    def search_artist(self, artist_name: str, offset=0, limit=-1) -> List[Artist]:
+    def search_artist(self, artist_name: str, offset=0, limit=-1, genres=None) -> List[Artist]:
         """Searches for artists by name and returns the results"""
-        result = self.artists.find(
-            {c.ARTIST_NAME: {'$regex': make_query_regex(artist_name), '$options': '-i'}},
-            artist_projection_search_result()
-        ).skip(offset)
+        query = {c.ARTIST_NAME: {'$regex': make_query_regex(artist_name), '$options': '-i'}}
+        if genres is not None:
+            g = {c.ARTIST_GENRES: {'$regex': make_query_regex(genres), '$options': '-i'}}
+            query = {**query, **g}
+        result = self.artists.find(query, artist_projection_search_result()).skip(offset)
         if limit >= 0:
             result.limit(limit)
         return [artist_from_document(res) for res in result]

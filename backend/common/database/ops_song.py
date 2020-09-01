@@ -67,11 +67,16 @@ class SongOpsMixin:
         result = self.artists.aggregate(_song_pipeline({c.INDEX_RELEASE_ID: ObjectId(release_id)}))
         return [song_from_document(res) for res in result]
 
-    def search_song(self, song_name: str, offset=0, limit=-1):
+    def search_song(self, song_name: str, offset=0, limit=-1, genres=None, bpm=None):
         """Searches for songs by name and returns the results"""
-        result = self.artists.aggregate(_song_pipeline(
-            {c.INDEX_SONG_TITLE: {'$regex': make_query_regex(song_name), '$options': '-i'}},
-            offset, limit, projection=song_projection_search_result()))
+        query = {c.INDEX_SONG_TITLE: {'$regex': make_query_regex(song_name), '$options': '-i'}}
+        if bpm is not None:
+            b = {c.INDEX_SONG_TEMPO: bpm}
+            query = {**query, **b}
+        if genres is not None:
+            g = {c.ARTIST_GENRES: {'$regex': make_query_regex(genres), '$options': '-i'}}
+            query = {**query, **g}
+        result = self.artists.aggregate(_song_pipeline(query, offset, limit, projection=song_projection_search_result()))
         return [song_from_document(res) for res in result]
 
     def remove_song(self, song_id: str):

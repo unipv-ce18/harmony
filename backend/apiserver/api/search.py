@@ -8,13 +8,11 @@ from . import api_blueprint, db
 from ._conversions import create_artist_result, create_release_result, create_song_result, create_playlist_result
 from ..util import security
 
+
 api = Api(api_blueprint)
 
 _arg_parser_search = RequestParser()\
-    .add_argument('q', required=True)\
-    .add_argument('t')\
-    .add_argument('s', type=int)\
-    .add_argument('c', type=int)
+    .add_argument('query', required=True)
 
 
 _SEARCH_FIELDS_ARTIST = ['id', 'name', 'image', 'genres']
@@ -33,31 +31,12 @@ class Search(Resource):
         tags: [misc]
         parameters:
           - in: query
-            name: q
+            name: query
             schema:
               type: string
             required: true
             description: The search query
-            example: Maximum Sexy Pigeon
-          - in: query
-            name: t
-            schema:
-              type: string
-              enum: ['any', 'artists', 'releases', 'songs', 'playlists']
-            required: false
-            description: Type of search
-          - in: query
-            name: s
-            schema:
-              type: int
-            required: false
-            description: Start index of the results
-          - in: query
-            name: c
-            schema:
-              type: int
-            required: false
-            description: Number of the results to return per category
+            example: q:songs-only,genre=rock+alternative,beats=12
         responses:
           200:
             description: Successful search for `any`, no results
@@ -70,36 +49,63 @@ class Search(Resource):
                   "playlists": []
                 }
           400:
-            description: Unrecognized search type argument
+            description: Malformed search request
             content:
               application/json:
-                example: {"message": 'Unknown search type: "foobar"'}
+                example: {"message": 'Malformed search request'}
         """
-        def _check_input(x): return x is not None and x > 0
+        _check_restriction = lambda check, params : any(check in p for p in params)
+        _check_input = lambda check, params : ''.join([p for p in params if check in p]).replace(f'{check}=', '')
+        _create_result = lambda entry, result, query, key : sort_by_weights(list(map(entry, result)), query, key)
 
         data = _arg_parser_search.parse_args()
 
-        query = data['q']
-        search_type = data['t'] or 'any'
-        start = data['s'] if _check_input(data['s']) else 0
-        count = data['c'] if _check_input(data['c']) else 50
+        query = data['query'].split(':')
+
+        search_text = query[0]
+        start = 0
+        count = 50
 
         result = {}
-        if search_type in ['any', 'artists']:
-            result['artists'] = sort_by_weights(list(map(_to_artist_search_entry,
-                                                         db.search_artist(query, start, count))), query, 'name')
-        if search_type in ['any', 'releases']:
-            result['releases'] = sort_by_weights(list(map(_to_release_search_entry,
-                                                          db.search_release(query, start, count))), query, 'name')
-        if search_type in ['any', 'songs']:
-            result['songs'] = sort_by_weights(list(map(_to_song_search_entry,
-                                                       db.search_song(query, start, count))), query, 'title')
-        if search_type in ['any', 'playlists']:
-            result['playlists'] = sort_by_weights(list(map(_to_playlist_search_entry,
-                                                           db.search_playlist(query, start, count))), query, 'name')
 
-        if not result:
-            return {'message': f'Unknown search type: "{search_type}"'}, HTTPStatus.BAD_REQUEST
+        if len(query) > 1:
+            params = query[1].split(',')
+
+            genres = _check_input('genre', params)
+            genres = genres.replace('+', ' ') if genres else None
+
+            bpm = _check_input('beats', params)
+            try:
+                bpm = int(bpm) if bpm else None
+
+                if bpm and not _check_restriction('artists-only', params) \
+                    and not _check_restriction('releases-only', params) and not _check_restriction('playlists-only', params):
+                    result['songs'] = _create_result(_to_song_search_entry, db.search_song(search_text, start, count, genres, bpm), search_text, 'title')
+                    return result, HTTPStatus.OK
+
+                if bpm and not _check_restriction('songs-only', params):
+                    return {'message': 'Malformed search request'}, HTTPStatus.BAD_REQUEST
+
+                if _check_restriction('artists-only', params):
+                    result['artists'] = _create_result(_to_artist_search_entry, db.search_artist(search_text, start, count, genres), search_text, 'name')
+                elif _check_restriction('releases-only', params):
+                    result['releases'] = _create_result(_to_release_search_entry, db.search_release(search_text, start, count, genres), search_text, 'name')
+                elif _check_restriction('songs-only', params):
+                    result['songs'] = _create_result(_to_song_search_entry, db.search_song(search_text, start, count, genres, bpm), search_text, 'title')
+                elif _check_restriction('playlists-only', params):
+                    result['playlists'] = _create_result(_to_playlist_search_entry, db.search_playlist(search_text, start, count), search_text, 'name')
+                else:
+                    result['artists'] = _create_result(_to_artist_search_entry, db.search_artist(search_text, start, count, genres), search_text, 'name')
+                    result['releases'] = _create_result(_to_release_search_entry, db.search_release(search_text, start, count, genres), search_text, 'name')
+                    result['songs'] = _create_result(_to_song_search_entry, db.search_song(search_text, start, count, genres, bpm), search_text, 'title')
+                    result['playlists'] = _create_result(_to_playlist_search_entry, db.search_playlist(search_text, start, count), search_text, 'name')
+            except:
+                pass
+        else:
+            result['artists'] = _create_result(_to_artist_search_entry, db.search_artist(search_text, start, count), search_text, 'name')
+            result['releases'] = _create_result(_to_release_search_entry, db.search_release(search_text, start, count), search_text, 'name')
+            result['songs'] = _create_result(_to_song_search_entry, db.search_song(search_text, start, count), search_text, 'title')
+            result['playlists'] = _create_result(_to_playlist_search_entry, db.search_playlist(search_text, start, count), search_text, 'name')
 
         return result, HTTPStatus.OK
 

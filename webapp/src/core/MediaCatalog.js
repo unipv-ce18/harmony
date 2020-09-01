@@ -120,21 +120,11 @@ export class MediaCatalog {
       })
   }
 
-  search(text, modifiers) {
-    const searchType = convertModifiers(modifiers);
+  search(query) {
     // This will use client-side caching
     return this.session.getAccessToken()
-      .then(token => execSearch(token, searchType, text));
+      .then(token => execSearch(token, query));
   }
-}
-
-// TODO: Remove when the new server search API is implemented
-function convertModifiers(modifiers) {
-  return modifiers.findIndex(m => m.key === 'artists-only') !== -1 && 'artists' ||
-    modifiers.findIndex(m => m.key === 'releases-only') !== -1 && 'releases' ||
-    modifiers.findIndex(m => m.key === 'songs-only') !== -1 && 'songs' ||
-    modifiers.findIndex(m => m.key === 'playlists-only') !== -1 && 'playlists' ||
-    'any';
 }
 
 export const SearchTypes = Object.freeze({

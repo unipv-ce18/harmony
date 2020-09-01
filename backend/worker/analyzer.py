@@ -93,7 +93,7 @@ class Analyzer:
                 # the song is too short to recognize a tempo
                 return 0
             bpms = 60. / np.diff(beats)
-            bpm_est = round(np.median(bpms), 2)
+            bpm_est = int(round(np.median(bpms)))
         else:
             # too few beats to recognize a tempo
             return 0

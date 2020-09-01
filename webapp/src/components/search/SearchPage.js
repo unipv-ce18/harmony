@@ -72,7 +72,7 @@ class SearchPage extends HarmonyPage {
     // Do the search
     const {text, modifiers} = fromSearchUrlData(this.props.query);  // If this throws nothing happens
     this.setState({updatingQuery: query})
-    catalog.search(text, modifiers)
+    catalog.search(this.props.query)
       .then(results => this.setState({query, results, updatingQuery: null}))
   }
 }

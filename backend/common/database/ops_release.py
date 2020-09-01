@@ -64,11 +64,13 @@ class ReleaseOpsMixin:
         result = self.artists.aggregate(_release_pipeline({c.ARTIST_ID: ObjectId(artist_id)}))
         return [release_from_document(res) for res in result]
 
-    def search_release(self, release_name: str, offset=0, limit=-1) -> List[Release]:
+    def search_release(self, release_name: str, offset=0, limit=-1, genres=None) -> List[Release]:
         """Searches for releases by name and returns the results"""
-        result = self.artists.aggregate(_release_pipeline(
-            {c.INDEX_RELEASE_NAME: {'$regex': make_query_regex(release_name), '$options': '-i'}},
-            offset, limit, projection=release_projection_search_result()))
+        query = {c.INDEX_RELEASE_NAME: {'$regex': make_query_regex(release_name), '$options': '-i'}}
+        if genres is not None:
+            g = {c.ARTIST_GENRES: {'$regex': make_query_regex(genres), '$options': '-i'}}
+            query = {**query, **g}
+        result = self.artists.aggregate(_release_pipeline(query, offset, limit, projection=release_projection_search_result()))
         return [release_from_document(res) for res in result]
 
     def remove_release(self, release_id: str):
