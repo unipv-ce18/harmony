@@ -1,15 +1,10 @@
 import {Component} from 'preact';
+import {route} from 'preact-router';
 
 import styles from './UserPage.scss';
-import {route} from 'preact-router';
 import {session} from '../../Harmony';
 import {userLibraryLink} from '../../core/links';
-import {
-  patchUser,
-  deleteUser,
-  uploadContent,
-  uploadToStorage
-} from '../../core/apiCalls';
+import {deleteUser} from '../../core/apiCalls';
 import ArtistList from './ArtistList';
 import IconButton from '../IconButton';
 import {IconLockClose, IconLockOpen, IconSettings} from '../../assets/icons/icons';
@@ -20,13 +15,11 @@ class UserInfo extends Component {
   constructor(props) {
     super(props);
 
-
     this.state = {
       update : false,
       settingsModal : false,
       settingsType: ''
     };
-
 
     this.changeType = this.changeType.bind(this);
     this.changeTier = this.changeTier.bind(this);
@@ -95,26 +88,16 @@ class UserInfo extends Component {
   confirmModification(e) {
     e.preventDefault();
     let bio = this.state.bio;
-    session.getAccessToken()
-      .then (token => {
-        patchUser(token, this.props.user.id, {bio})
-          .then( () => {
-            this.setState({update : false});
-            this.props.loadUser();
-          })
-          .catch( () => session.error = true);
-      })
+    this.props.user.updateBiography(bio)
+      .then(() => this.setState({update: false}))
+      .catch(() => session.error = true);
   }
 
   removeUser() {
     session.getAccessToken()
-      .then (token => {
-        deleteUser(token, this.props.user.id)
-          .then( () => {
-            session.doLogout();
-          })
-          .catch( () => session.error = true);
-      })
+      .then(token => deleteUser(token, this.props.user.id))
+      .then(() => session.doLogout())
+      .catch(() => session.error = true);
   }
 
   handleChange({target}) {
@@ -123,16 +106,10 @@ class UserInfo extends Component {
     });
   }
 
-  uploadUserImage(mimetype, size, filename) {
-    session.getAccessToken()
-      .then (token => {
-        uploadContent('user', 'me', mimetype, size, token)
-          .then(result => {
-            uploadToStorage(result, filename);
-            this.setState({settingsModal : false});
-          })
-          .catch( () => session.error = true);
-      })
+  uploadUserImage(file) {
+    this.props.user.updateImage(file)
+      .then(() => this.setState({settingsModal: false}))
+      .catch(() => session.error = true);
   }
 
   handleSettingsModal(isOpen, type) {
@@ -140,12 +117,7 @@ class UserInfo extends Component {
     this.setState({settingsType: type});
   }
 
-
-
-
-  render() {
-    const user = this.props.user;
-
+  render({user}, {bio, email, type, tier, update, settingsModal, settingsType}) {
     return(
       <div>
         <div class={styles.userInfo}>
@@ -153,14 +125,14 @@ class UserInfo extends Component {
             <div className={styles.image}>
               {this.isUserOwner()
                 ? <button onClick={this.handleSettingsModal.bind(this, true, 'image')}>
-                  <img src={user.image ? user.image : DEFAULT_USER_IMAGE_URL} alt={""}/>
+                  <img src={user.image ? user.image : DEFAULT_USER_IMAGE_URL} alt=""/>
                 </button>
-                : <img src={user.image ? user.image : DEFAULT_USER_IMAGE_URL} alt={""}/>}
+                : <img src={user.image ? user.image : DEFAULT_USER_IMAGE_URL} alt=""/>}
             </div>
             <div>
               <div className={styles.top}>
                 <h2 className={styles.name}>{user.username}</h2>
-                {this.isUserOwner() && !this.state.update &&
+                {this.isUserOwner() && !update &&
                 <div>
                   <IconButton
                     size={30}
@@ -176,22 +148,22 @@ class UserInfo extends Component {
                   {this.isUserOwner() &&
                   <IconButton
                     size={20}
-                    name={this.state.email ? "Make it public" : "Make it private"}
-                    icon={this.state.email ? IconLockClose : IconLockOpen}
+                    name={email ? "Make it public" : "Make it private"}
+                    icon={email ? IconLockClose : IconLockOpen}
                     onClick={this.changeEmailPrefs}/>}
                 </div>}
                 <div class={styles.tagsList}>
-                  <span title="Account type">{this.state.type}</span>
-                  <span title="Account tier">{this.state.tier}</span>
+                  <span title="Account type">{type}</span>
+                  <span title="Account tier">{tier}</span>
                 </div>
               </div>
-              {(this.state.bio && (!this.state.update
-                ? <div className={styles.userBio}>{this.state.bio}</div>
+              {(bio && (!update
+                ? <div className={styles.userBio}>{bio}</div>
                 : <form className={styles.userBio}>
                     <input
                       type="text"
                       name="bio"
-                      value={this.state.bio}
+                      value={bio}
                       placeholder="Enter your new bio"
                       onChange={this.handleChange}
                     />
@@ -203,21 +175,21 @@ class UserInfo extends Component {
           </div>
           {!this.isUserOwner() &&
             <a href="#" onClick={this.clickLibrary}>Go to {user.username} library</a>}
-          {this.state.type === 'creator' &&
+          {type === 'creator' &&
             <ArtistList artists={user.ownArtists} isUserOwner={this.isUserOwner()} />}
 
           {this.isUserOwner() &&
           <div className={styles.userBottom}>
-            {this.state.type !== 'creator' &&
+            {type !== 'creator' &&
             <button onClick={this.changeType}>Become a creator!</button>}
-            {this.state.tier !== 'pro' &&
+            {tier !== 'pro' &&
             <button onClick={this.changeTier}>Become a pro user!</button>}
           </div>}
         </div>
-        {this.state.settingsModal &&
+        {settingsModal &&
           <SettingsModal
             handleSettingsModal={this.handleSettingsModal.bind(this)}
-            type={this.state.settingsType}
+            type={settingsType}
             updatePage={this.updatePage}
             removeUser={this.removeUser.bind(this)}
             uploadImage={this.uploadUserImage.bind(this)}

@@ -1,5 +1,6 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
+
 import styles from './UserPage.scss';
 import {DEFAULT_ALBUMART_URL, DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
@@ -16,7 +17,7 @@ class ArtistList extends Component {
 
   handleClickArtist(artist_id, e) {
     e.preventDefault();
-    route('/artist/' + artist_id);
+    route(artistLink(artist_id));
   }
 
   createNewArtist(temp_artist_name) {
