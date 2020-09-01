@@ -135,7 +135,7 @@ class ReleaseInfo extends Component {
             <label htmlFor="upload">
               <input type="file" id="upload" style="display:none"
                 onChange={e => this.uploadReleaseCover(e.target.files[0])}/>
-              <IconButton size={24} name="Settings" icon={IconEdit}/>
+              <IconButton size={24} name="Upload image" icon={IconEdit}/>
             </label>
            </div>
          : <div><img src={collection.cover ? collection.cover : DEFAULT_ALBUMART_URL} alt={""}/></div>}
