@@ -76,10 +76,7 @@ class CollectionSongsTable extends Component {
   }
 
   composePitch(key) {
-    if (key.mode === 'minor') {
-      return `${key.name}-`;
-    }
-    return key.name;
+    return `${key.name} ${key.mode}`;
   }
 
   compare(a, b) {
