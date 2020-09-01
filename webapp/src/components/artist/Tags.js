@@ -7,7 +7,7 @@ class Tags extends Component {
 
   clickGenre(genre, e) {
      e.preventDefault();
-     route('/search/:genre=' + genre);
+     route('/search/:genre=' + genre.replace(' ', '+'));
   }
 
   render({list}) {
