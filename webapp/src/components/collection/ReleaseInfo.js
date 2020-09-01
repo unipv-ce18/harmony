@@ -145,6 +145,7 @@ class ReleaseInfo extends Component {
           <p>{collection.name}</p>
           <p><a href='#' onClick={this.clickArtist}>{collection.artist.name}</a></p>
           <p>{collection.date}</p>
+          <p class={styles.listeners}>Listeners: {collection.counter}</p>
         </div>
         :
         <div class={styles.releaseUpdatingInfo}>
