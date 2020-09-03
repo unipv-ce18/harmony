@@ -1,5 +1,7 @@
 import {mount} from 'enzyme';
 
+import '../../matchMedia.mock';
+
 import {FieldType} from '../../../src/components/login/validation';
 import LoginForm from '../../../src/components/login/LoginForm';
 

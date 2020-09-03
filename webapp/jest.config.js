@@ -4,7 +4,8 @@ const HarmonyConf = require('./harmony-webapp.conf');
 
 module.exports = {
   globals: {
-    API_BASE_URL: HarmonyConf.API_BASE_URL
+    API_BASE_URL: HarmonyConf.API_BASE_URL,
+    DEFAULT_THEME_ID: HarmonyConf.DEFAULT_THEME
   },
   setupFilesAfterEnv: [
     "<rootDir>/test/setupTests.js"

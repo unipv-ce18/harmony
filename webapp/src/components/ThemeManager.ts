@@ -56,8 +56,10 @@ class ThemeManager {
     public applyTheme(themeId?: ThemeId) {
         this.currentTheme = themeId != null ? themeId : this.getContextTheme();
 
-        const themeColor = this.getColorSchemeAttribute(THEMES[this.currentTheme].themeColor);
-        document.querySelector('meta[name=theme-color]')!.setAttribute('content', themeColor);
+        if (process.env.NODE_ENV !== 'test') {
+          const themeColor = this.getColorSchemeAttribute(THEMES[this.currentTheme].themeColor);
+          document.querySelector('meta[name=theme-color]')!.setAttribute('content', themeColor);
+        }
 
         const promises = this.changeListeners.map(l => () => new Promise(done => l(this.currentAppClass, done)));
         // noinspection JSIgnoredPromiseFromCall
