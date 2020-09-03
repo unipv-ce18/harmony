@@ -135,10 +135,10 @@ export function getReleasePlaylist(type_collection, collection_id, with_song, to
     })
 }
 
-export function getArtist(artist_id, with_releases, token) {
+export function getArtist(artistId, withReleases, token) {
   // with_releases == true includes the songs in the result
-  let query = API_ARTIST_URL + '/' + artist_id;
-  if (with_releases) query += '?releases=1';
+  let query = API_ARTIST_URL + '/' + artistId;
+  if (withReleases) query += '?releases=1';
   return fetch(query, {
     method: 'GET',
     headers: new Headers({'Accept': 'application/json', 'Authorization':'Bearer ' + token}),

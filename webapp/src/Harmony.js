@@ -1,7 +1,7 @@
 import {Session} from './core/Session';
 import {MediaCatalog} from './core/MediaCatalog';
 import {MediaPlayer, MediaItemInfo, PlayStartModes} from './player/MediaPlayer';
- import ThemeManager from './components/ThemeManager';
+import ThemeManager from './components/ThemeManager';
 
 export const session = new Session();
 export const catalog = new MediaCatalog(session);

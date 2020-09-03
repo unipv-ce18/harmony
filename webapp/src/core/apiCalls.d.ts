@@ -9,6 +9,7 @@ declare namespace apiCalls {
     type ArtistId = string;
     type ReleaseId = string;
     type SongId = string;
+    type PlaylistId = string;
 
     type LoginResult = {
         access_token: AccessToken,
@@ -46,6 +47,40 @@ declare namespace apiCalls {
     type UploadContentObjectId = UserId | ArtistId | ReleaseId | SongId;
     type UploadContentResult = [string, any];  // Url and presigned post data
 
+    // TODO: Update to the new API
+    type SearchType = 'any' | 'artists' | 'releases' | 'songs' | 'playlists';
+
+    type SearchResult = {
+      artists?: [{id: ArtistId, name: string /* ...more */}]
+      releases?: [{id: ReleaseId, name: string /* ...more */}]
+      songs?: [{id: SongId, title: string /* ...more */}]
+      playlists?: [{id: PlaylistId, /* ...more */}]
+    }
+
+    type ArtistResult = {
+      id: ArtistId,
+      name: string,
+      creator: string | null,
+      sort_name: string,
+      country?: string
+      life_span?: {begin: string, end: string | null},
+      genres?: string[],
+      bio?: string | null,
+      members?: [{role: string, name: string}],
+      links?: {[target: string]: string},
+      image?: string | null,
+      releases?: ReleaseResult[]
+    }
+
+    type ReleaseResult = {
+      id: ReleaseId,
+      name: string,
+      date?: string,
+      artist: any,  // keep it simple for now
+      type: 'album' | 'single' | 'ep' | 'compilation' | 'live' | 'remix' | null,
+      cover: string | null
+    }
+
     function execLogin(identity: string, password: string): Promise<LoginResult>;
 
     function execLogout(token: AccessToken): Promise<void>;
@@ -64,6 +99,10 @@ declare namespace apiCalls {
                            mimeType: string, size: number, token: AccessToken): Promise<UploadContentResult>;
 
     function uploadToStorage(result: UploadContentResult, file: File): Promise<Response>;
+
+    function execSearch(token: AccessToken, type: SearchType, query: string): Promise<SearchResult>;
+
+    function getArtist(artistId: ArtistId, withReleases: boolean, token: AccessToken): Promise<ArtistResult>;
 }
 
 export = apiCalls;

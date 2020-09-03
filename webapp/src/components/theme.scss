@@ -44,8 +44,10 @@
   --th-upload-bg: #{rgba(#111, .8)};
   --th-upload-shadow: 0 0 10px rgba(0, 0, 0, .4);
   --th-upload-header-bg: #{rgba(#fff, .05)};
-  --th-empty-logo-color: #{rgba(#fff, .2)};
-  --th-drag-stripe-opacity: 0.015;
+  --th-upload-empty-logo-color: #{rgba(#fff, .2)};
+  --th-upload-drag-stripe-opacity: 0.015;
+  --th-upload-artist-bg: linear-gradient(to bottom, #{rgba(black, .6)}, transparent 50px);
+  --th-upload-release-bg: #{rgba(#070707, .6)};
 }
 
 // Light theme base
@@ -92,8 +94,10 @@
   --th-upload-bg: #{rgba(#f4f4f4, .8)};
   --th-upload-shadow: 0 0 10px rgba(0, 0, 0, .2);
   --th-upload-header-bg: #{rgba(#000, .03)};
-  --th-empty-logo-color: #{rgba(#000, .15)};
-  --th-drag-stripe-opacity: 0.02;
+  --th-upload-empty-logo-color: #{rgba(#000, .15)};
+  --th-upload-drag-stripe-opacity: 0.025;
+  --th-upload-artist-bg: linear-gradient(to bottom, #{rgba(white, .6)}, transparent 50px);
+  --th-upload-release-bg: #{rgba(#e7e7e7, .6)};
 }
 
 // Wine theme
