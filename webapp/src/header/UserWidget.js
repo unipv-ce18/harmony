@@ -21,7 +21,7 @@ class UserWidget extends Component {
     user: null,
     dropdown: false,
     dropdownHeight: 0,
-    imageLoaded: false
+    imageLoaded: 'no'
   }
 
   #leaveTimeout = null;
@@ -43,8 +43,10 @@ class UserWidget extends Component {
         <div>
           {user && [
             <span>{user.username}</span>,
-            <img src={user.image || DEFAULT_USER_IMAGE_URL} alt=""
-                 style={!imageLoaded && {opacity: 0}} onload={() => this.setState({imageLoaded: true})}/>
+            <img src={imageLoaded !== 'err' ? (user.image || DEFAULT_USER_IMAGE_URL) : DEFAULT_USER_IMAGE_URL} alt=""
+                 onload={() => imageLoaded === 'no' && this.setState({imageLoaded: 'yes'})}
+                 onError={() => this.setState({imageLoaded: 'err'})}
+                 style={imageLoaded === 'no' && {opacity: 0}}/>
           ]}
         </div>
         <div>
