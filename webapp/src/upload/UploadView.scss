@@ -1,6 +1,7 @@
 @import '../styledefs';
 
 $header-height: 30px;
+$footer-height: 40px;
 
 .wrapper {
   position: fixed;
@@ -97,9 +98,59 @@ $header-height: 30px;
 }
 
 .content {
-  height: calc(100% - 30px);
-  margin-top: 30px;
+  height: calc(100% - #{$header-height + $footer-height});
+  margin-top: $header-height;
   overflow-y: auto;
 
   user-select: none;
+}
+
+.actionButtons {
+  display: flex;
+  height: $footer-height;
+  background-color: var(--th-upload-footer-bg);
+  padding: 8px 16px;
+  box-sizing: border-box;
+
+  justify-content: flex-end;
+  
+  > button {
+    margin: 0 6px;
+    background-color: var(--th-upload-footer-btn-bg);
+    color: var(--th-upload-footer-btn-fg);
+    outline: none;
+    border-radius: 4px;
+    border: none;
+
+    font-size: 11px;
+    letter-spacing: .5px;
+    font-weight: 700;
+    text-transform: uppercase;
+
+    cursor: pointer;
+    transition: background-color $transition-len-short-ms;
+
+    &:hover {
+      background-color: var(--th-upload-footer-btn-bg-hover);
+    }
+  }
+
+  // Submit
+  > button:last-of-type {    
+    &:disabled {
+      background-color: var(--th-upload-footer-btn-hi-bg-disabled);
+      color: var(--th-upload-footer-btn-hi-fg-disabled);
+
+      cursor: not-allowed;
+    }
+
+    &:not(:disabled) {
+      background-color: var(--th-upload-footer-btn-hi-bg);
+      color: var(--th-upload-footer-btn-hi-fg);
+
+      &:hover {
+        background-color: var(--th-upload-footer-btn-hi-bg-hover)
+      }
+    }
+  }
 }

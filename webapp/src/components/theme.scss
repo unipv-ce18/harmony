@@ -44,6 +44,15 @@
   --th-upload-bg: #{rgba(#111, .8)};
   --th-upload-shadow: 0 0 10px rgba(0, 0, 0, .4);
   --th-upload-header-bg: #{rgba(#fff, .05)};
+  --th-upload-footer-bg: #0d0d0d;
+  --th-upload-footer-btn-bg: #333;
+  --th-upload-footer-btn-bg-hover: #444;
+  --th-upload-footer-btn-fg: #ccc;
+  --th-upload-footer-btn-hi-bg-disabled: #455a64;  // Material Blue Grey 700
+  --th-upload-footer-btn-hi-fg-disabled: #ccc;
+  --th-upload-footer-btn-hi-bg: #1976d2;  // Material Blue 700
+  --th-upload-footer-btn-hi-bg-hover: #2196f3;  // Material Blue 500
+  --th-upload-footer-btn-hi-fg: #eee;
   --th-upload-empty-logo-color: #{rgba(#fff, .2)};
   --th-upload-drag-stripe-opacity: 0.015;
   --th-upload-artist-bg: linear-gradient(to bottom, #{rgba(black, .6)}, transparent 50px);
@@ -94,6 +103,15 @@
   --th-upload-bg: #{rgba(#f4f4f4, .8)};
   --th-upload-shadow: 0 0 10px rgba(0, 0, 0, .2);
   --th-upload-header-bg: #{rgba(#000, .03)};
+  --th-upload-footer-bg: #f0f0f0;
+  --th-upload-footer-btn-bg: #ddd;
+  --th-upload-footer-btn-bg-hover: #ccc;
+  --th-upload-footer-btn-fg: #444;
+  --th-upload-footer-btn-hi-bg-disabled: #90a4ae;  // Material Blue Grey 300
+  --th-upload-footer-btn-hi-fg-disabled: #fff;
+  --th-upload-footer-btn-hi-bg: #1976d2;  // Material Blue 700
+  --th-upload-footer-btn-hi-bg-hover: #2196f3;  // Material Blue 500
+  --th-upload-footer-btn-hi-fg: #eee;
   --th-upload-empty-logo-color: #{rgba(#000, .15)};
   --th-upload-drag-stripe-opacity: 0.025;
   --th-upload-artist-bg: linear-gradient(to bottom, #{rgba(white, .6)}, transparent 50px);

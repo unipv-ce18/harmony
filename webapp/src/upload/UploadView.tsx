@@ -1,4 +1,4 @@
-import {h, JSX, Component, FunctionalComponent} from 'preact';
+import {h, JSX, Component, ComponentChildren, FunctionalComponent} from 'preact';
 
 import {classList} from '../core/utils';
 import IconButton from '../components/IconButton';
@@ -16,14 +16,16 @@ import {ArtistEditView} from './editViews';
 
 import style from './UploadView.scss';
 
-interface State {
+type State = {
   // Files are being dragged over
-  dragOver: boolean
+  dragOver: boolean,
+  // The edit tree is valid and can be submitted
+  canSubmit: boolean,
 }
 
 class UploadView extends Component<{}, State> {
 
-  state = {dragOver: false};
+  state = {dragOver: false, canSubmit: false};
 
   private readonly editTree = new EditTree(new HarmonyMetaSource());
 
@@ -32,14 +34,17 @@ class UploadView extends Component<{}, State> {
     this.onFileDrop = this.onFileDrop.bind(this);
   }
 
-  render(_: {}, {dragOver}: State) {
+  render(_: {}, {dragOver, canSubmit}: State) {
     const artistViews = this.editTree.artists.map(a => <ArtistEditView key={a.eid} data={a}/>);
 
     return (
       <DragArea class={classList(style.uploadView, dragOver && style.dragOver)}
                 onDragStateChange={dragOver => this.setState({dragOver})} onDrop={this.onFileDrop}>
         <UploadHeader uv={this}/>
-        {artistViews.length === 0 ? <EmptyView/> : <div class={style.content}>{artistViews}</div>}
+        {artistViews.length === 0 ? <EmptyView/> : [
+          <div class={style.content}>{artistViews}</div>,
+          <ActionButtons canSubmit={canSubmit} clearAction={this.handleClear} submitAction={this.handleSubmit}/>
+        ]}
       </DragArea>
     );
   }
@@ -48,9 +53,7 @@ class UploadView extends Component<{}, State> {
     const dialog = Object.assign(document.createElement('input'), {
       type: 'file', multiple: true, webkitdirectory: folders
     });
-    dialog.addEventListener('change', (e: Event) => {
-      updateTree(this.editTree, files.fromFileDialog(e)).then(() => this.forceUpdate());
-    });
+    dialog.addEventListener('change', e => this.addFiles(files.fromFileDialog(e)));
     dialog.click();
   }
 
@@ -58,9 +61,21 @@ class UploadView extends Component<{}, State> {
     e.preventDefault();
     this.setState({dragOver: false});
 
-    files.fromDropEvent(e)
-      .then(files => updateTree(this.editTree, files))
-      .then(() => this.forceUpdate());
+    files.fromDropEvent(e).then(fs => this.addFiles(fs));
+  }
+
+  private addFiles(fs: File[]) {
+    // Disable submit to wait for server sync
+    return updateTree(this.editTree, fs).then(() => this.setState({canSubmit: false}));
+  }
+
+  private readonly handleClear = () => {
+    console.log('clear');
+    this.setState({canSubmit: false});
+  }
+
+  private readonly handleSubmit = () => {
+    console.log('submit');
   }
 
 }
@@ -86,8 +101,21 @@ const EmptyView = () => (
   </div>
 );
 
+type ActionButtonsProps = {
+  canSubmit: boolean,
+  clearAction: (e: MouseEvent) => void,
+  submitAction: (e: MouseEvent) => void
+}
+
+const ActionButtons = ({canSubmit, clearAction, submitAction}: ActionButtonsProps) => (
+  <div class={style.actionButtons}>
+    <button onClick={clearAction}>Clear All</button>
+    <button onClick={submitAction} disabled={!canSubmit}>Submit</button>
+  </div>
+);
+
 type DragAreaProps = JSX.HTMLAttributes & {
-  children?: JSX.Element[],
+  children?: ComponentChildren,
   onDragStateChange: (dragIn: boolean) => void
 };
 
