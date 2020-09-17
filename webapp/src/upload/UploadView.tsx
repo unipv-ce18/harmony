@@ -10,7 +10,7 @@ import {
   IconUploadFolder
 } from '../assets/icons/icons';
 import * as files from './files';
-import {EditTree, updateTree} from './tree';
+import {EditTree, TreeChangeListener, updateTree} from './tree';
 import HarmonyMetaSource from './HarmonyMetaSource';
 import {ArtistEditView} from './editViews';
 
@@ -32,6 +32,7 @@ class UploadView extends Component<{}, State> {
   constructor() {
     super();
     this.onFileDrop = this.onFileDrop.bind(this);
+    this.editTree.addTreeChangeListener(this.onTreeChange);
   }
 
   render(_: {}, {dragOver, canSubmit}: State) {
@@ -76,6 +77,16 @@ class UploadView extends Component<{}, State> {
 
   private readonly handleSubmit = () => {
     console.log('submit');
+  }
+
+  private readonly onTreeChange: TreeChangeListener = (object, _) => {
+    if (!object.isValid()) {
+      // Shortcut if the current object is not valid
+      this.setState({canSubmit: false});
+    } else {
+      // Check the whole tree
+      this.setState({canSubmit: this.editTree.isValid()});
+    }
   }
 
 }

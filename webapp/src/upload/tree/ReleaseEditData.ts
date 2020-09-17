@@ -1,7 +1,7 @@
 import {createId} from './eid';
 import {SongMetadata} from './metadata';
 import ResyncProperty from './ResyncProperty';
-import EditTree from './EditTree';
+import EditTree, {SubmitAlert} from './EditTree';
 import SongEditData from './SongEditData';
 import ArtistEditData from './ArtistEditData';
 
@@ -11,6 +11,11 @@ class ReleaseEditData {
 
   public readonly eid = createId();
   public readonly songs: SongEditData[] = [];
+
+  private _alerts: SubmitAlert[] = [];
+  public get alerts(): SubmitAlert[] {
+    return this._alerts;
+  }
 
   public remoteId?: string = undefined;
   public date?: string = undefined;
@@ -28,7 +33,7 @@ class ReleaseEditData {
     if (v !== '') this._name.value = v; 
   }
 
-  constructor(public readonly editTree: EditTree<any>,
+  constructor(public readonly editTree: EditTree,
               public readonly artist: ArtistEditData,
               name?: string, date?: string) {
     this._name = new ResyncProperty(name || UNKNOWN_RELEASE_NAME, this.fetchRemoteData);
@@ -51,15 +56,24 @@ class ReleaseEditData {
     this.songs.push(new SongEditData(title, songMetadata.trackLength, songFile));
   }
 
+  /**
+   * Returns true if this release is valid and can be submitted
+   */
+  public isValid(): boolean {
+    return this.alerts.find(a => a.blocking) === undefined
+      && this.songs.find(r => !r.isValid()) === undefined;
+  }
+
   public onArtistUpdate() {
     this.fetchRemoteData();
   }
 
   private fetchRemoteData = () => {
     this.remoteId = undefined;
-    this.editTree.metaSource.updateReleaseData(this).then(
-      result => this.editTree.notifyTreeChange(this, result)
-    );
+    this.editTree.metaSource.updateReleaseData(this).then(result => {
+      this._alerts = result.alerts;
+      this.editTree.notifyTreeChange(this, result)
+    });
   };
 
 }

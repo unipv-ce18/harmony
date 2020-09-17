@@ -2,13 +2,12 @@ import {h, Component, ComponentType} from 'preact';
 
 import {classList} from '../core/utils';
 import {DEFAULT_ALBUMART_URL} from '../assets/defaults';
-import {ArtistEditData, ReleaseEditData, SongEditData, RemoteMetadataResult} from './tree';
-import {HTreeUpdateEvent, UploadAlert} from './HarmonyMetaSource';
+import {ArtistEditData, ReleaseEditData, SongEditData, RemoteUpdateEvent, SubmitAlert} from './tree';
 
 import style from './editViews.scss';
 
-type AEVProps = {data: ArtistEditData, alerts: UploadAlert[]};
-type REVProps = {data: ReleaseEditData, alerts: UploadAlert[], getImageUrl: (blob?: Blob) => string};
+type AEVProps = {data: ArtistEditData, alerts: SubmitAlert[]};
+type REVProps = {data: ReleaseEditData, alerts: SubmitAlert[], getImageUrl: (blob?: Blob) => string};
 type SEVProps = {data: SongEditData};
 
 type WithUpdateProps = {data: ArtistEditData | ReleaseEditData};
@@ -25,11 +24,10 @@ function withUpdate<P extends WithUpdateProps>(View: ComponentType<any>) {
     render(props: P, {alerts}: any) {
       return <View {...props} alerts={alerts}/>;
     }
-    private onDataChange = (object: ArtistEditData, {found, updated, eventData}: RemoteMetadataResult<HTreeUpdateEvent>) => {
+    private onDataChange = (object: ArtistEditData, {found, updated, alerts}: RemoteUpdateEvent) => {
       if (object.eid === this.props.data.eid) {
         if (updated) this.forceUpdate();
-        if (!found) this.setState({alerts: []});
-        if (eventData != null) this.setState({alerts: eventData.alerts});
+        this.setState({alerts});
       }
     };
   }
@@ -58,7 +56,7 @@ function withBlobImage<P>(View: ComponentType<any>) {
   }
 }
 
-const AlertGroup = ({alerts}: {alerts: UploadAlert[]}) => (
+const AlertGroup = ({alerts}: {alerts: SubmitAlert[]}) => (
   <div>
     {alerts.map(a => (
       <div class={classList(style.alert, a.blocking && style.critical)}>{a.message}</div>

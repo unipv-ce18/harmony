@@ -3,14 +3,13 @@ import {SongMetadata} from './metadata';
 import ArtistEditData from './ArtistEditData';
 import ReleaseEditData from './ReleaseEditData';
 
-export type RemoteMetadataResult<T> = {found: boolean, updated: boolean, eventData?: T};
+export type SubmitAlert = {blocking: boolean, message: string};
+export type RemoteUpdateEvent = {found: boolean, updated: boolean, alerts: SubmitAlert[]};
 
 /**
  * A metadata source to asynchronously enrich an edit tree's items
- * 
- * @param T - event data type
  */
-export interface RemoteMetadataSource<T = undefined> {
+export interface RemoteMetadataSource {
 
   /**
    * Updates the given artist providing additional information
@@ -18,7 +17,7 @@ export interface RemoteMetadataSource<T = undefined> {
    * @param artist - the artist
    * @returns whether the item was updated or not, plus additional optional data to pass to listeners
    */
-  updateArtistData(artist: ArtistEditData): Promise<RemoteMetadataResult<T>>;
+  updateArtistData(artist: ArtistEditData): Promise<RemoteUpdateEvent>;
 
 
   /**
@@ -27,11 +26,11 @@ export interface RemoteMetadataSource<T = undefined> {
    * @param release - the release
    * @returns whether the item was updated or not, plus additional optional data to pass to listeners
    */
-  updateReleaseData(release: ReleaseEditData): Promise<RemoteMetadataResult<T>>;
+  updateReleaseData(release: ReleaseEditData): Promise<RemoteUpdateEvent>;
 
 }
 
-type TreeChangeListener<T> = (object: ArtistEditData | ReleaseEditData, updateResult: RemoteMetadataResult<T>) => void;
+export type TreeChangeListener = (object: ArtistEditData | ReleaseEditData, updateResult: RemoteUpdateEvent) => void;
 
 /**
  * Stores a list of songs to be submitted in an editable tree structure composed of artists ({@link ArtistEditData}),
@@ -40,15 +39,13 @@ type TreeChangeListener<T> = (object: ArtistEditData | ReleaseEditData, updateRe
  * A {@link RemoteMetadataSource} should be provided to allows tree entities to synchronize with remote entities
  * provided by the source (which can be used e.g. to display an artist's image or detect if it needs to be created
  * remotely on submit).
- * 
- * @param EDT - the event data type for the given metadata source
  */
-class EditTree<EDT> {
+class EditTree {
 
-  private readonly treeChangeListeners: TreeChangeListener<EDT>[] = [];
+  private readonly treeChangeListeners: TreeChangeListener[] = [];
   public readonly artists: ArtistEditData[] = [];
 
-  constructor(public readonly metaSource: RemoteMetadataSource<EDT>) { }
+  constructor(public readonly metaSource: RemoteMetadataSource) { }
 
   /**
    * Adds a song along with its extracted metadata to this Edit Tree,
@@ -79,12 +76,19 @@ class EditTree<EDT> {
   }
 
   /**
+   * Returns true if this tree can be submitted in its current state
+   */
+  public isValid(): boolean {
+    return this.artists.find(a => !a.isValid()) === undefined;
+  }
+
+  /**
    * Registers a function to be called when an asynchronous change is made
    * (by the provided `metaSource`) to this Edit Tree
    * 
    * @param listener - the listener
    */
-  public addTreeChangeListener(listener: TreeChangeListener<EDT>) {
+  public addTreeChangeListener(listener: TreeChangeListener) {
     this.treeChangeListeners.push(listener);
   }
 
@@ -93,12 +97,12 @@ class EditTree<EDT> {
    * 
    * @param listener - the listener to remove
    */
-  public removeTreeChangeListener(listener: TreeChangeListener<EDT>) {
+  public removeTreeChangeListener(listener: TreeChangeListener) {
     if (!removeArrayElement(this.treeChangeListeners, listener))
       throw new Error('Listener not found');
   }
 
-  public notifyTreeChange(object: ArtistEditData | ReleaseEditData, updateResult: RemoteMetadataResult<EDT>) {
+  public notifyTreeChange(object: ArtistEditData | ReleaseEditData, updateResult: RemoteUpdateEvent) {
     this.treeChangeListeners.forEach(l => l(object, updateResult));
   }
 

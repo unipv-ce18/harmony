@@ -1,7 +1,7 @@
 import {createId} from './eid';
 import {SongMetadata} from './metadata';
 import ResyncProperty from './ResyncProperty';
-import EditTree from './EditTree';
+import EditTree, {SubmitAlert} from './EditTree';
 import ReleaseEditData from './ReleaseEditData';
 
 const UNKNOWN_ARTIST_NAME = 'Unknown Artist';
@@ -10,6 +10,11 @@ class ArtistEditData {
   
   public readonly eid = createId();
   public readonly releases: ReleaseEditData[] = [];
+
+  private _alerts: SubmitAlert[] = [];
+  public get alerts(): SubmitAlert[] {
+    return this._alerts;
+  }
 
   public remoteId?: string = undefined;
   public remoteImage?: string = undefined;
@@ -22,7 +27,7 @@ class ArtistEditData {
     if (v !== '') this._name.value = v; 
   }
 
-  constructor(public readonly editTree: EditTree<any>, name?: string) {
+  constructor(public readonly editTree: EditTree, name?: string) {
     this._name = new ResyncProperty(name || UNKNOWN_ARTIST_NAME, this.fetchRemoteData);
     if (name != null) this.fetchRemoteData();
   }
@@ -55,10 +60,19 @@ class ArtistEditData {
     return name ? this.releases.find(r => r.name === name) : undefined;
   }
 
+  /**
+   * Returns true if this artist is valid and can be submitted
+   */
+  public isValid(): boolean {
+    return this.alerts.find(a => a.blocking) === undefined
+      && this.releases.find(r => !r.isValid()) === undefined;
+  }
+
   private fetchRemoteData = () => {
     this.remoteId = undefined;
     this.remoteImage = undefined;
     this.editTree.metaSource.updateArtistData(this).then(result => {
+      this._alerts = result.alerts;
       this.editTree.notifyTreeChange(this, result);
       for (const r of this.releases) r.onArtistUpdate();
     });

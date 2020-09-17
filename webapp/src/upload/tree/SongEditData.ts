@@ -12,6 +12,10 @@ class SongEditData {
     this.name = name;
   }
 
+  public isValid(): boolean {
+    return true;
+  }
+
 }
 
 export default SongEditData;

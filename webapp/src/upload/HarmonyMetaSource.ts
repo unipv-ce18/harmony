@@ -1,23 +1,20 @@
 import {session} from '../Harmony';
 import {execSearch, ArtistResult, getArtist} from '../core/apiCalls';
-import {RemoteMetadataSource, RemoteMetadataResult, ArtistEditData, ReleaseEditData} from './tree';
-
-export type UploadAlert = {blocking: boolean, message: string}
-export type HTreeUpdateEvent = {alerts: UploadAlert[]}
+import {RemoteMetadataSource, RemoteUpdateEvent, SubmitAlert, ArtistEditData, ReleaseEditData} from './tree';
 
 /**
  * Remote metadata source to allow Edit Tree entities to extract metadata from the Harmony API
  */
-class HarmonyMetaSource implements RemoteMetadataSource<HTreeUpdateEvent> {
+class HarmonyMetaSource implements RemoteMetadataSource {
 
   // To deduplicate/cache remote requests - assuming a remote entity is not modified before a page reload
   // TODO: we may want to clear the "requests" cache after an upload completes so we can see changes on next upload
   private readonly requests: {[query: string]: Promise<any>} = {};
 
-  public async updateArtistData(artist: ArtistEditData): Promise<RemoteMetadataResult<HTreeUpdateEvent>> {
+  public async updateArtistData(artist: ArtistEditData): Promise<RemoteUpdateEvent> {
     const remoteArtist = await this.fetchRemoteArtist(artist.name);
     if (remoteArtist == null) {
-      return {found: false, updated: false, eventData: {alerts: [{blocking: false, message: "This artist will be created"}]}};
+      return {found: false, updated: false, alerts: [{blocking: false, message: "This artist will be created"}]};
     } 
 
     let updated = false;
@@ -30,19 +27,19 @@ class HarmonyMetaSource implements RemoteMetadataSource<HTreeUpdateEvent> {
       updated = true;
     }
 
-    const alerts: UploadAlert[] = [];
+    const alerts: SubmitAlert[] = [];
     if (session.currentUser!.id !== remoteArtist.creator)
       alerts.push({blocking: true, message: "You don't have the permission to change this artist"})
 
-    return {found: true, updated, eventData: {alerts}};
+    return {found: true, updated, alerts};
   }
 
-  public async updateReleaseData(release: ReleaseEditData): Promise<RemoteMetadataResult<HTreeUpdateEvent>> {
+  public async updateReleaseData(release: ReleaseEditData): Promise<RemoteUpdateEvent> {
     // Should be already in pending requests
     const remoteArtist = await this.fetchRemoteArtist(release.artist.name);
 
     const remoteRelease = remoteArtist?.releases!.find(r => r.name === release.name);
-    if (remoteRelease == null) return {found: false, updated: false};
+    if (remoteRelease == null) return {found: false, updated: false, alerts: []};
     let updated = false;
 
     if (release.remoteId = remoteRelease.id) {
@@ -50,11 +47,11 @@ class HarmonyMetaSource implements RemoteMetadataSource<HTreeUpdateEvent> {
       updated = true;
     }
     
-    const alerts: UploadAlert[] = [];
+    const alerts: SubmitAlert[] = [];
     if (release.remoteId != null)
       alerts.push({blocking: false, message: "This release already exists, new songs will be added to it"})
 
-    return {found: true, updated, eventData: {alerts}};
+    return {found: true, updated, alerts};
   }
 
   private async fetchRemoteArtist(name: string): Promise<ArtistResult | undefined> {
