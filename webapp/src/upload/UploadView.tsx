@@ -71,12 +71,14 @@ class UploadView extends Component<{}, State> {
   }
 
   private readonly handleClear = () => {
-    console.log('clear');
-    this.setState({canSubmit: false});
+    this.editTree.clear();
+    this.setState({canSubmit: false});  // Also refreshes tree view
+    (this.editTree.metaSource as HarmonyMetaSource).clearCache();
   }
 
   private readonly handleSubmit = () => {
-    console.log('submit');
+    console.log('submit');  // TODO
+    (this.editTree.metaSource as HarmonyMetaSource).clearCache();
   }
 
   private readonly onTreeChange: TreeChangeListener = (object, _) => {

@@ -102,6 +102,13 @@ class EditTree {
       throw new Error('Listener not found');
   }
 
+  /**
+   * Removes all content from this edit tree
+   */
+  public clear() {
+    this.artists.length = 0;
+  }
+
   public notifyTreeChange(object: ArtistEditData | ReleaseEditData, updateResult: RemoteUpdateEvent) {
     this.treeChangeListeners.forEach(l => l(object, updateResult));
   }

@@ -7,8 +7,8 @@ import {RemoteMetadataSource, RemoteUpdateEvent, SubmitAlert, ArtistEditData, Re
  */
 class HarmonyMetaSource implements RemoteMetadataSource {
 
-  // To deduplicate/cache remote requests - assuming a remote entity is not modified before a page reload
-  // TODO: we may want to clear the "requests" cache after an upload completes so we can see changes on next upload
+  // To deduplicate/cache remote requests - assuming a remote entity is not modified before a page reload/cache clear
+  // This should to be cleared by calling `clearCache()` after a submit or abort to have changes visible on next upload
   private readonly requests: {[query: string]: Promise<any>} = {};
 
   public async updateArtistData(artist: ArtistEditData): Promise<RemoteUpdateEvent> {
@@ -52,6 +52,10 @@ class HarmonyMetaSource implements RemoteMetadataSource {
       alerts.push({blocking: false, message: "This release already exists, new songs will be added to it"})
 
     return {found: true, updated, alerts};
+  }
+
+  public clearCache() {
+    for (const name in this.requests) delete this.requests[name];
   }
 
   private async fetchRemoteArtist(name: string): Promise<ArtistResult | undefined> {
