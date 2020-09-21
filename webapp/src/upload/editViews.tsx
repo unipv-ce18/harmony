@@ -56,6 +56,19 @@ function withBlobImage<P>(View: ComponentType<any>) {
   }
 }
 
+function formatDuration(duration: number) {
+  const totalSecs = Math.round(duration / 1000);
+
+  const h = Math.floor(totalSecs / 3600);
+  const m = Math.floor((totalSecs - (3600 * h)) / 60);
+  const s = totalSecs - 3600 * h - 60 * m;
+
+  const hs = h === 0 ? '' : (h < 10 ? '0' + h : h) + ':';
+  const ms = (m < 10 ? '0' + m : m) + ':';
+  const ss = (s < 10 ? '0' + s : s);
+  return hs + ms + ss;
+}
+
 const AlertGroup = ({alerts}: {alerts: SubmitAlert[]}) => (
   <div>
     {alerts.map(a => (
@@ -93,6 +106,7 @@ const SongEditView = ({data: song}: SEVProps) => (
   <div class={style.songEditView}>
     <input type="text" value={song.name}
       onChange={e => song.name = (e.target as HTMLInputElement).value}/>
+    <span>{formatDuration(song.duration)}</span>
   </div>
 );
 
