@@ -1,19 +1,23 @@
 import {createId} from './eid';
+import EditTree from './EditTree';
+import ReleaseEditData from './ReleaseEditData';
 
 class SongEditData {
 
   public readonly eid = createId();
+  public readonly editTree: EditTree;
 
-  public name: string;
+  public uploadId?: string;
 
-  constructor(name: string,
+  constructor(public readonly release: ReleaseEditData,
+              public name: string,
               public readonly duration: number,
               public readonly file: File) {
-    this.name = name;
+    this.editTree = release.editTree;
   }
 
   public isValid(): boolean {
-    return true;
+    return this.uploadId !== undefined;
   }
 
 }

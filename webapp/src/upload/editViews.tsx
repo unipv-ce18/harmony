@@ -3,12 +3,13 @@ import {h, Component, ComponentType} from 'preact';
 import {classList} from '../core/utils';
 import {DEFAULT_ALBUMART_URL} from '../assets/defaults';
 import {ArtistEditData, ReleaseEditData, SongEditData, RemoteUpdateEvent, SubmitAlert} from './tree';
+import {withSongUpload, WithSongUploadState} from './upload/hoc';
 
 import style from './editViews.scss';
 
 type AEVProps = {data: ArtistEditData, alerts: SubmitAlert[]};
 type REVProps = {data: ReleaseEditData, alerts: SubmitAlert[], getImageUrl: (blob?: Blob) => string};
-type SEVProps = {data: SongEditData};
+type SEVProps = WithSongUploadState & {data: SongEditData};
 
 type WithUpdateProps = {data: ArtistEditData | ReleaseEditData};
 
@@ -102,13 +103,20 @@ const ReleaseEditViewBase = ({data: release, alerts, getImageUrl}: REVProps) => 
   </div>
 );
 
-const SongEditView = ({data: song}: SEVProps) => (
+const SongEditViewBase = ({data: song, uploadId, progress, done, error}: SEVProps) => (
   <div class={style.songEditView}>
     <input type="text" value={song.name}
       onChange={e => song.name = (e.target as HTMLInputElement).value}/>
     <span>{formatDuration(song.duration)}</span>
+    <div>
+      {uploadId === undefined ? null : (
+        error && 'error' || done && 'done' || (Math.floor(progress * 100) + '%')  // TODO
+      )}
+    </div>
   </div>
 );
+
+const SongEditView = withSongUpload(SongEditViewBase);
 
 const ReleaseEditView = withUpdate(withBlobImage(ReleaseEditViewBase));
 

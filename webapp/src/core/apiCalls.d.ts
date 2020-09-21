@@ -44,8 +44,12 @@ declare namespace apiCalls {
     };
 
     type UploadContentCategory = 'user' | 'artist' | 'release' | 'song';
-    type UploadContentObjectId = UserId | ArtistId | ReleaseId | SongId;
-    type UploadContentResult = [string, any];  // Url and presigned post data
+    type UploadContentObjectId = UserId | ArtistId | ReleaseId | undefined;
+    type UploadPresignedData = {
+      'bucket': string, 'key': string, 'Content-Type': string, 'policy': string,
+      'x-amz-algorithm': string, 'x-amz-credential': string, 'x-amz-date': string, 'x-amz-signature': string
+    };
+    type UploadContentResult = [string, UploadPresignedData];  // Url and presigned post data
 
     // TODO: Update to the new API
     type SearchType = 'any' | 'artists' | 'releases' | 'songs' | 'playlists';

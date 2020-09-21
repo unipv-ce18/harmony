@@ -7,7 +7,7 @@ import ReleaseEditData from './ReleaseEditData';
 const UNKNOWN_ARTIST_NAME = 'Unknown Artist';
 
 class ArtistEditData {
-  
+
   public readonly eid = createId();
   public readonly releases: ReleaseEditData[] = [];
 
@@ -24,7 +24,7 @@ class ArtistEditData {
     return this._name.value;
   }
   public set name(v: string) {
-    if (v !== '') this._name.value = v; 
+    if (v !== '') this._name.value = v;
   }
 
   constructor(public readonly editTree: EditTree, name?: string) {
@@ -34,7 +34,7 @@ class ArtistEditData {
 
   /**
    * Add a song to this Edit Tree Artist, intermediary releases will be created as needed
-   * 
+   *
    * @param songFile - the song file to submit
    * @param songMetadata - Metadata for the given song
    */
@@ -44,7 +44,7 @@ class ArtistEditData {
 
     let release = this.findRelease(releaseName);
     if (release == null) {
-      release = new ReleaseEditData(this.editTree, this, releaseName, releaseDate);
+      release = new ReleaseEditData(this, releaseName, releaseDate);
       this.releases.push(release);
     }
     release.addSong(songFile, songMetadata);
@@ -52,7 +52,7 @@ class ArtistEditData {
 
   /**
    * Searches for a release in this artist
-   * 
+   *
    * @param name - the release name
    * @returns the found {@link ReleaseEditData} or `undefined` if not found
    */
@@ -62,10 +62,12 @@ class ArtistEditData {
 
   /**
    * Returns true if this artist is valid and can be submitted
+   *
+   * @param deep - whether to check also releases and songs for validity
    */
-  public isValid(): boolean {
+  public isValid(deep: boolean = true): boolean {
     return this.alerts.find(a => a.blocking) === undefined
-      && this.releases.find(r => !r.isValid()) === undefined;
+      && (!deep ? true : this.releases.find(r => !r.isValid()) === undefined);
   }
 
   private fetchRemoteData = () => {

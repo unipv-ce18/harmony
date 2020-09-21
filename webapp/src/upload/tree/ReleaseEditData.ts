@@ -11,6 +11,12 @@ class ReleaseEditData {
 
   public readonly eid = createId();
   public readonly songs: SongEditData[] = [];
+  public readonly editTree: EditTree;
+
+  private _synced: boolean = false;
+  public get synced(): boolean {
+    return this._synced;
+  }
 
   private _alerts: SubmitAlert[] = [];
   public get alerts(): SubmitAlert[] {
@@ -30,12 +36,12 @@ class ReleaseEditData {
     return this._name.value;
   }
   public set name(v: string) {
-    if (v !== '') this._name.value = v; 
+    if (v !== '') this._name.value = v;
   }
 
-  constructor(public readonly editTree: EditTree,
-              public readonly artist: ArtistEditData,
+  constructor(public readonly artist: ArtistEditData,
               name?: string, date?: string) {
+    this.editTree = artist.editTree;
     this._name = new ResyncProperty(name || UNKNOWN_RELEASE_NAME, this.fetchRemoteData);
     this.date = date;
     if (name != null) this.fetchRemoteData();
@@ -43,7 +49,7 @@ class ReleaseEditData {
 
   /**
    * Add a song to this Edit Tree Release
-   * 
+   *
    * @param songFile - the song file to submit
    * @param songMetadata - Metadata for the given song
    */
@@ -53,15 +59,17 @@ class ReleaseEditData {
     if (this._cover == null && songMetadata.picture != null)
       this._cover = songMetadata.picture.data;
 
-    this.songs.push(new SongEditData(title, songMetadata.trackLength, songFile));
+    this.songs.push(new SongEditData(this, title, songMetadata.trackLength, songFile));
   }
 
   /**
    * Returns true if this release is valid and can be submitted
+   *
+   * @param deep - whether to check also songs for validity
    */
-  public isValid(): boolean {
+  public isValid(deep: boolean = true): boolean {
     return this.alerts.find(a => a.blocking) === undefined
-      && this.songs.find(r => !r.isValid()) === undefined;
+      && (!deep ? true : this.songs.find(s => !s.isValid()) === undefined);
   }
 
   public onArtistUpdate() {
@@ -72,7 +80,8 @@ class ReleaseEditData {
     this.remoteId = undefined;
     this.editTree.metaSource.updateReleaseData(this).then(result => {
       this._alerts = result.alerts;
-      this.editTree.notifyTreeChange(this, result)
+      this._synced = true;
+      this.editTree.notifyTreeChange(this, result);
     });
   };
 
