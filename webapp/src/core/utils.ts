@@ -38,4 +38,4 @@ export const getCurrentTime = () => Math.round((new Date()).getTime() / 1000);
  * @param classes Array of classes to apply, `false` values get discarded
  * @return {string} The value to apply to `className`
  */
-export const classList = (...classes: Array<string | boolean>) => classes.filter(c => !!c).join(' ');
+export const classList = (...classes: Array<string | boolean | undefined>) => classes.filter(c => !!c).join(' ');

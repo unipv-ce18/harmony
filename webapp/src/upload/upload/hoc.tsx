@@ -7,15 +7,16 @@ import UploadManager, {UploadStatusEvent} from './UploadManager';
 export const UPLOAD_MANAGER = new UploadManager();
 
 type WithSongUploadProps = {data: SongEditData};
-export type WithSongUploadState = {uploadId?: string, progress: number, done: boolean, error: boolean};
+export type WithSongUploadState = {started: boolean, progress: number, done: boolean, error: boolean};
 
 export function withSongUpload<P extends WithSongUploadProps>(View: ComponentType<any>) {
   return class extends Component<P, WithSongUploadState> {
 
-    private started: boolean = false;
+    private enqueued: boolean = false;
+    private uploadId?: string = undefined;
 
     state = {
-      uploadId: undefined,
+      started: false,
       progress: 0,
       done: false,
       error: false
@@ -31,7 +32,7 @@ export function withSongUpload<P extends WithSongUploadProps>(View: ComponentTyp
 
     componentWillUnmount() {
       this.props.data.editTree.removeTreeChangeListener(this.onDataChange);
-      if (this.state.uploadId !== undefined) UPLOAD_MANAGER.cancelUploadTask(this.props.data.file, false);
+      if (this.uploadId !== undefined) UPLOAD_MANAGER.cancelUploadTask(this.props.data.file, false);
     }
 
     render(props: P, state: WithSongUploadState) {
@@ -39,17 +40,21 @@ export function withSongUpload<P extends WithSongUploadProps>(View: ComponentTyp
     }
 
     private onDataChange = (release: ReleaseEditData, _?: RemoteUpdateEvent) => {
-      if (!this.started && release.eid === this.props.data.release.eid &&
+      if (!this.enqueued && release.eid === this.props.data.release.eid &&
           release.isValid(false) && release.artist.isValid(false)) {
-        this.started = true;
+        this.enqueued = true;
         UPLOAD_MANAGER.addUploadTask(this.props.data.file, this.onUploadStatus);
       }
     };
 
     private onUploadStatus = (e: UploadStatusEvent) => {
       switch (e.type) {
-        case 'start':
-          this.setState({uploadId: e.temporaryId});
+        case 'start':  // When the upload task is started
+          this.setState({started: true});
+          break;
+
+        case 'upload':  // When server returns upload id and post options
+          this.uploadId = e.temporaryId;
           break;
 
         case 'progress':
@@ -58,7 +63,7 @@ export function withSongUpload<P extends WithSongUploadProps>(View: ComponentTyp
 
         case 'done':
           // Store id in song data, making it valid
-          this.props.data.uploadId = this.state.uploadId;
+          this.props.data.uploadId = this.uploadId;
           this.setState({done: true});
           break;
 

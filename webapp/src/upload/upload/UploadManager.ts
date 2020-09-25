@@ -2,11 +2,11 @@ import {session} from '../../Harmony';
 import {removeArrayElement} from '../../core/utils';
 import {uploadContent} from '../../core/apiCalls';
 
-type UploadStartEvent = {type: 'start', temporaryId: string};
+type UploadGenericEvent = {type: 'start' | 'done' | 'error'};
+type UploadStartEvent = {type: 'upload', temporaryId: string};
 type UploadProgressEvent = {type: 'progress', value: number};
-type UploadDoneEvent = {type: 'done' | 'error'};
 
-export type UploadStatusEvent = UploadStartEvent | UploadProgressEvent | UploadDoneEvent;
+export type UploadStatusEvent = UploadGenericEvent | UploadStartEvent | UploadProgressEvent;
 type UploadStatusListener = (event: UploadStatusEvent) => void;
 
 type PendingUploadEntry = {file: File, onUpdate: UploadStatusListener};
@@ -91,6 +91,8 @@ class UploadManager {
       if (newUpload === undefined) break;
 
       this.currentUploads.push(newUpload);
+      newUpload.onUpdate({type: 'start'});
+
       session.getAccessToken()
         .then(token => {
           // Firefox fix
@@ -98,7 +100,7 @@ class UploadManager {
           return uploadContent(UPLOAD_CATEGORY, undefined, mimeType, newUpload.file.size, token!)
         })
         .then(([url, presignedData]) => {
-          newUpload.onUpdate({type: 'start', temporaryId: presignedData['key']});
+          newUpload.onUpdate({type: 'upload', temporaryId: presignedData['key']});
           return newUpload.aborted
             ? Promise.reject(undefined)
             : postData(newUpload, url, presignedData);

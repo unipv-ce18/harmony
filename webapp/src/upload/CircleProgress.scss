@@ -1,0 +1,75 @@
+@import '../styledefs.scss';
+
+$easing: cubic-bezier(0.45, 0, 0.55, 1);  // https://easings.net/#easeInOutQuad
+
+.progress {
+  display: block;
+  //margin: 20px auto;
+  max-width: 100%;
+ 
+  > circle {
+    fill: none;
+  }
+
+  // Foreground
+  > circle:last-of-type {
+    transition: stroke-dashoffset $transition-len-ms $easing;
+    stroke-linecap: round;
+  }
+
+  &.indeterminate:global {
+    animation: 1.5s linear infinite circle-progress-outer;
+    > circle:last-of-type {
+      animation: 5s $easing infinite circle-progress-inner;
+      transform-origin: center;
+    }
+  }
+}
+
+@keyframes :global(circle-progress-outer) {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes :global(circle-progress-inner) {
+  0% {
+    stroke-dasharray: var(--cc) var(--ct);
+    transform: rotate(0);
+  }
+  12.5% {
+    stroke-dasharray: var(--ce) var(--ct);
+    transform: rotate(0);
+  }
+  25% {
+    stroke-dasharray: var(--cc) var(--ct);
+    transform: rotate(270deg)
+  }
+  37.5% {
+    stroke-dasharray: var(--ce) var(--ct);
+    transform: rotate(270deg)
+  }
+  50% {
+    stroke-dasharray: var(--cc) var(--ct);
+    transform: rotate(540deg)
+  }
+  62.5% {
+    stroke-dasharray: var(--ce) var(--ct);
+    transform: rotate(540deg)
+  }
+  75% {
+    stroke-dasharray: var(--cc) var(--ct);
+    transform: rotate(810deg)
+  }
+  87.5% {
+    stroke-dasharray: var(--ce) var(--ct);
+    transform: rotate(810deg)
+  }
+  100% {
+    stroke-dasharray: var(--cc) var(--ct);
+    transform: rotate(1080deg)
+  }
+}

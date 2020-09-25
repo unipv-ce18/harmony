@@ -6,9 +6,10 @@
     color: inherit;
     border: 1px solid transparent;
     transition: border $transition-len-short-ms;
+    box-sizing: border-box;
 
-    &:hover {
-      border-bottom: 1px solid rgba(#fff, .5);
+    &:hover, &:focus {
+      border-bottom: 1px solid var(--th-upload-input-underline);
     }
   }
   ul {
@@ -48,6 +49,7 @@
 
   // Title
   > input {
+    width: 100%;
     font-size: 1.5em;
     margin-bottom: 8px;
     letter-spacing: 1.2px;
@@ -123,8 +125,38 @@
 
 .songEditView {
   display: flex;
+  align-items: center;
 
   > input {
     width: 100%;
+  }
+
+  // Time length indicator
+  > span {
+    font-size: .8em;
+    margin-right: 8px;
+  }
+
+  // Upload status
+  > div {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+
+    > svg {
+      fill: var(--th-upload-text);
+    }
+    > svg.progress {
+      margin: 1px;
+    }
+    > svg:not(.progress) {
+      width: 18px;
+    }
+    > svg.success {
+      fill: #689f38;  // Material Light Green 700
+    }
+    > svg.error {
+      fill: #c62828;  // Material Red 800
+    }
   }
 }

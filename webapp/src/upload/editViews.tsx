@@ -4,6 +4,9 @@ import {classList} from '../core/utils';
 import {DEFAULT_ALBUMART_URL} from '../assets/defaults';
 import {ArtistEditData, ReleaseEditData, SongEditData, RemoteUpdateEvent, SubmitAlert} from './tree';
 import {withSongUpload, WithSongUploadState} from './upload/hoc';
+import {IconErrorOutline, IconDone} from '../assets/icons/icons';
+import Themeable from '../components/Themeable';
+import CircleProgress from './CircleProgress';
 
 import style from './editViews.scss';
 
@@ -78,6 +81,26 @@ const AlertGroup = ({alerts}: {alerts: SubmitAlert[]}) => (
   </div>
 );
 
+const UploadProgress = ({started, progress, done, error}: WithSongUploadState) => {
+  if (!started) return null;
+
+  if (error) return <IconErrorOutline class={style.error}/>;
+  if (done) return <IconDone class={style.success}/>;
+
+  const progressProps = {class: style.progress, size: 16, strokeWidth: 2};
+
+  return (
+    <Themeable propVariables={{'strokeFg': '--th-foreground'}}>
+      {progress > 0
+        // @ts-ignore
+        ? <CircleProgress {...progressProps} progress={progress}/>
+        // @ts-ignore
+        : <CircleProgress {...progressProps} indeterminate/>
+      }
+    </Themeable>
+  );
+};
+
 const ArtistEditViewBase = ({data: artist, alerts}: AEVProps) => (
   <div class={style.artistEditView} style={{ '--artist-img': `url(${artist.remoteImage ?? ''})` }}>
     <input type="text" value={artist.name}
@@ -103,16 +126,12 @@ const ReleaseEditViewBase = ({data: release, alerts, getImageUrl}: REVProps) => 
   </div>
 );
 
-const SongEditViewBase = ({data: song, uploadId, progress, done, error}: SEVProps) => (
+const SongEditViewBase = ({data: song, ...uploadState}: SEVProps) => (
   <div class={style.songEditView}>
     <input type="text" value={song.name}
       onChange={e => song.name = (e.target as HTMLInputElement).value}/>
     <span>{formatDuration(song.duration)}</span>
-    <div>
-      {uploadId === undefined ? null : (
-        error && 'error' || done && 'done' || (Math.floor(progress * 100) + '%')  // TODO
-      )}
-    </div>
+    <div><UploadProgress {...uploadState}/></div>
   </div>
 );
 

@@ -32,6 +32,8 @@ export const IconListExpand = (props) => <Icon mod={require('./unfold_more-24px.
 export const IconListCollapse = (props) => <Icon mod={require('./unfold_less-24px.svg')} {...props}/>;
 export const IconFullscreen = (props) => <Icon mod={require('./fullscreen-24px.svg')} {...props}/>;
 export const IconFullscreenExit = (props) => <Icon mod={require('./fullscreen_exit-24px.svg')} {...props}/>;
+export const IconDone = (props) => <Icon mod={require('./done-24px.svg')} {...props}/>
+export const IconErrorOutline = (props) => <Icon mod={require('./error_outline-24px.svg')} {...props}/>
 
 // Library, Upload pane
 export const IconExpand = (props) => <Icon mod={require('./expand_more-24px.svg')} {...props}/>;

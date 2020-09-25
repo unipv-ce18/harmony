@@ -11,3 +11,5 @@ export declare const IconListExpand: HarmonyIcon;
 export declare const IconListCollapse: HarmonyIcon;
 export declare const IconFullscreen: HarmonyIcon;
 export declare const IconFullscreenExit: HarmonyIcon;
+export declare const IconDone: HarmonyIcon;
+export declare const IconErrorOutline: HarmonyIcon;
