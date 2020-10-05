@@ -1,4 +1,5 @@
 import uuid
+import ssl
 
 import pika
 
@@ -12,9 +13,12 @@ def amq_connect_blocking(config: BackendConfig, disable_heartbeat=False):
     conn_params = {
         'host': config.MESSAGING_HOST,
         'port': config.MESSAGING_PORT,
+        'ssl_options': pika.SSLOptions(ssl.create_default_context(), config.MESSAGING_HOST) if config.MESSAGING_USE_TLS else None,
         'credentials': pika.PlainCredentials(config.MESSAGING_USERNAME, config.MESSAGING_PASSWORD),
         'connection_attempts': 3, 'retry_delay': 12,    # cause Rabbit is slow to start (docker-compose), seriously 12s
     }
+    if config.MESSAGING_VIRTUAL_HOST is not None:
+        conn_params['virtual_host'] = config.MESSAGING_VIRTUAL_HOST
     if disable_heartbeat:
         conn_params['heartbeat'] = 0
 

@@ -17,7 +17,9 @@ class BackendConfig:
 
     # RabbitMQ connection
     MESSAGING_HOST = os.environ.get('MESSAGING_HOST', 'localhost')
-    MESSAGING_PORT = int(os.environ.get('MESSAGING_PORT', '5672'))
+    MESSAGING_USE_TLS = bool(os.environ.get('MESSAGING_USE_TLS'))
+    MESSAGING_PORT = int(os.environ.get('MESSAGING_PORT', '5671' if MESSAGING_USE_TLS else '5672'))
+    MESSAGING_VIRTUAL_HOST = os.environ.get('MESSAGING_VIRTUAL_HOST', None)
     MESSAGING_USERNAME = os.environ.get('MESSAGING_USERNAME', 'guest')
     MESSAGING_PASSWORD = os.environ.get('MESSAGING_PASSWORD', 'guest')
     MESSAGING_EXCHANGE_JOBS = 'harmony.exchange.jobs'                  # Where API server pushes new jobs
