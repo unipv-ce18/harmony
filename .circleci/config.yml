@@ -120,8 +120,8 @@ jobs:
 
       - aws-ecr/build-image:
           path: ./backend
-          dockerfile: transcoder_worker/Dockerfile
-          repo: harmony/transcoder-worker
+          dockerfile: worker/Dockerfile
+          repo: harmony/worker
           tag: "$IMAGE_TAGS"
 
       - aws-ecr/ecr-login:
@@ -136,7 +136,7 @@ jobs:
           tag: "$IMAGE_TAGS"
 
       - aws-ecr/push-image:
-          repo: harmony/transcoder-worker
+          repo: harmony/worker
           tag: "$IMAGE_TAGS"
 
 workflows:
