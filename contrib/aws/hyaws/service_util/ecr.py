@@ -39,3 +39,10 @@ class ECR:
             _util_print(f"Repository \"{response['repositoryName']}\"", 'applied lifecycle policy')
         except ClientError as e:
             _util_handle_error(e)
+
+    def set_repository_policy(self, repository_name, policy_text):
+        try:
+            response = self.client.set_repository_policy(repositoryName=repository_name, policyText=policy_text)
+            _util_print(f"Repository \"{response['repositoryName']}\"", 'applied access policy')
+        except ClientError as e:
+            _util_handle_error(e)

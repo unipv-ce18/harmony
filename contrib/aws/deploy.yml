@@ -9,6 +9,10 @@ accounts:
     description: Zoltrix's servant with the power to convert credits into poop
     id: '299635501215'
 
+  # Todareaux accounts - used for compute
+  loublue-serv:
+    description: The one Who runs the things
+    id: '557561060937'
 
 # The AWS services we use
 services:
@@ -27,3 +31,7 @@ services:
       - harmony/apiserver
       - harmony/director
       - harmony/worker
+
+    # Accounts allowed to pull images
+    pull-accounts:
+      - loublue-serv

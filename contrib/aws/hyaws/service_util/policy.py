@@ -47,3 +47,19 @@ def ecr_lifecycle_policy_image_count(max_images_count):
             }
         ]
     })
+
+
+def ecr_repository_policy(name, account_ids, actions):
+    return json.dumps({
+        "Version": "2008-10-17",
+        "Statement": [
+            {
+                "Sid": name,
+                "Effect": "Allow",
+                "Principal": {
+                    "AWS": [f"arn:aws:iam::{id}:root" for id in account_ids]
+                },
+                "Action": actions
+            }
+        ]
+    })

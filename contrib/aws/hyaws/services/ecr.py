@@ -1,13 +1,15 @@
 """Configures the image registry on AWS"""
 from ..cli import color_print, bcolors
-from ..config import get_service_config
+from ..config import get_accounts, get_deploy_account, get_service_config
 from ..service_util import requires_account, IAM, ECR
 from ..service_util.policy \
-    import account_trust_relationship_policy, assume_role_policy, ecr_lifecycle_policy_image_count
+    import account_trust_relationship_policy, assume_role_policy, \
+           ecr_lifecycle_policy_image_count, ecr_repository_policy
 
 DELEGATE_ROLE_NAME = 'HYDelegateEcr'
 ASSUME_ROLE_POLICY_NAME = 'AssumeEducateEcrRole'
 ARN_POLICY_ECR_FULL_ACCESS = 'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess'
+ECR_PULL_ACTIONS = ["ecr:BatchCheckLayerAvailability", "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"]
 
 ecr_conf = get_service_config('ecr')
 management_account = ecr_conf['management-account']
@@ -68,10 +70,15 @@ def command_user_remove(_):
 def command_create_repositories(_):
     """Creates ECR repositories for harmony images"""
     ecr = ECR(service_account, ecr_conf['region'])
+    allow_ids = [get_deploy_account(name)['id'] for name in ecr_conf['pull-accounts']]
+
     lifecycle_policy = ecr_lifecycle_policy_image_count(ecr_conf['max-image-count'])
+    access_policy = ecr_repository_policy('Allow pull', allow_ids, ECR_PULL_ACTIONS)
+
     for name in ecr_conf['repositories']:
         ecr.create_repository(name)
         ecr.put_lifecycle_policy(name, lifecycle_policy)
+        ecr.set_repository_policy(name, access_policy)
 
 
 @requires_account(service_account)

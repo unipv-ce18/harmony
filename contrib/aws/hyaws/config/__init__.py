@@ -64,6 +64,11 @@ def get_accounts():
     return _get_accounts_result
 
 
+def get_deploy_account(deploy_id: str):
+    """Returns account ID and description for an user deploy ID from the deploy file"""
+    return deploy_def['accounts'].get(deploy_id)
+
+
 def get_service_config(service_name):
     return deploy_def['services'][service_name]
 
