@@ -1,3 +1,4 @@
+import json
 from http import HTTPStatus
 
 from flask import current_app, request
@@ -15,8 +16,9 @@ def get_bucket_notification():
 
     print('S3 Notification received')
 
-    object = request.json['Records'][0]['s3']['object']
-    content_id = object['key'].split('.')[0]
+    r = json.loads(request.data.decode('utf-8'))
+    s3 = r['Records'][0]['s3']
+    content_id = s3['object']['key']
 
     content = db.get_content(content_id)
     content_type = content['mimetype'].split('/')[0]
