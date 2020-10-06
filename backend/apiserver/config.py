@@ -16,7 +16,7 @@ class Config:
     JWT_BLACKLIST_ENABLED = True,
     JWT_BLACKLIST_TOKEN_CHECK = ['access', 'refresh']
 
-    S3_WEBHOOK_SECRET = os.environ.get('S3_WEBHOOK_SECRET', 'ivitelloniinbouvette')
+    MINIO_WEBHOOK_SECRET = None
 
     TRANSCODING_ON_UPLOAD = True
 
@@ -24,6 +24,7 @@ class Config:
 class DevelopmentConfig(Config, BackendConfigDev):
     DEBUG = True
     TRANSCODING_ON_UPLOAD = False
+    MINIO_WEBHOOK_SECRET = os.environ.get('MINIO_WEBHOOK_SECRET', 'ivitelloniinbouvette')
 
 
 class ProductionConfig(Config, BackendConfigProd):

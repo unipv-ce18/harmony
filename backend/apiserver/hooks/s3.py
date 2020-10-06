@@ -1,3 +1,4 @@
+import sys
 import json
 from http import HTTPStatus
 
@@ -11,17 +12,38 @@ def get_bucket_notification():
     if request.method == 'HEAD':
         return '', HTTPStatus.OK
 
-    if request.headers.get('Authorization') != f'Bearer {current_app.config["S3_WEBHOOK_SECRET"]}':
-        return {'message': 'Unauthorized'}, HTTPStatus.UNAUTHORIZED
+    sns_msg_t = request.headers.get('x-amz-sns-message-type')
+    msg = json.loads(request.data.decode('utf-8'))
+    bucket_event = None
+    
+    if sns_msg_t == 'SubscriptionConfirmation':
+        print(f'SNS subscription confirmation message received: open "{msg["SubscribeURL"]}" '
+               'to validate this webhook endpoint', file=sys.stderr)
+        return '', HTTPStatus.NO_CONTENT
 
-    print('S3 Notification received')
+    elif sns_msg_t == 'Notification':
+        print('S3 notification received', file=sys.stderr)
+        bucket_event = json.loads(msg['Message'])
 
-    r = json.loads(request.data.decode('utf-8'))
-    s3 = r['Records'][0]['s3']
+    elif sns_msg_t is None and current_app.config["MINIO_WEBHOOK_SECRET"] is not None:
+        if request.headers.get('Authorization') != f'Bearer {current_app.config["MINIO_WEBHOOK_SECRET"]}':
+            return {'message': 'Unauthorized'}, HTTPStatus.UNAUTHORIZED
+
+        print('Minio notification received', file=sys.stderr)
+        bucket_event = msg
+
+    else:
+        return {'message': 'Unhandled message'}, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    s3 = bucket_event['Records'][0]['s3']
     content_id = s3['object']['key']
 
-    content = db.get_content(content_id)
-    content_type = content['mimetype'].split('/')[0]
+    try:
+        content = db.get_content(content_id)
+        content_type = content['mimetype'].split('/')[0]
+    except Exception as e:
+        print(f'Unknown pending upload for "{content_id}": {e}')
+        return {'message': 'unknown object'}, HTTPStatus.OK
 
     if content_type == 'image':
         category = content['category']
