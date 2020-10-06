@@ -33,6 +33,7 @@ class BackendConfig:
     STORAGE_ENDPOINT_PUBLIC = os.environ.get('STORAGE_ENDPOINT_PUBLIC', 'localhost:9000')  # as seen by clients
     STORAGE_ACCESS_KEY = os.environ.get('STORAGE_ACCESS_KEY', 'HVTH67YJMJ3BVSHPWJOM')
     STORAGE_SECRET_KEY = os.environ.get('STORAGE_SECRET_KEY', 'kAeWXU3qV5vyofP3kTnyEmtp1BarIvE4CrQIF6wU')
+    STORAGE_REGION = os.environ.get('STORAGE_REGION', None)
     STORAGE_BUCKET_REFERENCE = 'lossless-songs'
     STORAGE_BUCKET_TRANSCODED = 'compressed-songs'
     STORAGE_BUCKET_MODIFIED = 'modified-songs'
@@ -50,4 +51,8 @@ class BackendConfigDev(BackendConfig):
 
 
 class BackendConfigProd(BackendConfig):
-    pass
+
+    STORAGE_BUCKET_REFERENCE = 'hy-lossless-songs'
+    STORAGE_BUCKET_TRANSCODED = 'hy-compressed-songs'
+    STORAGE_BUCKET_MODIFIED = 'hy-modified-songs'
+    STORAGE_BUCKET_IMAGES = 'hy-images'

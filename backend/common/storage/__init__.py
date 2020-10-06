@@ -69,7 +69,8 @@ def connect_storage(config):
     return minio.Minio(_conf_value(config, 'STORAGE_ENDPOINT'),
                        access_key=_conf_value(config, 'STORAGE_ACCESS_KEY'),
                        secret_key=_conf_value(config, 'STORAGE_SECRET_KEY'),
-                       secure=_conf_value(config, 'STORAGE_USE_TLS'))
+                       secure=_conf_value(config, 'STORAGE_USE_TLS'),
+                       region=_conf_value(config, 'STORAGE_REGION'))
 
 
 def get_storage_interface(config):
