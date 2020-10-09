@@ -2,8 +2,6 @@ import logging
 import os.path
 
 from .worker_driver import WorkerDriver
-from .drv_process import ProcessWorkerDriver
-from .drv_docker import DockerWorkerDriver
 from .. import director_config
 
 
@@ -27,9 +25,14 @@ def create_driver_from_env(config) -> WorkerDriver:
     driver_name = config.WORKER_DRIVER or _detect_driver()
     _log.info('Using driver "%s"', driver_name)
 
-    if driver_name == 'docker':
-        return DockerWorkerDriver()
     if driver_name == 'process':
+        from .drv_process import ProcessWorkerDriver
         return ProcessWorkerDriver()
+    if driver_name == 'docker':
+        from .drv_docker import DockerWorkerDriver
+        return DockerWorkerDriver()
+    if driver_name == 'ecs':
+        from .drv_ecs import EcsWorkerDriver
+        return EcsWorkerDriver()
     else:
         raise ValueError(f'Unknown worker driver "{config.WORKER_DRIVER}"')

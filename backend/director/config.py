@@ -17,6 +17,11 @@ class Config:
 
     PREFETCH_COUNT = 100    # number of unacknowledged messages on channel (or connection) when consuming
 
+    # --- Parameters for the 'process' worker driver ---
+
+    # The python commandline to start the new process
+    PROCESS_COMMANDLINE = ['python3', '-m', 'worker']
+
     # --- Parameters for the 'docker' worker driver ---
 
     # Location of the controlling docker socket
@@ -31,10 +36,26 @@ class Config:
     # Whether spawned containers have the auto-remove flag set
     DOCKER_AUTO_REMOVE = True
 
-    # --- Parameters for the 'process' worker driver ---
+    # --- Parameters for the 'ecs' worker driver ---
 
-    # The python commandline to start the new process
-    PROCESS_COMMANDLINE = ['python3', '-m', 'worker']
+    # Credentials used for AWS login
+    ECS_ACCESS_KEY = os.environ.get('ECS_ACCESS_KEY')
+    ECS_SECRET_KEY = os.environ.get('ECS_SECRET_KEY')
+
+    # (optional) role to assume before operating
+    ECS_ROLE = os.environ.get('ECS_ROLE')
+
+    # Cluster ARN on which new tasks will be spawned
+    ECS_CLUSTER_ARN = os.environ.get('ECS_CLUSTER_ARN')
+
+    # Comma separated list of subnet IDs for spawned tasks to be in
+    ECS_SUBNETS = os.environ.get('ECS_SUBNETS')
+
+    # Task definition used as a template for tasks
+    ECS_TASK_DEFINITION = os.environ.get('ECS_TASK_DEFINITION')
+
+    # Container name in the task definition used when overriding environment
+    ECS_TASK_CONTAINER_NAME = os.environ.get('ECS_TASK_CONTAINER_NAME')
 
 
 class DevelopmentConfig(Config, BackendConfigDev):
