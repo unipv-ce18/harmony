@@ -76,7 +76,9 @@ class Storage:
         :rtype: bool
         """
         try:
-            self.minio_client.fput_object(bucket, file_name, f'{file_path}/{file_name}')
+            self.minio_client.fput_object(bucket, file_name, f'{file_path}/{file_name}', metadata={
+                'x-amz-acl': 'bucket-owner-full-control'
+            })
             print(f'{file_name} uploaded to {bucket}!')
             return True
         except ResponseError as err:
