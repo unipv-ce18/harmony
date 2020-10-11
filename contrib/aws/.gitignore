@@ -1,4 +1,4 @@
 /credentials
 /.terraform
-/terraform.tfstate
-/terraform.tfstate.*
+/*.tfstate
+/*.tfstate.*

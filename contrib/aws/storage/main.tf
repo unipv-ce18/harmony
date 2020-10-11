@@ -1,3 +1,10 @@
+terraform {
+  backend "local" {
+    path = "./storage.tfstate"
+  }
+}
+
+
 # --- Accounts ---
 
 provider "aws" {
@@ -24,19 +31,23 @@ variable "deploy_region" {
 }
 
 variable "storage_bucket_songs_reference" {
-  type = string
+  type    = string
+  default = "hy-lossless-songs"
 }
 
 variable "storage_bucket_songs_transcoded" {
-  type = string
+  type    = string
+  default = "hy-compressed-songs"
 }
 
 variable "storage_bucket_songs_bundles" {
-  type = string
+  type    = string
+  default = "hy-modified-songs"
 }
 
 variable "storage_bucket_images" {
-  type = string
+  type    = string
+  default = "hy-images"
 }
 
 
