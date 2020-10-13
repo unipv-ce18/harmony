@@ -17,7 +17,7 @@ class EndpointGenericTest(unittest.TestCase):
     def test_api_hello_world(self):
         rv = self.client.get('/api/v1/sayhello', follow_redirects=True)
         self.assertEqual(200, rv.status_code)
-        self.assertEqual({'hello': 'Cipolla'}, rv.get_json())
+        self.assertEqual('Cipolla', rv.get_json().get('hello'))
 
 
 if __name__ == '__main__':

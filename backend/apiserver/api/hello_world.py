@@ -1,7 +1,7 @@
 from flask_restful import Resource, Api
 
 from . import api_blueprint
-
+from common.messaging.amq_util import machine_id
 
 api = Api(api_blueprint)
 
@@ -20,6 +20,6 @@ class HelloWorld(Resource):
             description: The server's answer, waving hand not included
             content:
               application/json:
-                example: {'hello': 'Cipolla'}
+                example: {'hello': 'Cipolla', 'node_id': '28037ec0200'}
         """
-        return {'hello': 'Cipolla'}
+        return {'hello': 'Cipolla', 'node_id': machine_id}
