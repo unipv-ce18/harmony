@@ -13,7 +13,7 @@ db.artists.createIndex({'releases.songs.title': 1});
 db.blacklist.createIndex({'exp': 1}, {expireAfterSeconds: 86400})
 
 // Transcoder TTL index
-db.transcoder.createIndex({'exp': 1}, {expireAfterSeconds: 60})
+db.transcoder.createIndex({'exp': 1}, {expireAfterSeconds: 180})
 
 // Song alteration jobs TTL
 db.modified.createIndex({'exp': 1}, {expireAfterSeconds: 180})

@@ -42,7 +42,7 @@ def amq_worker_declaration(channel, config: BackendConfig):
     channel.queue_declare(
         queue=config.MESSAGING_QUEUE_WORKER,
         durable=True,
-        arguments={'x-message-ttl': 60000}
+        arguments={'x-message-ttl': 180000}
     )
     channel.queue_bind(
         exchange=config.MESSAGING_EXCHANGE_WORKER,
