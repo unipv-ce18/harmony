@@ -1,34 +1,23 @@
-This is a highly specialized cloud client to semi-automatically configure a reproducible AWS deploy for Harmony
-(a.k.a. a tool made in a disperate attempt to make a heavily marketed corporate cloud solution appealing to the team).
+This directory holds [Terraform](https://terraform.io) configuration to deploy Harmony on AWS.
 
-#### Authenticating
-
-Copy and paste your AWS CLI credentials in a `credentials` file in this folder.
-
-if you are using the AWS Educate account provided by the course, use the credentials given inside the _Account Details_
-popup on the Vocareum site.
-  
-Otherwise you can create an access key for `hyaws` in your IAM page (or better, create a user with limited
- access and add a key to it).
-
-Your credentials file should be in this format:
+To make a deployment, create a `credentials` file in this folder holding `management` and `service` profiles like this:
 
 ```ini
-[badass account]
-aws_access_key_id=ACCESS_KEY_ID
-aws_secret_access_key=SECRET_ACCESS_KEY
+# Where IAM users will be created
+[management]
+aws_access_key_id = ...
+aws_secret_access_key = ...
 
-[my edu account]
-aws_access_key_id=ACCESS_KEY_ID
-aws_secret_access_key=SECRET_ACCESS_KEY
-aws_session_token=SESSION_TOKEN
+# Where AWS resources will be allocated (e.g. an Educate account without IAM permissions)
+[service]
+aws_access_key_id = ...
+aws_secret_access_key = ...
+aws_session_token = ...
 ```
 
-Section names are ignored, so you can give them any name/description as you wish. `hyaws` attempts to get the user
- identity for each account in this file and to map it to account names in your `deploy.yml` file.
+Then run `terraform init [dir]` and `terraform apply [dir]` where `[dir]` references one of the subsystems we used to
+split billing over our (crippled) Educate accounts. The subsystems are:
 
-#### Using
-
-Run `hyaws.py` to see the accounts that have been recognized by `hyaws` for the current deploy, plus a list of services
-that can be managed through the utility. Running `hyaws.py help <service>` gives a description of the commands
-available for the named service and no, `help koda` or similar crap does not work.
+- **registry** configures ECR (docker image registry) and outputs credentials to be given to the CI pipeline;
+- **storage** configures SNS, S3 and returns credentials to access object storage, which need to be passed to _compute_;
+- **compute** sets up VPC networks, the ECS cluster, service and task definitions.

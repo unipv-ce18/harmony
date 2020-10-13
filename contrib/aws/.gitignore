@@ -1,1 +1,6 @@
 /credentials
+/.terraform
+/*.tfstate
+/*.tfstate.*
+/*.tfvars
+!/terraform.tfvars
