@@ -1,0 +1,85 @@
+[
+  {
+    "cpu": 0,
+    "environment": [
+      {
+        "name": "FLASK_CONFIG",
+        "value": "production"
+      },
+      {
+        "name": "MESSAGING_HOST",
+        "value": "chimpanzee.rmq.cloudamqp.com"
+      },
+      {
+        "name": "MESSAGING_USE_TLS",
+        "value": "1"
+      },
+      {
+        "name": "MONGO_URI",
+        "value": "mongodb+srv://harmony-cluster.ohlj4.mongodb.net/harmony?retryWrites=true&w=majority"
+      },
+      {
+        "name": "STORAGE_ENDPOINT",
+        "value": "s3.amazonaws.com"
+      },
+      {
+        "name": "STORAGE_ENDPOINT_PUBLIC",
+        "value": "s3.amazonaws.com"
+      },
+      {
+        "name": "STORAGE_REGION",
+        "value": "us-east-1"
+      }
+    ],
+    "essential": true,
+    "image": "299635501215.dkr.ecr.us-east-1.amazonaws.com/harmony/apiserver:latest",
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/hy-apiserver",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "ecs"
+      }
+    },
+    "mountPoints": [],
+    "name": "${container_name}",
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 80,
+        "protocol": "tcp"
+      }
+    ],
+    "secrets": [
+      {
+        "name": "MESSAGING_PASSWORD",
+        "valueFrom": "/hy/amqp/pass"
+      },
+      {
+        "name": "MESSAGING_USERNAME",
+        "valueFrom": "/hy/amqp/user"
+      },
+      {
+        "name": "MESSAGING_VIRTUAL_HOST",
+        "valueFrom": "/hy/amqp/user"
+      },
+      {
+        "name": "MONGO_PASSWORD",
+        "valueFrom": "/hy/db/pass"
+      },
+      {
+        "name": "MONGO_USERNAME",
+        "valueFrom": "/hy/db/user"
+      },
+      {
+        "name": "STORAGE_ACCESS_KEY",
+        "valueFrom": "/hy/storage/kid"
+      },
+      {
+        "name": "STORAGE_SECRET_KEY",
+        "valueFrom": "/hy/storage/key"
+      }
+    ],
+    "volumesFrom": []
+  }
+]
