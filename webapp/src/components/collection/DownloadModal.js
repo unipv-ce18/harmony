@@ -15,6 +15,7 @@ class DownloadModal extends Component {
     };
 
     this.download = this.download.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange(event) {

@@ -11,6 +11,7 @@ import IconButton from '../IconButton';
 import PlayerEvents from '../../player/PlayerEvents';
 import PlayStates from '../../player/PlayStates';
 import Menu from './Menu';
+import DownloadModal from './DownloadModal';
 
 const SONGS_TYPE = 'songs';
 
@@ -107,7 +108,10 @@ class CollectionSongsTable extends Component {
 
   handleCloseMenu() {
     this.setState({menu: false});
-    this.setState({song: ''});
+  }
+
+  handleDownloadModal(bool) {
+    this.setState({downloadModal: bool});
   }
 
   clickArtist(artist_id, e) {
@@ -232,6 +236,11 @@ class CollectionSongsTable extends Component {
               </tr>
             )}
           </table>
+          {this.state.downloadModal &&
+          <DownloadModal
+            handleDownloadModal={this.handleDownloadModal.bind(this)}
+            songTitle={this.state.song.title}
+            songId={this.state.song.id}/>}
         </div>}
       </div>
       );

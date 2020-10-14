@@ -20,8 +20,7 @@ class Menu extends Component {
     super(props);
 
     this.state = {
-      modalBox: {type:'', message:''},
-      downloadModal : false
+      modalBox: {type:'', message:''}
     }
 
     this.addSongToPlaylist = this.addSongToPlaylist.bind(this);
@@ -133,11 +132,6 @@ class Menu extends Component {
     },2000)
   }
 
-  handleDownloadModal(isOpen) {
-    this.setState({downloadModal: isOpen});
-  }
-
-
   render() {
     let modalBox = this.state.modalBox;
     return (
@@ -190,8 +184,9 @@ class Menu extends Component {
               Go To Release
             </a>}
             <hr/>
+            {console.log(this.isUserPro())}
             {this.isUserPro() &&
-              <button onClick={this.handleDownloadModal.bind(this, true)}>Download song</button>}
+              <button onClick={this.props.updateParentState.bind(this, {downloadModal: true})}>Download song</button>}
             <button onClick={this.addToQueue.bind(this, this.props.song)}>
               Add To Queue
             </button>
@@ -207,11 +202,6 @@ class Menu extends Component {
               modalBox.type === ModalBoxTypes.MODALBOX_FORM_CREATE ? this.newPlaylist.bind(this) :
               modalBox.type === ModalBoxTypes.MODALBOX_CONFIRM_DELETE ? this.removeSongFromRelease.bind(this) : null}
             />}
-        {this.state.downloadModal &&
-          <DownloadModal
-            handleDownloadModal={this.handleDownloadModal.bind(this)}
-            songTitle={this.props.song.title}
-            songId={this.props.song.id}/>}
       </div>
     );
   }
