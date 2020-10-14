@@ -11,7 +11,7 @@ export function createSocket(socketUrl: string, accessToken: string) {
     // On reconnection, fall back to polling
     socket.on('reconnect_attempt', () => {
         console.warn(TAG, 'Attempting reconnect with polling transport');
-        this.socket.io.opts.transports = ['polling', 'websocket'];
+        socket.io.opts.transports = ['polling', 'websocket'];
     });
 
     socket.on('connect', () => console.log(TAG, 'Player socket connected'));

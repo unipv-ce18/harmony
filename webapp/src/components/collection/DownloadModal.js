@@ -15,13 +15,21 @@ class DownloadModal extends Component {
     };
 
     this.download = this.download.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    this.handleChangeSemitones = this.handleChangeSemitones.bind(this);
+    this.handleChangeFormat = this.handleChangeFormat.bind(this);
+    this.handleChangeSplit = this.handleChangeSplit.bind(this);
   }
 
-  handleChange(event) {
-    this.setState({semitones: event.target.semitones});
-    this.setState({outputFormat: event.target.outputFormat});
-    this.setState({split: event.target.split});
+  handleChangeSemitones(e) {
+    this.setState({semitones: e.target.value});
+  }
+
+  handleChangeFormat(e) {
+    this.setState({outputFormat: e.target.value});
+  }
+
+  handleChangeSplit(e) {
+    this.setState({split: e.target.value});
   }
 
   download(e) {
@@ -57,13 +65,13 @@ class DownloadModal extends Component {
             <form>
               <div class={styles.select}>
                 <label for="semitones">Change pitch:</label>
-                <select id="semitones" value={this.state.semitones} onChange={this.handleChange}>
+                <select id="semitones" value={this.state.semitones} onChange={this.handleChangeSemitones}>
                   {semitones}
                 </select>
               </div>
               <div class={styles.select}>
                 <label for="outputFormat">Output format:</label>
-                <select id="outputFormat" value={this.state.outputFormat} onChange={this.handleChange}>
+                <select id="outputFormat" value={this.state.outputFormat} onChange={this.handleChangeFormat}>
                   <option value="wav">wav</option>
                   <option value="flac">flac</option>
                   <option value="mp3">mp3</option>
@@ -73,7 +81,7 @@ class DownloadModal extends Component {
               </div>
               <div class={styles.select}>
                 <label for="split">Karaoke version?</label>
-                <select id="split" value={this.state.split} onChange={this.handleChange}>
+                <select id="split" value={this.state.split} onChange={this.handleChangeSplit}>
                   <option value="false">No</option>
                   <option value="true">Yes</option>
                 </select>
