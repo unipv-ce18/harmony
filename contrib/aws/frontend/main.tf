@@ -54,3 +54,14 @@ variable "cert_chain" {
 output "zone_nameservers" {
   value = aws_route53_zone.zone.name_servers
 }
+
+output "deploy_access_key" {
+  value       = aws_iam_access_key.de_ak.id
+  description = "aws_access_key_id to deploy the frontend"
+}
+
+output "deploy_secret_key" {
+  value       = aws_iam_access_key.de_ak.secret
+  description = "aws_secret_access_key to deploy the frontend"
+  sensitive   = true
+}

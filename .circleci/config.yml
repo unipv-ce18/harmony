@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@1.2.0
   aws-ecr: circleci/aws-ecr@6.9.1
+  aws-s3: circleci/aws-s3@2.0.0
 
 jobs:
 
@@ -91,8 +92,8 @@ jobs:
       - run:
           name: Configure the AWS client
           command: |
-            aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-            aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+            aws configure set aws_access_key_id "$AWS_ECR_ACCESS_KEY"
+            aws configure set aws_secret_access_key "$AWS_ECR_SECRET_KEY"
             aws configure set role_arn "$AWS_ECR_ROLE"
             aws configure set source_profile default
 
@@ -139,6 +140,38 @@ jobs:
           repo: harmony/worker
           tag: "$IMAGE_TAGS"
 
+  publish-webapp:
+    docker:
+      - image: cimg/node:13.14.0
+    working_directory: ~/harmony/webapp
+    steps:
+      - checkout:
+          path: ~/harmony
+
+      - restore_cache:
+          key: dep-cache-webapp-{{ .Branch }}-{{ checksum "yarn.lock" }}
+
+      - run:
+          name: Install dependencies
+          command: yarn
+
+      - save_cache:
+          key: dep-cache-webapp-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - ./node_modules
+
+      - run:
+          name: Build webapp
+          command: yarn build
+
+      - aws-s3/sync:
+          arguments: --acl bucket-owner-full-control
+          aws-access-key-id: AWS_S3_ACCESS_KEY
+          aws-secret-access-key: AWS_S3_SECRET_KEY
+          aws-region: AWS_REGION
+          from: ./dist
+          to: $AWS_S3_BUCKET
+
 workflows:
   version: 2
   main-workflow:
@@ -146,6 +179,11 @@ workflows:
       - test-apiserver
       - test-webapp
       - publish-images:
+          filters:
+            branches:
+              only:
+                - staging
+      - publish-webapp:
           filters:
             branches:
               only:
