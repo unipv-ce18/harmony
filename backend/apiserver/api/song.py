@@ -43,7 +43,7 @@ class SongUpload(Resource):
               schema:
                 type: object
                 properties:
-                  song_id: {type: string, description: Song ID},
+                  song_id: {type: string, description: Song ID}
                   release_id: {type: string, description: ID of the release to which the song is to be added}
                   title: {type: string, description: Song title}
                   lyrics: {type: string, description: Song lyrics}

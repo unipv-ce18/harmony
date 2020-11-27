@@ -107,6 +107,12 @@ declare namespace apiCalls {
     function execSearch(token: AccessToken, type: SearchType, query: string): Promise<SearchResult>;
 
     function getArtist(artistId: ArtistId, withReleases: boolean, token: AccessToken): Promise<ArtistResult>;
+    
+    function createArtist(name: string, token: AccessToken): Promise<ArtistId>;
+
+    function createRelease(artistId: ArtistId, fields: {name: string, date?: string}, token: AccessToken): Promise<ReleaseId>;
+
+    function createSong(releaseId: ReleaseId, uploadId: string, title: String, token: AccessToken): Promise<any>;
 }
 
 export = apiCalls;

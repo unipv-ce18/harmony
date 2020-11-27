@@ -1,11 +1,13 @@
 import {Component} from 'preact';
-import styles from './ArtistPage.scss';
 import {route} from 'preact-router';
 import {IconExpand} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 import {DEFAULT_ALBUMART_URL, DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox'
+import {releaseLink} from '../../core/links';
 import {createRelease} from '../../core/apiCalls';
+
+import styles from './ArtistPage.scss';
 
 const MODALBOX_RELEASE = 'modalbox_release';
 
@@ -23,7 +25,7 @@ class ReleaseList extends Component {
 
   handleClickRelease(release_id, event) {
     event.preventDefault();
-    route('/release/' + release_id);
+    route(releaseLink(release_id));
   }
 
   handleChangeOrder(event) {
@@ -41,11 +43,9 @@ class ReleaseList extends Component {
     if (!release_name) release_name = 'New Release';
     session.getAccessToken()
       .then (token => {
-        createRelease(this.props.artist.id, release_name, token)
-          .then(result => {
-            route('/release/' + result['release_id']);
-          })
-          .catch( () => session.error = true);
+        createRelease(this.props.artist.id, {name: release_name}, token)
+          .then(releaseId => route(releaseLink(releaseId)))
+          .catch(() => session.error = true);
       })
   }
 

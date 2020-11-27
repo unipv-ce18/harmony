@@ -13,7 +13,10 @@ import * as files from './files';
 import {ArtistEditData, EditTree, ReleaseEditData, RemoteUpdateEvent, updateTree} from './tree';
 import HarmonyMetaSource from './HarmonyMetaSource';
 import {ArtistEditView} from './editViews';
-import {UPLOAD_MANAGER} from './upload/hoc';
+import Themeable from '../components/Themeable';
+import CircleProgress from './CircleProgress';
+import {submitTree} from './submit';
+import {SONG_UPLOAD_MANAGER} from './upload/hoc';
 
 import style from './UploadView.scss';
 
@@ -22,11 +25,13 @@ type State = {
   dragOver: boolean,
   // The edit tree is valid and can be submitted
   canSubmit: boolean,
+  // The form is being submitted
+  beingSubmitted: boolean
 }
 
 class UploadView extends Component<{}, State> {
 
-  state = {dragOver: false, canSubmit: false};
+  state = {dragOver: false, canSubmit: false, beingSubmitted: false};
 
   private readonly editTree = new EditTree(new HarmonyMetaSource());
 
@@ -37,14 +42,14 @@ class UploadView extends Component<{}, State> {
   }
 
   componentDidMount() {
-    UPLOAD_MANAGER.addIdleCallback(this.onTreeChange);
+    SONG_UPLOAD_MANAGER.addIdleCallback(this.onTreeChange);
   }
 
   componentWillUnmount() {
-    UPLOAD_MANAGER.removeIdleCallback(this.onTreeChange);
+    SONG_UPLOAD_MANAGER.removeIdleCallback(this.onTreeChange);
   }
 
-  render(_: {}, {dragOver, canSubmit}: State) {
+  render(_: {}, {dragOver, canSubmit, beingSubmitted}: State) {
     const artistViews = this.editTree.artists.map(a => <ArtistEditView key={a.eid} data={a}/>);
 
     return (
@@ -53,7 +58,7 @@ class UploadView extends Component<{}, State> {
         <UploadHeader uv={this}/>
         {artistViews.length === 0 ? <EmptyView/> : [
           <div class={style.content}>{artistViews}</div>,
-          <ActionButtons canSubmit={canSubmit} clearAction={this.handleClear} submitAction={this.handleSubmit}/>
+          <ActionButtons canSubmit={canSubmit} beingSubmitted={beingSubmitted} clearAction={this.handleClear} submitAction={this.handleSubmit}/>
         ]}
       </DragArea>
     );
@@ -81,13 +86,14 @@ class UploadView extends Component<{}, State> {
 
   private readonly handleClear = () => {
     this.editTree.clear();
-    this.setState({canSubmit: false});  // Also refreshes tree view
+    this.setState({canSubmit: false, beingSubmitted: false});  // Also refreshes tree view
     (this.editTree.metaSource as HarmonyMetaSource).clearCache();
   }
 
   private readonly handleSubmit = () => {
-    console.log('submit');  // TODO
-    (this.editTree.metaSource as HarmonyMetaSource).clearCache();
+    this.setState({canSubmit: false, beingSubmitted: true}, () => {
+      submitTree(this.editTree).then(() => this.handleClear());
+    });
   }
 
   private readonly onTreeChange = (object?: ArtistEditData | ReleaseEditData, _?: RemoteUpdateEvent) => {
@@ -125,14 +131,21 @@ const EmptyView = () => (
 
 type ActionButtonsProps = {
   canSubmit: boolean,
+  beingSubmitted: boolean,
   clearAction: (e: MouseEvent) => void,
   submitAction: (e: MouseEvent) => void
 }
 
-const ActionButtons = ({canSubmit, clearAction, submitAction}: ActionButtonsProps) => (
+const ActionButtons = ({canSubmit, beingSubmitted, clearAction, submitAction}: ActionButtonsProps) => (
   <div class={style.actionButtons}>
     <button onClick={clearAction}>Clear All</button>
-    <button onClick={submitAction} disabled={!canSubmit}>Submit</button>
+    <button onClick={submitAction} disabled={!canSubmit} class={classList(beingSubmitted && style.submitting)}>
+      <span>Submit</span>
+      {beingSubmitted && (
+          // @ts-ignore
+          <Themeable propVariables={{ 'strokeFg': '--th-upload-footer-btn-hi-fg-disabled' }}><CircleProgress size={16} strokeWidth={2} indeterminate /></Themeable>
+      )}
+    </button>
   </div>
 );
 

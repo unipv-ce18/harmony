@@ -152,5 +152,10 @@ $footer-height: 40px;
         background-color: var(--th-upload-footer-btn-hi-bg-hover)
       }
     }
+
+    &.submitting {
+      > span { visibility: hidden; }
+      > svg { margin: -21px auto; }
+    }
   }
 }

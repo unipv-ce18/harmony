@@ -1,6 +1,6 @@
 import {session} from '../../Harmony';
 import {removeArrayElement} from '../../core/utils';
-import {uploadContent} from '../../core/apiCalls';
+import {uploadContent, UploadContentCategory, UploadContentObjectId} from '../../core/apiCalls';
 
 type UploadGenericEvent = {type: 'start' | 'done' | 'error'};
 type UploadStartEvent = {type: 'upload', temporaryId: string};
@@ -9,11 +9,11 @@ type UploadProgressEvent = {type: 'progress', value: number};
 export type UploadStatusEvent = UploadGenericEvent | UploadStartEvent | UploadProgressEvent;
 type UploadStatusListener = (event: UploadStatusEvent) => void;
 
-type PendingUploadEntry = {file: File, onUpdate: UploadStatusListener};
+type PendingUploadEntry = {category: UploadContentCategory, categoryId: UploadContentObjectId,
+                           file: Blob, onUpdate: UploadStatusListener};
 type CurrentUploadEntry = PendingUploadEntry & {aborted?: boolean, xhr?: XMLHttpRequest}
 
 const CONCURRENT_UPLOAD_COUNT = 3;
-const UPLOAD_CATEGORY = 'song';
 
 /**
  * Maintains a queue of song upload tasks and notifies about their status
@@ -28,11 +28,14 @@ class UploadManager {
   /**
    * Adds a new song upload task
    *
+   * @param category - the upload content category
+   * @param categoryId - the ID for the upload category
    * @param file - the file to be uploaded
    * @param onUpdate - a callback receiving status notifications for the task
    */
-  public addUploadTask(file: File, onUpdate: UploadStatusListener) {
-    this.pendingUploads.push({file, onUpdate});
+  public addUploadTask(category: UploadContentCategory, categoryId: UploadContentObjectId,
+                       file: Blob, onUpdate: UploadStatusListener) {
+    this.pendingUploads.push({category, categoryId, file, onUpdate});
     this.startNewUploads();
   }
 
@@ -97,7 +100,7 @@ class UploadManager {
         .then(token => {
           // Firefox fix
           const mimeType = newUpload.file.type === 'audio/x-flac' ? 'audio/flac' : newUpload.file.type;
-          return uploadContent(UPLOAD_CATEGORY, undefined, mimeType, newUpload.file.size, token!)
+          return uploadContent(newUpload.category, newUpload.categoryId, mimeType, newUpload.file.size, token!)
         })
         .then(([url, presignedData]) => {
           newUpload.onUpdate({type: 'upload', temporaryId: presignedData['key']});
@@ -143,5 +146,32 @@ function postData(upload: CurrentUploadEntry, url: string, presignedData: {[k: s
     }
   });
 }
+
+/**
+ * Schedules an upload with the given UploadManager and resolves on completion
+ *
+ * @param mgr - the UploadManager to use
+ * @param cat - the upload content category
+ * @param catId - the upload content category ID
+ * @param data - data to be uploaded
+ * @returns a promise resolved when the upload completes
+ */
+export const doUpload = (mgr: UploadManager, cat: UploadContentCategory, catId: UploadContentObjectId, data: Blob) =>
+  new Promise((resolve, reject) => {
+    let uploadId: string;
+    mgr.addUploadTask(cat, catId, data, e => {
+      switch (e.type) {
+        case 'upload':
+          uploadId = e.temporaryId;
+          break;
+        case 'done':
+          resolve(uploadId);
+          break;
+        case 'error':
+          reject();
+          break;
+      }
+    });
+  });
 
 export default UploadManager;

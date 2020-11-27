@@ -4,7 +4,7 @@ import {RemoteUpdateEvent, ReleaseEditData, SongEditData} from '../tree';
 import UploadManager, {UploadStatusEvent} from './UploadManager';
 
 // Global upload manager instance
-export const UPLOAD_MANAGER = new UploadManager();
+export const SONG_UPLOAD_MANAGER = new UploadManager();
 
 type WithSongUploadProps = {data: SongEditData};
 export type WithSongUploadState = {started: boolean, progress: number, done: boolean, error: boolean};
@@ -32,7 +32,7 @@ export function withSongUpload<P extends WithSongUploadProps>(View: ComponentTyp
 
     componentWillUnmount() {
       this.props.data.editTree.removeTreeChangeListener(this.onDataChange);
-      if (this.uploadId !== undefined) UPLOAD_MANAGER.cancelUploadTask(this.props.data.file, false);
+      if (this.uploadId !== undefined) SONG_UPLOAD_MANAGER.cancelUploadTask(this.props.data.file, false);
     }
 
     render(props: P, state: WithSongUploadState) {
@@ -43,7 +43,7 @@ export function withSongUpload<P extends WithSongUploadProps>(View: ComponentTyp
       if (!this.enqueued && release.eid === this.props.data.release.eid &&
           release.isValid(false) && release.artist.isValid(false)) {
         this.enqueued = true;
-        UPLOAD_MANAGER.addUploadTask(this.props.data.file, this.onUploadStatus);
+        SONG_UPLOAD_MANAGER.addUploadTask('song', undefined, this.props.data.file, this.onUploadStatus);
       }
     };
 
