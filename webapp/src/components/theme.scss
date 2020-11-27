@@ -1,0 +1,127 @@
+@import '../styledefs';
+
+// Dark theme base
+.dark {
+  --th-background: #{$application-background};
+  --th-background-header: #{rgba($application-background, .9)};
+  --th-foreground: #ddd;
+  --th-foreground-link: #{$text-color-link};
+  --th-foreground-secondary: #aaa;
+
+  --th-logo-color: #ddd;
+
+  --th-login-form-bg: rgba(0, 0, 0, 0.1);
+  --th-login-field-bg: rgba(0, 0, 0, 0.1);
+  --th-login-field-bg-focus: rgba(255, 255, 255, .05);
+  --th-login-submit-bg: rgba(50, 50, 50, 0.7);
+  --th-login-submit-fg: white;
+
+  --th-head-nav: #eee;
+  --th-head-nav-shadow: #{rgba(#fff, .5)} 0 0 1px;
+  --th-head-user-bg: #{rgba(#111, .8)};
+  --th-head-user-fg-hover: #fff;
+  --th-head-search-bg:  #{rgba(#111, .8)};
+  --th-head-search-popup-bg: #{rgba(#0a0a0a, .8)};
+  --th-head-search-hint: #{rgba(#ddd, .6)};
+  --th-head-search-selection: #{rgba(#fff, .3)};
+  --th-head-search-fg: #eee;
+
+  --th-search-category-header-opacity: 50%;
+  --th-search-more-bg: #{rgba(#000, .5)};
+  --th-search-more-fg: #{rgba(#eee, .8)};
+  --th-search-more-fg-focus: #{rgba(#eee, .9)};
+  --th-search-artist-bg: rgba(10, 10, 10, .5);
+  --th-search-release-bg: rgba(10, 10, 10, .7);
+  --th-search-bg-focus: rgba(10, 10, 10, .8);
+  --th-search-release-shadow: 0 0 10px rgba(0, 0, 0, .5);
+  --th-search-release-shadow-focus: 0 0 20px rgba(0, 0, 0, .8);
+  --th-search-song-bg-focus: #{rgba(#eee, .1)};
+  --th-search-song-img-play: white;
+  --th-search-song-img-filter: brightness(.7) contrast(1);
+  --th-search-result-fg: #eee;
+  --th-search-button-hover-bg: rgba(255, 255, 255, .2);
+
+  --th-upload-bg: #{rgba(#111, .8)};
+  --th-upload-shadow: 0 0 10px rgba(0, 0, 0, .4);
+  --th-upload-input-underline: #{rgba(#eee, .5)};
+  --th-upload-header-bg: #{rgba(#fff, .05)};
+  --th-upload-footer-bg: #0d0d0d;
+  --th-upload-footer-btn-bg: #333;
+  --th-upload-footer-btn-bg-hover: #444;
+  --th-upload-footer-btn-fg: #ccc;
+  --th-upload-footer-btn-hi-bg-disabled: #455a64;  // Material Blue Grey 700
+  --th-upload-footer-btn-hi-fg-disabled: #ccc;
+  --th-upload-footer-btn-hi-bg: #1976d2;  // Material Blue 700
+  --th-upload-footer-btn-hi-bg-hover: #2196f3;  // Material Blue 500
+  --th-upload-footer-btn-hi-fg: #eee;
+  --th-upload-empty-logo-color: #{rgba(#fff, .2)};
+  --th-upload-drag-stripe-opacity: 0.015;
+  --th-upload-artist-bg: linear-gradient(to bottom, #{rgba(black, .6)}, transparent 50px);
+  --th-upload-release-bg: #{rgba(#070707, .6)};
+}
+
+// Light theme base
+.light {
+  --th-background: #fff;
+  --th-background-header: #{rgba(#fff, .9)};
+  --th-foreground: #444;
+  --th-foreground-link: #0086c6;
+  --th-foreground-secondary: #777;
+
+  --th-logo-color: #666;
+
+  --th-login-form-bg: rgba(0, 0, 0, 0.03);
+  --th-login-field-bg: rgba(0, 0, 0, 0.02);
+  --th-login-field-bg-focus: rgba(0, 0, 0, .1);
+  --th-login-submit-bg: rgba(220, 220, 220, 0.7);
+  --th-login-submit-fg: black;
+
+  --th-head-nav: #111;
+  --th-head-nav-shadow: #{rgba(#000, .5)} 0 0 1px;
+  --th-head-user-bg: #{rgba(#eee, .8)};
+  --th-head-user-fg-hover: #000;
+  --th-head-search-bg:  #{rgba(#eee, .8)};
+  --th-head-search-popup-bg: #{rgba(#f7f7f7, .8)};
+  --th-head-search-hint: #{rgba(#222, .6)};
+  --th-head-search-selection: #{rgba(#000, .2)};
+  --th-head-search-fg: #111;
+
+  --th-search-category-header-opacity: 80%;
+  --th-search-more-bg: #{rgba(#000, .2)};
+  --th-search-more-fg: #{rgba(#111, .8)};
+  --th-search-more-fg-focus: #{rgba(#111, .9)};
+  --th-search-artist-bg: rgba(240, 240, 240, .5);
+  --th-search-release-bg: rgba(240, 240, 240, .7);
+  --th-search-bg-focus: rgba(240, 240, 240, .8);
+  --th-search-release-shadow: 0 0 10px rgba(0, 0, 0, .3);
+  --th-search-release-shadow-focus: 0 0 20px rgba(0, 0, 0, .5);
+  --th-search-song-bg-focus: #{rgba(#111, .1)};
+  --th-search-song-img-play: white;
+  --th-search-song-img-filter: brightness(.7) contrast(1);
+  --th-search-result-fg: #111;
+  --th-search-button-hover-bg: rgba(0, 0, 0, .1);
+
+  --th-upload-bg: #{rgba(#f4f4f4, .8)};
+  --th-upload-shadow: 0 0 10px rgba(0, 0, 0, .2);
+  --th-upload-input-underline: #{rgba(#111, .5)};
+  --th-upload-header-bg: #{rgba(#000, .03)};
+  --th-upload-footer-bg: #f0f0f0;
+  --th-upload-footer-btn-bg: #ddd;
+  --th-upload-footer-btn-bg-hover: #ccc;
+  --th-upload-footer-btn-fg: #444;
+  --th-upload-footer-btn-hi-bg-disabled: #90a4ae;  // Material Blue Grey 300
+  --th-upload-footer-btn-hi-fg-disabled: #fff;
+  --th-upload-footer-btn-hi-bg: #1976d2;  // Material Blue 700
+  --th-upload-footer-btn-hi-bg-hover: #2196f3;  // Material Blue 500
+  --th-upload-footer-btn-hi-fg: #eee;
+  --th-upload-empty-logo-color: #{rgba(#000, .15)};
+  --th-upload-drag-stripe-opacity: 0.025;
+  --th-upload-artist-bg: linear-gradient(to bottom, #{rgba(white, .6)}, transparent 50px);
+  --th-upload-release-bg: #{rgba(#e7e7e7, .6)};
+}
+
+// Wine theme
+.wine {
+  --th-background: #2a0c12;
+  --th-background-header: #{rgba(#2a0c12, .9)};
+}

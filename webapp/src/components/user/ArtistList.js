@@ -1,12 +1,12 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
-
-import styles from './UserPage.scss';
 import {DEFAULT_ALBUMART_URL, DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import {session} from '../../Harmony';
 import {createArtist} from '../../core/apiCalls';
 import {artistLink} from '../../core/links';
+
+import styles from './UserPage.scss';
 
 class ArtistList extends Component {
   constructor(props) {
@@ -26,9 +26,9 @@ class ArtistList extends Component {
     session.getAccessToken()
       .then(token => {
         createArtist(artist_name, token)
-          .then(result => route(artistLink(result['artist_id'])))
+          .then(artistId => route(artistLink(artistId)))
           .catch(() => session.error = true);
-      });
+      })
   }
 
   handleModalBox(modalbox_type, message, e) {

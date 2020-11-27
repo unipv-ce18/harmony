@@ -1,4 +1,4 @@
-import {Component, Fragment, toChildArray} from 'preact';
+import {Component, toChildArray} from 'preact';
 import Router, {route} from 'preact-router';
 import TransitionGroup from 'preact-transition-group';
 
@@ -14,12 +14,10 @@ import ErrorPage from "./components/error/ErrorPage";
 import MediaPlayerWrapper from './player/components/MediaPlayerWrapper';
 import UserPage from "./components/user/UserPage";
 
-import {session, mediaPlayer} from './Harmony';
+import {session, mediaPlayer, themeManager} from './Harmony';
 import styles from './App.scss';
 
 class App extends Component {
-
-  state = {currentPath: null};
 
   #loggedIn = session.loggedIn;
 
@@ -36,6 +34,9 @@ class App extends Component {
         route(session.loggedIn ? '/' : '/login');  // Route manually to avoid Redirect breaking animations
       }
     });
+
+    themeManager.addChangeListener((themeClass, done) => this.setState({themeClass}, done));
+    this.state = {currentPath: null, themeClass: themeManager.currentAppClass};
   }
 
   handleRoute = _ => {
@@ -43,7 +44,7 @@ class App extends Component {
     session.error = false;
   }
 
-  render(_, {currentPath}) {
+  render(_, {currentPath, themeClass}) {
     const router = this.#loggedIn ? (
       <TransitionRouter onChange={this.handleRoute}>
         <HomePage key="home" path="/"/>
@@ -64,11 +65,11 @@ class App extends Component {
     );
 
     return (
-      <Fragment>
+      <div class={`${styles.app} ${themeClass}`}>
         <HeaderBar page={currentPath}/>
         <div class={styles.content}>{router}</div>
         {this.#loggedIn && <MediaPlayerWrapper playerLoader={mediaPlayer}/>}
-      </Fragment>
+      </div>
     );
   }
 

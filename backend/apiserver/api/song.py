@@ -18,6 +18,7 @@ api = Api(api_blueprint, prefix='/song')
 
 _arg_parser_upload = RequestParser()\
     .add_argument('song_id', required=True)\
+    .add_argument('release_id', required=True)\
     .add_argument('title', required=True)\
     .add_argument('lyrics')
 
@@ -43,11 +44,12 @@ class SongUpload(Resource):
                 type: object
                 properties:
                   song_id: {type: string, description: Song ID}
+                  release_id: {type: string, description: ID of the release to which the song is to be added}
                   title: {type: string, description: Song title}
                   lyrics: {type: string, description: Song lyrics}
                 required: [song_id, title]
               examples:
-                0: {summary: 'Song', value: {'song_id': 'SONG_ID', 'title': 'SONG_TITLE', 'lyrics': ''}}
+                0: {summary: 'Song', value: {'song_id': 'SONG_ID', 'release_id': 'RELEASE_ID', 'title': 'SONG_TITLE', 'lyrics': ''}}
         responses:
           200:
             description: Song uploaded successfully
@@ -73,7 +75,8 @@ class SongUpload(Resource):
         data = _arg_parser_upload.parse_args()
 
         user_id = security.get_jwt_identity()
-        song_id = data[c.SONG_ID] = data['song_id']
+        song_id = data['song_id']
+        release_id = data['release_id']
 
         if not ObjectId.is_valid(user_id):
             return {'message': 'User ID not valid'}, HTTPStatus.BAD_REQUEST
@@ -81,11 +84,11 @@ class SongUpload(Resource):
         if not ObjectId.is_valid(song_id):
             return {'message': 'Song ID not valid'}, HTTPStatus.BAD_REQUEST
 
+        if not ObjectId.is_valid(release_id):
+            return {'message': 'Release ID not valid'}, HTTPStatus.BAD_REQUEST
+
         if db.get_content_status(song_id) != 'complete':
             return {'message': 'Upload on storage not complete'}, HTTPStatus.BAD_REQUEST
-
-        content = db.get_content(song_id)
-        release_id = content['category_id']
 
         release = db.get_release(release_id)
         if release is None:

@@ -1,4 +1,12 @@
+# HyAWS credentials
 /credentials
+
+# Python generic
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Terraform
 /.terraform
 /*.tfstate
 /*.tfstate.*

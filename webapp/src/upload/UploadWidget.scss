@@ -1,0 +1,32 @@
+@import '../styledefs';
+
+.uploadWidget {
+  // Button
+  > span {
+    background-color: transparent;
+    fill: var(--th-foreground);
+
+    transition: opacity $transition-len-short-ms, transform $transition-len-short-ms;
+    transform: rotate(-45deg);
+  }
+
+  // Panel
+  > div {
+    transition: opacity $transition-len-short-ms, transform $transition-len-short-ms;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-10px) scale(.9);
+    transform-origin: top right;
+  }
+
+  &.open {
+    > span {
+      transform: none;
+    }
+    > div {
+      pointer-events: all;
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

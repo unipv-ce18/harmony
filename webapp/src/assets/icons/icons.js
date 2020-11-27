@@ -24,7 +24,18 @@ export const IconRadioOff = (props) => <Icon mod={require('./radio_button_unchec
 export const IconRadioOn = (props) => <Icon mod={require('./radio_button_checked-24px.svg')} {...props}/>;
 export const IconClose = (props) => <Icon mod={require('./close-24px.svg')} {...props}/>;
 
-// Library
+// Upload pane
+export const IconCloudUpload = (props) => <Icon mod={require('./cloud_upload-24px.svg')} {...props}/>;
+export const IconUploadFile = (props) => <Icon mod={require('./note_add-24px.svg')} {...props}/>;
+export const IconUploadFolder = (props) => <Icon mod={require('./create_new_folder-24px.svg')} {...props}/>;
+export const IconListExpand = (props) => <Icon mod={require('./unfold_more-24px.svg')} {...props}/>;
+export const IconListCollapse = (props) => <Icon mod={require('./unfold_less-24px.svg')} {...props}/>;
+export const IconFullscreen = (props) => <Icon mod={require('./fullscreen-24px.svg')} {...props}/>;
+export const IconFullscreenExit = (props) => <Icon mod={require('./fullscreen_exit-24px.svg')} {...props}/>;
+export const IconDone = (props) => <Icon mod={require('./done-24px.svg')} {...props}/>
+export const IconErrorOutline = (props) => <Icon mod={require('./error_outline-24px.svg')} {...props}/>
+
+// Library, Upload pane
 export const IconExpand = (props) => <Icon mod={require('./expand_more-24px.svg')} {...props}/>;
 export const IconCollapse = (props) => <Icon mod={require('./expand_less-24px.svg')} {...props}/>;
 

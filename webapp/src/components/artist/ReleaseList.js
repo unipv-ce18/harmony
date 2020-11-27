@@ -1,13 +1,13 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
-
-import styles from './ArtistPage.scss';
-import {releaseLink} from '../../core/links';
 import {IconExpand} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 import {DEFAULT_ALBUMART_URL, DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox'
+import {releaseLink} from '../../core/links';
 import {createRelease} from '../../core/apiCalls';
+
+import styles from './ArtistPage.scss';
 
 const MODALBOX_RELEASE = 'modalbox_release';
 
@@ -43,11 +43,9 @@ class ReleaseList extends Component {
     if (!release_name) release_name = 'New Release';
     session.getAccessToken()
       .then (token => {
-        createRelease(this.props.artist.id, release_name, token)
-          .then(result => {
-            route(releaseLink(result['release_id']));
-          })
-          .catch( () => session.error = true);
+        createRelease(this.props.artist.id, {name: release_name}, token)
+          .then(releaseId => route(releaseLink(releaseId)))
+          .catch(() => session.error = true);
       })
   }
 

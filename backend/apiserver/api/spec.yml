@@ -103,7 +103,7 @@ components:
         type: {$ref: '#components/schemas/ReleaseType'}
         date:
           oneOf:
-            - {type: 'integer'}
+            - {type: 'string'}
             - {type: 'null'}
         cover:
           oneOf:

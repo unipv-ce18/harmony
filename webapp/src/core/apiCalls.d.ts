@@ -1,3 +1,5 @@
+import {ThemeId} from '../components/theme';
+
 declare namespace apiCalls {
 
     export type AccessToken = string;
@@ -7,6 +9,7 @@ declare namespace apiCalls {
     type ArtistId = string;
     type ReleaseId = string;
     type SongId = string;
+    type PlaylistId = string;
 
     type LoginResult = {
         access_token: AccessToken,
@@ -24,7 +27,8 @@ declare namespace apiCalls {
     type UserType = 'basic' | 'creator';
     type UserTier = 'free' | 'pro';
     type UserPreferences = {
-        private: {email: boolean}
+        private: {email: boolean},
+        theme: ThemeId
     }
 
     type UserData = {
@@ -40,8 +44,46 @@ declare namespace apiCalls {
     };
 
     type UploadContentCategory = 'user' | 'artist' | 'release' | 'song';
-    type UploadContentObjectId = UserId | ArtistId | ReleaseId | SongId;
-    type UploadContentResult = [string, any];  // Url and presigned post data
+    type UploadContentObjectId = UserId | ArtistId | ReleaseId | undefined;
+    type UploadPresignedData = {
+      'bucket': string, 'key': string, 'Content-Type': string, 'policy': string,
+      'x-amz-algorithm': string, 'x-amz-credential': string, 'x-amz-date': string, 'x-amz-signature': string
+    };
+    type UploadContentResult = [string, UploadPresignedData];  // Url and presigned post data
+
+    // TODO: Update to the new API
+    type SearchType = 'any' | 'artists' | 'releases' | 'songs' | 'playlists';
+
+    type SearchResult = {
+      artists?: [{id: ArtistId, name: string /* ...more */}]
+      releases?: [{id: ReleaseId, name: string /* ...more */}]
+      songs?: [{id: SongId, title: string /* ...more */}]
+      playlists?: [{id: PlaylistId, /* ...more */}]
+    }
+
+    type ArtistResult = {
+      id: ArtistId,
+      name: string,
+      creator: string | null,
+      sort_name: string,
+      country?: string
+      life_span?: {begin: string, end: string | null},
+      genres?: string[],
+      bio?: string | null,
+      members?: [{role: string, name: string}],
+      links?: {[target: string]: string},
+      image?: string | null,
+      releases?: ReleaseResult[]
+    }
+
+    type ReleaseResult = {
+      id: ReleaseId,
+      name: string,
+      date?: string,
+      artist: any,  // keep it simple for now
+      type: 'album' | 'single' | 'ep' | 'compilation' | 'live' | 'remix' | null,
+      cover: string | null
+    }
 
     function execLogin(identity: string, password: string): Promise<LoginResult>;
 
@@ -61,6 +103,16 @@ declare namespace apiCalls {
                            mimeType: string, size: number, token: AccessToken): Promise<UploadContentResult>;
 
     function uploadToStorage(result: UploadContentResult, file: File): Promise<Response>;
+
+    function execSearch(token: AccessToken, type: SearchType, query: string): Promise<SearchResult>;
+
+    function getArtist(artistId: ArtistId, withReleases: boolean, token: AccessToken): Promise<ArtistResult>;
+    
+    function createArtist(name: string, token: AccessToken): Promise<ArtistId>;
+
+    function createRelease(artistId: ArtistId, fields: {name: string, date?: string}, token: AccessToken): Promise<ReleaseId>;
+
+    function createSong(releaseId: ReleaseId, uploadId: string, title: String, token: AccessToken): Promise<any>;
 }
 
 export = apiCalls;

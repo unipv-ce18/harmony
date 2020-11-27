@@ -3,6 +3,8 @@ import 'regenerator-runtime/runtime';   // for Babel to polyfill "async"
 import {mount} from 'enzyme';
 import waitForExpect from 'wait-for-expect';
 
+import '../../matchMedia.mock';
+
 import {execRegistration} from '../../../src/core/apiCalls';
 import {FieldType} from '../../../src/components/login/validation';
 import LoginForm from '../../../src/components/login/LoginForm';

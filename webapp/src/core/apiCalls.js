@@ -135,10 +135,10 @@ export function getReleasePlaylist(type_collection, collection_id, with_song, to
     })
 }
 
-export function getArtist(artist_id, with_releases, token) {
+export function getArtist(artistId, withReleases, token) {
   // with_releases == true includes the songs in the result
-  let query = API_ARTIST_URL + '/' + artist_id;
-  if (with_releases) query += '?releases=1';
+  let query = API_ARTIST_URL + '/' + artistId;
+  if (withReleases) query += '?releases=1';
   return fetch(query, {
     method: 'GET',
     headers: new Headers({'Accept': 'application/json', 'Authorization':'Bearer ' + token}),
@@ -156,7 +156,7 @@ export function createArtist(name, token) {
     body: JSON.stringify(data)
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
-    return response.json();
+    return response.json().then(d => d['artist_id']);
   });
 }
 
@@ -181,15 +181,15 @@ export function patchArtist(token, artist_id, patch) {
   });
 }
 
-export function createRelease(artist_id, name, token) {
-  const data = {artist_id, name};
+export function createRelease(artistId, fields, token) {
+  const data = {artist_id: artistId, ...fields};
   return fetch(API_RELEASE_URL, {
     method: 'POST',
     headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
     body: JSON.stringify(data)
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
-    return response.json();
+    return response.json().then(d => d['release_id']);
   });
 }
 
@@ -211,6 +211,18 @@ export function patchRelease(token, release_id, patch) {
   }).then(response => {
     if (!response.ok) throw new ApiError(response);
     return;
+  });
+}
+
+export function createSong(releaseId, uploadId, title, token) {
+  const data = {release_id: releaseId, song_id: uploadId, title};
+  return fetch(API_SONG_URL, {
+    method: 'POST',
+    headers: new Headers({'Content-Type': 'application/json', 'Authorization':'Bearer ' + token}),
+    body: JSON.stringify(data)
+  }).then(response => {
+    if (!response.ok) throw new ApiError(response);
+    return response.json();
   });
 }
 

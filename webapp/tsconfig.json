@@ -1,15 +1,17 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "module": "es6",
+    "module": "es2020",
     "lib": ["DOM", "ES2019"],
     "moduleResolution": "node",
-    "jsx": "preserve",
+    "jsx": "react",
+    "jsxFactory": "h",
     "preserveConstEnums": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "experimentalDecorators": true,
     "sourceMap": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   }
 }

@@ -1,10 +1,12 @@
 import {Session} from './core/Session';
 import {MediaCatalog} from './core/MediaCatalog';
 import {MediaPlayer, MediaItemInfo, PlayStartModes} from './player/MediaPlayer';
+import ThemeManager from './components/ThemeManager';
 
 export const session = new Session();
 export const catalog = new MediaCatalog(session);
 export const mediaPlayer = new MediaPlayer();
+export const themeManager = new ThemeManager(session);
 
 
 if ('serviceWorker' in navigator && SERVICE_WORKER_PATH != null) {
@@ -27,6 +29,7 @@ switch (process.env.NODE_ENV) {
       session: { value: session },
       catalog: { value: catalog },
       player: { value: mediaPlayer },
+      themeManager: { value: themeManager },
       MediaItemInfo: { value: MediaItemInfo },
       PlayStartModes: { value: PlayStartModes }
     });
