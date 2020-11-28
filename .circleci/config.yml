@@ -163,6 +163,10 @@ jobs:
       - run:
           name: Build webapp
           command: yarn build
+          environment:
+            API_BASE_URL: https://api.hymusic.ga/api/v1
+            PLAYER_SOCKET_URL: https://api.hymusic.ga/playback
+            DOWNLOAD_SOCKET_URL: https://api.hymusic.ga/download
 
       - aws-s3/sync:
           arguments: |
