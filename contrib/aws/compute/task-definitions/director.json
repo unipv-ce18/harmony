@@ -46,7 +46,7 @@
       }
     },
     "mountPoints": [],
-    "name": "${container-name}",
+    "name": "${container_name}",
     "portMappings": [],
     "secrets": [
       {

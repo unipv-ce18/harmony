@@ -15,10 +15,11 @@ aws_secret_access_key = ...
 aws_session_token = ...
 ```
 
-Then run `terraform init [dir]` and `terraform apply [dir]` where `[dir]` references one of the subsystems we used to
-split billing over our (crippled) Educate accounts. The subsystems are:
+Then run `terraform init [dir]` and `terraform apply [dir]` where `[dir]` references one of the subsystems we used to split billing over our (crippled) Educate accounts.
+
+The subsystems are (apply in this order):
 
 - **registry** configures ECR (docker image registry) and outputs credentials to be given to the CI pipeline;
 - **storage** configures SNS, S3 and returns credentials to access object storage, which need to be passed to _compute_;
 - **compute** sets up VPC networks, the ECS cluster, service and task definitions;
-- **frontend** creates the S3 bucket, CloudFront distribution, Route 53 and deploy credentials.
+- **frontend** creates the S3 bucket, CloudFront distribution, Route 53 and S3 deploy credentials for CI.

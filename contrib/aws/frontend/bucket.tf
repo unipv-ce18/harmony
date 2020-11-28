@@ -8,7 +8,7 @@ resource "aws_iam_server_certificate" "hy_cert" {
 }
 
 resource "aws_s3_bucket" "b" {
-  bucket = "hy-deploy-webapp"
+  bucket = "hy-webapp-deploy"
   acl    = "private"
 
   website {
