@@ -8,6 +8,10 @@ module.exports = (env, config) => merge(require('./webpack.common')({...env, sw:
   mode: 'production',
   devtool: 'source-map',
 
+  output: {
+    filename: '[name].[contenthash].js'
+  },
+
   module: {
     rules: [
       {
@@ -32,7 +36,9 @@ module.exports = (env, config) => merge(require('./webpack.common')({...env, sw:
   },
 
   plugins: [
-    new MiniCssExtractPlugin()
+    new MiniCssExtractPlugin({
+      filename: '[name].[contenthash].css'
+    })
   ],
 
   optimization: {
