@@ -1,5 +1,6 @@
 import {Component} from 'preact';
 
+import {session} from '../Harmony';
 import {classList} from '../core/utils';
 import Themeable from '../components/Themeable';
 import HarmonyLogo from '../components/HarmonyLogo';
