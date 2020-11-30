@@ -171,6 +171,7 @@ jobs:
       - aws-s3/sync:
           arguments: |
             --acl bucket-owner-full-control \
+            --exclude "*.js.map" --exclude "*.css.map" \
             --delete
           aws-access-key-id: AWS_S3_ACCESS_KEY
           aws-secret-access-key: AWS_S3_SECRET_KEY
