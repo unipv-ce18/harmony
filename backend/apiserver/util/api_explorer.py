@@ -55,7 +55,7 @@ class ApiExplorer(flasgger.Swagger):
         # Add this server to the spec (do not use variables to make Insomnia happy)
         url_prefix = spec.get('url_prefix')
         api_spec['servers'] = [{
-            'url': request.host_url + ('' if url_prefix is None else url_prefix.lstrip('/')),
+            'url': request.headers.get('X-Forwarded-Proto', 'http') + '://' + request.host + (url_prefix or ''),
             'description': 'This API server',
         }]
 
@@ -118,7 +118,7 @@ class ApiExplorer(flasgger.Swagger):
 
     def _handle_explorer_route(self):
         """Route for the explorer UI, displaying the first spec registered with this class"""
-        spec_url = request.host_url.rstrip('/') + url_for(self.config['specs'][0]['endpoint'])  # Use 1st spec in list
+        spec_url = '//' + request.host + url_for(self.config['specs'][0]['endpoint'])  # Use 1st spec in list
 
         return _page_template.render(
             site_name=_site_name,
