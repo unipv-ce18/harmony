@@ -40,6 +40,11 @@ variable "task_count_apiserver" {
   default = 0
 }
 
+variable "task_count_director" {
+  type = number
+  default = 0
+}
+
 variable "storage_access_key" {
   type = string
 }

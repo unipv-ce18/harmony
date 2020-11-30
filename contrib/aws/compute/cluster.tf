@@ -61,12 +61,30 @@ resource "aws_ecs_service" "apiserver" {
   }
 }
 
+resource "aws_ecs_service" "director" {
+  name    = "director"
+  cluster = aws_ecs_cluster.hy.id
+  task_definition = aws_ecs_task_definition.director.arn
+  desired_count = var.task_count_director
+  launch_type = "FARGATE"
+
+  network_configuration {
+    assign_public_ip = false
+    security_groups = [
+      aws_security_group.allow_all_outbound.id
+    ]
+    subnets = [
+      aws_subnet.hy_private.id
+    ]
+  }
+}
+
 resource "aws_ecs_task_definition" "apiserver" {
   family = "hy-apiserver"
   container_definitions = templatefile("${path.module}/task-definitions/apiserver.json", {
     container_name = local.container_name_apiserver
-    ecr_uid = data.aws_caller_identity.current.account_id
-    cw_group = aws_cloudwatch_log_group.apiserver.name
+    ecr_uid        = data.aws_caller_identity.current.account_id
+    cw_group       = aws_cloudwatch_log_group.apiserver.name
   })
 
   cpu                      = "512"
@@ -80,8 +98,8 @@ resource "aws_ecs_task_definition" "director" {
   family = "hy-director"
   container_definitions = templatefile("${path.module}/task-definitions/director.json", {
     container_name = local.container_name_director
-    ecr_uid = data.aws_caller_identity.current.account_id
-    cw_group = aws_cloudwatch_log_group.director.name
+    ecr_uid        = data.aws_caller_identity.current.account_id
+    cw_group       = aws_cloudwatch_log_group.director.name
   })
 
   cpu                      = "512"
@@ -95,8 +113,8 @@ resource "aws_ecs_task_definition" "worker" {
   family = "hy-worker"
   container_definitions = templatefile("${path.module}/task-definitions/worker.json", {
     container_name = local.container_name_worker
-    ecr_uid = data.aws_caller_identity.current.account_id
-    cw_group = aws_cloudwatch_log_group.worker.name
+    ecr_uid        = data.aws_caller_identity.current.account_id
+    cw_group       = aws_cloudwatch_log_group.worker.name
   })
 
   cpu                      = "1024"

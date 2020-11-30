@@ -74,7 +74,7 @@
         "valueFrom": "/hy/compute/director/worker_task_container_name"
       },
       {
-        "name": "ECs_TASK_DEFINITION",
+        "name": "ECS_TASK_DEFINITION",
         "valueFrom": "/hy/compute/director/worker_task_definition"
       },
       {
