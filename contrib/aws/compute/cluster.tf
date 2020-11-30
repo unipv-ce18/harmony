@@ -65,6 +65,8 @@ resource "aws_ecs_task_definition" "apiserver" {
   family = "hy-apiserver"
   container_definitions = templatefile("${path.module}/task-definitions/apiserver.json", {
     container_name = local.container_name_apiserver
+    ecr_uid = data.aws_caller_identity.current.account_id
+    cw_group = aws_cloudwatch_log_group.apiserver.name
   })
 
   cpu                      = "512"
@@ -78,6 +80,8 @@ resource "aws_ecs_task_definition" "director" {
   family = "hy-director"
   container_definitions = templatefile("${path.module}/task-definitions/director.json", {
     container_name = local.container_name_director
+    ecr_uid = data.aws_caller_identity.current.account_id
+    cw_group = aws_cloudwatch_log_group.director.name
   })
 
   cpu                      = "512"
@@ -91,6 +95,8 @@ resource "aws_ecs_task_definition" "worker" {
   family = "hy-worker"
   container_definitions = templatefile("${path.module}/task-definitions/worker.json", {
     container_name = local.container_name_worker
+    ecr_uid = data.aws_caller_identity.current.account_id
+    cw_group = aws_cloudwatch_log_group.worker.name
   })
 
   cpu                      = "1024"

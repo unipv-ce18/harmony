@@ -1,7 +1,7 @@
 resource "aws_lb" "hy_api" {
   name = "hyapi-lb"
   security_groups = [
-    aws_security_group.allow_http.id,
+    aws_security_group.allow_https.id,
     aws_security_group.allow_all_outbound.id
   ]
   subnets = [
@@ -10,10 +10,12 @@ resource "aws_lb" "hy_api" {
   ]
 }
 
-resource "aws_lb_listener" "hy_api_fe_http" {
+resource "aws_lb_listener" "hy_api_fe_https" {
   load_balancer_arn = aws_lb.hy_api.arn
-  port              = "80"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
+  certificate_arn   = aws_iam_server_certificate.hy_cert.arn
 
   default_action {
     type             = "forward"

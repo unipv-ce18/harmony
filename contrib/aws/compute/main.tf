@@ -1,6 +1,6 @@
 terraform {
   backend "local" {
-    path = "./compute.tfstate"
+    path = "./.terraform/compute.tfstate"
   }
 }
 
@@ -30,6 +30,11 @@ variable "deploy_region" {
   type = string
 }
 
+variable "site_name" {
+  type = string
+  default = "hymusic.ga"
+}
+
 variable "task_count_apiserver" {
   type = number
   default = 0
@@ -51,13 +56,25 @@ variable "db_pass" {
   type = string
 }
 
-
 variable "amqp_user" {
   type = string
 }
 
 variable "amqp_pass" {
   type = string
+}
+
+variable "cert_file" {
+  type = string
+}
+
+variable "cert_key" {
+  type = string
+}
+
+variable "cert_chain" {
+  type = string
+  default = ""
 }
 
 

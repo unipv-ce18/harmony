@@ -1,9 +1,9 @@
-resource "aws_route53_zone" "zone" {
+data "aws_route53_zone" "zone" {
   name = var.site_name
 }
 
 resource "aws_route53_record" "default" {
-  zone_id = aws_route53_zone.zone.zone_id
+  zone_id = data.aws_route53_zone.zone.zone_id
   name    = var.site_name
   type    = "A"
 

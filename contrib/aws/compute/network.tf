@@ -104,6 +104,21 @@ resource "aws_security_group" "allow_http" {
   tags = { Name = "Allow HTTP in" }
 }
 
+resource "aws_security_group" "allow_https" {
+  name        = "allow-https"
+  description = "Allow HTTPS inbound traffic"
+  vpc_id      = aws_vpc.hy.id
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = { Name = "Allow HTTPS in" }
+}
+
 resource "aws_security_group" "allow_all_outbound" {
   name        = "allow-all-outbound"
   description = "Allow all outbound traffic"

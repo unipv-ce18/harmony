@@ -2,6 +2,11 @@ locals {
   s3_origin_id = "S3-hy-webapp"
 }
 
+data "aws_iam_server_certificate" "hy_cert" {
+  name   = "HySiteCertificate"
+  latest = true
+}
+
 # Used by CloudFront to access the webapp bucket
 resource "aws_cloudfront_origin_access_identity" "webapp_s3" {
   comment = "Webapp deploy access"
@@ -55,7 +60,7 @@ resource "aws_cloudfront_distribution" "webapp" {
   }
 
   viewer_certificate {
-    iam_certificate_id       = aws_iam_server_certificate.hy_cert.id
+    iam_certificate_id       = data.aws_iam_server_certificate.hy_cert.id
     minimum_protocol_version = "TLSv1.2_2019"
     ssl_support_method       = "sni-only"
   }

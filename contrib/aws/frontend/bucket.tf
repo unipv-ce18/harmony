@@ -1,12 +1,3 @@
-resource "aws_iam_server_certificate" "hy_cert" {
-  name = "HySiteCertificate"
-  path = "/cloudfront/"
-
-  certificate_body  = file(var.cert_file)
-  certificate_chain = file(var.cert_chain)
-  private_key       = file(var.cert_key)
-}
-
 resource "aws_s3_bucket" "b" {
   bucket = "hy-webapp-deploy"
   acl    = "private"

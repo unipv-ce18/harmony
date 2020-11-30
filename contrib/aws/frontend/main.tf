@@ -1,6 +1,6 @@
 terraform {
   backend "local" {
-    path = "./frontend.tfstate"
+    path = "./.terraform/frontend.tfstate"
   }
 }
 
@@ -35,24 +35,11 @@ variable "site_name" {
   default = "hymusic.ga"
 }
 
-variable "cert_file" {
-  type = string
-}
-
-variable "cert_key" {
-  type = string
-}
-
-variable "cert_chain" {
-  type = string
-  default = ""
-}
-
 
 # --- Deploy outputs ---
 
 output "zone_nameservers" {
-  value = aws_route53_zone.zone.name_servers
+  value = data.aws_route53_zone.zone.name_servers
 }
 
 output "deploy_access_key" {
