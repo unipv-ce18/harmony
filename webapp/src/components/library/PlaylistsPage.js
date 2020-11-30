@@ -1,13 +1,12 @@
 import {Component} from 'preact';
-
-import styles from './LibraryPage.scss';
-
 import {route} from 'preact-router';
-import {DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
 
+import {DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
 import {catalog, session} from '../../Harmony';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import PlaylistImage from '../collection/PlaylistImage';
+
+import styles from './LibraryPage.scss';
 
 class PlaylistsPage extends Component {
   constructor(props) {

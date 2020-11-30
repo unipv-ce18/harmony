@@ -3,9 +3,9 @@ import {Component, createRef} from 'preact';
 import {classList} from '../core/utils';
 import {session} from '../Harmony';
 import {DEFAULT_USER_IMAGE_URL} from '../assets/defaults';
+import {userLink} from '../core/links';
 
 import style from './UserWidget.scss';
-import {userLink} from '../core/links';
 
 const LEAVE_TIMEOUT_MS = 300;
 

@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 
-import {catalog, mediaPlayer} from '../../Harmony';
+import {catalog, mediaPlayer, session} from '../../Harmony';
 import {PlayStartModes} from '../../player/MediaPlayer';
 import {classList} from '../../core/utils';
 import {artistLink, releaseLink, playlistLink, userLink, createMediaItemInfo} from '../../core/links';

@@ -1,8 +1,9 @@
 import {Component} from 'preact';
+import {route} from "preact-router";
+
+import {session} from "../../Harmony";
 
 import styles from './ErrorPage.scss';
-import {session} from "../../Harmony";
-import {route} from "preact-router";
 
 class ErrorPage extends Component {
   constructor(props) {

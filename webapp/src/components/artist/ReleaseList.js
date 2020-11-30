@@ -1,5 +1,7 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
+
+import {session} from '../../Harmony';
 import {IconExpand} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 import {DEFAULT_ALBUMART_URL, DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';

@@ -1,7 +1,6 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
 
-import styles from './UserPage.scss';
 import {session} from '../../Harmony';
 import {userLibraryLink} from '../../core/links';
 import {deleteUser} from '../../core/apiCalls';
@@ -10,6 +9,8 @@ import IconButton from '../IconButton';
 import {IconLockClose, IconLockOpen, IconSettings} from '../../assets/icons/icons';
 import {DEFAULT_USER_IMAGE_URL} from '../../assets/defaults';
 import SettingsModal from '../SettingsModal';
+
+import styles from './UserPage.scss';
 
 class UserInfo extends Component {
   constructor(props) {

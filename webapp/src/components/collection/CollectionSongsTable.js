@@ -2,7 +2,7 @@ import {Component} from 'preact';
 import {route} from 'preact-router';
 
 import {mediaPlayer, catalog, session} from '../../Harmony';
-import {MediaItemInfo, PlayStartModes} from '../../player/MediaPlayer';
+import {PlayStartModes} from '../../player/MediaPlayer';
 import styles from './CollectionSongsTable.scss';
 import {getUserPlaylists} from '../../core/apiCalls';
 import {createMediaItemInfo, artistLink, releaseLink} from '../../core/links';

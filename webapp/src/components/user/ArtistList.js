@@ -1,5 +1,6 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
+
 import {DEFAULT_ALBUMART_URL, DEFAULT_NEW_CONTENT_IMAGE_URL} from '../../assets/defaults';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import {session} from '../../Harmony';

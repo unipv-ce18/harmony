@@ -1,13 +1,14 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
+
 import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
-import SettingsModal from '../SettingsModal'
-import styles from './CollectionInfo.scss';
 import {catalog, session} from '../../Harmony';
 import {deleteRelease, patchRelease, uploadContent, uploadToStorage} from '../../core/apiCalls';
 import IconButton from '../IconButton';
 import {IconEdit, IconQueue, IconSettings, IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
 import CollectionSettingsModal from './CollectionSettingsModal';
+
+import styles from './CollectionInfo.scss';
 
 class ReleaseInfo extends Component {
 

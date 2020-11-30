@@ -1,5 +1,6 @@
 import {Component} from 'preact';
 import {route} from 'preact-router';
+
 import IconButton from '../IconButton';
 import {
   IconLockClose,
@@ -11,9 +12,10 @@ import {
 } from '../../assets/icons/icons';
 import {catalog, session} from '../../Harmony';
 import PlaylistImage from './PlaylistImage';
-import styles from './CollectionInfo.scss';
 import {patchPlaylist} from '../../core/apiCalls';
 import CollectionSettingsModal from './CollectionSettingsModal';
+
+import styles from './CollectionInfo.scss';
 
 class PlaylistInfo extends Component {
 

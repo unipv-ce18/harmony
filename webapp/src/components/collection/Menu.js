@@ -1,15 +1,14 @@
 import {Component} from 'preact';
 
 import {mediaPlayer, catalog, session} from "../../Harmony"
-import {MediaItemInfo, PlayStartModes} from "../../player/MediaPlayer";
-import styles from './Menu.scss';
 import {deleteSong} from '../../core/apiCalls';
-import DownloadModal from './DownloadModal';
 import ModalBox, {ModalBoxTypes} from '../modalbox/ModalBox';
 import {IconArrowRight} from '../../assets/icons/icons';
 import IconButton from '../IconButton';
 import {route} from 'preact-router';
 import {createMediaItemInfo} from '../../core/links';
+
+import styles from './Menu.scss';
 
 const FIRST_MENU = 'first';
 const SECOND_MENU = 'second';

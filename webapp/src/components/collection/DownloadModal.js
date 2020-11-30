@@ -1,7 +1,9 @@
 import {Component} from 'preact';
 
-import styles from '../SettingsModal.scss';
+import {session} from '../../Harmony';
 import {createDownloadSocket, requestDownload} from '../../download';
+
+import styles from '../SettingsModal.scss';
 
 class DownloadModal extends Component {
 
