@@ -60,6 +60,7 @@ def _create_presigned_post_policy(bucket_name, content_id, mimetype, size):
     post_policy.set_content_type(mimetype)
     expires_date = datetime.utcnow() + timedelta(days=1)
     post_policy.set_expires(expires_date)
+    post_policy.append_policy('eq', '$acl', 'bucket-owner-full-control')
 
     return post_policy
 
@@ -112,9 +113,13 @@ def get_storage_base_url(config):
 
 def get_reference_songs_post_policy(config, content_id, mimetype, size):
     st = get_storage_interface(config)
-    return st.minio_client.presigned_post_policy(_create_presigned_post_policy(_conf_value(config, 'STORAGE_BUCKET_REFERENCE'), content_id, mimetype, size))
+    url, form_data = st.minio_client.presigned_post_policy(_create_presigned_post_policy(_conf_value(config, 'STORAGE_BUCKET_REFERENCE'), content_id, mimetype, size))
+    form_data['acl'] = 'bucket-owner-full-control'
+    return url, form_data
 
 
 def get_images_post_policy(config, content_id, mimetype, size):
     st = get_storage_interface(config)
-    return st.minio_client.presigned_post_policy(_create_presigned_post_policy(_conf_value(config, 'STORAGE_BUCKET_IMAGES'), content_id, mimetype, size))
+    url, form_data = st.minio_client.presigned_post_policy(_create_presigned_post_policy(_conf_value(config, 'STORAGE_BUCKET_IMAGES'), content_id, mimetype, size))
+    form_data['acl'] = 'bucket-owner-full-control'
+    return url, form_data

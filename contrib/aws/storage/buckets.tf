@@ -28,6 +28,13 @@ resource "aws_s3_bucket" "songs_bundles" {
 
 resource "aws_s3_bucket" "images" {
   bucket = var.storage_bucket_images
+
+  # To allow browser image upload
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "POST"]
+    allowed_origins = ["*"]
+  }
 }
 
 
@@ -75,6 +82,13 @@ resource "aws_s3_bucket_ownership_controls" "songs_transcoded" {
 
 resource "aws_s3_bucket_ownership_controls" "songs_bundles" {
   bucket = aws_s3_bucket.songs_bundles.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "images" {
+  bucket = aws_s3_bucket.images.id
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
@@ -220,5 +234,6 @@ data "aws_iam_policy_document" "bucket_images_policy" {
       type        = "AWS"
       identifiers = [aws_iam_user.st.arn]
     }
+    # Enforcing s3:x-amz-acl to bucket-owner-full-control seems not to work with presigned URLs
   }
 }
