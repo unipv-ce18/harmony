@@ -7,8 +7,10 @@ resource "aws_vpc" "hy" {
 
 
 resource "aws_main_route_table_association" "hy" {
+  count = var.task_count_director > 0 ? 1 : 0
+
   vpc_id         = aws_vpc.hy.id
-  route_table_id = aws_route_table.hy_private.id
+  route_table_id = aws_route_table.hy_private[0].id
 }
 
 
@@ -24,11 +26,13 @@ resource "aws_route_table" "hy_public" {
 }
 
 resource "aws_route_table" "hy_private" {
+  count = var.task_count_director > 0 ? 1 : 0
+
   vpc_id = aws_vpc.hy.id
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.workers_nat.id
+    nat_gateway_id = aws_nat_gateway.workers_nat[0].id
   }
 
   tags = { Name = "HY private route table" }
@@ -82,6 +86,8 @@ resource "aws_eip" "workers_nat" {
 }
 
 resource "aws_nat_gateway" "workers_nat" {
+  count = var.task_count_director > 0 ? 1 : 0
+
   allocation_id = aws_eip.workers_nat.id
   subnet_id     = aws_subnet.hy_public_1.id
 

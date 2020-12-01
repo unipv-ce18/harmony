@@ -3,13 +3,15 @@ resource "aws_route53_zone" "zone" {
 }
 
 resource "aws_route53_record" "api" {
+  count = var.task_count_apiserver > 0 ? 1 : 0
+
   zone_id = aws_route53_zone.zone.zone_id
   name    = "api.${var.site_name}"
   type    = "A"
 
   alias {
-    name                   = aws_lb.hy_api.dns_name
-    zone_id                = aws_lb.hy_api.zone_id
+    name                   = aws_lb.hy_api[0].dns_name
+    zone_id                = aws_lb.hy_api[0].zone_id
     evaluate_target_health = false
   }
 }

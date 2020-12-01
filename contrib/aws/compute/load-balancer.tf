@@ -1,4 +1,6 @@
 resource "aws_lb" "hy_api" {
+  count = var.task_count_apiserver > 0 ? 1 : 0
+
   name = "hyapi-lb"
   security_groups = [
     aws_security_group.allow_https.id,
@@ -11,7 +13,9 @@ resource "aws_lb" "hy_api" {
 }
 
 resource "aws_lb_listener" "hy_api_fe_https" {
-  load_balancer_arn = aws_lb.hy_api.arn
+  count = var.task_count_apiserver > 0 ? 1 : 0
+
+  load_balancer_arn = aws_lb.hy_api[0].arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
