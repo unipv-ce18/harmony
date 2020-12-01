@@ -96,7 +96,7 @@ class SongUpload(Resource):
         if release.artist.get(c.ARTIST_REF_CREATOR) != user_id:
             return {'message': 'No authorized to upload this song'}, HTTPStatus.UNAUTHORIZED
 
-        db.put_song(release_id, song_from_document(data), False)
+        db.put_song(release_id, song_from_document({c.SONG_ID: song_id, c.SONG_TITLE: data['title']}), False)
         db.remove_content(song_id)
 
         td = NotificationWorker({'song_id': song_id, 'type': jobs.ANALYSIS}, amqp_client)
