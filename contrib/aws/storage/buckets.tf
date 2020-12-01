@@ -155,6 +155,15 @@ data "aws_iam_policy_document" "bucket_songs_transcoded_policy" {
     }
   }
   statement {
+    effect    = "Allow"
+    actions   = ["s3:DeleteObject"]
+    resources = ["${aws_s3_bucket.songs_transcoded.arn}/*"]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_user.st.arn]
+    }
+  }
+  statement {
     sid       = "Only allow writes from application account with bucket owner full control"
     effect    = "Allow"
     actions   = ["s3:PutObject"]
@@ -188,6 +197,15 @@ data "aws_iam_policy_document" "bucket_songs_bundles_policy" {
     principals {
       type        = "AWS"
       identifiers = ["*"]
+    }
+  }
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:DeleteObject"]
+    resources = ["${aws_s3_bucket.songs_bundles.arn}/*"]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_user.st.arn]
     }
   }
   statement {
@@ -228,7 +246,7 @@ data "aws_iam_policy_document" "bucket_images_policy" {
   }
   statement {
     effect    = "Allow"
-    actions   = ["s3:PutObject"]
+    actions   = ["s3:PutObject", "s3:DeleteObject"]
     resources = ["${aws_s3_bucket.images.arn}/*"]
     principals {
       type        = "AWS"
