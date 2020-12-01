@@ -9,6 +9,7 @@ import Seekbar from '../Seekbar';
 import OverflowWrapper from '../OverflowWrapper';
 import {getExpandedSize} from '../playerUiPrefs';
 import PlayStates from '../../PlayStates';
+import {MediaItemInfo} from '../../../player/MediaPlayer';
 
 import * as metrics from './playerPageMetrics';
 import style from './PagePlayer.scss';

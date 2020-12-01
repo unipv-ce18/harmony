@@ -1,5 +1,6 @@
 import {DEFAULT_ALBUMART_URL} from '../../assets/defaults';
 import PlayerEvents from '../PlayerEvents';
+import {MediaItemInfo} from '../MediaPlayer';
 
 const PLUGIN_DESCRIPTION = 'Browser Media Session API plugin';
 
