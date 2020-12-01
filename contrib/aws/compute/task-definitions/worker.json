@@ -29,6 +29,10 @@
       {
         "name": "STORAGE_REGION",
         "value": "us-east-1"
+      },
+      {
+        "name": "WORK_DIR",
+        "value": "/tmp"
       }
     ],
     "essential": true,
