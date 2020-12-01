@@ -248,9 +248,7 @@ class Orchestrator:
         :rtype: bool
         """
         song = self.db.get_song(song_id)
-        if song.anal_data is not None:
-            return True
-        return False
+        return song is not None and song.anal_data is not None
 
     def song_is_analyzing(self, song_id):
         """Check if a song is already in the analysis process.
