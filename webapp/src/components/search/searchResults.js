@@ -7,6 +7,7 @@ import {artistLink, releaseLink, playlistLink, userLink, createMediaItemInfo} fr
 import {getReleasePlaylist} from '../../core/apiCalls';
 import {IconPlay, IconStarEmpty, IconStarFull} from '../../assets/icons/icons';
 import PlaylistImage from '../collection/PlaylistImage';
+import {DEFAULT_ARTIST_IMAGE_URL} from '../../assets/defaults'
 import IconButton from '../IconButton';
 
 import aStyle from './ArtistResult.scss';
@@ -26,6 +27,7 @@ function onSongClick(song, e) {
 }
 
 function onImageLoad(src, callback) {
+  if (src == null) return callback();  // No loading for default image
   const img = new Image();
   img.onload = callback;
   img.src = src;
@@ -86,7 +88,7 @@ const PlayCollectionButton = ({id, type}) => (
 
 const ArtistResultView = ({content: artist, imageLoading, ...props}) => (
   <a class={classList(aStyle.artistResult, imageLoading && 'loading')}
-     style={{'--artist-img': `url(${artist.image})`}} href={artistLink(artist.id)}>
+     style={{'--artist-img': `url(${artist.image ?? DEFAULT_ARTIST_IMAGE_URL})`}} href={artistLink(artist.id)}>
     <div>
       <span>{artist.name}</span>
       <span>{artist.genres && artist.genres.slice(0, GENRES_LIST_LENGTH).join(', ')}</span>

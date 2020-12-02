@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -20 340 240">
+  <defs>
+    <linearGradient id="grbg" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="red" />
+      <stop offset="100%" stop-color="blue" />
+    </linearGradient>
+    <style>
+      .r { width: 10px; rx: 5px; ry: 5px; }
+      .r1 { y: 90px; height: 20px; }
+      .r2 { y: 77.5px; height: 45px; }
+      .r3 { y: 50px; height: 100px; }
+      .r4 { y: 25px; height: 150px; }
+    </style>
+  </defs>
+  <mask id="m" fill="white">
+    <rect x="25" class="r r1"/>
+    <rect x="45" class="r r2"/>
+    <rect x="65" class="r r3"/>
+    <rect x="85" class="r r2"/>
+    <rect x="105" class="r r1"/>
+    <rect x="125" class="r r2"/>
+    <rect x="145" class="r r3"/>
+    <rect x="165" class="r r4"/>
+    <rect x="185" class="r r3"/>
+    <rect x="205" class="r r2"/>
+    <rect x="225" class="r r3"/>
+    <rect x="245" class="r r2"/>
+    <rect x="265" class="r r1"/>
+  </mask>
+  <rect x="0" y="0" rx="16" ry="16" width="300" height="200"
+        fill="url(#grbg)" mask="url(#m)"/>
+</svg>
