@@ -3,9 +3,10 @@ import {Component, createRef} from 'preact';
 import ModInput, {MODIFIER_START_CHAR, ModValueTypes} from './ModInput';
 import {classList} from '../../../core/utils';
 import {SEARCH_MODIFIERS} from './filters';
+import {fromSearchQuery, isQueryEmpty} from '../../../core/searchQuery';
+import routeSearch from '../routeSearch';
 
 import style from './SearchForm.scss';
-import {fromSearchUrlData, isQueryEmpty, routeSearch} from '../queryParams';
 
 const INPUT_SEARCH_DELAY = 500;
 
@@ -31,7 +32,7 @@ class SearchForm extends Component {
     const [_, search, query] = window.location.pathname.split('/', 3);
     if (search === 'search' && query !== this.#lastQuery) {
       this.#lastQuery = query;
-      const queryData = fromSearchUrlData(query);
+      const queryData = fromSearchQuery(query);
       this.#input.current.loadData(queryData);
       this.setState({hintVisible: isQueryEmpty(queryData)});
     }

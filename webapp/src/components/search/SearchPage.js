@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import {catalog} from '../../Harmony';
 import HarmonyPage from '../HarmonyPage';
 import {classList} from '../../core/utils';
-import {fromSearchUrlData, routeSearch} from './queryParams';
+import {fromSearchQuery} from '../../core/searchQuery';
+import routeSearch from './routeSearch';
 import {ArtistResult, ReleaseResult, SongResult, PlaylistResult} from './searchResults';
 
 import style from './SearchPage.scss';
@@ -16,7 +17,7 @@ const CATEGORY_CONFIG = Object.freeze({
 });
 
 function routeSingleSearchCategory(currentQuery, targetCategory) {
-  const {text, modifiers} = fromSearchUrlData(currentQuery);
+  const {text, modifiers} = fromSearchQuery(currentQuery);
   routeSearch(text, [{key: `${targetCategory}-only`}, ...modifiers]);
 }
 
@@ -70,7 +71,7 @@ class SearchPage extends HarmonyPage {
     if (updatingQuery != null && updatingQuery === query) return;
 
     // Do the search
-    const {text, modifiers} = fromSearchUrlData(this.props.query);  // If this throws nothing happens
+    const {text, modifiers} = fromSearchQuery(this.props.query);  // If this throws nothing happens
     this.setState({updatingQuery: query})
     catalog.search(this.props.query)
       .then(results => this.setState({query, results, updatingQuery: null}))

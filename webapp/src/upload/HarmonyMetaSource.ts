@@ -1,5 +1,6 @@
 import {session} from '../Harmony';
 import {execSearch, ArtistResult, getArtist} from '../core/apiCalls';
+import {toSearchQuery} from '../core/searchQuery';
 import {RemoteMetadataSource, RemoteUpdateEvent, SubmitAlert, ArtistEditData, ReleaseEditData} from './tree';
 
 /**
@@ -62,7 +63,7 @@ class HarmonyMetaSource implements RemoteMetadataSource {
     if (name in this.requests) return this.requests[name];
 
     const fetch = session.getAccessToken().then(async token => {
-      const results = await execSearch(token!, 'artists', name);
+      const results = await execSearch(token!, toSearchQuery(name, [{key: 'artists-only'}]));
       for (const a of results.artists!)
         if (a.name === name) return getArtist(a.id, true, token!);
       return undefined;

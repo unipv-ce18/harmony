@@ -1,3 +1,4 @@
+import {SearchQuery} from './searchQuery';
 import {ThemeId} from '../components/theme';
 
 declare namespace apiCalls {
@@ -51,9 +52,6 @@ declare namespace apiCalls {
     };
     type UploadContentResult = [string, UploadPresignedData];  // Url and presigned post data
 
-    // TODO: Update to the new API
-    type SearchType = 'any' | 'artists' | 'releases' | 'songs' | 'playlists';
-
     type SearchResult = {
       artists?: [{id: ArtistId, name: string /* ...more */}]
       releases?: [{id: ReleaseId, name: string /* ...more */}]
@@ -104,7 +102,7 @@ declare namespace apiCalls {
 
     function uploadToStorage(result: UploadContentResult, file: File): Promise<Response>;
 
-    function execSearch(token: AccessToken, type: SearchType, query: string): Promise<SearchResult>;
+    function execSearch(token: AccessToken, query: SearchQuery): Promise<SearchResult>;
 
     function getArtist(artistId: ArtistId, withReleases: boolean, token: AccessToken): Promise<ArtistResult>;
     
