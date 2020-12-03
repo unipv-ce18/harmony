@@ -141,7 +141,7 @@ class AuthLogin(Resource):
             user = db.get_user_by_name(data['identity']) or db.get_user_by_mail(data['identity'])
 
         if user is not None:
-            user = user.to_dict()
+            user = user if isinstance(user, dict) else user.to_dict()
             if security.verify_password(user['password'], data['password']):
                 access = security.create_access_token(identity=str(user['id']))
                 refresh = security.create_refresh_token(identity=str(user['id']))
