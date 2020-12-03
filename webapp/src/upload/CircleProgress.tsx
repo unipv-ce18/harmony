@@ -31,10 +31,10 @@ class CircleProgress extends Component<Props> {
     const radius = size / 2 - strokeWidth / 2;
     const circumference = 2 * Math.PI * radius;
 
-    const circleProps = {cx: center, cy: center, r: radius, strokeWidth};
+    const circleProps = {cx: center, cy: center, r: radius, 'stroke-width': strokeWidth};
     const progressProps = indeterminate
       ? {style: {'--cc': strokeWidth, '--ce': .75 * circumference, '--ct': circumference}}
-      : {strokeDasharray: circumference, strokeDashoffset: (1 - progress) * circumference};
+      : {'stroke-dasharray': circumference, 'stroke-dashoffset': (1 - progress) * circumference};
 
     return (
       <svg class={classList(style.progress, cl, indeterminate && style.indeterminate)} width={size} height={size}>

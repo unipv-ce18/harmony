@@ -45,7 +45,7 @@ class ModInput extends Component {
         {modifiers.map(({key, id, value}) =>
           <ModChip key={id} id={id} type={modTypes.find(e => e.key === key)} value={value} parent={this}/>)}
         <input ref={this.inputRef} class={style.inputField} type="text" value={text}
-               onChange={this.handleChangeValue} onKeyDown={this.handleKeyDown}/>
+               onInput={this.handleChangeValue} onKeyDown={this.handleKeyDown}/>
       </div>
     )
   }
