@@ -138,9 +138,10 @@ class AuthLogin(Resource):
             from bson import ObjectId
             user = {'id': ObjectId(), 'password': security.hash_password(data['password'])}
         else:
-            user = db.get_user_by_name(data['identity']).to_dict() or db.get_user_by_mail(data['identity']).to_dict()
+            user = db.get_user_by_name(data['identity']) or db.get_user_by_mail(data['identity'])
 
         if user is not None:
+            user = user.to_dict()
             if security.verify_password(user['password'], data['password']):
                 access = security.create_access_token(identity=str(user['id']))
                 refresh = security.create_refresh_token(identity=str(user['id']))
