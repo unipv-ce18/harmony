@@ -157,18 +157,21 @@ class Analyzer:
         last_time = 0
         total_frames = 0
         log.info('%s: Computing key...', in_file)
-        while True:
-            samples, read = s()
-            new_note = notes_o(samples)
-            if new_note[0] != 0:
-                delta = self.frames2tick(total_frames, ticks_per_beat, tempo, samplerate=samplerate) - last_time
-                if new_note[2] > 0:
-                    track.append(Message('note_off', note=int(new_note[2]), velocity=127, time=delta))
-                track.append(Message('note_on', note=int(new_note[0]), velocity=int(new_note[1]), time=delta))
-                last_time = self.frames2tick(total_frames, ticks_per_beat, tempo)
-            total_frames += read
-            if read < hop_s:
-                break
+        try:
+            while True:
+                samples, read = s()
+                new_note = notes_o(samples)
+                if new_note[0] != 0:
+                    delta = self.frames2tick(total_frames, ticks_per_beat, tempo, samplerate=samplerate) - last_time
+                    if new_note[2] > 0:
+                        track.append(Message('note_off', note=int(new_note[2]), velocity=127, time=delta))
+                    track.append(Message('note_on', note=int(new_note[0]), velocity=int(new_note[1]), time=delta))
+                    last_time = self.frames2tick(total_frames, ticks_per_beat, tempo)
+                total_frames += read
+                if read < hop_s:
+                    break
+        except:
+            return {}
         mid.save(out_file)
         score = music21.converter.parse(out_file)
         key = score.analyze('key')
@@ -213,15 +216,17 @@ class Analyzer:
         :param float tempo: song estimated BPM
         :param Key key: song key along with camelot translation, confidency and adjacencies
         """
-        data = {
-            'tempo': tempo,
-            'key': {'name': key.tonic.name,
-                    'mode': key.mode,
-                    'confidency': round(key.correlationCoefficient, 3)*100,
-                    'camelot': key.camelot}
-        }
+        data = {'tempo': tempo}
+        if key:
+            key = {
+                'key': {'name': key.tonic.name,
+                        'mode': key.mode,
+                        'confidency': round(key.correlationCoefficient, 3)*100,
+                        'camelot': key.camelot}
+            }
+        data = {**data, **key}
         log.info(f'song {song_id} ({duration}ms) tagged with tempo {tempo} BPM, '
-                 f'key {key.tonic.name} {key.mode} ({key.camelot})')
+                 f'key {key}')
         self.db.put_song_data_analysis(song_id, data)
         self.db.update_song(song_id, {'length': duration})
         log.info(f'song {song_id}: updated length to {duration}ms')
