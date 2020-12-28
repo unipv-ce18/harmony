@@ -37,18 +37,20 @@ class CollectionPage extends HarmonyPage {
   }
 
   getCollection() {
+    const elem = (window.location.pathname).split('/');
+    const [type, id] = elem.slice(Math.max(elem.length - 2));
+
     session.getAccessToken()
-      .then (token => {
-        let elem = (window.location.pathname).split('/');
-        elem = elem.slice(Math.max(elem.length - 2))
-        getReleasePlaylist(elem[0], elem[1], true, token)
-          .then(result => {
-            this.setState({collection: result});
-            this.setState({songs: result.songs});
-            this.setState({collectionType : elem[0] + 's'});
-          })
-          .catch( () => session.error = true);
-      })
+      .then(token => getReleasePlaylist(type, id, true, token))
+      .then(result => this.setState({
+        collection: result,
+        songs: result.songs,
+        collectionType : type + 's'
+      }))
+      .catch(e => {
+        console.error(e);
+        session.error = true;
+      });
   }
 
   isRelease() {

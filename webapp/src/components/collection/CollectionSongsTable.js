@@ -98,13 +98,11 @@ class CollectionSongsTable extends Component {
       if(type === 'pitch') return this.compare(a.anal_data.key.name, b.anal_data.key.name);
       if(type === 'pitch') return this.compare(a.counter, b.counter);
     })
-    this.setState({songs : orderedList});
-    this.setState({actualOrder : type});
+    this.setState({songs: orderedList, actualOrder: type});
   }
 
   handleMenuAndElement(element) {
-    this.setState({menu: true});
-    this.setState({song: element});
+    this.setState({menu: true, song: element});
   }
 
   handleCloseMenu() {
@@ -134,15 +132,17 @@ class CollectionSongsTable extends Component {
     let arrayMediaInfo = this.state.songs
       .slice(songs.indexOf(song), songs.length)
       .map(song => this.createMediaInfo(song));
-      mediaPlayer.play(arrayMediaInfo, PlayStartModes.TRUNCATE_QUEUE_AND_PLAY);
+    mediaPlayer.play(arrayMediaInfo, PlayStartModes.TRUNCATE_QUEUE_AND_PLAY);
   }
 
   onPlayerAvailable(playerInstance) {
     playerInstance.addEventListener(PlayerEvents.NEW_MEDIA, this.onPlayerChangeSong);
     playerInstance.addEventListener(PlayerEvents.STATE_CHANGE, this.onPlayerChangeState);
-    if(player.instance.currentMediaInfo) {
-      this.setState({songPlayed: player.instance.currentMediaInfo.id});
-      this.setState({playerState: player.instance.playbackState});
+    if (playerInstance.currentMediaInfo) {
+      this.setState({
+        songPlayed: playerInstance.currentMediaInfo.id,
+        playerState: playerInstance.playbackState
+      });
     }
   }
 
