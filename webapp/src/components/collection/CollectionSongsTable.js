@@ -4,6 +4,7 @@ import {route} from 'preact-router';
 import {mediaPlayer, catalog, session} from '../../Harmony';
 import {PlayStartModes} from '../../player/MediaPlayer';
 import styles from './CollectionSongsTable.scss';
+import {formatDuration} from '../../core/utils';
 import {getUserPlaylists} from '../../core/apiCalls';
 import {createMediaItemInfo, artistLink, releaseLink} from '../../core/links';
 import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconPause} from '../../assets/icons/icons';
@@ -64,16 +65,6 @@ class CollectionSongsTable extends Component {
   likeSong(function_type, element_id) {
     catalog.favorite(function_type, SONGS_TYPE, element_id);
     this.setState({updated : true})
-  }
-
-  composeTime(time) {
-    let date = new Date(time);
-    let seconds = ('0' + date.getUTCSeconds()).slice(-2);
-    let minutes = date.getUTCMinutes();
-    let hours = date.getUTCHours();
-    if (hours > 0)
-      return hours + ":" + minutes + ":" + seconds;
-    return minutes + ":" + seconds;
   }
 
   composePitch(key) {
@@ -217,7 +208,7 @@ class CollectionSongsTable extends Component {
                     <a href='#' onClick={this.clickRelease.bind(this, element.release.id)}>{element.release.name}</a>
                   </td>]
                   : [<td/>,<td/>]}
-                <td>{this.composeTime(element.length)}</td>
+                <td>{formatDuration(element.length / 1000)}</td>
                 <td/>
                 <td>{element.anal_data ? this.composePitch(element.anal_data.key) : null}</td>
                 <td/>
