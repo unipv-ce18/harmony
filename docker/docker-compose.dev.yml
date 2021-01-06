@@ -47,6 +47,7 @@ services:
       GUNICORN_CMD_ARGS: --reload
     volumes:
       # Mount our local files inside the container
+      - ../.git:/.git:ro
       - ../backend:/app:ro
 
   director:

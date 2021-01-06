@@ -1,9 +1,12 @@
 const path = require('path');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const SpritePlugin = require('svg-sprite-loader/plugin');
 const HtmlPlugin = require('html-webpack-plugin');
 const WorkboxPlugin = require('workbox-webpack-plugin');
 const webpack = require('webpack');
+
+const gitRevisionPlugin = new GitRevisionPlugin();
 
 require('dotenv').config()
 const HarmonyConf = require('./harmony-webapp.conf');
@@ -70,13 +73,15 @@ module.exports = (env, config) => ({
   plugins: [
     new CleanWebpackPlugin(),
     new webpack.ProgressPlugin(),
+    gitRevisionPlugin,
     new webpack.DefinePlugin({
       APP_NAME: JSON.stringify(HarmonyConf.APPLICATION_NAME),
       DEFAULT_THEME_ID: JSON.stringify(HarmonyConf.DEFAULT_THEME),
       API_BASE_URL: JSON.stringify(HarmonyConf.API_BASE_URL),
       PLAYER_SOCKET_URL: JSON.stringify(HarmonyConf.PLAYER_SOCKET_URL),
       DOWNLOAD_SOCKET_URL: JSON.stringify(HarmonyConf.DOWNLOAD_SOCKET_URL),
-      SERVICE_WORKER_PATH: JSON.stringify(env && env.sw ? HarmonyConf.SERVICE_WORKER_PATH : null)
+      SERVICE_WORKER_PATH: JSON.stringify(env && env.sw ? HarmonyConf.SERVICE_WORKER_PATH : null),
+      WEBAPP_VERSION: JSON.stringify(gitRevisionPlugin.version())
     }),
     new webpack.ProvidePlugin({
       __h: ['preact', 'h']
