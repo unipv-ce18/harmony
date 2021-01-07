@@ -72,12 +72,14 @@ export class PlaybackEngine {
 
   play(mediaItemId = null, seekTime = -1) {
     // Do nothing if no current item and no passed item
-    if (this.currentMediaId === null && mediaItemId === null) return;
+    if (this.currentMediaId == null && mediaItemId === null) return;
 
     // We can optimize if new media == next media hint, but gapless playback may sound weird while doing this
 
     // If a track was specified let's switch to the new one
     if (mediaItemId !== null) {
+      if (this.#mediaLoader)
+        this.#mediaLoader.discard();
       this.#mediaLoader = new MediaLoader(this.#mediaProvider, this.#mediaTag, mediaItemId, () => {
         const nextId = this.#nextMediaIdSource();
         this.#emeDecrypter.currentItemId = nextId;
@@ -90,7 +92,7 @@ export class PlaybackEngine {
         });
     }
 
-    if (this.currentMediaId !== null || mediaItemId !== null) {
+    if (this.currentMediaId != null || mediaItemId !== null) {
       // Let's play the thing
       if (seekTime >= 0) this.#mediaTag.currentTime = seekTime;
       this.#mediaTag.play();

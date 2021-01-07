@@ -11,13 +11,15 @@ class MediaPlayerCore extends EventTarget {
   #queueIndex = 0;
   #queue = [];
 
+  #lastQueueId = 0;
+
   initialize(mediaTag, sessionManager) {
     sessionManager.addStatusListener(this.#onSessionStatusChange.bind(this))
     const mediaProvider = new MediaProvider(sessionManager);
     this.#playbackEngine = new PlaybackEngine(this, mediaProvider, mediaTag, () => {
       console.log('Next media requested');
       const nextItem = this.#queue[++this.#queueIndex];
-      return nextItem && nextItem.id; // same item for now
+      return nextItem && nextItem.media.id; // same item for now
     });
   }
 
@@ -38,8 +40,20 @@ class MediaPlayerCore extends EventTarget {
     return this.#playbackEngine.playbackState;
   }
 
+  get queue() {
+    return this.#queue;
+  }
+
+  get queueIndex() {
+    return this.#queueIndex;
+  }
+
   get currentMediaInfo() {
-    return this.#queue[this.#queueIndex]
+    return this.#queue[this.#queueIndex]?.media;
+  }
+
+  get currentMediaQid() {
+    return this.#queue[this.#queueIndex]?.qid;
   }
 
   play(items, startMode = PlayStartModes.APPEND_QUEUE_AND_PLAY) {
@@ -56,11 +70,15 @@ class MediaPlayerCore extends EventTarget {
           throw Error('Items to be played must be instance of MediaItemInfo');
       }
 
+      // Add a queue ID to each item to ease tracking in UI, e.g. (p)react keys
+      const indexedItems = items.map(media => ({qid: this.#lastQueueId++, media}));
+
       if (startMode.trunc) {  // Truncate queue
         this.#queueIndex = 0;
-        this.#queue = items;
+        this.#queue = indexedItems;
       } else {  // Append to current queue
-        this.#queue = this.#queue.concat(items);
+        this.#queueIndex = this.#queue.length;
+        this.#queue = this.#queue.concat(indexedItems);
       }
     }
 
@@ -69,13 +87,21 @@ class MediaPlayerCore extends EventTarget {
 
       // If we have items switch to the new track
       if (items) {
-        this.#playbackEngine.play(this.#queue[this.#queueIndex].id, 0);
+        this.#playbackEngine.play(this.#queue[this.#queueIndex].media.id, 0);
         return;
       }
 
       // If no items and the player not already playing, simply start/resume
       if (this.#playbackEngine.playbackState !== PlayStates.PLAYING)
         this.#playbackEngine.play();
+    }
+  }
+
+  playFromQueue(qid) {
+    const queueIndex = this.#queue.findIndex(i => i.qid === qid);
+    if (queueIndex !== -1) {
+      this.#queueIndex = queueIndex;
+      this.#playbackEngine.play(this.#queue[this.#queueIndex].media.id, 0);
     }
   }
 
@@ -92,11 +118,13 @@ class MediaPlayerCore extends EventTarget {
   }
 
   previous() {
-    alert('not implemented');
+    if (this.queueIndex > 0)
+      this.#playbackEngine.play(this.#queue[--this.#queueIndex].media.id, 0);
   }
 
   next() {
-    alert('not implemented');
+    if (this.queueIndex < this.#queue.length - 1)
+      this.#playbackEngine.play(this.#queue[++this.#queueIndex].media.id, 0);
   }
 
   #onSessionStatusChange() {

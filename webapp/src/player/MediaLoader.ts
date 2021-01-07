@@ -70,6 +70,12 @@ export class MediaLoader {
         return this;
     }
 
+    public discard() {
+      this.currentBufferManager!.detach();
+      this.currentBufferManager = undefined;
+      this.nextBufferManager = undefined;
+    }
+
     private onSourceOpen(sourceURL: string, mediaId: string, e: Event) {
         URL.revokeObjectURL(sourceURL);
         // TODO Use MIME type from stream
