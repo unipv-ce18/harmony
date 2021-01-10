@@ -8,6 +8,7 @@
 
   li {
     padding: 0 16px;
+    border: 1px dotted transparent;
   }
 
   // Title, Artist
@@ -15,6 +16,10 @@
     font-size: 80%;
     display: inline-block;
     width: 35%;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 
     // Artist
     &:nth-of-type(2) {
@@ -25,5 +30,9 @@
   // Currently playing
   li.current {
     background-color: rgba(var(--text-color), .1);
+  }
+
+  li.selected {
+    border-color: rgba(var(--text-color), .7);
   }
 }

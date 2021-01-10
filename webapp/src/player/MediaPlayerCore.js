@@ -105,6 +105,36 @@ class MediaPlayerCore extends EventTarget {
     }
   }
 
+  removeFromQueue(qids) {
+    // Map to indexes
+    const idxs = qids
+      .map(qid => this.#queue.findIndex(i => i.qid === qid))
+      .filter(x => x !== -1);
+
+    // Select new playing index (backwards, then forwards) if the previous is to get removed
+    let newQueueIndex = this.#queueIndex;
+    while (idxs.includes(newQueueIndex)) newQueueIndex++;
+
+    // If we reached end of list, all items got removed
+    const newQid = newQueueIndex !== this.#queue.length ? this.#queue[newQueueIndex].qid : null;
+    const currentQid = this.currentMediaQid;
+
+    // Filter the queue
+    this.#queue = this.#queue.filter(i => !qids.includes(i.qid));
+
+    // Play the new (remaining) song if so required
+    if (newQid !== currentQid) {
+      if (newQid != null)
+        this.playFromQueue(newQid);
+      else
+        this.stop();
+
+    } else {
+      // If same item, resync queue index
+      this.#queueIndex = this.#queue.findIndex(i => i.qid === currentQid);
+    }
+  }
+
   pause() {
     this.#playbackEngine.pause();
   }
