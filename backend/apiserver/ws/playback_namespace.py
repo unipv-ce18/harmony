@@ -82,12 +82,16 @@ class PlaybackNamespace(Namespace):
 
         try:
             _ = self._fetch_representation_data(song_id)
+
+            td = NotificationWorker({song_id: 1, 'type': jobs.COUNTER}, self.amqp_client)
+            td.start()
+
+            self.protocol.send_count_song_ack(song_id)
+            log.debug('Song (%s): Received scrobble', song_id)
+
         except RuntimeError as e:
             self.protocol.send_error(song_id, e.args[0])
             return
-
-        td = NotificationWorker({song_id: 1, 'type': jobs.COUNTER}, self.amqp_client)
-        td.start()
 
     def _fetch_representation_data(self, song_id):
         try:

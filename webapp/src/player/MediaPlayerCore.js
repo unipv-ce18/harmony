@@ -1,6 +1,7 @@
 import {MediaItemInfo, PlayStartModes} from './MediaPlayer';
 import {PlaybackEngine} from './PlaybackEngine';
 import {MediaProvider} from './delivery/MediaProvider';
+import {SocketConnection} from './delivery/SocketConnection';
 import PlayStates from './PlayStates';
 
 class MediaPlayerCore extends EventTarget {
@@ -13,10 +14,12 @@ class MediaPlayerCore extends EventTarget {
 
   #lastQueueId = 0;
 
+  socketConnection; // Public for plugin access
+
   initialize(mediaTag, sessionManager) {
-    sessionManager.addStatusListener(this.#onSessionStatusChange.bind(this))
-    const mediaProvider = new MediaProvider(sessionManager);
-    this.#playbackEngine = new PlaybackEngine(this, mediaProvider, mediaTag, () => {
+    sessionManager.addStatusListener(this.#onSessionStatusChange.bind(this));
+    this.socketConnection = new SocketConnection(PLAYER_SOCKET_URL, sessionManager);
+    this.#playbackEngine = new PlaybackEngine(this, new MediaProvider(this.socketConnection), mediaTag, () => {
       console.log('Next media requested');
       const nextItem = this.#queue[++this.#queueIndex];
       return nextItem && nextItem.media.id; // same item for now

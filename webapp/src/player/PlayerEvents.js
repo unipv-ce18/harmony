@@ -3,7 +3,7 @@ const PlayerEvents = Object.freeze({
    * Triggered when the current playback time changes
    *
    * Event detail parameters:
-   * - `cur`: the new time playback time
+   * - `cur`: the new playback time
    */
   TIME_UPDATE: 'timeupdate',
 

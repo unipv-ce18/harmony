@@ -1,9 +1,6 @@
-import {Session} from '../../core/Session';
 import {MediaResource} from './MediaResource';
 import {SocketConnection} from './SocketConnection';
 import {parseMediaManifest} from './manifestParser';
-
-declare var PLAYER_SOCKET_URL: string
 
 
 function toHexString(byteArray: Uint8Array): string {
@@ -22,11 +19,7 @@ function getMediaFileBaseUrl(manifestUrl: string) {
 
 export class MediaProvider {
 
-    private readonly socketConnection: SocketConnection
-
-    constructor(sessionManager: Session) {
-        this.socketConnection = new SocketConnection(PLAYER_SOCKET_URL, sessionManager);
-    }
+    constructor(private readonly socketConnection: SocketConnection) {}
 
     fetchMediaInfo(mediaId: string): Promise<MediaResource> {
         return this.socketConnection.fetchManifestUrl(mediaId)
