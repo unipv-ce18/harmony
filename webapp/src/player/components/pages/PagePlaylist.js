@@ -11,14 +11,14 @@ class PagePlaylist extends Component {
 
   constructor() {
     super();
-    this.onListKeyUp = this.onListKeyUp.bind(this);
+    this.onListKeyDown = this.onListKeyDown.bind(this);
   }
 
   render(props, {selected}, {player}) {
     return (
       <ul class={style.pagePlaylist} tabIndex={1}
           onClick={e => e.target === this.base && this.setState({selected: []})}
-          onKeyUp={this.onListKeyUp}>
+          onKeyDown={this.onListKeyDown}>
         {player.queue.map(item =>
           <li key={item.qid}
               class={classList(player.currentMediaQid === item.qid && style.current,
@@ -62,7 +62,9 @@ class PagePlaylist extends Component {
     this.setState({selected: [qid]});
   }
 
-  onListKeyUp(e) {
+  onListKeyDown(e) {
+    e.preventDefault();
+
     if (e.code === 'KeyA' && e.ctrlKey) {
       this.setState({selected: this.context.player.queue.map(i => i.qid)});
 
