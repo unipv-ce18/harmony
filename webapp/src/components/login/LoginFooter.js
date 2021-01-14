@@ -31,9 +31,9 @@ class VersionInfo extends Component {
 
   componentDidMount() {
     this.setState({backendVersion: null});
-    fetch(API_BASE_URL + '/sayhello')
+    fetch(API_BASE_URL + '/sayhello') 
       .then(r => r.json())
-      .then(d => this.setState({backendVersion: d.version}))
+      .then(d => this.setState({backendVersion: d.version, error: false}))
       .catch(_ => this.setState({backendVersion: 'OFFLINE', error: true}));
   }
 
