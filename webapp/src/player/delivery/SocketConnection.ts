@@ -4,6 +4,7 @@ import {createSocket} from '../../core/ws';
 type ErrorResponse = { id: string, error_code: number };
 type ManifestResponse = { id: string, manifest_url: string };
 type MediaKeyResponse = { id: string, key: string };
+type CountSongResponse = { id: string };
 
 export class SocketConnection {
 
@@ -24,6 +25,10 @@ export class SocketConnection {
         return this.sendRequest('get_key', {id: songId, kid: keyId});
     }
 
+    sendScrobble(songId: string): Promise<void> {
+      return this.sendRequest('count_song', {id: songId});
+    }
+
     private getSocket(): Promise<SocketIOClient.Socket> {
         if (this.socket) {
             return Promise.resolve(this.socket);
@@ -32,6 +37,7 @@ export class SocketConnection {
                 this.socket = createSocket(this.socketUrl, token!);
                 this.socket.on('manifest', this.handleManifestResponse.bind(this));
                 this.socket.on('media_key', this.handleMediaKeyResponse.bind(this));
+                this.socket.on('count_song_ack', this.handleCountSongResponse.bind(this));
                 this.socket.on('md_error', this.handleErrorResponse.bind(this));
                 return this.socket;
             });
@@ -55,6 +61,11 @@ export class SocketConnection {
     private handleMediaKeyResponse(m: MediaKeyResponse) {
         this.pendingRequests.get(m.id)?.resolve(m.key);
         this.pendingRequests.delete(m.id);
+    }
+
+    private handleCountSongResponse(m: CountSongResponse) {
+      this.pendingRequests.get(m.id)?.resolve();
+      this.pendingRequests.delete(m.id);
     }
 
     private handleErrorResponse(m: ErrorResponse) {

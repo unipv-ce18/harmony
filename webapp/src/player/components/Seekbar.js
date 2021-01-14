@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import PlayerEvents from '../PlayerEvents';
 import {WAVEFORM_READY_EVENT} from '../plugins/WaveformLoaderPlugin';
 import {PlayerViewContextConsumer} from './PlayerViewContext';
-import {classList} from '../../core/utils';
+import {classList, formatDuration} from '../../core/utils';
 
 import style from './Seekbar.scss';
 
@@ -78,7 +78,7 @@ class Seekbar extends Component {
       this.#inputRef.current.value = 0;
 
       if (this.props.showTime)
-        this.setState({endTimeLabel: formatLabel(currentMedia.length)});
+        this.setState({endTimeLabel: formatDuration(currentMedia.length, '.')});
     }
 
     const fillColor = getComputedStyle(this.#canvasRef.current).getPropertyValue(BAR_COLOR_SOURCE_VAR);
@@ -113,7 +113,7 @@ class Seekbar extends Component {
       this.#renderCanvas();
     }
     if (this.props.showTime)
-      this.setState({curTimeLabel: formatLabel(e.detail.cur)});
+      this.setState({curTimeLabel: formatDuration(e.detail.cur, '.')});
   }
 
   onWaveformReady(e) {
@@ -185,20 +185,6 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
   ctx.fill();
-}
-
-function formatLabel(secs) {
-  secs = Math.floor(secs);
-
-  const h = Math.floor(secs / 3600);
-  const m = Math.floor((secs - 3600 * h) / 60);
-  const s = secs - 3600 * h - 60 * m;
-
-  let ret = '';
-  if (h > 0) ret += (h < 10 ? ('0' + h) : h) + '.';
-  ret += ((h > 0 && m < 10) ? ('0' + m) : m) + '.';
-  ret += (s < 10 ? ('0' + s) : s);
-  return ret;
 }
 
 /**

@@ -3,6 +3,8 @@ import {Component} from 'preact';
 import OverflowWrapper from './OverflowWrapper';
 import IconButton from '../../components/IconButton';
 import {IconPause,  IconPlay} from '../../assets/icons/icons';
+import CircleProgress from '../../upload/CircleProgress';
+import Themeable from '../../components/Themeable';
 import {fadeIn, fadeOut} from '../../components/animations';
 import {PlayerViewContextConsumer, FlipTags, FLIP_GROUP_MINI_PLAYER} from './PlayerViewContext';
 import PlayStates from '../PlayStates';
@@ -38,22 +40,34 @@ class MiniViewDefault extends Component {
   }
 
   render({refs}, state, {playState, currentMedia, flipContext: Flip}) {
-    const playing = playState === PlayStates.PLAYING;
     return (
       <div class={style.defaultView}>
-        <IconButton name={playing ? "Pause" : "Play"} icon={playing ? IconPause : IconPlay}
-                    size={28} onClick={this.onPlayClickHandler}/>
-        {currentMedia &&
-        <OverflowWrapper viewportClass={style.labelsVp}>
-          <Flip.Node ref={refs.trackTitle} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_TITLE} scale>
-            <div>{currentMedia.mediaInfo.title}</div>
-          </Flip.Node>
-          <span class={style.separator}/>
-          <Flip.Node ref={refs.trackArtist} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_ARTIST} scale>
-            <div>{currentMedia.mediaInfo.artist}</div>
-          </Flip.Node>
-        </OverflowWrapper>
-        }
+
+        {playState === PlayStates.PLAYING && (
+          <IconButton name={"Pause"} icon={IconPause} size={28} onClick={this.onPlayClickHandler}/>
+        )}
+
+        {(playState === PlayStates.PAUSED || playState === PlayStates.STOPPED) && (
+          <IconButton name={"Play"} icon={IconPlay} size={28} onClick={this.onPlayClickHandler}/>
+        )}
+
+        {playState === PlayStates.BUFFERING && (
+          <Themeable propVariables={{ 'strokeFg': '--spinner-color' }}>
+          <CircleProgress class="spinner" size={20} strokeWidth={2} indeterminate/>
+          </Themeable>
+        )}
+
+        {currentMedia && (
+          <OverflowWrapper viewportClass={style.labelsVp}>
+            <Flip.Node ref={refs.trackTitle} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_TITLE} scale>
+              <div>{currentMedia.mediaInfo.title}</div>
+            </Flip.Node>
+            <span class={style.separator}/>
+            <Flip.Node ref={refs.trackArtist} group={FLIP_GROUP_MINI_PLAYER} tag={FlipTags.TRACK_ARTIST} scale>
+              <div>{currentMedia.mediaInfo.artist}</div>
+            </Flip.Node>
+          </OverflowWrapper>
+        )}
       </div>
     );
   }

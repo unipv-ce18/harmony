@@ -27,12 +27,13 @@ class OverflowWrapper extends Component {
   }
 
   state = {
+    prevDelta: null,
     anim: null
   }
 
   #resizeObserver = new ResizeObserver(_ => this.recalculate());
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentDidUpdate(previousProps, previousState, snapshot) {
     this.recalculate();
   }
 
@@ -66,11 +67,13 @@ class OverflowWrapper extends Component {
     const delta = viewport.clientWidth - wrapper.clientWidth;
     const animTime = delta / ANIM_PIXELS_PER_SECOND;
 
+    if (delta === this.state.prevDelta) return;
+
     if (animTime > 0.5) {
       // Content overflows, enable animation style
-      this.setState({anim: {d: `-${delta}px`, t: `${animTime}s`}});
+      this.setState({anim: {d: `-${delta}px`, t: `${animTime}s`}, prevDelta: delta});
     } else {
-      this.setState({anim: null});
+      this.setState({anim: null, prevDelta: delta});
     }
   }
 

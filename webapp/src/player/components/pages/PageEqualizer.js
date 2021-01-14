@@ -1,6 +1,6 @@
 import {Component} from 'preact';
 
-import style from './PagePlaylist.scss'
+import style from './PageEqualizer.scss'
 
 class PageEqualizer extends Component {
   render() {

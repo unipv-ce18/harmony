@@ -105,6 +105,12 @@ jobs:
             COMMIT_HASH=${CIRCLE_SHA1:-$LOCALBUILD_COMMIT_HASH}
             echo IMAGE_TAGS=${COMMIT_HASH:0:7},latest >> $BASH_ENV
 
+      - run:
+          name: Generate RELEASE version file
+          working_directory: ./backend
+          command: |
+            python -c "from common.version import BACKEND_VERSION as V; print(V)" | tee ./common/RELEASE
+
       # The following steps take as a default "account-url: AWS_ECR_ACCOUNT_URL"
 
       - aws-ecr/build-image:

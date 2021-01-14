@@ -22,6 +22,28 @@ export function removeArrayElement<T>(array: T[], element: T): boolean {
 export const getCurrentTime = () => Math.round((new Date()).getTime() / 1000);
 
 /**
+ * Converts a duration in seconds to HH:MM:SS format
+ *
+ * @param secs The duration in seconds
+ * @param separator separation char(s) between output fields
+ * @returns {string} the formatted duration
+ */
+export function formatDuration(secs: number, separator: string = ':'): string {
+  secs = Math.floor(secs);
+
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs - 3600 * h) / 60);
+  const s = secs - 3600 * h - 60 * m;
+
+  let ret = '';
+  if (h > 0)
+    ret += (h < 10 ? ('0' + h) : h) + separator;
+  ret += ((h > 0 && m < 10) ? ('0' + m) : m) + separator;
+  ret += (s < 10 ? ('0' + s) : s);
+  return ret;
+}
+
+/**
  * Utility function to join a list of CSS class names for use in a React rendering (a.k.a. the "classnames" package)
  *
  * @example
@@ -36,6 +58,6 @@ export const getCurrentTime = () => Math.round((new Date()).getTime() / 1000);
  * }
  *
  * @param classes Array of classes to apply, `false` values get discarded
- * @return {string} The value to apply to `className`
+ * @returns {string} The value to apply to `className`
  */
 export const classList = (...classes: Array<string | boolean | undefined>) => classes.filter(c => !!c).join(' ');

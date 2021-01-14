@@ -58,6 +58,13 @@ class MediaDeliveryProtocol:
         """
         self.socketio.emit('media_key', {'id': song_id, 'key': key}, namespace=self.namespace)
 
+    def send_count_song_ack(self, song_id):
+        """Sends a "count_song_ack" message to answer "count_song"
+
+        :param str song_id: The ID of the song
+        """
+        self.socketio.emit('count_song_ack', {'id': song_id}, namespace=self.namespace)
+
     def send_error(self, song_id, error_code):
         """Sends an "md_error" error message
 

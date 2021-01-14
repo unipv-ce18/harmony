@@ -25,12 +25,21 @@
 
   padding: 0 32px 0 6px;  // Larger pad on the right to account for close button
 
-  // Button
+  // Spinner / Button
   > :nth-child(1) {
     margin-right: 6px;
     flex-shrink: 0;
 
-    @include button-color(var(--text-color, $player-default-fg));
+    // Spinner
+    &:global(.spinner) {
+      --spinner-color: var(--text-color, #{$player-default-fg-hex});
+      padding: 4px;
+    }
+
+    // Button
+    &:not(:global(.spinner)) {
+      @include button-color(var(--text-color, $player-default-fg));
+    }
   }
 
   // Scrolling text wrapper

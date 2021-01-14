@@ -4,6 +4,7 @@ import {route} from 'preact-router';
 import {mediaPlayer, catalog, session} from '../../Harmony';
 import {PlayStartModes} from '../../player/MediaPlayer';
 import styles from './CollectionSongsTable.scss';
+import {formatDuration} from '../../core/utils';
 import {getUserPlaylists} from '../../core/apiCalls';
 import {createMediaItemInfo, artistLink, releaseLink} from '../../core/links';
 import {IconMore, IconStarFull, IconStarEmpty, IconPlay, IconPause} from '../../assets/icons/icons';
@@ -66,16 +67,6 @@ class CollectionSongsTable extends Component {
     this.setState({updated : true})
   }
 
-  composeTime(time) {
-    let date = new Date(time);
-    let seconds = ('0' + date.getUTCSeconds()).slice(-2);
-    let minutes = date.getUTCMinutes();
-    let hours = date.getUTCHours();
-    if (hours > 0)
-      return hours + ":" + minutes + ":" + seconds;
-    return minutes + ":" + seconds;
-  }
-
   composePitch(key) {
     if (key)
       return `${key.name} ${key.mode}`;
@@ -98,13 +89,11 @@ class CollectionSongsTable extends Component {
       if(type === 'pitch') return this.compare(a.anal_data.key.name, b.anal_data.key.name);
       if(type === 'pitch') return this.compare(a.counter, b.counter);
     })
-    this.setState({songs : orderedList});
-    this.setState({actualOrder : type});
+    this.setState({songs: orderedList, actualOrder: type});
   }
 
   handleMenuAndElement(element) {
-    this.setState({menu: true});
-    this.setState({song: element});
+    this.setState({menu: true, song: element});
   }
 
   handleCloseMenu() {
@@ -134,15 +123,17 @@ class CollectionSongsTable extends Component {
     let arrayMediaInfo = this.state.songs
       .slice(songs.indexOf(song), songs.length)
       .map(song => this.createMediaInfo(song));
-      mediaPlayer.play(arrayMediaInfo, PlayStartModes.TRUNCATE_QUEUE_AND_PLAY);
+    mediaPlayer.play(arrayMediaInfo, PlayStartModes.TRUNCATE_QUEUE_AND_PLAY);
   }
 
   onPlayerAvailable(playerInstance) {
     playerInstance.addEventListener(PlayerEvents.NEW_MEDIA, this.onPlayerChangeSong);
     playerInstance.addEventListener(PlayerEvents.STATE_CHANGE, this.onPlayerChangeState);
-    if(player.instance.currentMediaInfo) {
-      this.setState({songPlayed: player.instance.currentMediaInfo.id});
-      this.setState({playerState: player.instance.playbackState});
+    if (playerInstance.currentMediaInfo) {
+      this.setState({
+        songPlayed: playerInstance.currentMediaInfo.id,
+        playerState: playerInstance.playbackState
+      });
     }
   }
 
@@ -217,7 +208,7 @@ class CollectionSongsTable extends Component {
                     <a href='#' onClick={this.clickRelease.bind(this, element.release.id)}>{element.release.name}</a>
                   </td>]
                   : [<td/>,<td/>]}
-                <td>{this.composeTime(element.length)}</td>
+                <td>{formatDuration(element.length / 1000)}</td>
                 <td/>
                 <td>{element.anal_data ? this.composePitch(element.anal_data.key) : null}</td>
                 <td/>

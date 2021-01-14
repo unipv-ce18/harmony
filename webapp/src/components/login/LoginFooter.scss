@@ -12,9 +12,22 @@
 
   p {
     margin: 6px;
+    &:nth-of-type(1) {
+      font-size: 80%;
+      opacity: .8;
+    }
+  }
+
+  .error {
+    color: #d32f2f;
+    cursor: pointer;
+    font-weight: bold;
   }
 
   em {
+    display: inline-block;
+    margin: 4px;
+
     font-style: italic;
     font-size: 90%;
     opacity: .6;

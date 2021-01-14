@@ -1,8 +1,38 @@
+.pagePlaylist {
+  margin: 0;
+  padding: 8px 0 0;
+  box-sizing: border-box;
 
-.fallback {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  overflow-y: auto;
+  list-style-type: none;
 
-  font-family: 'Raleway', sans-serif;
+  li {
+    padding: 0 16px;
+    border: 1px dotted transparent;
+  }
+
+  // Title, Artist
+  li > span {
+    font-size: 80%;
+    display: inline-block;
+    width: 35%;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    // Artist
+    &:nth-of-type(2) {
+      font-size: 70%;
+    }
+  }
+
+  // Currently playing
+  li.current {
+    background-color: rgba(var(--text-color), .1);
+  }
+
+  li.selected {
+    border-color: rgba(var(--text-color), .7);
+  }
 }

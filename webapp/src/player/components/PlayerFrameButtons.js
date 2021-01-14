@@ -20,13 +20,17 @@ class PlayerFrameButtons extends Component {
   }
 
   componentDidMount() {
-    this.context.playerView.base.addEventListener('mouseenter', this.onMouseEnterPlayer)
-    this.context.playerView.base.addEventListener('mouseleave', this.onMouseLeavePlayer)
+    const playerNode = this.context.playerView.base;
+    playerNode.addEventListener('mouseenter', this.onMouseEnterPlayer)
+    playerNode.addEventListener('mouseleave', this.onMouseLeavePlayer)
   }
 
   componentWillUnmount() {
-    this.context.playerView.base.removeEventListener('mouseenter', this.onMouseEnterPlayer)
-    this.context.playerView.base.removeEventListener('mouseleave', this.onMouseLeavePlayer)
+    const playerNode = this.context.playerView.base;
+    if (playerNode != null) {
+      playerNode.removeEventListener('mouseenter', this.onMouseEnterPlayer)
+      playerNode.removeEventListener('mouseleave', this.onMouseLeavePlayer)
+    }
   }
 
   onMouseEnterPlayer(e) {
@@ -37,11 +41,11 @@ class PlayerFrameButtons extends Component {
     this.setState({closeShown: false});
   }
 
-  render(props, {closeShown}, {playerView}) {
+  render(props, {closeShown}, {player, playerView}) {
     return (
       <ul className={classList(style.buttons, !playerView.expanded && style.hidePin, !closeShown && style.hideClose)}>
         <li><IconButton size={24} name="Close" icon={IconClose}
-                        onClick={() => {/* TODO */}}/></li>
+                        onClick={() => player.shutdown()}/></li>
         <li><IconButton size={16}
                         name={playerView.pinned ? 'Unpin' : 'Pin'}
                         icon={playerView.pinned ? IconRadioOn : IconRadioOff}

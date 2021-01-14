@@ -3,7 +3,7 @@ const PlayerEvents = Object.freeze({
    * Triggered when the current playback time changes
    *
    * Event detail parameters:
-   * - `cur`: the new time playback time
+   * - `cur`: the new playback time
    */
   TIME_UPDATE: 'timeupdate',
 
@@ -22,7 +22,12 @@ const PlayerEvents = Object.freeze({
    * Event detail parameters:
    * - `newState` holds one of {@link PlayStates}
    */
-  STATE_CHANGE: 'statechange'
+  STATE_CHANGE: 'statechange',
+
+  /**
+   * Triggered when the player is being terminated
+   */
+  SHUTDOWN: 'shutdown'
 });
 
 export default PlayerEvents;
