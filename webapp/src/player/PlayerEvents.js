@@ -22,7 +22,12 @@ const PlayerEvents = Object.freeze({
    * Event detail parameters:
    * - `newState` holds one of {@link PlayStates}
    */
-  STATE_CHANGE: 'statechange'
+  STATE_CHANGE: 'statechange',
+
+  /**
+   * Triggered when the player is being terminated
+   */
+  SHUTDOWN: 'shutdown'
 });
 
 export default PlayerEvents;

@@ -18,6 +18,7 @@ class MediaSessionPlugin {
 
   constructor() {
     this.handleNewMedia = this.handleNewMedia.bind(this);
+    this.handleShutdown = this.handleShutdown.bind(this);
   }
 
   bindPlayerPlugin(player) {
@@ -25,7 +26,8 @@ class MediaSessionPlugin {
       return {description: PLUGIN_DESCRIPTION + ' (no browser support)'}
 
     this.#player = player;
-    player.addEventListener(PlayerEvents.NEW_MEDIA, this.handleNewMedia)
+    player.addEventListener(PlayerEvents.NEW_MEDIA, this.handleNewMedia);
+    player.addEventListener(PlayerEvents.SHUTDOWN, this.handleShutdown);
 
     navigator.mediaSession.setActionHandler('play', () => player.play());
     navigator.mediaSession.setActionHandler('pause', () => player.pause());
@@ -41,6 +43,7 @@ class MediaSessionPlugin {
     if (!('mediaSession' in navigator)) return;
 
     player.removeEventListener(PlayerEvents.NEW_MEDIA, this.handleNewMedia);
+    player.removeEventListener(PlayerEvents.SHUTDOWN, this.handleShutdown);
   }
 
   handleNewMedia(id) {
@@ -57,6 +60,10 @@ class MediaSessionPlugin {
         }
       ]
     });
+  }
+
+  handleShutdown() {
+    navigator.mediaSession.metadata = null;
   }
 
 }

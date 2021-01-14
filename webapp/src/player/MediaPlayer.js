@@ -1,5 +1,7 @@
 import {removeArrayElement} from '../core/utils';
 
+import PlayerEvents from './PlayerEvents';
+
 export const PlayStartModes = Object.freeze({
   /**
    * Wipes out the queue and add the provided item(s) to it
@@ -109,21 +111,22 @@ export class MediaPlayer {
       throw new Error('Observer not found');
   }
 
-
-
   fetchInstance() {
     if (this.#_instance)
       return Promise.resolve(this.#_instance);
 
     // This promise resolves when the player core is loaded and initialized (i.e. bound to the DOM)
-    return import(/* webpackChunkName: "player" */ './MediaPlayerCore')
-      .then(m => (this.#instance = new m.default()))
-      .then(playerInstance => {
-        if (!this.playerInitializer)
-          throw Error('Cannot initialize player, no initializer defined');
+    return import(/* webpackChunkName: "player" */ './MediaPlayerCore').then(m => {
+      const playerInstance = new m.default();
 
-        // We have the player, call the load listener which generates a future to spin up the UI
-        return this.playerInitializer().then(() => playerInstance);
-      });
+      if (!this.playerInitializer)
+        throw Error('Cannot initialize player, no initializer defined');
+
+      playerInstance.addEventListener(PlayerEvents.SHUTDOWN, () => this.#_instance = null);
+      
+      // We have the player, call the load listener which generates a future to spin up the UI
+      this.#instance = playerInstance;
+      return this.playerInitializer().then(() => playerInstance);
+    });
   }
 }

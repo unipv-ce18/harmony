@@ -3,11 +3,14 @@ import {PlaybackEngine} from './PlaybackEngine';
 import {MediaProvider} from './delivery/MediaProvider';
 import {SocketConnection} from './delivery/SocketConnection';
 import PlayStates from './PlayStates';
+import PlayerEvents from './PlayerEvents';
 
 class MediaPlayerCore extends EventTarget {
 
   #playbackEngine;
+  #sessionManager;
   #plugins = [];
+  #shuttingDown = false;
 
   #queueIndex = 0;
   #queue = [];
@@ -16,8 +19,14 @@ class MediaPlayerCore extends EventTarget {
 
   socketConnection; // Public for plugin access
 
+  constructor() {
+    super();
+    this.onSessionStatusChange = this.onSessionStatusChange.bind(this);
+  }
+
   initialize(mediaTag, sessionManager) {
-    sessionManager.addStatusListener(this.#onSessionStatusChange.bind(this));
+    sessionManager.addStatusListener(this.onSessionStatusChange);
+    this.#sessionManager = sessionManager;
     this.socketConnection = new SocketConnection(PLAYER_SOCKET_URL, sessionManager);
     this.#playbackEngine = new PlaybackEngine(this, new MediaProvider(this.socketConnection), mediaTag, () => {
       console.log('Next media requested');
@@ -160,8 +169,17 @@ class MediaPlayerCore extends EventTarget {
       this.#playbackEngine.play(this.#queue[++this.#queueIndex].media.id, 0);
   }
 
-  #onSessionStatusChange() {
-    // TODO: Update access token in media provider, change play state if needed when going offline
+  shutdown() {
+    if (this.#shuttingDown) return;
+
+    this.#shuttingDown = true;
+    this.#playbackEngine.stop();
+    this.dispatchEvent(new CustomEvent(PlayerEvents.SHUTDOWN));
+    this.#sessionManager.removeStatusListener(this.onSessionStatusChange);
+  }
+
+  onSessionStatusChange() {
+    // TODO: Change play state if needed when going offline
   }
 
 }

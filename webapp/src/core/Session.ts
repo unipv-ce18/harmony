@@ -1,6 +1,6 @@
 import {AccessToken, RefreshToken, execLogin, execRefresh} from './apiCalls';
 import {execLogout} from './apiCalls';
-import {getCurrentTime} from './utils'
+import {getCurrentTime, removeArrayElement} from './utils'
 
 import {fetchUser, User} from './User';
 
@@ -113,6 +113,16 @@ export class Session {
      */
     addStatusListener(listener: Function) {
         this.listeners.push(listener);
+    }
+
+    /**
+     * Removes a previously registered status listener
+     * 
+     * @param {function} listener The listener to remove
+     */
+    removeStatusListener(listener: Function) {
+        if (!removeArrayElement(this.listeners, listener))
+            throw new Error('Listener not found');
     }
 
     /**
