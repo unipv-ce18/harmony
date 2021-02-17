@@ -32,6 +32,14 @@ class ArtistOpsMixin:
         artist_doc = self.artists.find_one(
             {c.ARTIST_ID: ObjectId(artist_id)},
             artist_projection(include_releases))
+
+        # TODO SHITTY WORKAROUND CAUSE ATLAS IS JOKER
+        if artist_doc is not None and artist_doc.get('releases') is not None and len(artist_doc['releases']) > 0:
+            x = []
+            for i, v in enumerate(artist_doc['releases']):
+                x.append({key: value[i] for key, value in v.items()})
+            artist_doc['releases'] = x
+        
         return artist_from_document(artist_doc) if artist_doc is not None else None
 
     def get_artist_for_library(self, artist_id: str) -> Optional[Artist]:
