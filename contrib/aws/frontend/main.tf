@@ -32,7 +32,20 @@ variable "deploy_region" {
 
 variable "site_name" {
   type = string
-  default = "hymusic.ga"
+  default = "hymusic.ml"
+}
+
+variable "cert_file" {
+  type = string
+}
+
+variable "cert_key" {
+  type = string
+}
+
+variable "cert_chain" {
+  type = string
+  default = ""
 }
 
 
