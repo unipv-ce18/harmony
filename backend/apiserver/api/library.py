@@ -222,7 +222,7 @@ class GetLibrary(Resource):
 
         library[c.LIBRARY_PLAYLISTS] = others
         others_playlists = _resolve(c.LIBRARY_PLAYLISTS)
-        # test
+
         library[c.LIBRARY_PLAYLISTS] = {'personal': personal_playlists, 'others': others_playlists}
         library[c.LIBRARY_ARTISTS] = _resolve(c.LIBRARY_ARTISTS)
         library[c.LIBRARY_RELEASES] = _resolve(c.LIBRARY_RELEASES)
