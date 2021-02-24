@@ -2,7 +2,7 @@
   <img alt="Harmony" width="400"
        src="https://raw.githubusercontent.com/unipv-ce18/harmony/master/webapp/src/assets/logo-dark.svg"/>
   <br>
-  <em>A questionable Music Library made by questionable engineers for a questionable course</em>
+  <em>A questionable Music Library made by questionable engineers...</em>
   <br><br>
   <a href="https://github.com/unipv-ce18/harmony/blob/master/LICENSE">
     <img alt="License" src="https://img.shields.io/github/license/unipv-ce18/harmony">

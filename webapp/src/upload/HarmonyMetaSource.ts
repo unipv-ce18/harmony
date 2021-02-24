@@ -39,7 +39,7 @@ class HarmonyMetaSource implements RemoteMetadataSource {
     // Should be already in pending requests
     const remoteArtist = await this.fetchRemoteArtist(release.artist.name);
 
-    const remoteRelease = remoteArtist?.releases!.find(r => r.name === release.name);
+    const remoteRelease = remoteArtist?.releases?.find(r => r.name === release.name);
     if (remoteRelease == null) return {found: false, updated: false, alerts: []};
     let updated = false;
 

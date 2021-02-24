@@ -34,7 +34,7 @@ class MediaPlayerWrapper extends Component {
 
   componentWillUnmount() {
     // If player gets unmounted by user logout, ensure graceful shutdown
-    this.props.playerLoader.instance.shutdown();
+    this.props.playerLoader.instance?.shutdown();
   }
 
   render({playerLoader}, {playerView: PlayerView}) {
