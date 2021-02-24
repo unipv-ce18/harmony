@@ -33,6 +33,13 @@ resource "aws_iam_role_policy_attachment" "ecr_delegate_pa" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
 }
 
+resource "aws_iam_role_policy" "ecr_ecs_update" {
+  role   = aws_iam_role.ecr_delegate.name
+  name   = "UpdateDeployment"
+
+  policy = data.aws_iam_policy_document.allow_ecs_deployment.json
+}
+
 
 data "aws_iam_policy_document" "ar_ecr_out" {
   statement {
@@ -50,5 +57,13 @@ data "aws_iam_policy_document" "ar_ecr_in" {
       type        = "AWS"
       identifiers = [aws_iam_user.re.arn]
     }
+  }
+}
+
+data "aws_iam_policy_document" "allow_ecs_deployment" {
+  statement {
+    effect = "Allow"
+    actions = ["ecs:UpdateService"]
+    resources = ["*"]
   }
 }

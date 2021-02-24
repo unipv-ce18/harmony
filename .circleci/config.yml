@@ -146,6 +146,12 @@ jobs:
           repo: harmony/worker
           tag: "$IMAGE_TAGS"
 
+      - run:
+          name: Update ECS deployment
+          command: |
+            aws ecs update-service --force-new-deployment --region "$AWS_REGION" --cluster harmony --service apiserver
+            aws ecs update-service --force-new-deployment --region "$AWS_REGION" --cluster harmony --service director
+
   publish-webapp:
     docker:
       - image: cimg/node:13.14.0
@@ -185,6 +191,10 @@ jobs:
           from: ./dist
           to: $AWS_S3_BUCKET
 
+      - run:
+          name: Invalidate index in CloudFront cache
+          command: aws cloudfront create-invalidation --distribution-id "$AWS_CF_DISTRIBUTION_ID" --paths "/index.html"
+
 workflows:
   version: 2
   main-workflow:
@@ -195,9 +205,9 @@ workflows:
           filters:
             branches:
               only:
-                - staging
+                - deploy
       - publish-webapp:
           filters:
             branches:
               only:
-                - staging
+                - deploy
