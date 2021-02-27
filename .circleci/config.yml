@@ -202,11 +202,17 @@ workflows:
       - test-apiserver
       - test-webapp
       - publish-images:
+          #type: approval
+          requires:
+            - test-apiserver
           filters:
             branches:
               only:
                 - deploy
       - publish-webapp:
+          #type: approval
+          requires:
+            - test-webapp
           filters:
             branches:
               only:
