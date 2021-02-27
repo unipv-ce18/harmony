@@ -1,0 +1,48 @@
+{
+  "playlists": {
+    "personal": [
+      {
+        "id": "5f41387ec96b42759d85f8f4",
+        "name": "Saem Playlist",
+        "creator": {
+          "id": "5f413801c96b42759d85f8f1",
+          "username": "saem"
+        }
+      }
+    ],
+    "others": []
+  },
+  "artists": [
+    {
+      "id": "5f4136dbfd9834307c124a23",
+      "name": "Linkin Park"
+    }
+  ],
+  "releases": [
+    {
+      "id": "5f4136dbfd9834307c124a24",
+      "name": "Meteora",
+      "artist": {
+        "id": "5f4136dbfd9834307c124a23",
+        "name": "Linkin Park"
+      }
+    }
+  ],
+  "songs": [
+    {
+      "id": "5f4136dbfd9834307c124a25",
+      "title": "Foreword",
+      "artist": {
+        "id": "5f4136dbfd9834307c124a23",
+        "name": "Linkin Park"
+      },
+      "release": {
+        "id": "5f4136dbfd9834307c124a24",
+        "name": "Meteora",
+        "date": "2003",
+        "type": "album"
+      },
+      "length": 20940
+    }
+  ]
+}

@@ -44,6 +44,8 @@ export class MediaCatalog {
   }
 
   inLibrary(media_type, element_id) {
+    if (this.#storeLibrary == null) return false; // For test suite
+
     if (media_type === 'songs') return this.#storeLibrary.songs.includes(element_id);
     if (media_type === 'artists') return this.#storeLibrary.artists.includes(element_id);
     if (media_type === 'releases') return this.#storeLibrary.releases.includes(element_id);

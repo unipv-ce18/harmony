@@ -1,9 +1,7 @@
-export let mockSessionDoLogin;
+export const mockSessionDoLogin = jest.fn().mockResolvedValue(null);
 
 export default {
   Session: jest.fn().mockImplementation(() => {
-    mockSessionDoLogin = jest.fn()
-      .mockResolvedValue(null);
     return {doLogin: mockSessionDoLogin, addStatusListener: jest.fn()};
   })
 };
