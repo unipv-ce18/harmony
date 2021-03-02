@@ -201,19 +201,25 @@ workflows:
     jobs:
       - test-apiserver
       - test-webapp
-      - publish-images:
-          #type: approval
+      - publish-backend-approval:
+          type: approval
           requires:
             - test-apiserver
           filters:
             branches:
               only:
                 - deploy
-      - publish-webapp:
-          #type: approval
+      - publish-webapp-approval:
+          type: approval
           requires:
             - test-webapp
           filters:
             branches:
               only:
                 - deploy
+      - publish-images:
+          requires:
+            - publish-backend-approval
+      - publish-webapp:
+          requires:
+            - publish-webapp-approval
