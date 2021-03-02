@@ -3,6 +3,7 @@ resource "aws_lb" "hy_api" {
 
   name = "hyapi-lb"
   security_groups = [
+    aws_security_group.allow_http.id,
     aws_security_group.allow_https.id,
     aws_security_group.allow_all_outbound.id
   ]
@@ -27,10 +28,38 @@ resource "aws_lb_listener" "hy_api_fe_https" {
   }
 }
 
+resource "aws_lb_listener" "hy_api_fe_http" {
+  count = var.task_count_apiserver > 0 ? 1 : 0
+
+  load_balancer_arn = aws_lb.hy_api[0].arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
 resource "aws_lb_target_group" "hy_api_targets" {
   name        = "hyapi-lb-target"
   target_type = "ip"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = aws_vpc.hy.id
+
+  health_check {
+    enabled             = true
+    interval            = 300
+    path                = "/api/v1/sayhello"
+    timeout             = 60
+    matcher             = "200"
+    healthy_threshold   = 5
+    unhealthy_threshold = 5
+  }
 }
