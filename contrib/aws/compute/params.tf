@@ -94,7 +94,7 @@ resource "aws_ssm_parameter" "co_worker_subnets" {
   description = "Subnets in which new workers will be spawned"
   name        = "/hy/compute/director/worker_subnets"
   type        = "String"
-  value       = aws_subnet.hy_private.id
+  value       = aws_subnet.hy_private_1w.id
 }
 
 resource "aws_ssm_parameter" "co_worker_name" {

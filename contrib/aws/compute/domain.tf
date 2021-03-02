@@ -17,7 +17,7 @@ resource "aws_route53_record" "api" {
 }
 
 resource "aws_iam_server_certificate" "hy_cert" {
-  name = "HySiteCertificate"
+  name = "HySiteCertificateNew"
   path = "/cloudfront/"  # Necessary for it to be used by CloudFront in frontend
 
   certificate_body  = file(var.cert_file)

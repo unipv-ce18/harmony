@@ -43,14 +43,14 @@ resource "aws_ecs_service" "apiserver" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    assign_public_ip = true
+    assign_public_ip = false
     security_groups = [
       aws_security_group.allow_http.id,
       aws_security_group.allow_all_outbound.id
     ]
     subnets = [
-      aws_subnet.hy_public_1.id,
-      aws_subnet.hy_public_2.id
+      aws_subnet.hy_private_1a.id,
+      aws_subnet.hy_private_2a.id
     ]
   }
 
@@ -74,7 +74,7 @@ resource "aws_ecs_service" "director" {
       aws_security_group.allow_all_outbound.id
     ]
     subnets = [
-      aws_subnet.hy_private.id
+      aws_subnet.hy_private_1w.id
     ]
   }
 }
