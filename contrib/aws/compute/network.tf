@@ -113,17 +113,32 @@ resource "aws_route_table_association" "hy_private_1w" {
 }
 
 resource "aws_subnet" "hy_private_2a" {
-  availability_zone_id = "use1-az2"
+  availability_zone_id = "use1-az4"
   cidr_block           = "10.0.10.0/24"
   vpc_id               = aws_vpc.hy.id
 
-  tags = { Name = "Harmony private #2" }
+  tags = { Name = "Harmony private #2 (API)" }
 }
 
 resource "aws_route_table_association" "hy_private_2a" {
   count = var.task_count_director > 0 ? 1 : 0
 
   subnet_id      = aws_subnet.hy_private_2a.id
+  route_table_id = aws_route_table.hy_private_2[0].id
+}
+
+resource "aws_subnet" "hy_private_2w" {
+  availability_zone_id = "use1-az4"
+  cidr_block           = "10.0.11.0/24"
+  vpc_id               = aws_vpc.hy.id
+
+  tags = { Name = "Harmony private #2 (Workers)" }
+}
+
+resource "aws_route_table_association" "hy_private_2w" {
+  count = var.task_count_director > 0 ? 1 : 0
+
+  subnet_id      = aws_subnet.hy_private_2w.id
   route_table_id = aws_route_table.hy_private_2[0].id
 }
 

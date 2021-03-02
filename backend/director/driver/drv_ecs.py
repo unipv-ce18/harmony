@@ -8,7 +8,7 @@ from . import aws
 
 DRIVER_TYPE = 'ecs'
 TASK_LAUNCH_TYPE = 'FARGATE'
-TASK_HAS_PUBLIC_IP = True  # TODO: Revert to false when VPC is configured properly (to use a NAT)
+TASK_HAS_PUBLIC_IP = False
 REQUIRED_PARAMS = ['ECS_ACCESS_KEY', 'ECS_SECRET_KEY', 'ECS_ROLE', 'ECS_CLUSTER_ARN',
                    'ECS_SUBNETS', 'ECS_TASK_DEFINITION', 'ECS_TASK_CONTAINER_NAME']
 

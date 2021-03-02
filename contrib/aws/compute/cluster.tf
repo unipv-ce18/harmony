@@ -74,7 +74,8 @@ resource "aws_ecs_service" "director" {
       aws_security_group.allow_all_outbound.id
     ]
     subnets = [
-      aws_subnet.hy_private_1w.id
+      aws_subnet.hy_private_1w.id,
+      aws_subnet.hy_private_2w.id
     ]
   }
 }
