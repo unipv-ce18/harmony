@@ -7,7 +7,7 @@ flask-cors==3.0.8
 flask-socketio==4.3.0
 flasgger==0.9.4
 nose2==0.9.1
-PyJWT==1.7.1
+PyJWT==2.4.0
 eventlet==0.28.0
 fuzzywuzzy==0.18.0
 python-Levenshtein==0.12.0
